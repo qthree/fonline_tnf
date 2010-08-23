@@ -1,0 +1,634 @@
+// Author: heX
+// Item lib
+#include "_macros.fos"
+
+#define STR_SHOVEL_NEEDED	(50)
+
+void item_geck(Item& item)
+{
+	if (item.IsGrouped()) return;
+	SETFLAG(item.Flags, ITEM_GECK);
+	item.Update();
+}
+
+void item_hide(Item& item)
+{
+	SETFLAG(item.Flags, ITEM_HIDDEN);
+	item.Update();
+}
+
+void item_selector(Item& item)
+{
+	int x,y;
+	Map@ map = item.GetMapPosition(x,y);
+	if(not valid(map)) return;
+	//map.GetItems ...
+	// ...
+}
+
+void item_rnd_del(Item& item)
+{
+	if(uint(Random(1,100))<=CLAMP(item.Val1,0,100))
+		DeleteItem(item);
+}
+
+void item_spawn(Item& item)
+{
+
+}
+
+// ������� ������ �������� �� ���������� ����� - �� ���������� �� �������.
+// ���� ����������� ������ ��������� �� ������������� ����� (���� �������� � ��).
+void _Geck(Item& item, bool firstTime)
+{
+	if(firstTime)
+		item_geck(item);
+}
+
+// ������� � ������� � ScriptName "item_hide" - � ������� ������ ���������.
+void _Hide(Item& item, bool firstTime)
+{
+	if(firstTime)
+		item_hide(item);
+}
+
+// Author: heX
+// Item lib.
+// (�� ��������!!!)
+// �������� ����� � ������������ ������������.
+// � Val1 �� ����������...
+// ����! Val1 �� �������� ��� ������ ������.
+void _RndDel(Item& item, bool firstTime)
+{
+	if(firstTime)
+		item_rnd_del(item);
+}
+
+// Author: heX
+// Item lib.
+// (�� ��������!!!)
+// ������� ��� ����� ���������� �������� item_selector ����� ������.
+// ���� �� �������� �������� ��������� ���� (PID_FLOOR_SAFE),
+// �� �� ���� ����� ������
+// � ��� �� ������� �������(���� ��� ���� �� ������)
+// �� ���������� ����� ���������� ������ ����.
+void _Selector(Item& item, bool firstTime)
+{
+	if(firstTime)
+		item_selector(item);
+}
+
+// (�� ��������!!!)
+// ������� ���� ����� ������������ ���������� �������.
+// ������ ���� ���� �������, �� ����� ��������� ����� �� ��������� �����.
+// ������������ � �������������! - ����� ������ �������� ���������� ������� � �������
+// ��� ��� ����� ������������?
+// � ������������ ������ ��������� ����� ��� ��������� ����� ����� ���� - �������� ��� ������� ��� ������.
+// � ����� ����� ���������� �����.
+// � ����������� ����� ���������� �����.
+// �� � ��� �����.
+void _Spawn(Item& item, bool firstTime)
+{
+	if(firstTime)
+		item_spawn(item);
+}
+//rifleman 17
+// �����, ������� ��������� ����� 2 ������� ������ ���� ����� ��������� ����� �������� ������ , ��������� � val3
+void _DoorAutoCloseInit(Item& door, bool firstTime)
+{
+	door.SetEvent(ITEM_EVENT_SKILL,"e_UseAutoCloseDoor");
+}
+
+
+bool e_UseAutoCloseDoor(Item& door, Critter& cr, int skill)
+{
+	CreateTimeEvent(__FullMinute + (door.Val3==0?2:door.Val3*__TimeMultiplier/60),"e_AutoCloseDoor", door , true);
+	return false;
+}
+
+uint e_AutoCloseDoor(uint[]@ val)
+{
+	Item@ door = GetItem(val[0]);
+	if(not valid(door))
+	{
+		return 0;
+	}
+	uint16 x = 0;
+	uint16 y = 0;
+	Map@ map = door.GetMapPosition(x, y);
+	if(not valid(map))
+	{
+		return 0;
+	}
+	Critter @ cr = map.GetCritter(x,y);
+	if(valid(cr))
+	{
+		if (cr.IsLife())
+		{
+			return 1;
+		}else{
+			// ������� �������� ����. ���� �� ���������, ����� ������ ����� ���������
+			cr.TransitToMap(map.Id, x-1,y,cr.Dir);
+		}
+	}
+
+
+	if (map.CloseDoor(door)) return 0;
+
+	return 1;
+}
+// rifleman17, �����, ������� �� ����������� ������������ ���������
+void _ClosedDoorInit(Item& door, bool firstTime)
+{
+	door.SetEvent(ITEM_EVENT_SKILL,"e_UseDoor");
+}
+bool e_UseDoor(Item& door, Critter& cr, int skill)
+{
+	return true;
+}
+// rifleman17 �����, ��� ������������� ������� ����������� ������
+void _DialogDoorInit(Item& door, bool firstTime)
+{
+	door.SetEvent(ITEM_EVENT_SKILL,"e_UseDialogDoor");
+}
+bool e_UseDialogDoor(Item& door, Critter& cr, int skill)
+{
+	RunDialog(cr, door.Val3, door.HexX, door.HexY, false);
+	return true;
+}
+
+//powermagic - ��������� ����� ��� ��������
+void _RndAnim(Item& item, bool firstTime) //Sprite& sprite) // ItemCl& itemCl
+{
+	int rndFrm = Random(0,item.Val1);//itemCl.GetSpriteCount(item.GetProtoId())); // + 1
+	//item.Animate(rndFrm, rndFrm);
+	item.AnimStayBegin	= rndFrm;
+	item.AnimStayEnd	= rndFrm;
+	item.AnimShowBegin 	= rndFrm;
+	item.AnimShowEnd 	= rndFrm;
+	item.AnimHideBegin 	= rndFrm;
+	item.AnimHideEnd	= rndFrm;
+//	for (int i = 0; i > Sprite.FrmCount; i++)
+return;
+}
+
+void _ItemBagInit(Item& item, bool firstTime)
+{
+  item.SetEvent(ITEM_EVENT_SKILL, "e_ItemBagPick");
+  item.SetEvent(ITEM_EVENT_USE_ON_ME, "e_ItemBagUseItem");
+// item.SetEvent(ITEM_EVENT_USE_ITEM, "e_ItemBagOpen");
+}
+
+bool e_ItemBagPick(Item& item, Critter& crit, int skill)
+{/*
+  if(skill == SKILL_PICK_ON_GROUND)// && item.Accessory == ACCESSORY_CRITTER)
+  {
+    crit.ShowScreen(SCREEN_CLOSE, 0, "");
+    crit.ShowContainer(null, item,TRANSFER_HEX_CONT_UP);
+    crit.Say(SAY_NETMSG, "pick inv");
+  }
+  else */if(skill == SKILL_PICK_ON_GROUND && item.Accessory == ACCESSORY_HEX)
+  {
+//     crit.ShowContainer(crit, item, TRANSFER_CRIT_LOOT );
+     MoveItem(item, item.GetCount(), crit);
+     crit.Say(SAY_NETMSG, "pick grnd");
+//      crit.ShowScreen(SCREEN_BAG,
+  }
+  return true;
+}
+
+import void SwitchState(Item& locker) from "lockers";
+
+bool e_ItemBagUseItem(Item& item, Critter& crit, Item@ usedItem)
+{
+  if(valid(usedItem) && usedItem.GetProtoId() == PID_SHOVEL)
+  {
+    Map @ map = crit.GetMap();
+    if(map.IsHexPassed(item.HexX + 2, item.HexY + 2))
+    {
+      string logMsg;
+      Item @ hole = map.AddItem(item.HexX + 2, item.HexY + 2, ITEM_TREASURE_HOLE, 1);
+      SETFLAG(hole.LockerCondition,LOCKER_ISOPEN);
+      logMsg = "Init = "+SETFLAG(hole.LockerCondition,LOCKER_ISOPEN);
+      crit.Say(SAY_NETMSG, logMsg);
+//       if(FLAG(hole.LockerCondition,LOCKER_ISOPEN)) {SwitchState(hole);}
+      hole.Val4 = hole.HexX;
+      hole.Val5 = hole.HexY;
+      hole.Val7 = crit.WorldX;
+      hole.Val8 = crit.WorldY;
+      Item @ treasureMap = crit.AddItem(ITEM_TREASURE_MAP, 1);
+      treasureMap.Val7 = crit.WorldX;
+      treasureMap.Val8 = crit.WorldY;
+      treasureMap.SetLexems("$hexX"+treasureMap.Val7+"$hexY"+treasureMap.Val8);
+//       treasureMap.SetLexems("$hexY"+treasureMap.Val8);
+      return true;
+    }
+  }
+  else  if(item.Accessory == ACCESSORY_HEX)
+  {
+//     MoveItem(usedItem, usedItem.GetCount(), item, 0);
+    crit.ShowScreen(SCREEN_CLOSE, 0, "");
+    crit.ShowContainer(null, item,item.Proto.Container_IsGroundLevel()?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+    return true;
+  }
+  return false;
+}
+
+void _TreasureInit(Item& item, bool firstTime)
+{
+  item.SetEvent(ITEM_EVENT_USE_ON_ME, "e_TreasureOpen");
+  item.SetEvent(ITEM_EVENT_SKILL, "e_TreasureUse");
+//   GraveSetFrm(item, 1);
+}
+
+bool e_TreasureOpen(Item& item, Critter& crit, Item@ usedItem)
+{
+  if(valid(usedItem) && usedItem.GetProtoId()==PID_SHOVEL)
+	{
+		
+		SwitchState(item);
+		if(FLAG(item.LockerCondition,LOCKER_ISOPEN))
+		{
+//  		  item.ChangeProto(902);
+		  item.Val6 = 1;
+		}
+		else {item.Val6 = 0;}
+		item.Update();
+		return true;
+	}
+return false;
+}
+
+
+
+bool e_TreasureUse(Item& item, Critter& cr, int skill)
+{
+	if(skill==SKILL_PICK_ON_GROUND || skill==SK_LOCKPICK)
+	{
+		if(FLAG(item.LockerCondition,LOCKER_ISOPEN)) {cr.ShowContainer(null,item,TRANSFER_HEX_CONT_DOWN);}
+		else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_SHOVEL_NEEDED);}
+		return true;
+	}
+	return false;
+}
+
+void _ShovelInit(Item& item, bool firstTime)
+{
+  item.SetEvent(ITEM_EVENT_SKILL , "e_ShovelUse");
+}
+
+bool e_ShovelUse(Item& item, Critter& cr, int skill)
+{
+  if(skill == SK_TRAPS  && item.Accessory == ACCESSORY_CRITTER) //&& item.GetProtoId() == PID_SHOVEL
+  {
+    Map @ map = cr.GetMap();
+    if(map.IsHexPassed(cr.HexX + 2, cr.HexY + 2))
+    {
+      string logMsg;
+      Item @ hole = map.AddItem(cr.HexX + 2, cr.HexY + 2, ITEM_TREASURE_HOLE, 1);
+      SETFLAG(hole.LockerCondition,LOCKER_ISOPEN);
+      hole.Val4 = hole.HexX;
+      hole.Val5 = hole.HexY;
+      hole.Val7 = cr.WorldX;
+      hole.Val8 = cr.WorldY;
+      Item @ treasureMap = cr.AddItem(ITEM_TREASURE_MAP, 1);
+      treasureMap.SetLexems("$hexX"+treasureMap.Val7+"$hexY"+treasureMap.Val8);
+      return true;
+    }
+  }
+  return false;
+}
+
+
+
+//powermagic
+//key && key brunch script
+
+void _KeyBunchInit(Item& item, bool firstTime)
+
+{
+
+  item.SetEvent(ITEM_EVENT_USE_ON_ME, "e_KeyBunchAdd");
+
+  item.SetEvent(ITEM_EVENT_USE, "e_KeyBunchUse");
+
+  item.SetEvent(ITEM_EVENT_SKILL, "e_KeyBunchSkill");
+
+}
+
+
+
+bool e_KeyBunchTest(Item& item, Critter& cr, int skill)
+
+{
+
+  if(skill == SKILL_PUT_CONT)
+
+  {
+
+    cr.Say(SAY_NETMSG, "dude great!");
+
+    return true;
+
+  }
+
+  return false;
+
+}
+
+
+
+/*
+
+string@ FormatTags  	(  	const string&   	 text,
+
+		const string@+  	lexems	 
+
+	) 	*/
+
+
+
+bool e_KeyBunchSkill(Item& item, Critter& cr, int skill) //143
+
+{
+
+  string msg;
+
+  switch(skill)
+
+  {
+
+    case SK_REPAIR: {Item@ temp = cr.AddItem(82, 1); msg = Random(0,51); temp.SetLexems("$KeyLex"+ Random(0,51));}
+
+    case SKILL_PICK_ON_GROUND : if(item.Accessory == ACCESSORY_HEX) {MoveItem  (item, item.GetCount(), cr); return true;}/* {@key = item; cr.ShowScreen(SCREEN_BAG , 0, "item@KeyAddScreen"); return true;}*/
+
+				if(item.ContainerId == cr.Id) {cr.Say(SAY_NETMSG, "that's work"); @key = item; cr.ShowScreen(SCREEN_CLOSE , 0, "@"	);/* cr.ShowScreen(SCREEN_BAG , 0, "item@KeyAddScreen");*/ return true;}
+
+				
+
+    case SK_TRAPS: //skill == SKILL_PICK_ON_GROUND || SCREEN_BAG
+
+    {
+
+//     item.SetEvent(ITEM_EVENT_SKILL, "e_KeyBunchTest");
+    Item@[] keys;
+    item.GetItems(0, keys);
+    if(keys.length() > 0)
+    {
+      cr.Action(ACTION_PICK_CRITTER,0,null);
+      for(uint8 i = 0; i < keys.length(); i++)
+      {
+	MoveItem(keys[i], keys[i].GetCount(), cr);
+      }
+      cr.Say(SAY_NETMSG, "SUCK MY BALLS BITCH!!! "+item.Accessory);
+      return true;
+     }
+    }
+    case SK_SCIENCE : 
+		      {
+		      Item@[] keys;
+		      item.GetItems(0, keys);
+		      int[] keysId;
+		      if(keys.length() > 0)
+		      {
+			for(uint8 i = 0; i < keys.length(); i++)
+			{
+			  keysId[i] = keys[i].Id;
+// 			  msg = keys[i].Info;
+// 			  cr.Say(SAY_NETMSG, msg);
+			}
+ 			cr.RunClientScript("_ItemLexRtn", 0, 0, 0, null, keysId);
+		      }
+		      return true;
+		      }
+    }
+   return false;
+}
+
+
+
+//     cr.ShowContainer(null, item, TRANSFER_FAR_CONT);
+
+//     cr.SetEvent(CRITTER_EVENT_USE_SKILL, "e_CrUseSkill");
+
+    /*if(skill == SKILL_PUT_CONT)
+
+    {
+
+      cr.Say(SAY_NETMSG, "dude great!");
+
+    }
+
+//     cr.ShowScreen(SCREEN_CLOSE, null, null);
+
+    
+
+//     cr.ShowScreen(SCREEN_BAG , 0, "item@TestScreen");
+
+    
+
+    
+
+    Item@[] keys;
+
+    item.GetItems(0, keys);*//*
+
+     for(uint8 i = 0; i < keys.length(); i++)
+
+     {
+
+       if(keys[i].GetType() != ITEM_KEY)
+
+       {
+
+	 MoveItem(keys[i], keys[i].GetCount(), cr);
+
+       }
+
+       cr.Say(SAY_NETMSG, "key "+keys[i].Id);
+
+       uint 	GetItems (uint specialId, Item@[]@+ items)
+
+     }*/
+
+
+
+bool e_KeyBunchAdd(Item& item, Critter& cr, Item@ usedItem)
+{
+  if(usedItem.GetType() == ITEM_KEY)
+  {
+    MoveItem(usedItem, usedItem.GetCount(), item, 0);
+    cr.Say(SAY_NETMSG, "You're added some key to brunch");
+    return true;
+  }
+  return false;
+}
+
+
+
+bool e_KeyBunchUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+  if(valid(onItem) && onItem.GetType() == ITEM_DOOR)
+  {
+    Item@[] keys;
+    item.GetItems(0, keys);
+    if(onItem.LockerCondition == LOCKER_LOCKED)
+      {
+	for(uint8 i = 0; i < keys.length(); i++)
+	{
+	  if(keys[i].LockerId == onItem.LockerId)
+	  {
+	    onItem.LockerId = 0;
+	    onItem.LockerComplexity = 0;
+	    cr.Say(SAY_NETMSG, "You're ulock the door");
+	  }
+	}
+      }
+  }
+  return false;
+}
+
+
+
+void KeyAddScreen(Critter& cr, uint answerI, string& answerS)
+{
+  Item @ usedItem = GetItem(answerI);
+  if(!valid(usedItem)) {cr.Say(SAY_NETMSG, "f*ck!"); return;}
+  if(usedItem.GetType() == ITEM_KEY)
+  {
+    MoveItem(usedItem, usedItem.GetCount(), key, 0);
+    cr.Say(SAY_NETMSG, "You're added some key to brunch");
+    @key = null;
+  }
+}
+
+void KeyUseScreen(Critter& player, uint answerI, string& answerS)
+{
+//   Item@ item = GetItem(answerI);
+
+//   Critter @ cr = GetCritter(item.CritId);
+
+  if(answerS.length() != 0)
+  {
+    key.SetLexems("$KeyLex"+ answerS);
+  }
+  else
+  {
+    key.SetLexems("$KeyLex"+ "noNameKey");
+  }
+    key.SetEvent(ITEM_EVENT_USE, "");
+    @key = null;
+//   cr.Say(SAY_NETMSG, keyName);
+}
+
+/*
+
+bool e_CrUseSkill(Critter& cr, int skill, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+
+{
+
+  if(skill == SKILL_PUT_CONT)
+
+  {
+
+    if(onItem.GetType() == ITEM_KEY)
+
+    {
+
+      return false;
+
+    }
+
+    cr.Say(SAY_NETMSG, "type = "+onItem.GetType());
+
+    return true;
+
+//     if(item.GetType() == ITEM_KEY) {cr.Say(SAY_NETMSG, "work");} else {cr.Say(SAY_NETMSG, "rok");}
+
+  }
+
+  return false;
+
+}*/
+
+
+
+void _BlankKeyInit(Item& item, bool firstTime)
+{
+  if(firstTime)
+  {
+    item.SetLexems("$KeyLex"+"unnamed key");
+    item.SetEvent(ITEM_EVENT_USE, "e_BlankKeyUse");
+  }
+}
+
+
+
+Item @ key;
+
+
+bool ItemLockedCont(Item& item)
+{
+  if(item.GetType() == ITEM_CONTAINER)
+  {
+    uint16 proto = item.GetProtoId();
+    if(41 < proto && proto < 46) {return true;}
+    if(127 < proto && proto < 140) {return true;}
+    if(180 < proto && proto < 190) {return true;}
+    if(366 < proto && proto < 371) {return true;}
+    switch(proto)
+    {
+     case 245: return true;
+     case 501: return true;
+     case 502: return true;
+     case 521: return true;
+    }
+  }
+  return false;
+}
+
+
+bool e_BlankKeyUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+  if(valid(onItem))
+  {
+    if(onItem.GetType() == ITEM_DOOR || ItemLockedCont(onItem))
+    {
+      if(_LockerIsClose(onItem))/*onItem.LockerCondition == LOCKER_ISOPEN*/
+      {
+	if(onItem.LockerCondition != LOCKER_LOCKED && onItem.LockerComplexity == 0)
+	{
+// 	  cr.Say(SAY_NETMSG, "if passed");	
+	  uint keyNumber = Random(0, 65534);	  
+	  onItem.LockerCondition = LOCKER_LOCKED;
+	  onItem.LockerComplexity = cr.StatBase[SK_LOCKPICK];
+	  onItem.LockerId = keyNumber;
+	  item.LockerId = keyNumber;
+	  @key = item;
+	  cr.ShowScreen(SCREEN_SAY , 0, "item@KeyUseScreen");
+	  return true;
+	}
+	else
+	{
+	  cr.Say(SAY_NETMSG, "Door allready locked. Lockpick it first");
+	  return true;
+	}
+      }
+      else
+      {
+	cr.Say(SAY_NETMSG, "Plz close locker 	first");
+	return true;
+      }
+    }
+     else
+      {
+	cr.Say(SAY_NETMSG, "This item can't be locked");
+	return true;
+      }
+//     cr.Say(SAY_NETMSG, "if 2 not passed");
+  }
+
+//   cr.Say(SAY_NETMSG, "all if not passed");
+
+  return false;
+}

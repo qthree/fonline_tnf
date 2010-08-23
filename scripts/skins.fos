@@ -1,0 +1,306 @@
+#include "_macros.fos"
+
+#define MAX_SKINS_COUNT (114)
+
+#define PID_ITEM_CLOTH (905)
+
+bool[] skins_toggled;
+
+void skins_setup_start(Critter& player, int param0, int param1, int param2)
+{
+	skins_toggled.resize(1);
+	skins_toggled[0]=false;
+	player.ParamBase[ST_VAR0]=1;
+	ask_next_setup(player);
+}
+
+void skins_setup_continue(Critter& player, int param0, int param1, int param2)
+{
+	if(player.ParamBase[ST_VAR0]<1) return;
+	ask_next_setup(player);
+}
+
+void skins_setup_save(Critter& player, int fileIndex, int param1, int param2)
+{
+	string result = "";
+	for(uint i=0; i<skins_toggled.length(); i++)
+	{
+		result+=((skins_toggled[i])?"1":"0");
+	}
+	if(result.length()<1) return;
+
+	file skins_file;
+	skins_file.open("skins_cfg_"+fileIndex+".txt", "w");
+
+	skins_file.setPos(0);
+
+	skins_file.writeString(result);
+
+	skins_file.close();
+}
+
+void skins_setup_load(Critter& player, int fileIndex, int param1, int param2)
+{
+	skins_setup_load(uint(fileIndex));
+}
+
+void skins_setup_load(uint fileIndex)  //import
+{
+	file skins_file;
+	skins_file.open("skins_cfg_"+fileIndex+".txt", "r");
+
+	skins_file.setPos(0);
+
+	string result = "";
+
+	skins_file.readLine(result);
+
+	if(result.length()<1) return;
+
+	skins_toggled.resize(0);
+
+	for(uint i=0; i<result.length(); i++)
+	{
+		bool bb = ((result[i]=="1"[0])?true:false);
+		push_back(skins_toggled,bb);
+	}
+
+	skins_file.close();
+}
+
+void skins_setup_list(Critter& player, int fileIndex, int param1, int param2)
+{
+	for(uint i=0; i<skins_toggled.length(); i++)
+	{
+		if(!skins_toggled[i]) continue;
+		player.Say(SAY_NETMSG, "Skin #"+i+" enabled.");
+	}
+}
+
+void skins_setup_getn(Critter& player, int ni, int param1, int param2)
+{
+	uint n = ni;
+	uint oldlen = skins_toggled.length();
+	if(n >= oldlen)
+	{
+		if(n>=MAX_SKINS_COUNT) {player.Say(SAY_NETMSG, "Номер скина больше максимально возможного."); return;}
+
+		skins_toggled.resize(n+1);
+		for(uint i=oldlen; i<n+1; i++)
+		{
+			skins_toggled[i]=false;
+		}
+	}
+
+	player.Say(SAY_NETMSG, "Skin #"+n+((skins_toggled[n])?" enabled.":" disabled."));
+}
+
+void skins_setup_setn(Critter& player, int ni, int val, int param2)
+{
+	uint n = ni;
+	uint oldlen = skins_toggled.length();
+	if(n >= oldlen)
+	{
+		if(n>=MAX_SKINS_COUNT) {player.Say(SAY_NETMSG, "Номер скина больше максимально возможного."); return;}
+
+		skins_toggled.resize(n+1);
+		for(uint i=oldlen; i<n+1; i++)
+		{
+			skins_toggled[i]=false;
+		}
+	}
+
+	skins_toggled[n]=((val==0)?false:true);
+
+	player.Say(SAY_NETMSG, "Skin #"+n+((skins_toggled[n])?" enabled.":" disabled."));
+}
+
+void ask_next_setup(Critter@ player)
+{
+	if(!valid(player) || !player.IsLife() || player.Param[ST_VAR0]<1 || player.Param[ST_VAR0]>=MAX_SKINS_COUNT) return;
+	player.ChangeCrType(player.Param[ST_VAR0]);
+	player.ShowScreen(SCREEN_CLOSE,0,"");
+	player.ShowScreen(SCREEN_DIALOGBOX,2,"answer_next_setup");
+	player.Say(SAY_DIALOGBOX_TEXT,"Позволить skin #"+player.Param[ST_VAR0]+"?");
+	player.Say(SAY_DIALOGBOX_BUTTON(0),"Включить");
+	player.Say(SAY_DIALOGBOX_BUTTON(1),"Отключить");
+
+}
+
+void answer_next_setup(Critter& player, uint answerI, string& answerS)
+{
+	bool bb = ((answerI==0)?true:false);
+	push_back(skins_toggled,bb);
+
+	player.ParamBase[ST_VAR0]+=1;
+	ask_next_setup(player);
+}
+
+uint skins_viewer_find_next(uint n)
+{
+	uint m=n;
+	for(uint i = n+1; i<=skins_toggled.length(); i++)
+	{
+			if(i == skins_toggled.length()) return n;
+			if(skins_toggled[i]) {m=i; break;}
+	}
+	return m;
+}
+
+uint skins_viewer_find_prev(uint n)
+{
+	uint m=n;
+	for(uint i = n-1; i>=0; i--)
+	{
+			if(i == 0) return n;
+			if(skins_toggled[i]) {m=i; break;}
+	}
+	return m;
+}
+
+void _CrIdleClearSkin(Critter& cr)
+{
+	uint type = cr.Stat[ST_BASE_CRTYPE];
+	if(type==0) type=(cr.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F);
+	cr.ChangeCrType(type);
+
+	cr.SetEvent(CRITTER_EVENT_IDLE, "");
+}
+
+void ask_next_viewer(Critter@ player)
+{
+	if(!valid(player) || !player.IsLife()) return;	
+
+	uint n = player.Param[ST_VAR0];	
+
+	if(n<1 || n>=MAX_SKINS_COUNT || n>=skins_toggled.length()) return;
+
+	if(!skins_toggled[n]) return;
+
+	player.ChangeCrType(n);
+
+	player.SetEvent(CRITTER_EVENT_IDLE, "_CrIdleClearSkin");
+
+	player.ShowScreen(SCREEN_CLOSE,0,"");
+	player.ShowScreen(SCREEN_DIALOGBOX,4,"answer_next_viewer");
+	player.Say(SAY_DIALOGBOX_TEXT,"Skin #"+n);
+	player.Say(SAY_DIALOGBOX_BUTTON(0),"Следующий");
+	player.Say(SAY_DIALOGBOX_BUTTON(1),"Предыдущий");
+	player.Say(SAY_DIALOGBOX_BUTTON(2),"Выбрать");
+	player.Say(SAY_DIALOGBOX_BUTTON(3),"Пижама");
+}
+
+void answer_next_viewer(Critter& player, uint answerI, string& answerS)
+{
+	if(answerI==0)
+	{
+		player.ParamBase[ST_VAR0]=skins_viewer_find_next(player.Param[ST_VAR0]);
+		ask_next_viewer(player);
+	} 
+	else if(answerI==1)
+	{
+		player.ParamBase[ST_VAR0]=skins_viewer_find_prev(player.Param[ST_VAR0]);
+		ask_next_viewer(player);
+	}
+	else if(answerI==2)
+	{
+		uint result = player.Param[ST_VAR0];
+
+		if(!skins_toggled[result]) return;
+
+		if(player.CountItem(PID_ITEM_CLOTH)<1) return;
+	
+		player.ChangeCrType(result);
+	
+		player.StatBase[ST_BASE_CRTYPE]=result;
+	
+		player.DeleteItem(PID_ITEM_CLOTH, 1);
+	}
+	else if(answerI==3)
+	{
+		player.ChangeCrType(player.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F);
+		player.StatBase[ST_BASE_CRTYPE]=player.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F;
+	}
+}
+
+bool _cloth_use(Item& item, Critter& player, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	
+	if(valid(onCritter)||valid(onItem)||valid(onScenery)||!player.IsLife()) return true;
+	
+	if(player.GetSlotProto(SLOT_ARMOR).GetProtoId ()!=1100)
+	{
+		player.Say(SAY_NETMSG, "Ваша броня мешает вам сменить обличие.");
+		return true;
+	}
+
+	player.ParamBase[ST_VAR0]=skins_viewer_find_next(0);
+	ask_next_viewer(player);
+
+
+/*	player.ShowScreen(SCREEN_CLOSE,0,"");
+	player.ShowScreen(SCREEN_DIALOGBOX,1,"answer_cloth_main");
+	player.Say(SAY_DIALOGBOX_TEXT,"Что сделать?");
+	player.Say(SAY_DIALOGBOX_BUTTON(0),"Сменить облик");
+	player.Say(SAY_DIALOGBOX_BUTTON(1),"Примерить");
+*/
+/*
+	player.ShowScreen(SCREEN_CLOSE,0,"");
+	player.ShowScreen(SCREEN_SAY,1,"answer_cloth_get");
+	player.Say(SAY_SAY_TITLE,"Какой облик получить?");
+	player.Say(SAY_SAY_TEXT,"0");
+*/
+	return true;
+
+}
+/*
+void answer_cloth_main(Critter& player, uint answerI, string& answerS)
+{
+	if(answerI==0){
+		player.ShowScreen(SCREEN_CLOSE,0,"");
+		player.ShowScreen(SCREEN_SAY,1,"answer_cloth_get");
+		player.Say(SAY_SAY_TITLE,"Какой облик получить?");
+		player.Say(SAY_SAY_TEXT,"0");
+	}
+
+}
+*/
+void answer_cloth_get(Critter& player, uint answerI, string& answerS)
+{
+	if(player.GetSlotProto(SLOT_ARMOR).GetProtoId ()!=1100)
+	{
+		player.Say(SAY_NETMSG, "Ваша броня мешает вам сменить обличие.");
+		return;
+	}
+
+	int result = 0;
+
+	if (!StrToInt (answerS, result)) return;
+
+	if(result==0)
+	{
+		player.ChangeCrType(player.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F);
+		player.StatBase[ST_BASE_CRTYPE]=player.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F;
+		return;
+	}
+
+	if(result<1 || result>=MAX_SKINS_COUNT || uint(result)>=skins_toggled.length()) return;
+
+	if(!skins_toggled[result]) return;
+
+	if(player.CountItem(PID_ITEM_CLOTH)<1) return;
+
+	player.ChangeCrType(result);
+
+	player.StatBase[ST_BASE_CRTYPE]=result;
+
+	player.DeleteItem(PID_ITEM_CLOTH, 1);
+
+}
+
+
+
+void _InitCloth (Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "_cloth_use");
+}

@@ -1,0 +1,19 @@
+#ifndef __MSGSTR__
+#define __MSGSTR__
+
+// FOTEXT.MSG
+
+#define STR_DICE_THROW                           (500) // @lex result@
+#define STR_MAGIC_BALL_YES                       (510)
+#define STR_MAGIC_BALL_NO                        (511)
+#define STR_COSMETIC_USE                         (520)
+#define STR_CIGARETTES_SMOKE                     (530)
+
+#endif // __MSGSTR__
+
+
+
+
+
+
+

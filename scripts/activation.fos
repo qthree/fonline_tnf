@@ -1,0 +1,477 @@
+#include "_macros.fos"
+
+#define SUPER_ID (999999)
+#define CODE_SIZE   (8)
+
+bool range(uint num, uint min, uint max)
+{
+    return num>=min&&num<=max;
+}
+
+void activation_generate_code(uint id, string@ chr_login, string& chr_code)
+{
+	uint len = chr_login.length();
+
+	chr_code.resize(0);
+	chr_code.resize(CODE_SIZE);
+
+	string chr_buffer;
+	chr_buffer.resize(0);
+	chr_buffer.resize(len);
+
+	int8 tc;
+/* old
+	for(uint i=0; i<CODE_SIZE; i++)
+	{
+	        tc = login[len-(i%len)-1];
+	        if(range(tc, 48, 57)) tc-=47;
+	        else if(range(tc, 65, 90)) tc-=(7+47);
+	        else if(range(tc, 97, 122)) tc-=(6+7+47);
+	        else if(range(tc, 192-256, 255-256)) tc-=(69+6+7+47);
+	        else tc=0;
+	        tc= (tc/1.27);
+	        tc = 100-tc;
+	        tc+=((id*(i+1)*len*5)%100);
+	        if(tc>100)tc-=100;
+	        tc = (tc*62)/100;
+	        if(range(tc, 48-47, 57-47)) tc+=47;
+	        else if(range(tc, 65-(7+47), 90-(7+47))) tc+=(7+47);
+	        else if(range(tc, 97-(6+7+47), 122-(6+7+47))) tc+=(6+7+47);
+	        else if(range(tc, 192-(69+6+7+47), 255-(69+6+7+47))) tc+=(69+6+7+47);
+	        else tc=48+((i*id)%10);
+	        code[i]=tc;
+	}
+*/
+/* old2
+	for(uint i=0; i<len; i++)
+    {
+        tc = chr_login[i];
+        if(range(tc, 48, 57)) tc-=47;
+        else if(range(tc, 65, 90)) tc-=(7+47);
+        else if(range(tc, 97, 122)) tc-=(6+7+47);
+        else if(range(tc, 192-256, 255-256)) tc-=(69+6+7+47);
+        else tc=0;
+        tc= (tc/1.27);
+        chr_buffer[i]=tc;
+    }
+    for(uint i=0; i<len; i++)
+    {
+        tc = chr_buffer[i];
+        tc+= chr_code[i%CODE_SIZE];
+        tc = tc%100;
+        if(i%2==0)tc = 100-tc;
+        tc+=((id*(i+1)*len*5)%100);
+        tc = tc%100;
+        chr_code[i%CODE_SIZE]=tc;
+    }
+    for(uint i=0; i<len; i++)
+    {
+        tc = chr_buffer[len-i-1];
+        tc+= chr_code[i%CODE_SIZE];
+        tc = tc%100;
+        if(i%2==0)tc = 100-tc;
+        tc+=((id*(i+1)*len*5)%100);
+        tc = tc%100;
+        chr_code[i%CODE_SIZE]=tc;
+    }
+    for(uint i=0; i<CODE_SIZE; i++)
+    {
+        tc = chr_code[i];
+        tc = (tc*62)/100;
+        if(range(tc, 48-47, 57-47)) tc+=47;
+        else if(range(tc, 65-(7+47), 90-(7+47))) tc+=(7+47);
+        else if(range(tc, 97-(6+7+47), 122-(6+7+47))) tc+=(6+7+47);
+        else if(range(tc, 192-(69+6+7+47), 255-(69+6+7+47))) tc+=(69+6+7+47);
+        else tc=48+((i*id*len)%10);
+        chr_code[i]=tc;
+    }
+*/
+
+	for(uint i=0; i<len; i++)
+	{
+		tc = chr_login[i];
+	        if(range(tc, 48, 57)) tc-=47;
+	        else if(range(tc, 65, 90)) tc-=(7+47);
+	        else if(range(tc, 97, 122)) tc-=(6+7+47);
+	        else if(range(tc, 192-256, 255-256)) tc-=(69+6+7+47);
+	        else tc=0;
+	        //tc= (tc/1.27);
+	        chr_buffer[i]=tc;
+	}
+	
+/*	for(uint i=0; i<CODE_SIZE; i++)
+	{
+		chr_code[i]=0;
+	}
+*/
+	for(uint i=0; i<CODE_SIZE; i++)
+	{
+		tc = 0;
+		for(uint j=0; j<len; j++)
+		{
+		    tc+=chr_buffer[(i+j)%len];
+		    //tc= tc*(id%5+j);
+		    tc*=2+j;
+		}
+		tc+=(id*(i+1)*len*5);
+		//tc = (tc)%62;
+		if(tc<0) tc+=0x81;
+		tc = (tc)%62;
+		//if(tc==0) tc+=1;
+		chr_code[i]=tc;
+	}
+	
+	for(uint i=0; i<CODE_SIZE; i++)
+	{
+		tc = chr_code[i];
+		//tc = (tc*62)/100;
+		if(range(tc, 48-47, 57-47)) tc+=47;
+		else if(range(tc, 65-(7+47), 90-(7+47))) tc+=(7+47);
+		else if(range(tc, 97-(6+7+47), 122-(6+7+47))) tc+=(6+7+47);
+		//else if(range(tc, 192-(69+6+7+47), 255-(69+6+7+47))) tc+=(69+6+7+47);
+		else tc=48+((i*id*len)%10);
+		chr_code[i]=tc;
+	}	
+}
+
+void activation_get_code(Critter& player, string& code)
+{
+	uint id = player.Id;
+
+	string@ login = GetPlayerName(id);
+
+	activation_generate_code(id, login, code);
+}
+
+void activation_get_code(Critter& player, uint id, string& code)
+{
+
+	string@ login = GetPlayerName(player.Id);
+
+	activation_generate_code(id, login, code);
+}
+
+void activation_view_code(Critter& player, int playerId, int param1, int param2)
+{
+	Critter@ cr;
+	if(playerId!=0) @cr = GetCritter(playerId);
+	else @cr=@player;
+
+	if(!valid(cr)) return;
+
+	string code;
+
+	activation_get_code(cr, code);
+
+	player.Say(SAY_NETMSG, "code = "+code);
+}
+
+int act_var_get(Critter& player)
+{
+	GameVar@ act = GetLocalVar(LVAR_activationStatus, player.Id);
+	if(!valid(act)) return -1;
+	else return(act.GetValue());
+}
+
+
+bool act_var_check(Critter& player)	// Import
+{
+	int var = act_var_get(player);
+	return (var>0 && var<3);
+}
+
+void act_var_check(Critter& player, int playerId, int val, int param2)
+{
+	Critter@ cr;
+	if(playerId!=0) @cr = GetCritter(playerId);
+	else @cr=@player;
+
+	if(!valid(cr)) return;
+	
+	string status;
+	
+	int var = act_var_get(cr);
+	
+	switch(var)
+	{
+	case -1:	status = " поврежден."; break;
+	case 0:	status = " не активирован."; break;
+	case 1:	status = " активирован кодом."; break;
+	case 2:	status = " активирован ГМом."; break;
+	case 3:	status = " заблокирован."; break;
+	}
+	
+	player.Say(SAY_NETMSG, "Персонаж #"+cr.Id+status);
+}
+
+void act_var_set(Critter& player, int var)
+{
+	GameVar@ act = GetLocalVar(LVAR_activationStatus, player.Id);
+	if(!valid(act)) return;
+
+	act=var;
+}
+
+void act_var_set(Critter& player, bool val)
+{
+	GameVar@ act = GetLocalVar(LVAR_activationStatus, player.Id);
+	if(!valid(act)) return;
+
+	act=(val?1:0);
+}
+
+void act_var_set(Critter& player, int playerId, int val, int param2)
+{
+	Critter@ cr;
+	if(playerId!=0) @cr = GetCritter(playerId);
+	else @cr=@player;
+
+	if(!valid(cr)) return;
+
+	act_var_set(cr, val);
+
+	player.Say(SAY_NETMSG, "Теперь персонаж #"+cr.Id+((val!=0)?" ":" не ")+"активирован (изменена только переменная).");
+}
+
+bool deact(Critter& cr)	// Import
+{
+	int var = act_var_get(cr);
+
+	if(var<0) return false;
+
+	uint locid = CreateLocation(50,cr.WorldX,cr.WorldY,null);
+
+	Location@ loc=GetLocation(locid);
+
+	if(not valid(loc)) {Log("can't create start loc"); return false;}
+
+	Map@ map = loc.GetMapByIndex(0);
+
+	if(not valid(map)) return false;
+
+	
+
+	cr.TransitToMap(map.Id,0);
+
+	if(cr.CountItem(906)==0)
+	{
+		Item@ hand_item = _CritGetItemHand(cr);
+		if(valid(hand_item)) _CritMoveItem(cr,hand_item,SLOT_INV);
+
+		Item@ doc = cr.AddItem(906,1); // 906 - pid документов
+		cr.MoveItem(doc.Id,1,SLOT_HAND1);
+	}
+
+	if(var==ACT_BLOCK)
+	{
+		cr.Say(SAY_NETMSG, "Ваш персонаж заблокирован.");
+		return false;
+	}
+	
+	act_var_set(cr, false);
+
+	return true;
+}
+
+bool act(Critter& player)
+{
+	int var = act_var_get(player);
+
+	if(var==1 || var==2)
+	{
+		player.Say(SAY_NETMSG, "Персонаж уже активирован.");
+		return false;
+	}
+	else if(var==3)
+	{
+		player.Say(SAY_NETMSG, "Персонаж заблокирован.");
+		return false;
+	}
+
+	act_var_set(player, true);
+
+	if(player.CountItem(905)==0) player.AddItem(905,1);
+
+	Map@ modoc = GetMapByPid  ( MAP_Modoc, 0);
+	if(valid(modoc) && player.TransitToMap(modoc.Id,0))
+	{
+		uint zoneX=player.WorldX/__GlobalMapZoneLength;
+		uint zoneY=player.WorldY/__GlobalMapZoneLength;
+		player.SetFog(zoneX  ,zoneY  ,FOG_NONE);
+		player.SetFog(zoneX-1,zoneY-1,FOG_SELF);
+		player.SetFog(zoneX  ,zoneY-1,FOG_SELF);
+		player.SetFog(zoneX+1,zoneY-1,FOG_SELF);
+		player.SetFog(zoneX-1,zoneY  ,FOG_SELF);
+		player.SetFog(zoneX+1,zoneY  ,FOG_SELF);
+		player.SetFog(zoneX-1,zoneY+1,FOG_SELF);
+		player.SetFog(zoneX  ,zoneY+1,FOG_SELF);
+		player.SetFog(zoneX+1,zoneY+1,FOG_SELF);
+		player.SetKnownLoc(false,LOCATION_Modoc);
+		return true;
+	}
+	else Log("Activation: final transit panic! PlayerId: "+player.Id);
+
+	return false;
+}
+
+void act(Critter& player, int playerId, int param1, int param2)
+{
+	Critter@ cr;
+	if(playerId!=0) @cr = GetCritter(playerId);
+	else @cr=@player;
+
+	if(!valid(cr)) return;
+
+	if (act(cr)) player.Say(SAY_NETMSG, "Персонаж #"+cr.Id+" активирован.");
+	act_var_set(cr, ACT_GM);
+}
+
+void deact(Critter& player, int playerId, int param1, int param2)
+{
+	Critter@ cr;
+	if(playerId!=0) @cr = GetCritter(playerId);
+	else @cr=@player;
+
+	if(!valid(cr)) return;
+
+	if(deact(cr)) player.Say(SAY_NETMSG, "Персонаж #"+cr.Id+" дизактивирован.");
+}
+
+void block(Critter& player, int playerId, int param1, int param2)
+{
+	Critter@ cr;
+	if(playerId!=0) @cr = GetCritter(playerId);
+	else @cr=@player;
+
+	if(!valid(cr)) return;
+
+	act_var_set(cr, ACT_BLOCK);
+	
+	if(deact(cr) && player.Id!=cr.Id) player.Say(SAY_NETMSG, "Персонаж #"+cr.Id+" заблокирован.");
+}
+
+void react(Critter& player, int playerId, int param1, int param2)
+{
+	Critter@ cr;
+	if(playerId!=0) @cr = GetCritter(playerId);
+	else @cr=@player;
+
+	if(!valid(cr)) return;
+
+	act_var_set(cr, false);
+
+	if (act(cr)) player.Say(SAY_NETMSG, "Персонаж #"+cr.Id+" реактивирован.");
+	act_var_set(cr, ACT_GM);
+}
+
+
+bool _Doc_use(Item& item, Critter& player, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	if(valid(onCritter)||valid(onItem)||valid(onScenery)||!player.IsLife()) return true;
+
+	int var = act_var_get(player);
+
+	if(var==ACT_BLOCK)
+	{
+		player.Say(SAY_NETMSG, "Документ испорчен.");
+		return true;
+	}
+	else if(var>ACT_DEACT)
+	{
+		player.Say(SAY_NETMSG, "Документ уже заполен.");
+		return true;
+	}
+
+	player.Say(SAY_NETMSG, "Вы заполнили почти все пункты документа, но остался еще один.");
+
+	player.ShowScreen(SCREEN_CLOSE,0,"");
+	player.ShowScreen(SCREEN_SAY,0,"answer_doc");
+	player.Say(SAY_SAY_TITLE,"Ваш пропускной шифр");
+	player.Say(SAY_SAY_TEXT,"");
+
+	return true;
+}
+
+void _InitDoc (Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "_Doc_use");
+}
+
+bool activate(Critter& player) // хуита какая то,  act(player) в функции ниже не работает
+{
+	return act(player);
+}
+
+void answer_doc(Critter& player, uint answerI, string& answerS)
+{
+	GameVar@ act = GetLocalVar(LVAR_activationStatus, player.Id);
+	if(!valid(act)) return;
+	if(act.GetValue ()==ACT_BLOCK)
+	{
+		player.Say(SAY_NETMSG, "Документ испорчен.");
+		return;
+	}
+	else if(act.GetValue ()>ACT_DEACT)
+	{
+		player.Say(SAY_NETMSG, "Документ уже заполен.");
+		return;
+	}
+
+	string code;
+
+	activation_get_code(player, code);
+
+	if(answerS!=code)
+	{
+		activation_get_code(player, SUPER_ID, code);
+		if(answerS!=code)
+		{
+			player.Say(SAY_NETMSG, "Вы решили не спешить и еще раз подумать, прежде чем портить документ.");
+			return;
+		}
+	}
+
+	if(activate(player)) player.Say(SAY_NETMSG, "Документ готов.");
+}
+
+void act_login(Critter& player, int playerId, int param1, int param2)
+{
+//	player.RunClientScript ("_HideScreen", 24, 0, 0, null, null);
+	player.ShowScreen(SCREEN_CLOSE,0,"");
+	player.ShowScreen(SCREEN_SAY,0,"answer_act_login");
+	player.Say(SAY_SAY_TITLE,"Введите логин персонажа, которого нужно активировать.");
+	player.Say(SAY_SAY_TEXT,"");
+}
+
+void answer_act_login(Critter& player, uint answerI, string& answerS)
+{
+	Critter@ cr = GetPlayer(answerS);
+
+	if(!valid(cr)) {player.Say(SAY_NETMSG, "Нет такого персонажа."); return;}
+
+	player.Say(SAY_NETMSG, "Login: "+answerS+" Id: "+player.Id);
+
+	if(act(cr)) player.Say(SAY_NETMSG, "Персонаж активирован.");
+}
+
+void block_login(Critter& player, int playerId, int param1, int param2)
+{
+//	player.RunClientScript ("_HideScreen", 24, 0, 0, null, null);
+	player.ShowScreen(SCREEN_CLOSE,0,"");
+	player.ShowScreen(SCREEN_SAY,0,"answer_act_block");
+	player.Say(SAY_SAY_TITLE,"Введите логин персонажа, которого нужно заблокировать.");
+	player.Say(SAY_SAY_TEXT,"");
+}
+
+void answer_act_block(Critter& player, uint answerI, string& answerS)
+{
+	Critter@ cr = GetPlayer(answerS);
+
+	if(!valid(cr)) {player.Say(SAY_NETMSG, "Нет такого персонажа."); return;}
+
+	player.Say(SAY_NETMSG, "Login: "+answerS+" Id: "+player.Id);
+
+	act_var_set(cr, ACT_BLOCK);
+
+	if(deact(cr)) player.Say(SAY_NETMSG, "Персонаж заблокирован.");
+}

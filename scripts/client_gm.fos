@@ -1,0 +1,152 @@
+#include "_client_defines.fos"
+#include "_macros.fos"
+
+// message
+
+#define CH_P #(CHN, str)      (parts[CHN]==str)
+
+#define CH_P_NUM #(CHN)     (num_args_b[CHN])
+
+#define ARG_NUM #(CHN)	(num_args[CHN])
+
+
+string[] parts;
+uint num = 0;
+bool[] num_args_b;
+int[] num_args;
+
+bool gm_msg_cmd(string& message)
+{
+	CritterCl@ chosen=GetChosen();
+	if(!valid(chosen)) return false;
+
+	if(num==1)
+	{
+		if(CH_P(0, "#r"))
+		{
+			message = "~respawn "+chosen.Id;
+			return true;
+		}
+	}
+
+	else if(num==2)
+	{
+		if(CH_P_NUM(1))
+		{
+			if(CH_P(0, "#me2cr"))
+			{
+				message = "~run debug ctd "+ ARG_NUM(1) + " 0 1";
+				return true;
+			}
+			else if(CH_P(0, "#cr2me"))
+			{
+				message = "~run debug ctd "+ ARG_NUM(1) + " 0 0";
+				return true;
+			}
+		}
+	}
+
+
+	return false;
+}
+
+
+bool gm_msg_run(string& message)
+{
+	if(num<2 || num>5) return false;
+
+	if(CH_P(0, "%d")) parts[0]="~run debug";
+	else if(CH_P(0, "%t")) parts[0]="~run test";
+	else if(CH_P(0, "%ac")) parts[0]="~run activation";
+	else if(CH_P(0, "%sk")) parts[0]="~run skins";
+	//else if(CH_P(0, "%gm")) parts[0]="~run gm";
+	else return false;
+
+	if(num==2)
+	{
+		num=5;
+		parts.resize(5);
+		parts[2]="0";
+		parts[3]="0";
+		parts[4]="0";
+	}
+	else if(num==3)
+	{
+		num=5;
+		parts.resize(5);
+		parts[3]="0";
+		parts[4]="0";
+	}
+	else if(num==4)
+	{
+		num=5;
+		parts.resize(5);
+		parts[4]="0";
+	}
+
+	string@[] parts_temp2;
+
+	parts_temp2.resize( parts.length() );
+
+	for(uint i=0; i<parts.length(); i++)
+	{
+		@parts_temp2[i]=@parts[i];
+	}
+	
+	message = join(parts_temp2, " ");
+
+	return true;
+}
+
+bool gm_msg_longstr(string& message)
+{
+	return false;
+}
+
+bool gm_msg(string& message)
+{
+	
+	if(message.length()<2 || message[1]==' ') return false;
+
+	string@[]@ parts_temp = split(message, " ");
+
+	if(!valid(parts_temp)) return false;
+
+	parts.resize(parts_temp.length());
+
+	for(uint i=0; i<parts.length(); i++)
+	{
+		parts[i]=parts_temp[i];
+	}
+
+	num = parts.length();
+
+	if(num==0) return false;
+
+	num_args_b.resize(num);
+	num_args.resize(num);
+	
+	if(message[0]=='$')
+	{
+		return gm_msg_longstr(message);
+	}
+	if(message[0]=='%')
+	{
+		return gm_msg_run(message);
+	}
+
+	for(uint i=0; i<num; i++)
+	{
+		num_args_b[i] = StrToInt (parts[i], num_args[i]);
+	}
+
+	if(message[0]=='#')
+	{
+		return gm_msg_cmd(message);
+	}
+	
+	return false;
+}
+
+
+

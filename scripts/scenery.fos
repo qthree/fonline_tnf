@@ -1,0 +1,7 @@
+// Author: heX
+// Scenery lib
+
+#include "_macros.fos"
+#include "stdlib_h.fos"
+#include "stdlib_scenery.fos"
+#include "scenery_tree.fos"

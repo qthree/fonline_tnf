@@ -1,0 +1,97 @@
+//Auhtor: cvet
+#include "_macros.fos"
+#include "_vars.fos"
+
+import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
+import bool AddMiscPlane(Critter& npc, uint priority, uint waitMinute, string@ funcName) from "npc_planes";
+
+Critter@[] Turrets;
+
+
+void _TurretInit(Critter& turret, bool firstTime)
+{
+	turret.StatBase[ST_REPLICATION_TIME]=1;
+	turret.StatBase[ST_PERCEPTION]=10;
+	turret.StatBase[ST_ACTION_POINTS]=100;
+	turret.StatBase[ST_MAX_LIFE]=1000;
+	turret.StatBase[ST_BONUS_LOOK]=300;
+	turret.StatBase[ST_STRENGTH]=10;
+	turret.StatBase[ST_ENDURANCE]=10;
+	turret.SkillBase[SK_BIG_GUNS]=300;
+	turret.ModeBase[MODE_NO_ENEMY_STACK]=1;
+	turret.ModeBase[MODE_UNLIMITED_AMMO]=1;
+	turret.PerkBase[PE_TERMINATOR]=1;
+	turret.SetEvent(CRITTER_EVENT_SMTH_USE_SKILL,"_TurretSmthUseSkill");
+	turret.SetEvent(CRITTER_EVENT_SMTH_ATTACK,"_TurretSmthAttack");
+	ArrayPushBack(Turrets,turret);
+}
+
+void t_Electro(Critter& cr, Scenery& trigger, bool entered, uint8 dir)
+{
+	if(not entered || not cr.IsPlayer()) return;
+
+	Map@ map=cr.GetMap();
+	if(not valid(map)) return;
+
+	bool attack=false;
+
+	// В отстойник. Убиваем.
+	if(dir==1 || dir==2 || dir==3) attack=true;
+	// Из отстойника. Проверяем баланс репликации, если отрицательный, то убиваем.
+	else if(cr.Stat[ST_REPLICATION_MONEY]<0) attack=true;
+
+	if(attack)
+	{
+		for(uint i=0,j=Turrets.length();i<j;i++)
+		{
+			Critter@ turret=Turrets[i];
+			if(not turret.IsNotValid && not turret.IsDead()) AddAttackPlane(turret,0,cr);
+		}
+	}
+}
+
+void _TurretSmthUseSkill(Critter& turret, Critter& hacker, int skill, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	if(skill==SK_SCIENCE && valid(onCritter) && onCritter.Id==turret.Id)
+	{
+		GameVar@ hackCount=GetLocalVar(LVAR_repl_hell_turret_hack,hacker.Id);
+		int sk=hacker.Skill[SK_SCIENCE]-hackCount*10;
+		sk=CLAMP(sk,6,95);
+		if(sk>=Random(1,100))
+		{
+			turret.DropPlanes();
+			AddMiscPlane(turret,100,__FullMinute+__TimeMultiplier/5,null); // Wait 12 seconds
+			turret.Say(SAY_NORM_ON_HEAD,"!@#$%^&*");
+			hackCount+=1;
+			if(hackCount>=hackCount.GetMax()) hackCount=hackCount.GetMin();
+		}
+		else
+		{
+			AddAttackPlane(turret,0,hacker);
+		}
+	}
+}
+
+void _TurretSmthAttack(Critter& turret, Critter& attacker, Critter& target)
+{
+	if(attacker.IsPlayer()) AddAttackPlane(turret,0,attacker);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

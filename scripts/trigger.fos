@@ -1,0 +1,6 @@
+// Author: heX
+// ver 2.1
+
+#include "_macros.fos"
+#include "stdlib_h.fos"
+#include "stdlib_trigger.fos"

@@ -1,0 +1,378 @@
+﻿# Параметры помеченные звездочкой наследуются копиями и дальнейшее их изменение возможно только с помощью скриптов.
+#
+#	name
+# Имя локации. Будет отображаться в FOWorldManager. Не обязательный параметр.
+#
+#	max_copy
+# Максимальное возможное количество копий в игре.
+# Целое беззнаковое значение, при нуле количество не ограничевается.
+# По-умолчанию - 0.
+#
+#	size*
+# Размеры локации.
+# Рекомендуемые значения: 6 (small), 12 (medium), 24 (large).
+# По-умолчанию - 24 (large).
+#
+#	max_players
+# Максимальное количество игроков способных одновременно находится в локации.
+# Целое беззнаковое значение, при нуле колчичество не ограничевается.
+# По-умолчанию - 0.
+#
+#	map_X
+# Карты в локации. Вместо X подставляется порядковый номер карты. Отсчет с 0. X принимает значения от 0 до 49.
+# Значение должно соответсвовать имени файла карты, прописанной в MAPS.TXT.
+#
+#	entrance
+# Точки доступа в локацию.
+# Задается двумя способами:
+# 1. Число, которое обозначает на сколько карт в списке (map_X) можно входить с глобальной карты. Гекс-вход равен 0.
+# 2. '$' и далее, через запятую, перечисляются номер карты и номер гекса-входа на карту.
+# По-умолчанию - 1.
+#
+#	entrance_script
+# Скрипт для проверки точек доступа к локации.
+# По-умолчанию - ничего.
+#
+#	visible*
+# Видна ли локция на глобале.
+# По-умолчанию - 0.
+#
+#	auto_garbage*
+# Удалять карту, когда на ней не осталось ни одного игрока, местного нпц и предмета с флагом гекка (актуально при geck_enabled = 1).
+# По-умолчанию - 1.
+#
+#	geck_enabled*
+# Влияют ли на видимость локации расположенные в ней предметы с флагом гекка, если да, то при количестве больше нуля
+# локация получает свойство аналогичное Visible.
+# По-умолчанию - 0.
+#
+#
+# Max area = 500
+#
+
+#
+# Cities
+#
+
+[Area 3]
+name=Modoc
+max_copy=1
+size=24
+map_0=modoc
+entrance=$0 0
+entrance_script=map_modoc@entrance_Modoc
+visible=1
+auto_garbage=0
+
+[Area 60]
+name=Ghost farm
+max_copy=1
+size=6
+map_0=ghostfarm
+entrance=$0 0
+visible=1
+auto_garbage=0
+
+[Area 20]
+name=Sacramento
+max_copy=1
+size=12
+map_0=satter_rp
+map_1=satter_east
+entrance=$0 0
+auto_garbage=0
+visible=1
+
+[Area 50]
+name=Start map
+map_0=start_map
+
+
+#
+#	Tech Maps
+#
+
+[Area 30]
+name=Sacramento
+max_copy=1
+size=6
+map_0=tech_itembank
+entrance=1
+auto_garbage=0
+visible=0
+
+#
+# Replications
+#
+
+
+
+#
+# Special encaunters
+#
+
+
+		# F2 Desert encounters
+[Area 101]
+name=Desert 1
+size=6
+map_0=e_desert1
+geck_enabled=1
+[Area 102]
+name=Desert 2
+size=6
+map_0=e_desert2
+geck_enabled=1
+[Area 103]
+name=Desert 3
+size=6
+map_0=e_desert3
+geck_enabled=1
+[Area 104]
+name=Desert 4
+size=6
+map_0=e_desert4
+geck_enabled=1
+[Area 105]
+name=Desert 5
+size=6
+map_0=e_desert5
+geck_enabled=1
+[Area 106]
+name=Desert 6
+size=6
+map_0=e_desert6
+geck_enabled=1
+[Area 107]
+name=Desert 7
+size=6
+map_0=e_desert7
+geck_enabled=1
+[Area 108]
+name=Desert 8
+size=6
+map_0=e_desert8
+geck_enabled=1
+[Area 109]
+name=Desert 9
+size=6
+map_0=e_desert9
+geck_enabled=1
+[Area 110]
+name=Desert 10
+size=6
+map_0=e_desert10
+geck_enabled=1
+[Area 111]
+name=Desert 11
+size=6
+map_0=e_desert11
+geck_enabled=1
+[Area 112]
+name=Desert 12
+size=6
+map_0=e_desert12
+geck_enabled=1
+
+		# F2 Mountain encounters
+[Area 121]
+name=Mountain 1
+size=6
+map_0=e_mountain1
+geck_enabled=1
+[Area 122]
+name=Mountain 2
+size=6
+map_0=e_mountain2
+geck_enabled=1
+[Area 123]
+name=Mountain 3
+size=6
+map_0=e_mountain3
+geck_enabled=1
+[Area 124]
+name=Mountain 4
+size=6
+map_0=e_mountain4
+geck_enabled=1
+[Area 125]
+name=Mountain 5
+size=6
+map_0=e_mountain5
+geck_enabled=1
+[Area 126]
+name=Mountain 6
+size=6
+map_0=e_mountain6
+geck_enabled=1
+
+		# F2 Cavern encounters
+[Area 140]
+name=Cavern 0
+size=6
+map_0=e_cave0_out
+map_1=e_cave0_in
+geck_enabled=1
+[Area 141]
+name=Cavern 1
+size=6
+map_0=e_cave1_out
+map_1=e_cave1_in
+geck_enabled=1
+[Area 142]
+name=Cavern 2
+size=6
+map_0=e_cave2_out
+map_1=e_cave2_in
+geck_enabled=1
+[Area 143]
+name=Cavern 3
+size=6
+map_0=e_cave3_out
+map_1=e_cave3_in
+geck_enabled=1
+[Area 144]
+name=Cavern 4
+size=6
+map_0=e_cave4_out
+map_1=e_cave4_in
+geck_enabled=1
+[Area 145]
+name=Cavern 5
+size=6
+map_0=e_cave5_out
+map_1=e_cave5_in
+geck_enabled=1
+
+		# F2 City encounters
+[Area 161]
+name=City 1
+size=6
+map_0=e_city1
+geck_enabled=1
+[Area 162]
+name=City 2
+size=6
+map_0=e_city2
+geck_enabled=1
+[Area 163]
+name=City 3
+size=6
+map_0=e_city3
+geck_enabled=1
+[Area 164]
+name=City 4
+size=6
+map_0=e_city4
+map_1=e_city4_sewer
+geck_enabled=1
+[Area 165]
+name=City 5
+size=6
+map_0=e_city5
+geck_enabled=1
+[Area 166]
+name=City 6
+size=6
+map_0=e_city6
+geck_enabled=1
+[Area 167]
+name=City 7
+size=6
+map_0=e_city7
+geck_enabled=1
+[Area 168]
+name=City 8
+size=6
+map_0=e_city8
+geck_enabled=1
+
+		# F2 Coast encounters
+[Area 181]
+name=Coast 1
+size=6
+map_0=e_coast1
+geck_enabled=1
+[Area 182]
+name=Coast 2
+size=6
+map_0=e_coast2
+geck_enabled=1
+[Area 183]
+name=Coast 3
+size=6
+map_0=e_coast3
+geck_enabled=1
+[Area 184]
+name=Coast 4
+size=6
+map_0=e_coast4
+geck_enabled=1
+[Area 185]
+name=Coast 5
+size=6
+map_0=e_coast5
+map_1=e_coast5_cave
+geck_enabled=1
+[Area 186]
+name=Coast 6
+size=6
+map_0=e_coast6
+geck_enabled=1
+[Area 187]
+name=Coast 7
+size=6
+map_0=e_coast7
+geck_enabled=1
+[Area 188]
+name=Coast 8
+size=6
+map_0=e_coast8
+geck_enabled=1
+[Area 189]
+name=Coast 9
+size=6
+map_0=e_coast9
+geck_enabled=1
+[Area 190]
+name=Coast 10
+size=6
+map_0=e_coast10
+geck_enabled=1
+[Area 191]
+name=Coast 11
+size=6
+map_0=e_coast11
+geck_enabled=1
+
+	# FOnline ocean encounters
+	
+[Area 193]
+name=Ocean 1
+size=6
+map_0=e_ocean1
+visible=1
+
+[Area 194]
+name=Ocean 2
+size=6
+map_0=e_ocean2
+visible=1
+
+[Area 195]
+name=Ocean 3
+size=6
+map_0=e_ocean3
+visible=1
+
+[Area 196]
+name=Ocean 4
+size=6
+map_0=e_ocean4
+visible=1
+
+[Area 197]
+name=Ocean 5
+size=6
+map_0=e_ocean5
+visible=1

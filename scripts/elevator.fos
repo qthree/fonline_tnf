@@ -1,0 +1,76 @@
+#include "_macros.fos"
+
+#define RESET_ANYDATA_AFTER                    (60)
+// Работает только для карт в одном экземпляре
+void ShowElevator(Critter & player, uint8 elevatorType, uint[] mapPids, uint entireNum)
+{
+	player.Wait(0);
+	Map @ playerMap = player.GetMap();
+	if(!valid(playerMap)) return;
+	
+	uint mPid = playerMap.GetProtoId();
+	uint curLevel = 0; // Этаж, на котором находится игрок
+	uint[] data = {entireNum};
+	for(uint i=0,l=mapPids.length();i<l;i++)
+	{
+		if(mapPids[i]==mPid)
+		{
+			curLevel=i+1;
+		}
+		ArrayPushBack(data, mapPids[i]);
+	}
+	
+	
+	// cохраняем описание лифта в anydata
+	SetAnyData(AnyDataKey(player.Id, playerMap.Id), data);
+	// добавляем событие очистки  AnyData (если игрок так и не воспользовался лифтом)
+	uint[] values = {player.Id, playerMap.Id};
+	CreateTimeEvent(__FullMinute+RESET_ANYDATA_AFTER,"e_ResetAnyData", values, true);
+	
+	player.ShowScreen(SCREEN_ELEVATOR, ELEVATOR_X (elevatorType, curLevel), "answer_SelectLevel");
+}
+
+uint e_ResetAnyData(uint[]@ values)
+{
+	string key = AnyDataKey(values[0],values[1]);
+	if (IsAnyData(key)) EraseAnyData(key);
+	return 0;
+}
+
+string AnyDataKey(uint playerId, uint mapId)
+{
+	return "Elevator_MapId"+mapId+"_PlayerId"+playerId;
+}
+
+void answer_SelectLevel(Critter& player, uint answerI, string& answerS)
+{
+	Map @ map = player.GetMap();
+	if(!valid(map)) return;
+	
+	string key = AnyDataKey(player.Id, map.Id);
+	if(!IsAnyData(key)) return;
+	uint[] params;
+	if(GetAnyData(key, params))
+	{
+		uint l = params.length();
+		uint entNum = (l==0?0:params[0]);
+		for(uint i=1;i<l;i++)
+		{
+			
+			if(answerI==i)
+			{
+
+				Map @ newMap = GetMapByPid(params[i], 0);
+				if(valid(newMap))
+				{
+					player.TransitToMap(newMap.Id, entNum);
+					break;
+				}
+				break;
+			}
+		}
+		EraseAnyData(key);
+	}
+	
+	
+}

@@ -1,0 +1,24 @@
+// Author: cvet
+#include "_macros.fos"
+
+#define FIX_SUCCESS         (FIXBOY_DEFAULT)
+#define FIX_FAIL            (FIXBOY_DEFAULT^FIXBOY_ALLOW_CRAFT)
+
+int fix_PowerArmor(Critter& player, int state)
+{
+	GameVar@ canPA=GetLocalVar(LVAR_fixboy_power_armor,player.Id);
+	if(not valid(canPA) || canPA==0) return FIX_FAIL;
+	if(state==FIXBOY_CRAFT) canPA=0;
+	return FIX_SUCCESS;
+}
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,990 @@
+// Author: heX
+// Ver 1.4
+#include "_macros.fos"
+// библиотека стандартных функций.
+
+import void FlushScreen(Critter& cr, bool fadeOut, uint timeMs) from "effects";
+
+/*
+ToDo:
+разюзать новые функции работы с NpcRole.
+Динамическая комбинация карт на локации. ("сделать так, чтобы при входе в пещеру пещера выбиралась из списка пещер рэндомно, и вариант выбора запоминался для этой локации.")
+TimeOutSetEx - доступ к еще 9 таймаутам.
+сделать 'стабильный' рандом на основе уникальных переменных, 'стабильный' рандом выпадает один раз и фиксируется.
+
+targets: dlg-player, dlg-npc, ent, role, triger, scenery.
+*/
+
+#define FALSE (0)
+#define TRUE  (1)
+
+#define RUN_DIALOG (1)
+#define RUN_TRIGGER (2)
+#define RUN_SCENERY (3)
+#define RUN_ITEM (4)
+#define RUN_MSG (5)
+
+/** прототип стандартной функции
+ немного громоздко, но зато учитывает все ситуации
+*/
+int func(
+	uint8 runtype, // RUN_DIALOG, RUN_TRIGGER, RUN_SCENERY, RUN_ITEM?, RUN_MSG?
+	Critter@ player,  // игрок
+	int x,int y,int dir, // координаты того кто вызвал событие (npc,scen,triger)
+	Critter@ npc, // npc
+	Scenery@ scenery, // scenery
+	Item@ item, // item (покачто не актуально)
+	int v0, int v1, int v2, int v3, int v4, // параметры
+	int skill, // навык который был использован на scenery (или item)
+	Item@ itemUsed // item которым подействовали на scenery
+	)
+{
+	return 0;
+}
+
+/**
+ выбор случайного ответа
+ Пример использования: r_SelectRandomAnswer(3, 5).
+ В параметрах указываем диапазон рандомных ответов.
+ param=2
+ type=dialog
+*/
+int SelectRandomDialog(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	__ForceDialog = Random(v0, v1);
+	return 0;
+}
+
+/** Вылечить игрока (выставить максимум жизней)
+ param=0
+ type=all, target
+*/
+int ToHeal(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	player.StatBase[ST_CURRENT_HP] = player.Stat[ ST_MAX_LIFE ];
+	return 0;
+}
+
+/** Показать игроку локацию
+ param=1
+ v0 - номер локации
+ type=all
+*/
+int ShowLocation(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	player.SetKnownLoc( false, uint16(v0) );
+	return 0;
+}
+
+/**
+ затемнение экрана
+ param=1
+ v0 - скорость затмения
+*/
+int FadeOut(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if (v0==0) v0=2000;
+	FlushScreen(player, false, v0);
+	return 0;
+}
+
+/**
+ затемнение экрана для всех игроков на карте
+ param=1
+ v0 - скорость затмения
+*/
+int FadeOutAll(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if (v0==0) v0=2000;
+	FlushScreen(player, true, v0);
+	return 0;
+}
+
+/** выбрасывает игрока на глобальную карту
+ param=0
+ type=all
+*/
+int TransitToGlobal(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	player.TransitToGlobal(false);
+	return 0;
+}
+
+/**
+ выбрасывает группу на глобальную карту
+ участникам группы задаеться стандартный вопрос "Желаете ли вы следовать..."
+ param=0
+*/
+int TransitGroupToGlobal(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	player.TransitToGlobal(true);
+	return 0;
+}
+
+/**
+ телепортирует на локацию
+ type=all, target
+ param=2
+ v0 - индификатор локации.
+ v1 - номер карты на локации.
+ машина разумееться не телепортируется
+*/
+int TransitToLocation(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	Location @ loc = GetLocationByPid(v0, 0);
+	if(not valid(loc)) {Log("Location not found"); return 0;}
+	Map @ map = loc.GetMapByIndex(v1);
+	if(not valid(map)) {Log("Get map error or not found"); return 0;}
+	FlushScreen(player, true, 3000);
+	player.TransitToMap(map.Id, 0);
+	return 0;
+}
+
+/**
+ телепортирует на карту
+ type=all, target
+ param=1
+ v0 - PID, индификатор прототипа карты.
+ используйте только PID карт существующих в игре в одном экземпляре.
+*/
+int TransitToMap(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	Map @ map = GetMapByPid(v0, 0);
+	if(not valid(map)) {Log("Map not found"); return 0;}
+	FlushScreen(player, true, 3000);
+	player.TransitToMap(map.Id, 0);
+	return 0;
+}
+
+
+int TransitToMap2(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	Map @ map = GetMapByPid(v0, 0);
+	if(not valid(map)) {Log("Map not found"); return 0;}
+	FlushScreen(player, true, 3000);
+	player.TransitToMap(map.Id, v1);
+	return 0;
+}
+
+
+/** Телепортирует игрока на указанную точке на карте в рамках указанной локации.
+ *
+ * @param  cr           Перемещаемый криттер.
+ * @param  locPid       PID локации (см. @b CITY.TXT).
+ * @param  mapIndex     Номер карты на локации.
+ * @param  entranceNum  Номер точки входа.
+ *
+ */
+bool TransitToMap(Critter& cr, int locPid, int mapIndex, int entranceNum)
+{
+	Location@ location = GetLocationByPid(locPid, 0);
+
+	if (location is null)
+	{
+		Log("Location with given PID (" + locPid + ") isn't found");
+		return false;
+	}
+
+	Map@ map = location.GetMapByIndex(mapIndex);
+
+	if (map is null)
+	{
+		Log("Map with given index (" + mapIndex + ") isn't found on location with PID (" + locPid + ")");
+		return false;
+	}
+
+	if (cr.IsPlayer())
+	{
+		FlushScreen(cr, true, 3000);
+	}
+
+	return cr.TransitToMap(map.Id, entranceNum);
+}
+
+/**
+ телепортирует на новую карту
+ param=1
+ v0 - индификатор локации.
+ создаеться новая уникальная локация для этого игрока
+*/
+int TransitToNewLocation(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	Critter@[] groups;
+	ArrayPushBack(groups, player);
+	uint locId=CreateLocation(v0, player.WorldX, player.WorldY, groups);
+	if(locId==0) {Log("CreateLocation failed"); return 0;}
+	Location @ loc = GetLocation(locId);
+	loc.Visible=false;
+	loc.GeckEnabled=false;
+	loc.AutoGarbage=true;
+	if(not valid(loc)) {Log("Location not found"); return 0;}
+	Map @ map = loc.GetMapByIndex(0);
+	if(not valid(map)) {Log("Get map error or not found"); return 0;}
+	FlushScreen(player, true, 3000);
+	player.TransitToMap(map.Id, 0);
+	return 0;
+}
+
+/**
+ выводит информацию в нижнее окно
+ param=1
+ v0 - текст который береться из строк НПЦ
+ текст береться из пункта "строки" в редакторе диалогов.
+*/
+int InfoMessage(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	player.SayMsg(SAY_NETMSG, TEXTMSG_DLG, DLGSTR(npc.Stat[ST_DIALOG_ID], v0) );
+	return 0;
+}
+
+/**
+ выводит текст над персонажем
+ param=1
+ v0 - текст который береться из строк НПЦ
+*/
+int NpcMessageNorm(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	npc.SayMsg(SAY_NORM_ON_HEAD, TEXTMSG_DLG, DLGSTR(npc.Stat[ST_DIALOG_ID], v0) );
+	return 0;
+}
+
+/**
+ выводит крик над персонажем
+ param=1
+ v0 - текст который береться из строк НПЦ
+*/
+int NpcMessageShout(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	npc.SayMsg(SAY_SHOUT_ON_HEAD, TEXTMSG_DLG, DLGSTR(npc.Stat[ST_DIALOG_ID], v0) );
+	return 0;
+}
+
+/**
+ выводит шепот над персонажем
+ param=1
+ v0 - текст который береться из строк НПЦ
+*/
+int NpcMessageWhisp(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	npc.SayMsg(SAY_WHISP_ON_HEAD, TEXTMSG_DLG, DLGSTR(npc.Stat[ST_DIALOG_ID], v0) );
+	return 0;
+}
+
+/**
+ выводит эмо текст над персонажем
+ param=1
+ v0 - текст который береться из строк НПЦ
+*/
+int NpcMessageEmo(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	npc.SayMsg(SAY_EMOTE_ON_HEAD, TEXTMSG_DLG, DLGSTR(npc.Stat[ST_DIALOG_ID], v0) );
+	return 0;
+}
+
+/**
+ выставка времени таймаута
+ param=1
+ v0 - новое значение таймаута в игровых минутах
+ используйте функцию d_TimeOutCheck для проверки истечения времени
+
+ На ветку которая выдает квест вешаем условие: d_TimeOutCheck().
+ Затем в момент выдачи квеста вызываем: r_TimeOutSet(2).
+ Это означает что ветка будет недоступна два игровых часа.
+ Функциями TimeOutSub и TimeOutAdd можно влиять на запущенный таймаут.
+ Таймаут у каждого НПЦ свой личный.
+*/
+int TimeOutSet(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	GameVar @ t = GetLocalVar(LVAR_timeout, npc.Id);
+	if(not valid(t)) return FALSE; // чтото пошло не так
+	t = __FullMinute + v0;
+	return TRUE;
+}
+
+/** уменьшение таймаута на v0 минут
+ param=1
+ v0 - число
+*/
+int TimeOutSub(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	GameVar @ t = GetLocalVar(LVAR_timeout, npc.Id);
+	if(not valid(t)) return FALSE; // чтото пошло не так
+	t -= v0;
+	return TRUE;
+}
+
+/** увеличение таймаута на v0 минут
+ param=1
+ v0 - число
+*/
+int TimeOutAdd(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	GameVar @ t = GetLocalVar(LVAR_timeout, npc.Id);
+	if(not valid(t)) return FALSE; // чтото пошло не так
+	t += v0;
+	return TRUE;
+}
+
+/** сброс глобальной переменной через указанное время
+ сбрасывает переменную не в ноль, а в состояние по умолчанию!
+ param=2
+ v0 - время через которое произойдет сброс в минутах
+ v1 - номер переменной
+*/
+//int GVarResetByTime(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+
+/** установка глобальной переменной через указанное время
+ param=3
+ v0 - время сброса в минутах
+ v1 - номер переменной
+ v2 - значение
+*/
+//int GVarSetByTime(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+
+/** сброс локальной переменной через указанное время
+ сбрасывает переменную не в ноль, а в состояние по умолчанию!
+ param=2
+ type=target
+ v0 - время через которое произойдет сброс в минутах
+ v1 - номер переменной
+*/
+//int LVarResetByTime(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+
+/** установка локальной переменной через указанное время
+ param=3
+ type=target
+ v0 - время сброса в минутах
+ v1 - номер переменной
+ v2 - значение
+*/
+//int LVarSetByTime(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+
+/**
+ выставляет у группы указанную в v0 квестовую переменную в v1.
+ param=2
+ выставляет для всей группы!
+*/
+int GroupSetVar(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	Critter@[] groups;
+	ArrayPushBack(groups,player);
+	player.GetFollowGroup(FIND_ALL,groups);
+	for(uint i=0;i<groups.length();i++)
+	{
+		GameVar@ quest = GetLocalVar(v1, groups[i].Id);
+		if (not valid(quest)) return 0;
+		quest=v2;
+		groups[i].SendQuestVar(quest);
+	}
+	return 0;
+}
+
+/**
+!!! НУЖНО ДОПИСАТЬ!!!
+ Затеняет в уже разведаную область.
+ используется в связке c d_OpenLocation для создания квестов по разведке територии.
+ param=1
+ v0 - радиус.
+*/
+int ZoneSetShadow(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	for(int x=-1;x<=1;x++)
+		for(int y=-1;y<=1;y++)
+			;//if(player.GetMapByPid().GetFog(WorldX+x,WorldY+y))==;
+	return FALSE; // НЕДОПИСАННО!!!!
+}
+
+/**
+ выставляет зону (НЕДОСТУПНО)
+ param=3
+*/
+// void rx_ZoneSetXY(Critter& player, Critter@ npc, int val1, int val2)
+
+/**
+ устанавливает у НПЦ новую домашнюю позицию
+ param=1
+ v0 - номер ENT маркера
+*/
+int SetHomePos(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	int m=0,hx=0,hy=0,d=0;
+	npc.GetHomePos(m,hx,hy,d);
+	Location @ loc = GetLocationByPid(v0, 0);
+	if(not valid(loc)) {Log("Location not found"); return 0;}
+	Map @ map = loc.GetMapByIndex(0);
+	if(not valid(map)) {Log("Get map error or not found"); return 0;}
+	map.GetEntireCoords(v0, 0, hx, hy);
+	npc.SetHomePos(hx,hy,d);
+	return 0;
+}
+
+/**
+ переселяет НПЦ на другую локацию.
+ param=1
+ type=dialog
+ v0 - номер локации.
+ он отправится на первую карту локации.
+ используйте SetHomePos для установки новой позиции на другой локации
+*/
+int NpcTransitToLocation(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	Location @ loc = GetLocationByPid(v0, 0);
+	if(not valid(loc)) {Log("Location not found"); return 0;}
+	Map @ map = loc.GetMapByIndex(0);
+	if(not valid(map)) {Log("Get map error or not found"); return 0;}
+	npc.TransitToMap(map.Id, 0);
+	return 0;
+}
+
+/**
+ убивает NPC с которым игрок разговаривал
+ в параметрах указывается вид смерти.
+ v0-тип смерти
+ param=1
+ type=dialog
+*/
+int KillNpc(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	npc.ToDead(COND_DEAD_FRONT, null);
+	return TRUE;
+}
+
+/**
+ убивает NPC
+ в параметрах указывается вид смерти и номер NpcRole.
+ Убивает всех с этой ролью на карте!
+ (карта используется та где стоит игрок в момент активации)
+ v0-тип смерти
+ v1-Role
+ param=2
+*/
+int KillNpcByRole(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	Map@ map=player.GetMap();
+	uint count=map.GetNpcCount(v0, FIND_LIFE_AND_KO|FIND_ONLY_NPC);
+	for(uint i=0; i<count; i++)
+		map.GetNpc(v0, FIND_LIFE_AND_KO|FIND_ONLY_NPC, i).ToDead(v0, null);
+	return 0;
+}
+
+/**
+ убивает NPC на определенной карте
+ в параметрах указывается вид смерти, номер NpcRole и номер карты.
+ Убивает всех с этой ролью на карте!
+ v0-тип смерти
+ v1-Role
+ v2-Map PID
+ param=3
+*/
+int KillNpcOnMapByRole(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	Map@ map=GetMapByPid(v2, 0);
+	uint count=map.GetNpcCount(v0, FIND_LIFE_AND_KO|FIND_ONLY_NPC);
+	for(uint i=0; i<count; i++)
+		map.GetNpc(v0, FIND_LIFE_AND_KO|FIND_ONLY_NPC, i).ToDead(v0, null);
+	return 0;
+}
+
+/**
+ оживляет NPC
+ param=0
+ ЭТА ФУНКЦИЯ НУЖДАЕТСЯ В ПРОВЕРКЕ!
+*/
+int ToLifeNpc(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	return npc.ToLife()?TRUE:FALSE;
+}
+
+/**
+ удаляет НПЦ.
+ param=0
+ совсем удаляет, он уже не появится.
+ появится только при вайпе или принудительной регенерации карты.
+*/
+//int RemoveNpc(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////
+
+import void InjureCritter(Critter& cr, uint dmg, uint dmgType, uint8 dir, uint attackerId) from "combat";
+import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
+import uint EraseAttackPlane(Critter& npc, Critter& target) from "npc_planes";
+
+// радиус поиска НПС для предупреждения
+#define WARN_DIST (10)
+
+// 'помеченный' план
+#define AI_PLANE_ATTACK_PRIORITY_MARK (AI_PLANE_ATTACK_PRIORITY+3)
+
+/** выдать стандартное предупреждение
+ Текст: "Стоять! Не подходи!" / "Hey you! Do not approach!"
+ param=1
+ type=trigger
+*/
+int Warn(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	Critter@ _npc=GetNearCritterWithRole(player.GetMap(), x, y, WARN_DIST, v0);
+	if(not valid(_npc)) return 0;
+	_npc.SayMsg(SAY_NORM_ON_HEAD, TEXTMSG_TEXT, 1001);
+	return 0;
+}
+
+/** сказать
+ ищет ближайшего критерра в радиусе 10 клеток у которого роль равна v0
+ после чего тот говорит из своего диалога строку с номером v1
+ param=2
+ type=trigger
+*/
+int Say(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	Critter@ _npc=GetNearCritterWithRole(player.GetMap(), x, y, WARN_DIST, v0);
+	if(not valid(_npc)) return 0;
+	_npc.SayMsg(SAY_NORM_ON_HEAD, TEXTMSG_DLG, DLGSTR(npc.Stat[ST_DIALOG_ID],v1));
+	return 0;
+}
+
+/** тоже что и Say но криком
+ param=2
+ type=trigger
+*/
+int SayShout(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	Critter@ _npc=GetNearCritterWithRole(player.GetMap(), x, y, WARN_DIST, v0);
+	if(not valid(_npc)) return 0;
+	_npc.SayMsg(SAY_SHOUT_ON_HEAD,TEXTMSG_DLG, DLGSTR(npc.Stat[ST_DIALOG_ID],v1));
+	return 0;
+}
+
+/** атаковать игрока
+ Использовать этот тригер для охраны серьезных обьектов не рекомендуеться.
+ param=1
+*/
+int Attack(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	Map@ map=player.GetMap();
+	uint count=map.GetNpcCount(v0, FIND_LIFE_AND_KO|FIND_ONLY_NPC);
+	for(uint i=0; i<count; i++)
+		AddAttackPlane(map.GetNpc(v0, FIND_LIFE_AND_KO|FIND_ONLY_NPC, i),
+			AI_PLANE_ATTACK_PRIORITY_MARK, player);
+	return 0;
+}
+
+/**
+ атаковать игрока
+ Использовать этот тригер для охраны серьезных обьектов не рекомендуеться.
+ param=1
+*/
+int Attack2(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	Critter@[] critters;
+	uint count = player.GetCritters(true, FIND_LIFE|FIND_ONLY_NPC, critters);// поиск всех живых НПС которые видят игрока
+	for(uint i=0; i<count; i++)
+		if(critters[i].StatBase[ST_NPC_ROLE]==v0)
+		{
+			AddAttackPlane(critters[i], AI_PLANE_ATTACK_PRIORITY_MARK, player);
+			//critters[i].AddEnemyInStack(player.Id);
+		}
+	return 0;
+}
+
+/**
+ охрана останавливает атаку
+ BUG!!! - часто не срабатывает.
+ param=1
+*/
+int AttackStop2(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	Critter@[] critters;
+	uint count = player.GetCritters(true, FIND_LIFE|FIND_ONLY_NPC, critters);// поиск всех живых НПС которые видят игрока
+	for(uint i=0; i<count; i++)
+		if(critters[i].StatBase[ST_NPC_ROLE]==v0)
+		{
+			NpcPlane@[] planes;
+			uint count = critters[i].GetPlanes(planes);
+			for(uint j=0; j<count; j++)
+				if(planes[j].Attack_TargId==player.Id and planes[j].Priority==AI_PLANE_ATTACK_PRIORITY_MARK)
+					if(critters[i].ErasePlane(j))
+						critters[i].EraseEnemyFromStack(player.Id);
+		}
+	return 0;
+}
+
+/**
+ охрана останавливает атаку
+ param=1
+*/
+int AttackStop(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	Map@ map=player.GetMap();
+	uint count=map.GetNpcCount(v0, FIND_LIFE_AND_KO|FIND_ONLY_NPC);
+	NpcPlane@[] planes;
+	for(uint i=0; i<count; i++)
+	{
+		Critter@ npc=map.GetNpc(v0, FIND_LIFE_AND_KO|FIND_ONLY_NPC, i);
+		planes.resize(0);
+		uint count = npc.GetPlanes(planes);
+		// проходимся по списку планов в поисках маркированного плана
+		for(uint j=0; j<count; j++)
+			if((planes[j].Attack_TargId==player.Id) and
+				(planes[j].Priority==AI_PLANE_ATTACK_PRIORITY_MARK))
+				if(npc.ErasePlane(j))
+					npc.EraseEnemyFromStack(player.Id);
+	}
+	return 0;
+}
+
+/**
+ форсированная атака
+ этот тип атаки не отменяется
+ param=1
+*/
+int AttackForced2(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	Critter@[] critters;
+	uint count = player.GetCritters(true, FIND_LIFE|FIND_ONLY_NPC, critters);// поиск всех живых НПС которые видят игрока
+	for(uint i=0; i<count; i++)
+		if(critters[i].StatBase[ST_NPC_ROLE]==v0)
+		{
+			AddAttackPlane(critters[i], AI_PLANE_ATTACK_PRIORITY, player);
+			critters[i].AddEnemyInStack(player.Id);
+		}
+	return 0;
+}
+
+/** убивает игрока
+ param=0
+ type=all, target
+ */
+int Kill(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	player.ToDead(COND_DEAD_FRONT, null);
+	return 0;
+}
+
+/**
+ убивает игрока особой смертью
+ v0 - тип смерти (COND_DEAD_*)
+ param=1
+ type=all, target
+*/
+int Kill(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	player.ToDead(v0, null);
+	return 0;
+}
+
+/**
+ повреждает игрока
+ v0 - сколько
+ v1 - тип повреждения (DAMAGE_*)
+ param=2
+ type=all, target
+*/
+int Damage(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	InjureCritter(player, v0, v1, dir, 0);
+	return 0;
+}
+
+/**
+ сказать
+ Ищет ENT=v0
+ НПС который стоит на нем говорит строку номер v1
+ param=2
+*/
+int SayEnt(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	uint _x=0,_y=0;
+	if(player.GetMap().GetEntireCoords(v0, 0, _x, _y))
+	{
+		Critter@ npc=player.GetMap().GetCritter(_x,_y);
+		if(valid(npc))
+			npc.SayMsg(SAY_SHOUT_ON_HEAD,TEXTMSG_DLG, DLGSTR(npc.Stat[ST_DIALOG_ID],v1));
+	}
+	return 0;
+}
+
+/**
+ открыть дверь
+ Ищет ENT с номером v0 и открывает дверь которая стоит на ENT
+ param=1
+ type=all
+*/
+int DoorOpen(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	return DoorControl(0,player,x,y,dir,npc,scenery,item,v0,1,v2,v3,v4,skill,itemUsed);
+}
+
+/**
+ закрыть дверь
+ Ищет ENT с номером 111 и закрывает дверь которая стоит на ENT
+ param=1
+ type=all
+*/
+int DoorClose(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	return DoorControl(0,player,x,y,dir,npc,scenery,item,v0,2,v2,v3,v4,skill,itemUsed);
+}
+
+//int DoorLock(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)t v0)
+
+//int DoorUnLock(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)t v0)
+
+/**
+ управление дверью
+ param=2
+ type=all
+*/
+int DoorControl(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return 0;
+	uint _x=0,_y=0;
+	Map@ map=player.GetMap();
+	if(map.GetEntireCoords(v0, 0, _x, _y))
+	{
+		Item@ door=map.GetDoor(_x,_y);
+		if(valid(door))
+		{
+			if(v1==1) map.OpenDoor(door); else
+			if(v1==2) map.CloseDoor(door);
+		}
+	}
+	return 0;
+}
+
+/**
+ запустить диалог
+ param=1
+ type=trigger,scenery
+*/
+int DialogNpc(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+	if(not player.IsPlayer()) return FALSE;
+	Critter@ _npc=GetNearCritterWithRole(player.GetMap(), x, y, WARN_DIST, v0);
+	if(not valid(_npc)) return FALSE;
+	player.Wait(0);
+	int dist = _npc.StatBase[ST_TALK_DISTANCE];
+	_npc.StatBase[ST_TALK_DISTANCE] = (v0>10?10:v0);
+ 	RunDialog(player, _npc, false);
+	_npc.StatBase[ST_TALK_DISTANCE] = dist;
+	return TRUE;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////
+// SCENERY LIB//
+////////////////
+
+// НЕ РЕАЛИЗОВАННО
+// обработчик воровства - ближайшие критеры атакуют
+//bool s_steal(Critter& player, Scenery& scen, int skill, Item@ item)
+// освещение подземелий вкл/выкл
+//bool s_light_switch(Critter& player, Scenery& scen, int skill, Item@ item)
+// освещение подземелий, включает при починке, выключает при поломке
+//bool s_light_repair(Critter& player, Scenery& scen, int skill, Item@ item)
+
+/**
+ тайник
+ на обнаружение тайника влияет Внимательность, Удача, навык Скитальца.
+ param=0
+ type=scenery
+*/
+int Secret(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed)
+{
+//#define Complexity#(P) (P.Stat[ST_PERCEPTION] * 10)
+//#define Complexity#(P) (P.Stat[ST_PERCEPTION] * 10 + P.Skill[SK_OUTDOORSMAN])
+#define Complexity#(P) (CLAMP((((P.Stat[ST_PERCEPTION] + P.Stat[ST_LUCK]) * 10) + P.Skill[SK_OUTDOORSMAN]), 0, 300))
+	if(skill!=SK_STEAL) return FALSE;
+	bool create=false;
+	Map@ map=player.GetMap();
+	Item@ hidingPlace=map.GetItem(scenery.HexX,scenery.HexY,PID_FLOOR_SAFE);
+	if(not valid(hidingPlace))
+	{
+		int c = Complexity(player)/2 - Random(0,10-player.Stat[ST_LUCK])*10;
+		if (c<0) return FALSE;
+		@hidingPlace=map.AddItem(scenery.HexX, scenery.HexY, PID_FLOOR_SAFE, 1);
+		if(not valid(hidingPlace)) {Log("ERROR AddItem");return FALSE;}
+		SETFLAG(hidingPlace.Flags, ITEM_HIDDEN);
+		hidingPlace.Update();
+		player.Say(SAY_NETMSG, "Вы создали тайник");
+		create=true;
+		hidingPlace.LockerComplexity = CLAMP(c,0,200);
+	}
+
+	if(hidingPlace.GetType() == ITEM_CONTAINER &&
+		hidingPlace.LockerComplexity < Complexity(player) )
+	{
+		map.OpenDoor(hidingPlace);
+		player.ShowContainer(null,hidingPlace,hidingPlace.Proto.Container_IsGroundLevel()?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+		if(not create) player.Say(SAY_NETMSG, "Вы нашли тайник");
+		return TRUE;
+	}
+	return FALSE;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////
+// SYSTEM ZONE !
+////////////////
+// системная секция
+
+void door_ctrl(int ent, Critter& player, bool open)
+{
+	uint x=0,y=0;
+	Map@ map=player.GetMap();
+	if(map.GetEntireCoords(ent, 0, x, y))
+	{
+		Item@ door=map.GetDoor(x,y);
+		if(valid(door))
+			if(open)
+				map.OpenDoor(door); else
+				map.CloseDoor(door);
+	}
+}
+
+void item_geck(Item& item)
+{
+	if (item.IsGrouped()) return;
+	SETFLAG(item.Flags, ITEM_GECK);
+	item.Update();
+}
+
+void item_hide(Item& item)
+{
+	SETFLAG(item.Flags, ITEM_HIDDEN);
+	item.Update();
+}
+
+void item_selector(Item& item)
+{
+	int x,y;
+	Map@ map = item.GetMapPosition(x,y);
+	if(not valid(map)) return;
+	//map.GetItems ...
+	// ...
+}
+
+void item_rnd_del(Item& item)
+{
+	if(uint(Random(1,100))<=CLAMP(item.Val1,0,100))
+		DeleteItem(item);
+}
+
+void item_spawn(Item& item)
+{
+
+}
+
+// взять ближайшего криттера
+// если критеров нет то возвращаем null
+// Это стало бессмысленно после апдейта: (покачто оставлю, пусть будет)
+// http://fonline.ru/forum/showpost.php?p=85438&postcount=95
+// "найденные криттеры будут отсортированы по отдалению от базовой точки или криттера."
+Critter@ GetNearCritter(Map@ map, int x, int y, int radius) //lib
+{
+	Critter@[] critters;
+	uint count=map.GetCrittersHex(x, y, radius, FIND_ALL|FIND_LIFE_AND_KO, critters);
+	uint minDist=10000;
+	Critter@ nearCrit=null;
+	for(uint i=0; i<count; i++)
+	{
+		uint d=GetDistantion(x,y,critters[i].HexX,critters[i].HexY);
+		if(d<minDist)
+		{
+			minDist=d;
+			@nearCrit=critters[i];
+		}
+	}
+	return nearCrit;
+}
+
+// взять ближайшего криттера
+// если критеров нет то возвращаем null
+Critter@ GetNearCritterWithRole(Map@ map, int x, int y, int radius, int role) //lib
+{
+     Critter@[] critters;
+     uint count=map.GetCrittersHex(x, y, radius, FIND_LIFE, critters);
+     uint minDist=10000;
+     Critter@ nearCrit=null;
+     for(uint i=0; i<count; i++)
+          if(critters[i].StatBase[ST_NPC_ROLE]==role) {
+               uint d=GetDistantion(x,y,critters[i].HexX,critters[i].HexY);
+               if(d<minDist)
+               {
+                    minDist=d;
+                    @nearCrit=critters[i];
+               }
+          }
+     return nearCrit;
+}
+
+    //@}
+/*@}*/

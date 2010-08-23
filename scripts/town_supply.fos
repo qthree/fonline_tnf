@@ -1,0 +1,132 @@
+// Town supply
+// Author: cvet
+#include "_macros.fos"
+#include "_npc_pids.fos"
+#include "_dialogs.fos"
+#include "_bags.fos"
+#include "_teams.fos"
+
+import bool GetNearEntire(Map& map, uint8 number, uint16& hx, uint16& hy) from "entire";
+import bool AddAttackPlane(Critter& npc, uint priority, Critter& target, bool run) from "npc_planes";
+
+#define ENTER_ENTIRE              (0)
+#define EXIT_ENTIRE               (0)
+#define ROLE_GUARD                (29)
+#define PLANE_GOTO_EXIT           (29)
+
+
+void CallTownSupply(Critter& victim, Critter& hostile) // Export
+{
+	if(IsValidForSupply(victim,hostile))
+	{
+		uint count=hostile.Stat[ST_LEVEL]/10+1;
+		if(count>10) count=10;
+		CallSupply(hostile,count);
+	}
+}
+
+bool IsValidForSupply(Critter& victim, Critter& hostile)
+{
+	// Only for humanoids npc in cities
+	if(hostile.IsPlayer() && victim.IsNpc() && victim.Mode[MODE_NO_SUPPLY]==0)
+	{
+		int bt=victim.Stat[ST_BODY_TYPE];
+		if(bt>=BT_MEN && bt<=BT_GHOUL)
+		{
+			Map@ map=hostile.GetMap();
+			if(valid(map))
+			{
+				uint16 locPid=map.GetLocation().GetProtoId();
+				if(LOCATION_IS_CITY(locPid)) return true;
+			}
+		}
+	}
+	return false;
+}
+
+void CallSupply(Critter& target, int supplyCount)
+{
+	Map@ map=target.GetMap();
+	if(not valid(map)) return;
+	uint16 hx=target.HexX,hy=target.HexY;
+	if(not GetNearEntire(map,ENTER_ENTIRE,hx,hy)) return;
+
+	int rnd=Random(0,9);
+	int[] params={ST_BAG_ID,BAG_All_BountyHunters_1+rnd,ST_TEAM_ID,TEAM_Guard,
+		ST_KILL_EXPERIENCE,0,PE_TERMINATOR,1,MODE_NO_STEAL,1,MODE_NO_LOOT,1,MODE_NO_SUPPLY,1};
+	Critter@ npc=map.AddNpc(NPC_PID_BountyHunter_1+rnd,hx,hy,Random(0,5),params,null,"_GuardInit");
+	if(not valid(npc)) return;
+
+	AddAttackPlane(npc,0,target,true);
+
+	if(supplyCount>1) CallSupply(target,supplyCount-1);
+}
+
+void _GuardInit(Critter& npc, bool firstTime)
+{
+	npc.StatBase[ST_NPC_ROLE]=ROLE_GUARD;
+	npc.SetEvent(CRITTER_EVENT_IDLE,"_GuardIdle");
+	npc.SetEvent(CRITTER_EVENT_DEAD,"_GuardDead");
+	npc.SetEvent(CRITTER_EVENT_SMTH_DEAD,"_GuardSmthDead");
+	//npc.SetEvent(CRITTER_EVENT_SMTH_ATTACK,"_GuardSmthAttack");
+	npc.SetEvent(CRITTER_EVENT_PLANE_END,"_GuardPlaneEnd");
+}
+
+void _GuardIdle(Critter& npc)
+{
+	uint16 hx=npc.HexX,hy=npc.HexY;
+	if(not GetNearEntire(npc.GetMap(),EXIT_ENTIRE,hx,hy)) DeleteNpc(npc);
+	else
+	{
+		npc.StatBase[ST_CURRENT_AP]=npc.Stat[ST_ACTION_POINTS]*100;
+		NpcPlane@ plane=CreatePlane();
+		plane.Type=AI_PLANE_WALK;
+		plane.Priority=AI_PLANE_WALK_PRIORITY;
+		plane.Identifier=PLANE_GOTO_EXIT;
+		plane.Walk_HexX=hx;
+		plane.Walk_HexY=hy;
+		plane.Walk_Dir=6;
+		plane.Run=true;
+		plane.Walk_Cut=2;
+		if(not npc.AddPlane(plane)) DeleteNpc(npc);
+	}
+}
+
+void _GuardDead(Critter& npc, Critter@ killer)
+{
+	// if(valid(killer) && IsValidForSupply(npc,killer)) CallSupply(killer,1);
+	DeleteNpc(npc);
+}
+
+void _GuardSmthDead(Critter& npc, Critter& fromCrit, Critter@ killer)
+{
+	if(valid(killer) && killer.IsPlayer()) npc.AddEnemyInStack(killer.Id); // AddAttackPlane(npc,0,killer,true);
+}
+
+void _GuardSmthAttack(Critter& npc, Critter& fromCrit, Critter& target)
+{
+	//npc.AddEnemyInStack
+}
+
+int _GuardPlaneEnd(Critter& npc, NpcPlane& plane, int reason, Critter@ someCr, Item@ someItem)
+{
+	if(plane.Identifier==PLANE_GOTO_EXIT) DeleteNpc(npc);
+	return PLANE_RUN_GLOBAL;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

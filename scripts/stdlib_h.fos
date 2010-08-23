@@ -1,0 +1,94 @@
+
+#define RUN_DIALOG (1)
+#define RUN_TRIGGER (2)
+#define RUN_SCENERY (3)
+#define RUN_ITEM (4)
+#define RUN_MSG (5)
+
+import int SelectRandomDialog(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int ToHeal(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int ShowLocation(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int FadeOut(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int FadeOutAll(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int TransitToGlobal(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int TransitGroupToGlobal(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int TransitToLocation(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int TransitToMap(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int TransitToNewLocation(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int InfoMessage(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int NpcMessageNorm(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int NpcMessageShout(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int NpcMessageWhisp(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int NpcMessageEmo(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int TimeOutSet(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int TimeOutSub(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int TimeOutAdd(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int GroupSetVar(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int ZoneSetShadow(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int SetHomePos(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int NpcTransitToLocation(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int KillNpc(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int KillNpcByRole(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int KillNpcOnMapByRole(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int ToLifeNpc(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int Warn(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int Say(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int SayShout(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int Attack(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int Attack2(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int AttackStop2(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int AttackStop(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int AttackForced2(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int Kill(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int Damage(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int SayEnt(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int DoorOpen(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int DoorClose(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int DoorControl(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int DialogNpc(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import int Secret(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+
+import void DropDrugEffects(Critter& cr) from "drugs";
+
+import void DropRadiation(Critter& cr) from "radiation";

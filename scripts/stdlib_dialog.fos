@@ -1,0 +1,244 @@
+
+#define RUN_DIALOG (1)
+#define RUN_TRIGGER (2)
+#define RUN_SCENERY (3)
+#define RUN_ITEM (4)
+#define RUN_MSG (5)
+
+void r_SelectRandomDialog(Critter& player, Critter@ npc ,int v0,int v1)
+{
+  SelectRandomDialog(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,v1,0,0,0, 0, null);
+}
+
+void r_ToHeal(Critter& player, Critter@ npc )
+{
+  ToHeal(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    0,0,0,0,0, 0, null);
+}
+
+void r_ShowLocation(Critter& player, Critter@ npc ,int v0)
+{
+  ShowLocation(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_FadeOut(Critter& player, Critter@ npc ,int v0)
+{
+  FadeOut(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_FadeOutAll(Critter& player, Critter@ npc ,int v0)
+{
+  FadeOutAll(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_TransitToGlobal(Critter& player, Critter@ npc )
+{
+  TransitToGlobal(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    0,0,0,0,0, 0, null);
+}
+
+void r_TransitGroupToGlobal(Critter& player, Critter@ npc )
+{
+  TransitGroupToGlobal(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    0,0,0,0,0, 0, null);
+}
+
+void r_TransitToLocation(Critter& player, Critter@ npc ,int v0,int v1)
+{
+  TransitToLocation(RUN_DIALOG, player, 0, 0, 0, null, null, null,
+    v0,v1,0,0,0, 0, null);
+}
+
+void r_TransitToMap(Critter& player, Critter@ npc ,int v0)
+{
+  TransitToMap(RUN_DIALOG, player, 0, 0, 0, null, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+import int TransitToMap2(uint8 runType,Critter@ player,int x,int y,int dir,Critter@ npc,Scenery@ scenery,Item@ item,int v0, int v1, int v2, int v3, int v4,int skill,Item@ itemUsed) from "stdlib";
+void r_TransitToMap(Critter& player, Critter@ npc ,int v0, int v1)
+{
+  TransitToMap2(RUN_DIALOG, player, 0, 0, 0, null, null, null,
+    v0,v1,0,0,0, 0, null);
+}
+void r_TransitToNewLocation(Critter& player, Critter@ npc ,int v0)
+{
+  TransitToNewLocation(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_InfoMessage(Critter& player, Critter@ npc ,int v0)
+{
+  InfoMessage(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_NpcMessageNorm(Critter& player, Critter@ npc ,int v0)
+{
+  NpcMessageNorm(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_NpcMessageShout(Critter& player, Critter@ npc ,int v0)
+{
+  NpcMessageShout(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_NpcMessageWhisp(Critter& player, Critter@ npc ,int v0)
+{
+  NpcMessageWhisp(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_NpcMessageEmo(Critter& player, Critter@ npc ,int v0)
+{
+  NpcMessageEmo(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_TimeOutSet(Critter& player, Critter@ npc ,int v0)
+{
+  TimeOutSet(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_TimeOutSub(Critter& player, Critter@ npc ,int v0)
+{
+  TimeOutSub(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_TimeOutAdd(Critter& player, Critter@ npc ,int v0)
+{
+  TimeOutAdd(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_GroupSetVar(Critter& player, Critter@ npc ,int v0,int v1)
+{
+  GroupSetVar(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,v1,0,0,0, 0, null);
+}
+
+void r_ZoneSetShadow(Critter& player, Critter@ npc ,int v0)
+{
+  ZoneSetShadow(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_SetHomePos(Critter& player, Critter@ npc ,int v0)
+{
+  SetHomePos(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_NpcTransitToLocation(Critter& player, Critter@ npc ,int v0)
+{
+  NpcTransitToLocation(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_KillNpc(Critter& player, Critter@ npc ,int v0)
+{
+  KillNpc(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_KillNpcByRole(Critter& player, Critter@ npc ,int v0,int v1)
+{
+  KillNpcByRole(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,v1,0,0,0, 0, null);
+}
+
+void r_KillNpcOnMapByRole(Critter& player, Critter@ npc ,int v0,int v1,int v2)
+{
+  KillNpcOnMapByRole(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,v1,v2,0,0, 0, null);
+}
+
+void r_ToLifeNpc(Critter& player, Critter@ npc )
+{
+  ToLifeNpc(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    0,0,0,0,0, 0, null);
+}
+
+void r_Attack(Critter& player, Critter@ npc ,int v0)
+{
+  Attack(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_Attack2(Critter& player, Critter@ npc ,int v0)
+{
+  Attack2(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_AttackStop2(Critter& player, Critter@ npc ,int v0)
+{
+  AttackStop2(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_AttackStop(Critter& player, Critter@ npc ,int v0)
+{
+  AttackStop(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_AttackForced2(Critter& player, Critter@ npc ,int v0)
+{
+  AttackForced2(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_Kill(Critter& player, Critter@ npc, int v0)
+{
+  Kill(RUN_DIALOG, player, 0, 0, 0, null, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_Damage(Critter& player, Critter@ npc ,int v0,int v1)
+{
+  Damage(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,v1,0,0,0, 0, null);
+}
+
+void r_SayEnt(Critter& player, Critter@ npc ,int v0,int v1)
+{
+  SayEnt(RUN_DIALOG, player, npc.HexX, npc.HexY, npc.Dir, npc, null, null,
+    v0,v1,0,0,0, 0, null);
+}
+
+void r_DoorOpen(Critter& player, Critter@ npc ,int v0)
+{
+  DoorOpen(RUN_DIALOG, player, player.HexX, player.HexY, player.Dir, null, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_DoorClose(Critter& player, Critter@ npc ,int v0)
+{
+  DoorClose(RUN_DIALOG, player, player.HexX, player.HexY, player.Dir, null, null, null,
+    v0,0,0,0,0, 0, null);
+}
+
+void r_DoorControl(Critter& player, Critter@ npc ,int v0,int v1)
+{
+  DoorControl(RUN_DIALOG, player, player.HexX, player.HexY, player.Dir, null, null, null,
+    v0,v1,0,0,0, 0, null);
+}
+
+void r_DropDrugs(Critter & player, Critter @ npc)
+{
+	DropDrugEffects(player);
+}
+
+void r_DropRadiation(Critter & player, Critter @ npc)
+{
+	DropRadiation(player);
+}
