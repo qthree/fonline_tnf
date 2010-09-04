@@ -632,3 +632,26 @@ bool e_BlankKeyUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Sc
 
   return false;
 }
+
+void _LightEnvInit(Item& item, bool firstTime)
+{
+  item.SetEvent(ITEM_EVENT_SKILL, "e_LightEnvSkill");
+}
+
+bool e_LightEnvSkill(Item& item, Critter& cr, int skill)
+{
+//   if(skill == SKILL_LOOT_CRITTER || skill == SKILL_PICK_ON_GROUND || skill == SKILL_PUT_CONT || skill == SKILL_TAKE_ALL_CONT)
+//   {
+    cr.Say(SAY_NETMSG, "Don't steal the light!");
+    return true;
+//   }
+//  return false;
+}
+
+//Sargonius
+//Очистка голодиска
+//А ещё вверху кто-то запорол кодировку русских комментов, беда.
+void _EmptyDisk(Item& item, bool firstTime)
+{
+  item.HolodiskNumber = 0; //Обнуляем номер голодиска
+}

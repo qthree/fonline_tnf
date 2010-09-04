@@ -406,8 +406,9 @@
 	// Initial values of animation 3d layers
 #define ST_ANIM3D_LAYERS            (150)
 // 150..179 reserved for 30 layers
-// 181..199
+// 182..199
 #define ST_PARALYSIS_LEVEL          (180) //Уровень паралича. TabaK
+#define ST_WARNINGS      		    (181) //Количество предупреждений. TabaK
 
 
 	/// Skills

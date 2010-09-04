@@ -1,9 +1,9 @@
-// Author: cvet, hex
+// Author: cvet, Atom
 // Client main script
 // Compile using fo_client.dll
 #include "_client_defines.fos"
 #include "_macros.fos"
-#include "MsgStr.h"
+#include "_msgstr.fos"
 #include "sprite.fos"
 #include "_colors.fos"
 #include "_animation.fos"
@@ -25,11 +25,17 @@ import void CritterGenerate(int[]& data) from "parameters";
 import bool CritterGenerateCheck(int[]& data) from "parameters";
 import void InitNameColorizing() from "name_colorizing";
 import bool TryColorizeCritter(CritterCl& cr) from "name_colorizing";
-
+//binyan - Hotkeys
+import bool IsHotkeysUse() from "hotkeys";
+import void SetHotkeysUse(bool use) from "hotkeys";
+import void TxtInputSet(bool IsInput) from "client_gui"; 
+/////////////////////////////////////////////////////////
 import bool gm_msg(string& message) from "client_gm";
 
 int MouseX=0;
 int MouseY=0;
+
+bool showId = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on client loaded or new client_main.fos script received.
@@ -41,29 +47,49 @@ bool start()
 		return false;
 	}
 
-	if(!LoadDat("fonline001.dat")) Message("File fonline001.dat with patched files not found. Run Updater.exe.");
-	if(!LoadDat("fonline002.dat")) Message("File fonline002.dat with patched files not found. Run Updater.exe.");
-	if(!LoadDat("fonline003.dat")) Message("File fonline003.dat with patched files not found. Run Updater.exe.");
-	if(!LoadDat("fonline004.dat")) Message("File fonline004.dat with patched files not found. Run Updater.exe.");
-	if(!LoadDat("longhairdude.dat")) Message("File longhairdude.dat with Long Hair Dude animations not found. Run Updater.exe.");
-	if(!LoadDat("vaultboy.dat")) Message("File vaultboy.dat with Vault Boy animations not found. Run Updater.exe.");
-	if(!LoadDat("cablack.dat")) Message("File cablack.dat with Black Combat Armor animations not found. Run Updater.exe.");
-	if(!LoadDat("mirelurk.dat")) Message("File mirelurk.dat with Black Combat Armor animations not found. Run Updater.exe.");
-	if(!LoadDat("tnf.dat")) Message("File tnf.dat with Super_Secret_Files not found. Run Updater.exe.");
+	if(!LoadDataFile("longhairdude.dat")) Message("File longhairdude.dat with Long Hair Dude animations not found. Run Updater.exe.");
+	if(!LoadDataFile("vaultboy.dat")) Message("File vaultboy.dat with Vault Boy animations not found. Run Updater.exe.");
+	if(!LoadDataFile("cablack.dat")) Message("File cablack.dat with Black Combat Armor animations not found. Run Updater.exe.");
+	//if(!LoadDataFile("fonline006.dat")) Message("File fonline006.dat with patched files not found. Run Updater.exe.");
+	//if(!LoadDataFile("fonline007.zip")) Message("File fonline007.zip with patched files not found. Run Updater.exe.");
+	if(!LoadDataFile("mirelurk.dat")) Message("File mirelurk.dat with Black Combat Armor animations not found. Run Updater.exe.");
+	if(!LoadDataFile("tnf.zip")) Message("File tnf.zip with Super_Secret_Files not found. Run Updater.exe.");
 
 #include "start_server_client.fos"
 	GUI_Init();
 	InitNameColorizing();
 //TMP  CallSignStart();
 	//InitTestScreen();
+
+	__ShowPlayerNames = true;
+	__ShowNpcNames = true;
+
 	return true;
+
 }
+
+import void SaveNames() from "client_names";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main loop function. Returned time of next call in milliseconds.
 uint loop()
 {
-	return 60000;
+/*	CritterCl@ cr = GetChosen();
+	if(!valid(cr)) return 1000;
+	cr.NameOnHead="|0xff77ff22 "+cr.Name+" |0xffff0000 (Id:"+cr.Id+")\n|0xffAA55BB HexX: "+cr.HexX+"\n|0xff11ffff HexY: "+cr.HexY;
+	return 100;
+*/
+
+	int[] result;
+	GUI_GetActiveScreens(result);
+
+	if(!(GetChosen() is null) && ((result.length()>0 && result[result.length()-1] == CLIENT_MAIN_SCREEN_GAME) || (result.length()>1 && result[result.length()-2] == CLIENT_MAIN_SCREEN_GAME)) )
+	{
+		SaveNames();
+		return 30000;
+	}
+	
+	return 10000;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,7 +158,7 @@ void mouse_move(int x, int y)
 // Return true to disable engine events.
 bool key_down(uint8 key)
 {
-	return GUI_KeyDown(key);
+    return GUI_KeyDown(key);
 }
 
 bool key_up(uint8 key)
@@ -147,19 +173,40 @@ void input_lost()
 	GUI_InputLost();
 }
 
+import string@ GetName(uint id) from "client_names";
+
+import void LoadNames() from "client_names";
+
+uint prevId = 0;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Called on something critter in/out game.
 void critter_in(CritterCl& cr)
 {
+	CritterCl@ ch = GetChosen();
+	if(!(ch is null) && (ch.Id==cr.Id) && (prevId!=cr.Id))
+	{
+		LoadNames();
+		prevId=cr.Id;
+	}
+
+	string@ s_temp = null;
+	
+	@s_temp = GetName(cr.Id);
+
+	if(!(s_temp is null)) cr.Name=s_temp;
+	else if(GetChosen().Id==cr.Id) {}
+	else cr.Name="";
+
 	// Default colors
 	cr.NameColor=COLOR_CRITTER_NAME;
 	cr.ContourColor=(cr.IsPlayer()?COLOR_CONTOUR_YELLOW:COLOR_CONTOUR_RED);
 
 	// Try colorize from file
-	if(TryColorizeCritter(cr)) return;
+	//if(TryColorizeCritter(cr)) return;
 
 	// Karma voting
-	cr.NameColor=COLOR_LIGHT(COLOR_CRITTER_NAME,cr.Stat[ST_PLAYER_KARMA]/10);
+	//cr.NameColor=COLOR_LIGHT(COLOR_CRITTER_NAME,cr.Stat[ST_PLAYER_KARMA]/10);
 
 	// Good / Evil system (not used)
 	// Also see _GoodEvilListChanged in parameters.fos
@@ -237,6 +284,32 @@ bool in_message(string& message, int& sayType, uint& critterId, uint& delay)
 // Call on send message.
 bool out_message(string& message, int& sayType)
 {
+ //binyan - Hotkyes
+if(IsHotkeysUse())
+TxtInputSet(true);
+
+if(findFirst(message, "~hotkeys")==0)
+  {
+    string@[]@ msg = split(message, " ");
+	if(msg.length()==1)
+	   Message("Hotkeys use is now "+(IsHotkeysUse()?"on":"off"));
+	else
+	{
+	   if(msg[1] == "on")
+	      SetHotkeysUse(true);
+	   else if(msg[1] == "off")
+	      SetHotkeysUse(false);
+
+	   if(IsHotkeysUse())
+          TxtInputSet(true);
+  
+	   Message("Hotkeys use is now "+(IsHotkeysUse()?"on":"off"));
+	}
+	return false;
+  }	
+ /////////////////////////////////////////////// 
+
+
 	if(message[0]=='~') // Command
 	{
 		if(message=="~names")
@@ -250,8 +323,7 @@ bool out_message(string& message, int& sayType)
 
 	if(message[0]=='#' || message[0]=='%' || message[0]=='$') //GM
 	{
-		if (gm_msg(message)) return true;
-		else if(message.length()>5) return false;
+		return gm_msg(message);
 	}
 
 	if(sayType==SAY_NORM)
@@ -399,7 +471,8 @@ int to_hit(CritterCl& chosen, CritterCl& target, ProtoItem& weapon, int hitLocat
     // TODO: light penalty
 
     if (chosen.Damage[DAMAGE_EYE]!=0) toHit-=25;
-    if (target.IsKnockout()) toHit+=40; // TODO: must be changed when sliding knockback are implemented
+    if (target.IsKnockout()) toHit+=40;
+    toHit+=target.GetMultihex()*15;
 
     int hitMod=GetHitAim(hitLocation);
     if (skillNum==SK_MELEE_WEAPONS || skillNum==SK_UNARMED) hitMod/=2;
@@ -848,7 +921,8 @@ string item_description(ItemCl& item, int lookType)
 	// Short info
 	else if(lookType==ITEM_LOOK_ONLY_NAME)
 	{
-		result+=ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_ITEM_LOOK),"NAME",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
+		if(showId) result+=ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_ITEM_LOOK),"NAME",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item))+" ("+item.GetProtoId()+":"+item.Id+")");
+		else result+=ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_ITEM_LOOK),"NAME",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
 	}
 	// Full info
 	else
@@ -925,26 +999,38 @@ string critter_description(CritterCl& cr, int lookType)
 		// Only name
 		if(lookType==CRITTER_ONLY_NAME)
 		{
+			//result="|0xff77ff22 "+cr.Name+" |0xffff0000 (Id:"+cr.Id+")\n|0xffAA55BB HexX: "+cr.HexX+"\n|0xff11ffff HexY: "+cr.HexY;		//cr.Name; // No change
 			result=cr.Name; // No change
 		}
 		// Short info
 		else if(lookType==CRITTER_LOOK_SHORT)
 		{
-			result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK1(gender));
-			result+=cr.Name;
-			result+=".";
+			if(showId)
+			{
+				result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK1(gender));
+				result+=cr.Name;
+				result+=". (";
+				result+=cr.Id;
+				result+=")";
+			}
+			else
+			{
+				result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK1(gender));
+				if(cr.Name!="") result+=cr.Name+".";
+				else result+="???";
+			}
 		}
 		// Full info
 		else
 		{
-
 			result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK1(gender));
 
 			// Age
 			uint ageStr=GetMsgStrNumUpper(TEXTMSG_GAME,STR_CRIT_LOOK_AGE(gender,cr.Stat[ST_AGE]));
 			if(ageStr!=0) result+=GetMsgStr(TEXTMSG_GAME,ageStr);
-			else result+=cr.Name;
-			result+=".";
+			else if(cr.Name=="") result+="???";
+			else{ result+=cr.Name;
+			result+=".";}
 
 /*			// Condition
 			if(IsMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_COND(gender,cr.Cond,cr.CondExt)))
@@ -1038,6 +1124,12 @@ string critter_description(CritterCl& cr, int lookType)
 			else if(cr.IsKnockout() && IsMsgStr(TEXTMSG_DLG,STR_NPC_INFO_KO(dlgId,npcPid))) result+=GetMsgStr(TEXTMSG_DLG,STR_NPC_INFO_KO(dlgId,npcPid));
 			else if(cr.IsDead() && IsMsgStr(TEXTMSG_DLG,STR_NPC_INFO_DEAD(dlgId,npcPid))) result+=GetMsgStr(TEXTMSG_DLG,STR_NPC_INFO_DEAD(dlgId,npcPid));
 			else defaultText=true;
+			if(showId)
+			{
+				result+=" (";
+				result+=cr.Id;
+				result+=")";
+			}
 		}
 		// Full info
 		else
@@ -1068,6 +1160,7 @@ string critter_description(CritterCl& cr, int lookType)
 	// Additional description
 	if(lookType==CRITTER_LOOK_FULL)
 	{
+		if(result.length()>0 && result[result.length()-1]!='.') result+=".";
 		result+=" ";
 		CritterCl@ chosen=GetChosen();
 		if(valid(chosen) && chosen.Perk[PE_AWARENESS]!=0) // Awareness
@@ -1137,35 +1230,46 @@ string critter_description(CritterCl& cr, int lookType)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Elevator generation.
 // Data specification:
-// 1 current level
+// 1
 // 1 start level
 // 1 levels count
-// 1 main pic offset in INTRFACE.LST
+// 1 main pic
 // 2 main pic width, height
-// 1 additional pic offset in INTRFACE.LST
+// 1 additional pic offset
 // 2 additional pic point
 // 1 indicator animation offset in INTRFACE.LST
 // 2 indicator animation point
 // 1 button down pic offset in INTRFACE.LST
 // 1 buttons count
 // 4 rect for every button
-
 bool get_elevator(uint type, uint[]& data)
 {
+	const string iface = "art\\intrface\\";
 	const uint[][] elevators={
-		{0,1,4,  143, 230,284,    0, 0, 0,  149, 121,41,  141, 4, 11,42,58,91, 11,102,58,151, 11,162,58,211, 11,222,58,271}, // 0) BOS 1234
-		{0,0,2,  143, 230,284,  150, 0,37,  149, 121,41,  141, 2, 11,42,58,91, 11,102,58,151}, // 1) BOS G1
-		{0,1,3,  144, 230,284,    0, 0, 0,  149, 121,41,  141, 3, 11,42,58,91, 11,102,58,151, 11,162,58,211}, // 2) Master 123
-		{0,3,2,  144, 230,284,  145, 0,37,  149, 121,41,  141, 2, 11,42,58,91, 11,102,58,151}, // 3) Master 34
-		{0,1,3,  146, 231,285,    0, 0, 0,  149, 121,41,  141, 3, 11,42,58,91, 11,102,58,151, 11,162,58,211}, // 4) Military 123
-		{0,3,4,  146, 231,285,  147, 0,37,  149, 121,41,  141, 2, 11,42,58,91, 11,102,58,151}, // 5) Military 34
-		{0,3,3,  146, 231,285,  151, 0,37,  149, 121,41,  141, 3, 11,42,58,91, 11,102,58,151, 11,162,58,211}, // 6) Military 346
-		{0,4,3,  146, 231,285,  152, 0,37,  149, 121,41,  141, 3, 11,42,58,91, 11,102,58,151, 11,162,58,211}, // 7) Military 456
-		{0,1,3,  148, 230,284,    0, 0, 0,  149, 121,41,  141, 3, 11,42,58,91, 11,102,58,151, 11,162,58,211}, // 8) Vault 123
+	//	 Level current, start, count               Main picture size                          Additional picture size                            Indicator animation size                  Buttons count
+	//	         Main picture                               Additional picture                       Indicator animation                                  Button down picture                 Button coordinates
+		// 0) BOS 1234
+		{0,1,4,  GetStrHash(iface+"EL_BOS.FRM"),   230,284, 0,                                0, 0,  GetStrHash(iface+"elevator_indicator.frm"), 121,41,  GetStrHash(iface+"EBUT_IN.FRM"), 4, 11,42,58,91, 11,102,58,151, 11,162,58,211, 11,222,58,271},
+		// 1) BOS G1
+		{0,0,2,  GetStrHash(iface+"EL_BOS.FRM"),   230,284, GetStrHash(iface+"EL_BOS2.FRM"),  0,37,  GetStrHash(iface+"elevator_indicator.frm"), 121,41,  GetStrHash(iface+"EBUT_IN.FRM"), 2, 11,42,58,91, 11,102,58,151},
+		// 2) Master 123
+		{0,1,3,  GetStrHash(iface+"EL_MAST1.FRM"), 230,284, 0,                                0, 0,  GetStrHash(iface+"elevator_indicator.frm"), 121,41,  GetStrHash(iface+"EBUT_IN.FRM"), 3, 11,42,58,91, 11,102,58,151, 11,162,58,211},
+		// 3) Master 34
+		{0,3,2,  GetStrHash(iface+"EL_MAST1.FRM"), 230,284, GetStrHash(iface+"EL_MAST2.FRM"), 0,37,  GetStrHash(iface+"elevator_indicator.frm"), 121,41,  GetStrHash(iface+"EBUT_IN.FRM"), 2, 11,42,58,91, 11,102,58,151},
+		// 4) Military 123
+		{0,1,3,  GetStrHash(iface+"EL_MIL1.FRM"),  231,285, 0,                                0, 0,  GetStrHash(iface+"elevator_indicator.frm"), 121,41,  GetStrHash(iface+"EBUT_IN.FRM"), 3, 11,42,58,91, 11,102,58,151, 11,162,58,211},
+		// 5) Military 34
+		{0,3,4,  GetStrHash(iface+"EL_MIL1.FRM"),  231,285, GetStrHash(iface+"EL_MIL2.FRM"),  0,37,  GetStrHash(iface+"elevator_indicator.frm"), 121,41,  GetStrHash(iface+"EBUT_IN.FRM"), 2, 11,42,58,91, 11,102,58,151},
+		// 6) Military 346
+		{0,3,3,  GetStrHash(iface+"EL_MIL1.FRM"),  231,285, GetStrHash(iface+"EL_MIL3.FRM"),  0,37,  GetStrHash(iface+"elevator_indicator.frm"), 121,41,  GetStrHash(iface+"EBUT_IN.FRM"), 3, 11,42,58,91, 11,102,58,151, 11,162,58,211},
+		// 7) Military 456
+		{0,4,3,  GetStrHash(iface+"EL_MIL1.FRM"),  231,285, GetStrHash(iface+"EL_MIL4.FRM"),  0,37,  GetStrHash(iface+"elevator_indicator.frm"), 121,41,  GetStrHash(iface+"EBUT_IN.FRM"), 3, 11,42,58,91, 11,102,58,151, 11,162,58,211},
+		// 8) Vault 123
+		{0,1,3,  GetStrHash(iface+"EL_VAULT.FRM"), 230,284, 0,                                0, 0,  GetStrHash(iface+"elevator_indicator.frm"), 121,41,  GetStrHash(iface+"EBUT_IN.FRM"), 3, 11,42,58,91, 11,102,58,151, 11,162,58,211},
 	};
 
-	uint index=type&0xFFFF;
-	uint currentLevel=type>>16;
+	uint index=(type&0xFFFF);
+	uint currentLevel=(type>>16);
 
 	if(index>8) return false;
 	data=elevators[index];
@@ -1230,7 +1334,6 @@ bool player_data_check(int[]& data)
 // Call on some critter action.
 void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, ItemCl@ item)
 {
-	
 	// Not process locally called actions
 	if(cr.IsChosen() && not localCall)
 	{
@@ -1242,17 +1345,35 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 		case ACTION_USE_ITEM:
 		case ACTION_DROP_ITEM:
 		//case ACTION_USE_WEAPON:   binyan - правка дл€ м€ча
-		//case ACTION_PICK_ITEM:
 		case ACTION_RELOAD_WEAPON:
 		case ACTION_USE_SKILL:
-		case ACTION_PICK_CRITTER:
+		//case ACTION_PICK_ITEM:
+		//case ACTION_PICK_CRITTER:
 		case ACTION_OPERATE_CONTAINER: return;
 		default: break;
 		}
 	}
+	/* else if(cr.IsChosen() && localCall)
+	{
+		switch(action)
+		{
+		//case ACTION_SHOW_ITEM:
+		//case ACTION_HIDE_ITEM:
+		//case ACTION_MOVE_ITEM:
+		//case ACTION_USE_ITEM:
+		//case ACTION_DROP_ITEM:
+		//case ACTION_USE_WEAPON:
+		//case ACTION_PICK_ITEM:
+		//case ACTION_RELOAD_WEAPON:
+		//case ACTION_USE_SKILL:
+		//case ACTION_PICK_CRITTER:
+		//case ACTION_OPERATE_CONTAINER: return;
+		default: break;
+		}
 
+	}
+*/
 	const ProtoItem@ proto=(valid(item)?item.Proto:cr.GetSlotProto(SLOT_HAND1));
-	
 	bool is2d=(not cr.IsAnim3d());
 
 	if((action>=ACTION_SHOW_ITEM && action<=ACTION_OPERATE_CONTAINER) || action==ACTION_STANDUP) cr.Wait(__Breaktime);
@@ -1268,7 +1389,7 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 		// cr.Wait(run time);
 		break;
 	case ACTION_SHOW_ITEM:
-		if(cr.IsLife() && valid(proto)) 
+		if(cr.IsLife() && valid(proto))
 		{
 		if(proto.GetProtoId()==585) return; //»гнорируем перекладывание м€ча в руку. binyan
 			cr.ClearAnim();
@@ -1404,7 +1525,7 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 		}
 		break;
 	case ACTION_USE_SKILL:
-		if(cr.IsLife() && actionExt!=SK_SNEAK)
+		if(cr.IsLife() && actionExt!=SK_SNEAK && actionExt!=SK_STEAL)
 		{
 			cr.ClearAnim();
 			if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE);
@@ -1436,8 +1557,9 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 			switch(actionExt) // 0 - loot, 1 - steal, 2 - push
 			{
 			case 0: if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_PICKUP); else cr.Animate(0,ANIM2_3D_PICKUP); break;
-			case 1: if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE); else cr.Animate(0,ANIM2_3D_USE); break;
+			//case 1: if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE); else cr.Animate(0,ANIM2_3D_USE); break;
 			case 2: if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_PUNCH); else cr.Animate(0,ANIM2_3D_PUNCH_LEFT); break;
+			case 3: if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE); else cr.Animate(0,ANIM2_3D_USE); break;
 			default: break;
 			}
 		}
@@ -1453,6 +1575,10 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 			{
 				if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_PICKUP);
 				else cr.Animate(0,ANIM2_3D_PICKUP);
+			}
+			else if(transferType==TRANSFER_CRIT_STEAL)
+			{
+				uint temp = 1;
 			}
 			else
 			{
@@ -1479,6 +1605,29 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 			{
 				if(cr.IsLife()) cr.Animate(0,actionExt==0?ANIM2_3D_DAMAGE_FRONT:ANIM2_3D_DAMAGE_BACK);
 				else if(cr.IsKnockout()) cr.Animate(0,actionExt==0?ANIM2_3D_DAMAGE_PRONE_FRONT:ANIM2_3D_DAMAGE_PRONE_BACK);
+			}
+		}
+		break;
+	case ACTION_DAMAGE_FORCE:
+		if(is2d)
+		{
+			if(cr.IsLife())
+			{
+				cr.ClearAnim();
+				cr.Animate(ANIM1_UNARMED,actionExt==0?ANIM2_2D_DAMAGE_FRONT:ANIM2_2D_DAMAGE_BACK);
+			}
+		}
+		else
+		{
+			if(cr.IsLife())
+			{
+				cr.ClearAnim();
+				cr.Animate(0,actionExt==0?ANIM2_3D_DAMAGE_FRONT:ANIM2_3D_DAMAGE_BACK);
+			}
+			else if(cr.IsKnockout())
+			{
+				cr.ClearAnim();
+				cr.Animate(0,actionExt==0?ANIM2_3D_DAMAGE_PRONE_FRONT:ANIM2_3D_DAMAGE_PRONE_BACK);
 			}
 		}
 		break;
@@ -1813,18 +1962,8 @@ void items_collection(int collection, ItemCl@[]& items)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void _showId(int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	showId = (param0!=0);
+}
 

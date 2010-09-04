@@ -1,0 +1,78 @@
+#include "_client_defines.fos"
+import void GUI_GetActiveScreens(int[]& result) from "client_gui";
+
+
+
+dictionary Screens;
+
+int FindInArray(int[]& arr, int value)
+{
+    uint count=arr.length();
+    for (uint i=0; i<count; i++)
+    {
+        if (arr[i]==value)
+            return i;
+    }
+    return -1;
+}
+
+bool IsAllowedScreen(int scr)
+{
+return Screens.exists(""+scr+"");
+
+}
+void LoadScreensDict()
+{
+	//Primaryscreens,hardcoded
+Screens.set("MAIN_SCREEN_GAME",5);
+//Screens.set("MAIN_SCREEN_GLOBAL_MAP",6);
+	//Secondaryscreens,hardcoded
+Screens.set("INVENTORY",10);
+Screens.set("MINIMAP",12);
+Screens.set("CHARACTER",13);
+Screens.set("PIP_BOY",16);
+Screens.set("FIX_BOY",17);
+Screens.set("MENU",18);
+Screens.set("SKILLBOX",30);
+
+
+Screens.set("5", "MAIN_SCREEN_GAME");
+Screens.set("10", "INVENTORY");
+Screens.set("12", "MINIMAP");
+Screens.set("13", "CHARACTER");
+Screens.set("16", "PIP_BOY");
+Screens.set("17", "FIX_BOY");
+Screens.set("18", "MENU");
+Screens.set("30", "SKILLBOX");
+}
+
+void RunClientCommand(string type, string command)
+{
+if(type=="SCREEN")
+      {
+    	int[] ActiveScreens;
+    	GUI_GetActiveScreens(ActiveScreens);
+	    if(command=="MENU")
+	    {
+	    if(ActiveScreens.length()>1)
+	       {
+	       HideScreen(ActiveScreens[ActiveScreens.length()-1],0,0,0);
+	       return;
+	       }	
+	    }
+	    int Screen;
+	    Screens.get(command, Screen); 
+	    if(  (FindInArray(ActiveScreens, Screen)==-1)  ||  ((ActiveScreens.length()>2)&&(ActiveScreens[ActiveScreens.length()-1]!=Screen))  )
+	       ShowScreen(Screen,0,0,0); 
+	    else
+           HideScreen(Screen,0,0,0); 
+      } 
+
+}
+
+void RunServerCommand(string type, string command)
+{
+}
+
+
+

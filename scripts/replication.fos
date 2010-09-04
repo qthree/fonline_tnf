@@ -31,23 +31,12 @@ Map@ GetCurReplicatorMap()
 	return GetMapByPid(replMapPid,0);
 }*/
 
-
+/*
 void SetStartLocation(Critter& cr) // Export
 {
-	uint zoneX=cr.WorldX/__GlobalMapZoneLength;
-	uint zoneY=cr.WorldY/__GlobalMapZoneLength;
-	cr.SetFog(zoneX  ,zoneY  ,FOG_FULL);
-	cr.SetFog(zoneX-1,zoneY-1,FOG_FULL);
-	cr.SetFog(zoneX  ,zoneY-1,FOG_FULL);
-	cr.SetFog(zoneX+1,zoneY-1,FOG_FULL);
-	cr.SetFog(zoneX-1,zoneY  ,FOG_FULL);
-	cr.SetFog(zoneX+1,zoneY  ,FOG_FULL);
-	cr.SetFog(zoneX-1,zoneY+1,FOG_FULL);
-	cr.SetFog(zoneX  ,zoneY+1,FOG_FULL);
-	cr.SetFog(zoneX+1,zoneY+1,FOG_FULL);
-
-	 deact(cr);
+	
 }
+*/
 
 int max(int a, int b)
 {

@@ -5,6 +5,7 @@
 #include "_macros.fos"
 // #include "math.fos"
 
+#define PID_FIREBARREL	(7900)
 #define PID_FIREPLACE 	(7901)
 #define PID_CACTUS_1	(7905)
 #define PID_CACTUS_2	(7906)
@@ -78,6 +79,12 @@ void _InitItem (Item& item, bool firstTime)
 	uint8 charges = Random(10,15);
 	item.Val3 = charges;
 	item.Val4 = charges;
+      }
+      
+      if(item.GetProtoId() == PID_FIREBARREL)
+      {
+	item.Val2 = 1;
+	item.Val4 = 1;
       }
 //     
       if(item.Val2 != 0)
@@ -437,9 +444,16 @@ uint e_FireWoodInBarrel(uint[]@ values)
   if(item.Val3 > 0) 
   {
     item.Val3 -= 1;
-    item.Val5 = CreateTimeEvent(__FullMinute+30,"e_FireWoodInBarrel", values, false);
+    item.Val5 = CreateTimeEvent(__FullMinute+50,"e_FireWoodInBarrel", values, false);
   } else 
   {
+   if(item.GetProtoId() == PID_FIREPLACE)
+    {
+      ChangeFrame(item, 1);
+      EraseTimeEvent(item.Val5);
+      item.Val5 = CreateTimeEvent(__FullMinute,"e_FirePlaceBurningDown", values, false);
+      return 0;
+    }
     ChangeFrame(item, 0);
     item.SetEvent(ITEM_EVENT_SKILL, "e_BrokenItem"); 
     item.Val2 = 1; 
@@ -447,11 +461,7 @@ uint e_FireWoodInBarrel(uint[]@ values)
     EraseTimeEvent(item.Val5);
     item.Val5 = 0;
     LightControl(item, false, 0, 0);
-    if(item.GetProtoId() == PID_FIREPLACE)
-    {
-      
-      item.Val5 = CreateTimeEvent(__FullMinute+10,"e_FirePlaceBurningDown", values, false);
-    }
+  
   }
   return 0;
 }
@@ -471,8 +481,8 @@ bool e_2_Repair(Item& item, Critter& cr, Item@ usedItem)
 	    {
 	      case PID_BOTTLE_FULL : item.Val2 = 1; 
 				     item.Val4 = 1;  
-				     ChangeFrame(item, 0);  
-				     item.Val5 = CreateTimeEvent(__FullMinute+10,"e_FirePlaceBurningDown", values, false); 
+				     ChangeFrame(item, 1);  
+				     item.Val5 = CreateTimeEvent(__FullMinute,"e_FirePlaceBurningDown", values, false); 
 				     DeleteUsedItem(usedItem); 
 				     return true;
 	      case PID_FIREWOOD : item.Val3 += 1; cr.Say(SAY_NETMSG, "Вы добавили немного дерева."); EnterItem(item, usedItem, 1); return true;
@@ -583,6 +593,7 @@ bool e_3_Skill(Item& item, Critter& cr, int skill)
 
 bool e_3_BrokenWell(Item& item, Item& usedItem)
 {
+  return false; //hot shit fix
   Critter @ cr = GetCritter(usedItem.CritId);
   uint8 failChance = Random(0,99);
   if(cr.StatBase[ST_LUCK] * 10 < failChance)

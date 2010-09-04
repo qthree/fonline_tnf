@@ -11,6 +11,21 @@
 #define REMOVE_FROM_ARRAY #(a,idx)       { if (a.length() > 0 && uint(idx) < a.length()) for (uint iter=idx; iter<a.length()-1; iter++) { a[iter]=a[iter+1]; }; a.resize(a.length()-1); }
 #define IS_COLLISION #(x1,y1,x2,y2,w,h)  ((x1)>=(x2) && (x1)<=(x2)+(w) && (y1)>=(y2) && (y1)<=(y2)+(h))
 
+//binyan - Hotkeys
+import void SetHotkeysUse(bool use) from "hotkeys";
+import bool ProcessCommand(uint8 curKey, uint8 prevKey, bool[] KeysPressed) from "hotkeys";
+import bool IsAllowedScreen(int scr) from "hotkey_commands";
+import bool IsHotkeysUse() from "hotkeys";
+uint8 previews;
+bool TxtInput=false;
+
+void TxtInputSet (bool IsInput) //Export
+{
+TxtInput = IsInput;
+}
+///////////////////////////////////
+
+
 GUIScreen@[] AllScreens;
 GUIScreen@[] ActiveScreens;
 bool[] KeyPressed;
@@ -153,6 +168,8 @@ class GUIElement : IGUIElementOpt
 	IGUIElementCallbackKeyPress@ CallbackKeyPress;
 }
 
+import bool NameClick(CritterCl@ target, int click) from "client_names";
+
 class GUIScreen : IGUIScreenOpt
 {
 	GUIScreen(string@ sprName, int path)
@@ -182,6 +199,17 @@ class GUIScreen : IGUIScreenOpt
 
 	bool MouseDown(int click, int x, int y)
 	{
+		if(IsHardcoded && Index==CLIENT_MAIN_SCREEN_GAME && GetCurrentCursor()==CURSOR_USE_SKILL)
+		{
+				CritterCl@ target = GetMonitorCritter(x, y);
+
+				if(NameClick(target, click))
+				{
+					ChangeCursor(CURSOR_DEFAULT);
+					return true;
+				}	
+ 		}
+
 		for(uint i=0,j=Elements.length();i<j;i++) Elements[i].IsFocused=false;
 		for(uint i=Elements.length();i>0;)
 		{
@@ -259,12 +287,42 @@ class GUIScreen : IGUIScreenOpt
 
 	bool KeyPress(uint8 key)
 	{
-		for(uint i=0,j=Elements.length();i<j;i++)
+
+	//binyan - Hotkeys
+	if(IsHotkeysUse())
+	{
+	  bool ScreenExists=false;
+	  for(uint i = 0; i<ActiveScreens.length(); i++)
+	  {
+	     if(ActiveScreens[i].Index==CLIENT_MAIN_SCREEN_GAME)
+	     {
+	        ScreenExists=true;
+  		    break;
+   	     }
+	  }
+	  if(((key==DIK_RETURN)||(key==DIK_NUMPADENTER)) && ScreenExists)
+	  {
+  	     TxtInput=!TxtInput;
+	     return false;
+	  }
+
+	  if(TxtInput==false)
+	  {
+	      if(IsAllowedScreen(Index))
+		      return ProcessCommand(key, previews, KeyPressed);
+
+	  }
+	}
+	////////////////////////////////////////////////
+	
+	
+    for(uint i=0,j=Elements.length();i<j;i++)
 		{
 			GUIElement@ e=Elements[i];
 			if(e.IsFocused && e.IsTextInput) return e.KeyPress(key);
 		}
-		return false;
+	return false;
+	
 	}
 
 	void InputLost()
@@ -372,6 +430,7 @@ IGUIElementOpt@ GUI_GetElementOptions()
 
 void GUI_Init()
 {
+    SetHotkeysUse(true); //binyan -Hotkeys
 	AllScreens.resize(0);
 	ActiveScreens.resize(0);
 	KeyPressed.resize(0x100);
@@ -410,6 +469,7 @@ void GUI_Init()
 	CreateScreen(CLIENT_SCREEN_USE,null);
 	CreateScreen(CLIENT_SCREEN_PERK,null);
 	CreateScreen(CLIENT_SCREEN_TOWN_VIEW,null);
+	CreateScreen(CLIENT_SCREEN_SAVE_LOAD,null);
 	for(uint i=0,j=AllScreens.length();i<j;i++) AllScreens[i].IsHardcoded=true;
 
 	// Keyboard init
@@ -604,10 +664,19 @@ void GUI_MouseMove(int x, int y)
 
 bool GUI_KeyDown(uint8 key)
 {
+bool result;
+	//if(key==DIK_F6) return true;
 	if(KeyPressed.length()!=0) KeyPressed[key]=true;
 	uint len=ActiveScreens.length();
-	if(len!=0) return ActiveScreens[len-1].KeyPress(key);
-	return false;
+	if(len!=0)
+	   result = ActiveScreens[len-1].KeyPress(key);
+	else 
+	   result = false;
+	
+	if(IsHotkeysUse())
+	previews = key; //binyan - Hotkeys
+	
+	return result;
 }
 
 bool GUI_KeyUp(uint8 key)
@@ -671,6 +740,7 @@ GUIScreen@ GetScreen(int screenIndex)
 
 bool ProcessKey(uint8 key, string& text, uint8& letter)
 {
+
 	if(KeyPressed.length()==0) return false;
 
 	if(key==DIK_BACK)

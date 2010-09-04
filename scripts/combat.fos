@@ -18,6 +18,8 @@ import void AffectRadiation(Critter& cr, int value) from "radiation";
 import int GetDamageResistance(Critter& cr, int dmgType) from "parameters";
 import int GetDamageThreshold(Critter& cr, int dmgType) from "parameters";
 import void QuakeScreen(Map& map) from "effects";
+import void AffectParalysis(Critter& cr, int value) from "paralysis"; //TabaK
+import void AffectPoisonByCritter(Critter& cr, int value, Critter& atacker)  from "poison"; //TabaK
 
 //binyan
 /*---------------------------Ball---------------------------------------------*/
@@ -125,9 +127,7 @@ class AttackStruct
   int DDMod;
   uint TargetId;
   bool TargetHit;
-  #ifdef FO2238
-  ProtoItem@ Ammo;
-  #endif
+   ProtoItem@ Ammo;
 
   AttackStruct()
   {
@@ -154,10 +154,8 @@ class AttackStruct
 
     TargetId=0;
     TargetHit=false;
-    #ifdef FO2238
-    @Ammo = null;
-    #endif
-  }
+     @Ammo = null;
+   }
 };
 
 
@@ -359,9 +357,8 @@ if((target.GetProtoId()!=NPC_PID_Ball)&&(weapPid!=PID_BALL)) //binyan - если бро
   attack.DmgMax=weapon.Weapon_DmgMax;
   attack.DmgType=dmgType;
   attack.BonusDmg=0;
-  #ifdef FO2238
   @attack.Ammo = ammo;
-  #endif
+ 
 
   if (isHthAttack) attack.DmgMax+=cr.Stat[ST_MELEE_DAMAGE];
   if (weaponSubtype == WS_GUN) attack.BonusDmg+=cr.Perk[PE_BONUS_RANGED_DAMAGE]*2;
@@ -1927,11 +1924,14 @@ f.close();
     else
     if (attackerBt == BT_ALIEN)    { if (Random(2,11)>target.Stat[ST_LUCK])  AffectRadiation(target, Random(10,40));}
   }
-
+  if(valid(attack.Ammo) && valid(attack.Attacker) && attack.Ammo.GetProtoId()==PID_NEED_CART_POISON) AffectPoisonByCritter(target,25,attack.Attacker); // Проверка на картридж с ядом
+  if(valid(attack.Ammo) && attack.Ammo.GetProtoId()==PID_NEED_CART_NT) AffectParalysis(target,50);  // и нейротоксином - TabaK
+  
   #ifdef FO2238
   post_damage(target);
   #endif
   return;
+  
 }
 
 

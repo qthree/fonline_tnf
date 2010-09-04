@@ -220,6 +220,7 @@
 #define PID_HN_NEEDLER_CARTRIDGE            (361)
 #define PID_HN_AP_NEEDLER_CARTRIDGE         (362)
 #define PID_DEFIB                           (588)
+#define PID_ANTIDOTE_2                      (589)
 
 // Special
 #define PID_ROBO_ROCKET_AMMO                (274)

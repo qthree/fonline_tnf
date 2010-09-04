@@ -3,10 +3,12 @@
 
 // import void AffectPoison(Critter& cr, int value) from "poison";
 // import void DropPoison(Critter& cr) from "poison";
+// import void AffectPoisonByCritter(Critter& cr, int value, Critter& atacker)  from "poison";  //TabaK
 
 #include "_macros.fos"
 
 #define POISON_IDENTIFIER          (1)
+#define POISON_IDENTIFIER_BY_CR    (2)
 #define POISON_BASE_DURATION       (505*__TimeMultiplier) // In game seconds, need div on 60
 #define POISON_DURATION_SUB        (5*__TimeMultiplier) // In game seconds, need div on 60
 
@@ -14,7 +16,6 @@
 #define STR_POISON_PROCESS         (12811)
 #define STR_POISON_REDUCE          (12812)
 #define STR_POISON_FREE            (12813)
-
 
 void AffectPoison(Critter& cr, int value) // Export
 {
@@ -76,6 +77,7 @@ void AffectPoison(Critter& cr, int value) // Export
 void DropPoison(Critter& cr) // Export
 {
 	cr.EraseTimeEvents(POISON_IDENTIFIER);
+	cr.EraseTimeEvents(POISON_IDENTIFIER_BY_CR);
 	cr.StatBase[ST_POISONING_LEVEL]=0;
 	if(cr.Damage[DAMAGE_POISONED]!=0) cr.DamageBase[DAMAGE_POISONED]=0;
 }
@@ -114,6 +116,96 @@ uint GetPoisonDuration(Critter& cr)
 	return duration;
 }
 
+///////////////////////////Отсебятина Табака. Нанесение урона ядом с указателем на криттера, причинившего отравление.////////////////////////////////////////////
+void AffectPoisonByCritter(Critter& cr, int value, Critter& atacker) // Export
+{
+	if(cr.IsDead()) return;
+
+	uint[] indexes;
+	uint[] durations;
+	bool isActive=cr.GetTimeEvents(POISON_IDENTIFIER,indexes,durations,null)!=0;
+	int levelVal=cr.Stat[ST_POISONING_LEVEL];
+	int resistVal=cr.Stat[ST_POISON_RESISTANCE];
+
+	if(value>0) value-=value*resistVal/100;
+	else if(levelVal==0) return;
+	cr.StatBase[ST_POISONING_LEVEL]=CLAMP(levelVal+value,0,2000);
+	levelVal=cr.Stat[ST_POISONING_LEVEL];
+
+	uint strNum=0;
+	if(levelVal==0) strNum=STR_POISON_FREE;
+	else if(value>0) strNum=STR_POISON_GAIN;
+	else if(value<0) strNum=STR_POISON_REDUCE;
+	if(strNum!=0) cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,strNum);
+
+	if(levelVal>0)
+	{
+		if(cr.Damage[DAMAGE_POISONED]==0) cr.DamageBase[DAMAGE_POISONED]=1;
+
+		if(levelVal>100)
+		{
+			int hp=levelVal-100;
+			cr.StatBase[ST_CURRENT_HP]-=hp;
+			if(cr.Stat[ST_CURRENT_HP]<=0)
+			{
+			cr.ToDead(Random(0,1)==0?COND_DEAD_FRONT:COND_DEAD_BACK,null);
+			if(valid(atacker) && cr.IsNpc())atacker.ParamBase[ST_EXPERIENCE]+=cr.Param[ST_KILL_EXPERIENCE];
+			}
+			cr.StatBase[ST_POISONING_LEVEL]=100;
+		}
+	}
+	else
+	{
+		if(cr.Damage[DAMAGE_POISONED]!=0) cr.DamageBase[DAMAGE_POISONED]=0;
+	}
+
+	if(isActive) // Try hurry event, if new stage aviable
+	{
+		if(levelVal==0)
+		{
+			cr.EraseTimeEvents(POISON_IDENTIFIER_BY_CR);
+		}
+		else
+		{
+			uint oldDuration=durations[0];
+			uint newDuration=GetPoisonDuration(cr);
+			if(newDuration<oldDuration) cr.ChangeTimeEvent(indexes[0],newDuration,0);
+		}
+	}
+	else // Try start new event
+	{
+		cr.AddTimeEvent("cte_Poison_By_Cr",GetPoisonDuration(cr),POISON_IDENTIFIER_BY_CR, atacker.Id);
+	}
+}
+
+
+uint cte_Poison_By_Cr(Critter& cr, int identifier, uint& rate)
+{
+	Critter@ atacker=GetCritter(rate);
+	if(cr.IsDead()) return 100;
+
+	int levelVal=cr.Stat[ST_POISONING_LEVEL];
+	if(levelVal>0)
+	{
+		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_POISON_PROCESS);
+		cr.StatBase[ST_POISONING_LEVEL]=CLAMP(levelVal-2,0,2000);
+		cr.StatBase[ST_CURRENT_HP]--;
+		if(cr.Stat[ST_CURRENT_HP]<=0)
+		{
+		cr.ToDead(Random(0,1)==0?COND_DEAD_FRONT:COND_DEAD_BACK,null);
+		if(valid(atacker) && cr.IsNpc())atacker.ParamBase[ST_EXPERIENCE]+=cr.Param[ST_KILL_EXPERIENCE];
+		return 0;
+		}
+	}
+
+	if(cr.Stat[ST_POISONING_LEVEL]==0)
+	{
+		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_POISON_FREE);
+		if(cr.Damage[DAMAGE_POISONED]!=0) cr.DamageBase[DAMAGE_POISONED]=0;
+		return 0;
+	}
+return 0;
+}
 
 /* fallout2 revers engineering by Atom
 

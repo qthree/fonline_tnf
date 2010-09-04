@@ -450,3 +450,27 @@ void SetParam(Critter& player, int crId, int num, int val)
 	Critter@ toCr=GetCritter(crId);
 	if(valid(toCr)) { toCr.ParamBase[num]=val; player.Say(SAY_NETMSG, "Done.");}
 }
+
+void GetId(Critter& player, int playerId, int param1, int param2)
+{
+	player.ShowScreen(SCREEN_CLOSE,0,"");
+	player.ShowScreen(SCREEN_SAY,0,"answer_GetId");
+	player.Say(SAY_SAY_TITLE,"Введите логин персонажа.");
+}
+
+void answer_GetId(Critter& player, uint answerI, string& answerS)
+{
+	if(answerS.length()<3) return;
+
+	Critter@ cr = GetPlayer(answerS);
+
+	if(!valid(cr)) {player.Say(SAY_NETMSG, "Нет такого персонажа."); return;}
+
+	player.Say(SAY_NETMSG, "Login: "+answerS+" Id: "+cr.Id);
+}
+
+void showId(Critter& player, int param0, int param1, int param2)
+{
+	player.RunClientScript("client_main@_showId", param0, 0, 0, null, null);
+
+}

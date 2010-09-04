@@ -43,6 +43,11 @@ bool gm_msg_cmd(string& message)
 				message = "~run debug ctd "+ ARG_NUM(1) + " 0 0";
 				return true;
 			}
+			else if(CH_P(0, "#w"))
+			{
+				message = "~run warning Warn "+ ARG_NUM(1) + " 0 0";
+				return true;
+			}
 		}
 	}
 

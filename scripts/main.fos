@@ -16,10 +16,15 @@ import bool UseAxeOnTree(Critter@ cr, Scenery@ tree) from "scenery";
 import bool UseItemOnCar(Critter& cr, Item& car, Item& item) from "car";
 import bool UseSkillOnCar(Critter& cr, Item& car, int skill) from "car";
 
+import void DropPoison(Critter& cr) from "poison";					// TabaK
+import void DropParalysis(Critter& cr, int value) from "paralysis"; // Для противоядия
+import void AffectParalysis(Critter& cr, int value) from "paralysis"; // и яда
+import void DropParalysisInstant(Critter& cr) from "paralysis";
+
 import void WorldmapInit() from "worldmap";
 import void FindEncounter(Critter@[]& group, Item@ car, uint x, uint y, uint& encounterDescriptor, bool& waitForAnswer, bool empty) from "worldmap";
 import void InviteToEncounter(Critter@[]& group, Item@ car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir) from "worldmap";
-import void SetStartLocation(Critter& cr) from "replication";
+//import void SetStartLocation(Critter& cr) from "replication";
 import void SetReplicationTime(Critter& cr) from "replication";
 import void ReplicateCritter(Critter& cr) from "replication";
 import void CombatAttack(Critter& cr, Critter& target, ProtoItem& weapon, ProtoItem@ ammo, uint8 aim) from "combat";
@@ -45,10 +50,9 @@ import int GetWearProcent(Item& item) from "repair";
 import void SetWear(Item& item, int wearProcent) from "repair";
 import void NpcProcessLevel(Critter& npc) from "parameters";
 
-//import bool CheckTradeInterest(Item@[]& saleItems, uint[]& saleItemsCount, Item@[]& buyItems, uint[]& buyItemsCount, Critter& player, Critter& npc) from "trader_table";
-
 import void skins_setup_load(uint fileIndex) from "skins";
 
+import void SetStartLocation(Critter& cr) from "activation";
 import bool act_var_check(Critter& player) from "activation";
 import void act_var_set(Critter& player, int var) from "activation";
 import bool deact(Critter& player) from "activation";
@@ -420,6 +424,7 @@ bool critter_stealing(Critter& cr, Critter& thief, Item& item, uint count)
 	}
 	else
 	{
+		thief.Action(ACTION_PICK_CRITTER,3,null);
 		thief.StatBase[ST_LAST_STEAL_CR_ID]=0;
 		thief.StatBase[ST_STEAL_COUNT]=0;
 
@@ -440,14 +445,67 @@ bool critter_use_item(Critter& cr, Item& item, Critter@ targetCr, Item@ targetIt
 	bool isPlayer=cr.IsPlayer();
 	uint16 pid=item.GetProtoId();
 	bool useOnSelf=(not valid(targetCr) && not valid(targetItem) && not valid(targetScen));
-
+	
+	
+	/////////////////////////////////////////TabaK/////////////////////////////////////////////
+	//////////////////////////////////////////Яд///////////////////////////////////////////////
+	
+	if(useOnSelf && item.GetProtoId()==PID_HYPO_POISON)
+	{cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12909);
+	 AffectParalysis(cr,50);
+	 cr.DeleteItem(PID_HYPO_POISON,1);
+	 return true;
+	}
+	if(valid(targetCr) && item.GetProtoId()==PID_HYPO_POISON)
+	{targetCr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12910);
+	 AffectParalysis(targetCr,50);
+	 cr.DeleteItem(PID_HYPO_POISON,1);
+	 return true;
+	}
+	
+	/////////////////////////////////////Антидот/////////////////////////////////////////////
+	if(useOnSelf && item.GetProtoId()==PID_ANTIDOTE_2)
+	{
+		if(cr.Param[ST_PARALYSIS_LEVEL]!=0 || cr.Param[ST_POISONING_LEVEL]!=0)
+		{
+		DropPoison(cr);
+		DropParalysis(cr, 50);
+		cr.DeleteItem(PID_ANTIDOTE_2,1);
+		return true;
+		}
+		else
+		{
+		cr.DeleteItem(PID_ANTIDOTE_2,1);
+		return false;
+		}
+	}
+	
+	if(valid(targetCr) && item.GetProtoId()==PID_ANTIDOTE_2)
+	{
+		if(targetCr.Param[ST_PARALYSIS_LEVEL]!=0 || targetCr.Param[ST_POISONING_LEVEL]!=0)
+		{
+		DropPoison(targetCr);
+		DropParalysis(targetCr, 50);
+		cr.DeleteItem(PID_ANTIDOTE_2,1);
+		return true;
+		}
+		else
+		{
+		cr.DeleteItem(PID_ANTIDOTE_2,1);
+		return false;
+		}
+	
+	}
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
 	// Book reading
 	if(useOnSelf && IsReadableBook(pid))
 	{
 		TryReadBook(cr,item);
 		return true;
 	}
-
+	
 	// Explosion
 	if(OnUseExplode(cr,item,targetCr,targetItem,targetScen,param)) return true;
 
@@ -676,7 +734,7 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 					if(isPlayer && cr.Timeout[TO_SK_STEAL]>0) cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_SKILL_WEARINESS);
 					else
 					{
-						cr.Action(ACTION_PICK_CRITTER,1,null);
+					 	//cr.Action(ACTION_PICK_CRITTER,1,null);
 						cr.ShowContainer(targetCr,null,TRANSFER_CRIT_STEAL);
 						cr.TimeoutBase[TO_SK_STEAL]=STEAL_TIMEOUT(cr);
 						cr.StatBase[ST_LAST_STEAL_CR_ID]=0;
@@ -1205,6 +1263,8 @@ void critter_dead(Critter& cr, Critter@ killer)
 // Call on something critter reswapned.
 void critter_respawn(Critter& cr)
 {
+if(cr.Param[ST_PARALYSIS_LEVEL]!=0) DropParalysisInstant(cr); // Сбрасываем эффект нейротоксина. TabaK
+
 	if(cr.Stat[ST_DEAD_BLOCKER_ID]!=0)
 	{
 		Item@ block=::GetItem(cr.Stat[ST_DEAD_BLOCKER_ID]);
@@ -1376,103 +1436,10 @@ uint item_cost(Item& item, Critter& cr, Critter& npc, bool sell)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on barter transaction.
 // Return false to cancel transaction.
-#define INTEREST	(ST_VAR9)
-#define	MONEY					(0) //Интересуется только в деньгах, не покупая товары
-#define ALL						(1) //Покупает все виды товаров
-#define WEAPONS					(2) //Оружие, патроны и броня
-#define MEDICINE				(3) //Еда-медикаменты-наркотики
-#define JUNK					(4) //misc и misc2 предметы
-#define	GOODS					(5) //Общие товары
-#define FOOD					(6) //Алкоголь и еда
-#define TOOLS					(7) //Инструменты
-#define HUNTING					(8) //Охотничий хлам
-
-//string wrongItems;
-
-bool CheckCat(Item@ item, uint[] category, Critter& player) //прогоняем конкретный предмет по заданной категории, если есть совпадение - торговец заинтересован.
-{
-	for (uint i = 0; i<category.length(); i++)
-	{
-		if (item.GetProtoId() == category[i]) 
-		{
-			Log("Проверка предмета по категории завершилась, предмет обнаружен.");
-			return true; //совпадение есть
-		}
-	}
-	player.SayMsg(SAY_NETMSG, TEXTMSG_ITEM, STR_ITEM_INFO(item));
-	//string wrongItems=GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item));
-	Log("Проверка предмета по категории завершилась, предмет не обнаружен.");
-	return false;
-}
-
-bool CheckItemsInterest(Item@[]& saleItems, int itemGroup, Critter& player)
-{
-	uint[] cat_int_weapons = {PID_HUNTING_RIFLE, PID_14MM_PISTOL, PID_SHOTGUN, PID_10MM_JHP, PID_14MM_AP, PID_223_FMJ, PID_SHOTGUN_SHELLS, PID_REAL_BOTTLE_CAPS, PID_THROWING_KNIFE, PID_COMBAT_KNIFE, PID_BRASS_KNUCKLES, PID_BOTTLE_CAPS};
-	
-	for (uint i = 0; i<saleItems.length(); i++)
-	{
-		switch(itemGroup)
-		{
-			//Торговца интересуют только деньги
-			case MONEY: 
-				if (saleItems[i].GetProtoId() != PID_BOTTLE_CAPS)
-				{
-					player.Say(SAY_NETMSG, "Id = " + saleItems[i].Id);
-					player.Say(SAY_NETMSG, "Этот торговец заинтересован только в деньгах.");
-					return false;
-				}
-				return true;
-			//Торговца интересуют оружие, броня и патроны	
-			case WEAPONS: 
-				if (!CheckCat(saleItems[i], cat_int_weapons, player))
-				{
-					//player.Say(SAY_NETMSG, "Id = " + saleItems[i].GetProtoId());
-					//player.Say(SAY_NETMSG, "Торговец не заинтересован в: " + wrongItems);
-					//player.Say(SAY_NETMSG, "Торговец не заинтересован в части ваших товаров.");
-					return false;
-				}
-				return true;
-				
-			default: Log("Что-то не так в обработчике проверки предметов"); return false;
-		
-		}
-	}
-	return true;
-}
-
-bool CheckTradeInterest(Item@[]& saleItems, uint[]& saleItemsCount, Item@[]& buyItems, uint[]& buyItemsCount, Critter& player, Critter& npc) //import
-{
-	switch(npc.StatBase[INTEREST])
-	{
-		case (MONEY):
-			return (CheckItemsInterest(saleItems, MONEY, player));
-		case (WEAPONS):
-			return (CheckItemsInterest(saleItems, WEAPONS, player));	
-		
-		default: return false;
-	}
-	
-	return false;
-			
-}
-
 bool items_barter(Item@[]& saleItems, uint[]& saleItemsCount, Item@[]& buyItems, uint[]& buyItemsCount, Critter& player, Critter& npc)
 {
-	//Проверка займа денег у НПЦ
-	GameVar@ loan = GetUnicumVar(UVAR_checkLoan, player.Id, npc.Id); //переменная для займа
-	if (loan==1) //Если существует займ - отмена торговли.
-	{ 
-		player.Say(SAY_NETMSG, "Сначала вы должны отдать займ торговцу.");
-		return false; 
-	}
-	
-	bool traderIsInterested = CheckTradeInterest(saleItems, saleItemsCount, buyItems, buyItemsCount, player, npc);
-	if (traderIsInterested == false)
-	{
-		//player.Say(SAY_NETMSG, "Торговец не заинтересован в части ваших товаров.");
-		return false;
-	}
-	
+	GameVar@ loan = GetUnicumVar(UVAR_checkLoan, player.Id, npc.Id);
+	if (loan==1) { return false; }
 	return true;
 }
 

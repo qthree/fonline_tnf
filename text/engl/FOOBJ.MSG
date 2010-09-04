@@ -1174,6 +1174,8 @@
 {58701}{}{—тандартна€ граната "вспышка". ќбычно ее используют дл€ прикрыти€ или введени€ противника в шоковое состо€ние.}
 {58800}{}{–еанимационный набор}
 {58801}{}{Ќабор, примен€емый докторами дл€ восстановлени€ жизнеде€тельности при остановке кровообращени€ и дыхани€}
+{58900}{}{јнтидот}
+{58901}{}{Ёто противо€дие создано дл€ нейтрализации действи€ сильных нейротоксинов содержащихс€, главным образом, в €дах скорпионов и змей.}
 {80000}{}{Hummer}
 {80001}{}{This vehicle has been built on the base of M1025 Hummer, produced by AMG at the turn of the 20th and 21th centuries. Most of the parts are taken from its predecessor so the car inherits the quality of the original. Used by the Brotherhood of Steel as a workhorse for any kind of work. Hummer - fast and reliable way to travel.}
 {80100}{}{Hummer trunk}

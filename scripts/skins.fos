@@ -160,6 +160,10 @@ uint skins_viewer_find_prev(uint n)
 
 void _CrIdleClearSkin(Critter& cr)
 {
+	Item@ armor = cr.GetItem(0,SLOT_ARMOR);
+
+	if(valid(armor)) _CritMoveItem(cr,armor,SLOT_INV);
+
 	uint type = cr.Stat[ST_BASE_CRTYPE];
 	if(type==0) type=(cr.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F);
 	cr.ChangeCrType(type);
@@ -210,6 +214,10 @@ void answer_next_viewer(Critter& player, uint answerI, string& answerS)
 
 		if(player.CountItem(PID_ITEM_CLOTH)<1) return;
 	
+		Item@ armor = player.GetItem(0,SLOT_ARMOR);
+
+		if(valid(armor)) _CritMoveItem(player,armor,SLOT_INV);
+
 		player.ChangeCrType(result);
 	
 		player.StatBase[ST_BASE_CRTYPE]=result;
@@ -218,8 +226,12 @@ void answer_next_viewer(Critter& player, uint answerI, string& answerS)
 	}
 	else if(answerI==3)
 	{
+		Item@ armor = player.GetItem(0,SLOT_ARMOR);
+
+		if(valid(armor)) _CritMoveItem(player,armor,SLOT_INV);
+
 		player.ChangeCrType(player.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F);
-		player.StatBase[ST_BASE_CRTYPE]=player.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F;
+		player.StatBase[ST_BASE_CRTYPE]=0;
 	}
 }
 
@@ -303,4 +315,25 @@ void answer_cloth_get(Critter& player, uint answerI, string& answerS)
 void _InitCloth (Item& item, bool firstTime)
 {
 	item.SetEvent(ITEM_EVENT_USE, "_cloth_use");
+}
+
+void skin(Critter& player, int playerId, int crType, int param2)
+{
+	Critter@ cr;
+	if(playerId!=0) @cr = GetCritter(playerId);
+	else @cr=@player;
+
+	if(!valid(cr)) return;
+	
+	Item@ armor = cr.GetItem(0,SLOT_ARMOR);
+
+	if(valid(armor)) _CritMoveItem(cr,armor,SLOT_INV);
+
+	int result = crType;
+
+	if(crType==0) result = (cr.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F);
+
+	cr.ChangeCrType(result);
+	
+	cr.StatBase[ST_BASE_CRTYPE]=crType;
 }
