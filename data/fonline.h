@@ -3,8 +3,8 @@
 
 //
 // FOnline engine structures, for native working
-// Last update 20.05.2010
-// Server version 285, MSVS2008
+// Last update 29.08.2010
+// Server version 347, MSVS2008
 //
 
 #pragma pack(8)
@@ -25,6 +25,8 @@
 #include <set>
 #include <map>
 using namespace std;
+
+class asIScriptEngine;
 
 struct ScriptString;
 struct ProtoItem;
@@ -148,7 +150,7 @@ typedef vector<Location*>::iterator LocVecIt;
 #define ITEM_WEAPON                 (3)
 #define ITEM_AMMO                   (4)
 #define ITEM_MISC                   (5)
-#define ITEM_MISC2                  (6)
+#define ITEM_MISC_EX                (6)
 #define ITEM_KEY                    (7)
 #define ITEM_CONTAINER              (8)
 #define ITEM_DOOR                   (9)
@@ -179,17 +181,20 @@ typedef vector<Location*>::iterator LocVecIt;
 #define ITEM_NO_HIGHLIGHT           (0x00001000)
 #define ITEM_SHOW_ANIM              (0x00002000)
 #define ITEM_SHOW_ANIM_EXT          (0x00004000)
-#define ITEM_LIGHT                  (0x00008000)
 #define ITEM_GECK                   (0x00010000)
 #define ITEM_TRAP                   (0x00020000)
 #define ITEM_NO_LIGHT_INFLUENCE     (0x00040000)
 #define ITEM_NO_LOOT                (0x00080000)
 #define ITEM_NO_STEAL               (0x00100000)
+#define ITEM_GAG                    (0x00200000)
+#define ITEM_LIGHT                  (0x00400000)
+#define ITEM_COLORIZE               (0x00800000)
 #define ITEM_CAN_USE_ON_SMTH        (0x01000000)
 #define ITEM_CAN_LOOK               (0x02000000)
 #define ITEM_CAN_TALK               (0x04000000)
 #define ITEM_CAN_PICKUP             (0x08000000)
 #define ITEM_CAN_USE                (0x10000000)
+#define ITEM_CACHED                 (0x80000000)
 
 #define WEAPON_PERK_FAST_RELOAD     (6)
 
@@ -290,6 +295,7 @@ typedef vector<Location*>::iterator LocVecIt;
 #define ST_BAG_ID                   (107)
 #define ST_BASE_CRTYPE              (112)
 #define ST_TALK_DISTANCE            (115)
+#define ST_SCALE_FACTOR             (116)
 #define ST_ANIM3D_LAYER_BEGIN       (150)
 #define ST_ANIM3D_LAYER_END         (179)
 #define MAX_SKILL_VAL               (300)
@@ -354,6 +360,7 @@ typedef vector<Location*>::iterator LocVecIt;
 #define MODE_DLG_SCRIPT_BARTER      (521)
 #define MODE_UNLIMITED_AMMO         (522)
 #define MODE_NO_HEAL                (526)
+#define MODE_INVULNERABLE           (527)
 #define MODE_NO_FLATTEN             (528)
 #define MODE_RANGE_HTH              (530)
 #define MODE_NO_LOOT                (532)
@@ -367,7 +374,7 @@ typedef vector<Location*>::iterator LocVecIt;
 
 #define MAP_EVENT_MAX               (12)
 #define MAP_LOOP_FUNC_MAX           (5)
-#define MAP_MAX_DATA                (63)
+#define MAP_MAX_DATA                (100)
 
 #define FH_BLOCK                       BIN8(00000001)
 #define FH_NOTRAKE                     BIN8(00000010)
@@ -378,7 +385,6 @@ typedef vector<Location*>::iterator LocVecIt;
 #define FH_CRITTER            BIN8(00000001)
 #define FH_DEAD_CRITTER       BIN8(00000010)
 #define FH_ITEM               BIN8(00000100)
-#define FH_DOOR               BIN8(00001000)
 #define FH_BLOCK_ITEM         BIN8(00010000)
 #define FH_NRAKE_ITEM         BIN8(00100000)
 #define FH_WALK_ITEM          BIN8(01000000)
@@ -393,14 +399,18 @@ typedef vector<Location*>::iterator LocVecIt;
 
 struct GameOptions
 {
+	uint16 YearStart;
+	uint64 YearStartFT;
 	uint16 Year;
 	uint16 Month;
 	uint16 Day;
 	uint16 Hour;
 	uint16 Minute;
-	uint   FullMinute;
-	uint   FullMinuteTick;
+	uint16 Second;
+	uint   FullSecondStart;
+	uint   FullSecond;
 	uint16 TimeMultiplier;
+	uint   GameTimeTick;
 
 	bool   DisableTcpNagle;
 	bool   DisableZlibCompression;
@@ -465,6 +475,7 @@ struct GameOptions
 	uint   BagRefreshTime;
 	uint   AttackAnimationsMinDist;
 	uint   WhisperDist;
+	uint   ShoutDist;
 	int    LookChecks;
 	uint   LookDir[4];
 	uint   LookSneakDir[4];
@@ -473,7 +484,6 @@ struct GameOptions
 	uint   RegistrationTimeout;
 	uint   AccountPlayTime;
 	bool   LoggingVars;
-	bool   SkipScriptBinaries;
 	uint   ScriptRunSuspendTimeout;
 	uint   ScriptRunMessageTimeout;
 	uint   TalkDistance;
@@ -528,148 +538,112 @@ struct ProtoItem
 	uint16 Pid;
 	uint8  Type;
 	uint8  Slot;
-	int16  Reserved0;
-	int16  Reserved1;
-
-	// Light
-	uint8  Reserved2;
-	uint8  Reserved3;
-	uint8  LightType;
-	uint8  DistanceLight;
-	uint   IntensityLight;
-
-	// Flags
 	uint   Flags;
-	uint   Reserved4;
-	bool   ScriptAviable;
-
-	// Transparent
-	uint8  TransType;
-	uint8  TransVal;
-	uint8  Reserved5;
-	uint   Reserved6;
-	uint   Reserved7;
+	uint8  Corner;
+	bool   DisableEgg;
+	int16  Dir;
+	uint   PicMapHash;
+	uint   PicInvHash;
 	uint   Weight;
-	uint8  Volume;
-	uint8  Reserved8;
-	uint16 PicMap;
-	uint16 PicInv;
-	uint8  SoundId;
-	uint8  Reserved9;
+	uint   Volume;
 	uint   Cost;
+	uint8  SoundId;
 	uint8  Material;
 
-	uint8  Reserved10;
+	// Light
+	uint8  LightFlags;
+	uint8  LightDistance;
+	int8   LightIntensity;
+	uint   LightColor;
+
+	// Animation
 	uint16 AnimWaitBase;
 	uint16 AnimWaitRndMin;
 	uint16 AnimWaitRndMax;
-	uint8  Reserved11;
 	uint8  AnimStay[2];
 	uint8  AnimShow[2];
 	uint8  AnimHide[2];
-	uint8  Reserved12;
-
 	int8   DrawPosOffsY;
-	bool   Weapon_Aim; // Used in WEAPON structure
-	uint16 Reserved13;
 
 	union
 	{
-		// Items
 		struct
 		{
-			uint8  Anim0Male; // {Индекс анимации дюда male}
-			uint8  Anim0Female; // {Индекс анимации дюда female}
+			uint8  Anim0Male;
+			uint8  Anim0Female;
+			uint16 AC;
+			uint8  Perk;
 
-			uint16 AC; // {Армор класс}
+			uint16 DRNormal;
+			uint16 DRLaser;
+			uint16 DRFire;
+			uint16 DRPlasma;
+			uint16 DRElectr;
+			uint16 DREmp;
+			uint16 DRExplode;
 
-			uint   Reserved0; // {}
-			uint   Reserved1; // {}
-
-			uint16 DRNormal; // {Сопротивление нормальное}
-			uint16 DRLaser; // {Сопротивление лазеру}
-			uint16 DRFire; // {Сопротивление огню}
-			uint16 DRPlasma; // {Сопротивление плазме}
-			uint16 DRElectr; // {Сопротивление электричеству}
-			uint16 DREmp; // {Сопротивление емп}
-			uint16 DRExplode; // {Сопротивление взрыву}
-
-			uint16 DTNormal; // {Порог повреждения нормальное}
-			uint16 DTLaser; // {Порог повреждения лазеру}
-			uint16 DTFire; // {Порог повреждения огню}
-			uint16 DTPlasma; // {Порог повреждения плазме}
-			uint16 DTElectr; // {Порог повреждения электричеству}
-			uint16 DTEmp; // {Порог повреждения емп}
-			uint16 DTExplode; // {Порог повреждения взрыву}
-
-			uint8  Perk; // {Перк на броне}
-		} ARMOR;
+			uint16 DTNormal;
+			uint16 DTLaser;
+			uint16 DTFire;
+			uint16 DTPlasma;
+			uint16 DTElectr;
+			uint16 DTEmp;
+			uint16 DTExplode;
+		} Armor;
 
 		struct
 		{
-			// All this values not used, but contains valid data
-			int   Stat[3]; // {Стат персонажа, изменяющаяся сразу после использования наркотика}
-			int   Amount0[3]; // {Мгновенный модификатор для стата}
-			uint  Duration1; // {Задержка до повторного эффекта}
-			int   Amount1[3]; // { Модификатор для стата}
-			uint  Duration2; // {Задержка до повторного эффекта}
-			int   Amount2[3]; // {Модификатор для стата}
-
-			uint  Addiction; // {Процент привыкания}
-			int   WEffectPerk; // {Перк за привыкание}
-			uint  WOnset; // {Начало привыкания}
-		} DRUG;
-
-		struct
-		{
+			bool   NoWear;
 			bool   IsNeedAct;
+
 			bool   IsUnarmed;
 			uint8  UnarmedTree;
 			uint8  UnarmedPriority;
-
-			uint16 VolHolder; // {Емкость основной обоймы}
 			uint8  UnarmedCriticalBonus;
 			bool   UnarmedArmorPiercing;
-			uint16 Caliber; // {Калибр у основной обоймы}
-			uint16 Weapon_Round; // Used in scripts
-			uint16 DefAmmo;
-			uint16 Weapon_Effect; // Used in scripts
-			uint8  Anim1; // {Индекс анимации объекта}
-			uint8  CrFailture; // {Критическая неудача при использовании}
-			uint8  MinSt;
 			uint8  UnarmedMinAgility;
 			uint8  UnarmedMinUnarmed;
 			uint8  UnarmedMinLevel;
+
+			uint8  Anim1;
+			uint16 VolHolder;
+			uint16 Caliber;
+			uint16 DefAmmo;
+			uint8  ReloadAp;
+			uint8  CrFailture;
+			uint8  MinSt;
 			uint8  Perk;
 
-			uint8  CountAttack; // {Количество атак 0x1-PA, 0x2-SA, 0x4-TA}
-			uint8  aSkill[MAX_USES]; // {Скилл отвечающий за использование}
-			uint8  aDmgType[MAX_USES]; // {Тип атаки}
-			uint8  Weapon_Skill; // Used in scripts
-			uint8  Weapon_DmgType; // Used in scripts
-			uint8  Weapon_Anim2; // Used in scripts
-			uint8  aAnim2[MAX_USES]; // {Анимация атаки}
-			uint16 aPic[MAX_USES]; // {Рисунок использования}
-			uint16 aDmgMin[MAX_USES]; // {Минимальное повреждения}
-			uint16 aDmgMax[MAX_USES]; // {Максимальное повреждение}
-			uint16 aMaxDist[MAX_USES]; // {Максимальная дистанция}
-			uint16 aEffect[MAX_USES]; // {Эффект от атаки}
-			uint16 aRound[MAX_USES]; // {Расход патронов за атаку}
-			uint   aTime[MAX_USES]; // {Базовое время атаки}
-			bool   aAim[MAX_USES]; // {Наличие у атаки прицельного выстрела}
-			bool   aRemove[MAX_USES]; // {Удаление предмета после атаки}
-			uint8  aSound[MAX_USES]; // {Звук при использовании}
-			uint8  Weapon_ApCost; // Used in scripts
-			uint8  Weapon_SoundId; // Used in scripts
-			bool   Weapon_Remove; // Used in scripts
+			uint8  CountAttack;
+			uint8  Skill[MAX_USES];
+			uint8  DmgType[MAX_USES];
+			uint8  Anim2[MAX_USES];
+			uint16 PicDeprecated[MAX_USES];
+			uint   PicHash[MAX_USES];
+			uint16 DmgMin[MAX_USES];
+			uint16 DmgMax[MAX_USES];
+			uint16 MaxDist[MAX_USES];
+			uint16 Effect[MAX_USES];
+			uint16 Round[MAX_USES];
+			uint   Time[MAX_USES];
+			bool   Aim[MAX_USES];
+			bool   Remove[MAX_USES];
+			uint8  SoundId[MAX_USES];
 
-			bool   NoWear;
-
-			uint8  Weapon_CurrentUse; // Used in scripts
-			uint16 Weapon_MaxDist; // Used in scripts
-			uint16 Weapon_DmgMin; // Used in scripts
-			uint16 Weapon_DmgMax; // Used in scripts
-		} WEAPON;
+			uint8  Weapon_CurrentUse;
+			uint16 Weapon_MaxDist;
+			uint16 Weapon_DmgMin;
+			uint16 Weapon_DmgMax;
+			uint8  Weapon_Skill;
+			uint8  Weapon_DmgType;
+			uint8  Weapon_Anim2;
+			uint8  Weapon_ApCost;
+			uint8  Weapon_SoundId;
+			bool   Weapon_Remove;
+			uint16 Weapon_Round;
+			uint16 Weapon_Effect;
+			bool   Weapon_Aim;
+		} Weapon;
 
 		struct
 		{
@@ -679,52 +653,37 @@ struct ProtoItem
 			int    DRMod;
 			uint   DmgMult;
 			uint   DmgDiv;
-		} AMMO;
+		} Ammo;
 
 		struct
 		{
-			uint   PowerPid;
-			uint   PowerCaliber;
-			uint   Charges;
-		} MISC;
+			uint   StartVal1;
+			uint   StartVal2;
+			uint   StartVal3;
 
-		struct
-		{
-			uint   StartVal1; // Car bag0 pid
-			uint   StartVal2; // Car bag1 pid
-			uint   StartVal3; // Car bag2 pid
+			bool IsCar;
 
-			bool   IsCar;
-			uint8  Reserved0;
-			uint16 Reserved1;
-
-			struct _CAR // 64 uint8s
+			struct _CAR
 			{
-				uint8  Speed; // Скорость
-				uint8  Negotiability; // Проходимость
-				uint8  WearConsumption; // Износ
-				uint8  CritCapacity; // Вместимость салона
-				uint16 FuelTank; // Вместимость бака
-				uint16 RunToBreak; // Базовый запас прочности
+				uint8  Speed; 
+				uint8  Negotiability;
+				uint8  WearConsumption;
+				uint8  CritCapacity;
+				uint16 FuelTank;
+				uint16 RunToBreak;
 				uint8  Entire;
-				uint8  Reserved1;
-				uint8  WalkType; // Тип передвижения
-				uint8  FuelConsumption; // Расход топлива
+				uint8  WalkType;
+				uint8  FuelConsumption;
 
 				uint8  Bag0[CAR_MAX_BAG_POSITION/2]; // 6
 				uint8  Bag1[CAR_MAX_BAG_POSITION/2]; // 6
 				uint8  Blocks[CAR_MAX_BLOCKS/2]; // 40
 
-				uint8  GetBag0Dir(int num) {return ((num % 2) ? (Bag0  [num / 2] & 0xF) : (Bag0  [num / 2] >> 4));}
-				uint8  GetBag1Dir(int num) {return ((num % 2) ? (Bag1  [num / 2] & 0xF) : (Bag1  [num / 2] >> 4));}
-				uint8  GetBlockDir(int num){return ((num % 2) ? (Blocks[num / 2] & 0xF) : (Blocks[num / 2] >> 4));}
-			} CAR;
-		} MISC2;
-
-		struct
-		{
-			uint   Reserved;
-		} KEY;
+				uint8  GetBag0Dir(int num)  {return ((num % 2) ? (Bag0  [num / 2] & 0xF) : (Bag0  [num / 2] >> 4));}
+				uint8  GetBag1Dir(int num)  {return ((num % 2) ? (Bag1  [num / 2] & 0xF) : (Bag1  [num / 2] >> 4));}
+				uint8  GetBlockDir(int num) {return ((num % 2) ? (Blocks[num / 2] & 0xF) : (Blocks[num / 2] >> 4));}
+			} Car;
+		} MiscEx;
 
 		struct
 		{
@@ -733,39 +692,21 @@ struct ProtoItem
 			uint   MagicHandsGrnd;
 			uint   Changeble;
 			bool   IsNoOpen;
-		} CONTAINER;
+		} Container;
 
 		struct
 		{
 			uint   WalkThru;
-			uint   Unknown;
 			bool   IsNoOpen;
-		} DOOR;
+			bool   BlockPass;
+			bool   BlockRake;
+			bool   BlockLight;
+		} Door;
 
-		// Scenery
 		struct
 		{
 			uint8  Type;
-		} GRID;
-
-		struct
-		{
-			uint   Reserved;
-		} GENERIC;
-
-		// Wall
-		struct
-		{
-			uint   Reserved;
-		} WALL;
-
-		// Tile
-		struct
-		{
-			uint   Flags;
-			uint   FlagsExt;
-			uint   Unknown;
-		} TILE;
+		} Grid;
 	};
 
 	uint16 GetPid()            {return Pid;}
@@ -780,60 +721,43 @@ struct ProtoItem
 	bool   IsWeapon()          {return Type == ITEM_WEAPON;}
 	bool   IsAmmo()            {return Type == ITEM_AMMO;}
 	bool   IsMisc()            {return Type == ITEM_MISC;}
-	bool   IsMisc2()           {return Type == ITEM_MISC2;}
+	bool   IsMisc2()           {return Type == ITEM_MISC_EX;}
 	bool   IsKey()             {return Type == ITEM_KEY;}
 	bool   IsContainer()       {return Type == ITEM_CONTAINER;}
 	bool   IsDoor()            {return Type == ITEM_DOOR;}
 	bool   IsGrid()            {return Type == ITEM_GRID;}
 	bool   IsGeneric()         {return Type == ITEM_GENERIC;}
-	bool   IsCar()             {return Type == ITEM_MISC2 && MISC2.IsCar;}
-	bool   LockerIsNoOpen()    {if(IsDoor()) return DOOR.IsNoOpen; if(IsContainer()) return CONTAINER.IsNoOpen; return false;}
-	bool   LockerIsChangeble() {if(IsDoor()) return true; if(IsContainer()) return CONTAINER.Changeble!=0; return false;}
+	bool   IsCar()             {return Type == ITEM_MISC_EX && MiscEx.IsCar;}
+	bool   LockerIsChangeble() {if(IsDoor()) return true; if(IsContainer()) return Container.Changeble!=0; return false;}
 	bool   IsGrouped()         {return IsDrug() || IsAmmo() || IsMisc() || (IsWeapon() && WeapIsGrouped());}
 	bool   IsWeared()          {return Type == ITEM_ARMOR || (Type == ITEM_WEAPON && WeapIsWeared());}
-	bool   WeapIsNeedAct()     {return WEAPON.IsNeedAct;}
-	bool   WeapIsWeared()      {return !WEAPON.NoWear;}
-	bool   WeapIsGrouped()     {return WEAPON.NoWear;}
-
-	bool IsCanPickUp()
-	{
-		switch(GetType())
-		{
-		case ITEM_ARMOR:
-		case ITEM_DRUG:
-		case ITEM_WEAPON:
-		case ITEM_AMMO:
-		case ITEM_MISC:
-		case ITEM_KEY:       return true;
-		case ITEM_MISC2:
-		case ITEM_CONTAINER: return FLAG(Flags, ITEM_CAN_PICKUP);
-		default: break;
-		}
-		return false;
-	}
+	bool   WeapIsNeedAct()     {return Weapon.IsNeedAct;}
+	bool   WeapIsWeared()      {return !Weapon.NoWear;}
+	bool   WeapIsGrouped()     {return Weapon.NoWear;}
+	bool   IsCanPickUp()       {return FLAG(Flags, ITEM_CAN_PICKUP);}
 
 	void   Weapon_SetUse(uint8 use)
 	{
 		if(use >= MAX_USES) use = USE_PRIMARY;
-		WEAPON.Weapon_CurrentUse = use;
-		WEAPON.Weapon_Skill      = WEAPON.aSkill[use];
-		WEAPON.Weapon_DmgType    = WEAPON.aDmgType[use];
-		WEAPON.Weapon_Anim2      = WEAPON.aAnim2[use];
-		WEAPON.Weapon_DmgMin     = WEAPON.aDmgMin[use];
-		WEAPON.Weapon_DmgMax     = WEAPON.aDmgMax[use];
-		WEAPON.Weapon_MaxDist    = WEAPON.aMaxDist[use];
-		WEAPON.Weapon_Effect     = WEAPON.aEffect[use];
-		WEAPON.Weapon_Round      = WEAPON.aRound[use];
-		WEAPON.Weapon_ApCost     = WEAPON.aTime[use];
-		WEAPON.Weapon_SoundId    = WEAPON.aSound[use];
-		WEAPON.Weapon_Remove     = WEAPON.aRemove[use];
-		Weapon_Aim               = WEAPON.aAim[use];
+		Weapon.Weapon_CurrentUse = use;
+		Weapon.Weapon_Skill      = Weapon.Skill[use];
+		Weapon.Weapon_DmgType    = Weapon.DmgType[use];
+		Weapon.Weapon_Anim2      = Weapon.Anim2[use];
+		Weapon.Weapon_DmgMin     = Weapon.DmgMin[use];
+		Weapon.Weapon_DmgMax     = Weapon.DmgMax[use];
+		Weapon.Weapon_MaxDist    = Weapon.MaxDist[use];
+		Weapon.Weapon_Effect     = Weapon.Effect[use];
+		Weapon.Weapon_Round      = Weapon.Round[use];
+		Weapon.Weapon_ApCost     = Weapon.Time[use];
+		Weapon.Weapon_SoundId    = Weapon.SoundId[use];
+		Weapon.Weapon_Remove     = Weapon.Remove[use];
+		Weapon.Weapon_Aim        = Weapon.Aim[use];
 	}
 
 	bool   Container_IsGroundLevel()
 	{
 		bool is_ground = true;
-		if(IsContainer()) is_ground = (CONTAINER.MagicHandsGrnd ? true : false);
+		if(IsContainer()) is_ground = (Container.MagicHandsGrnd ? true : false);
 		else if(IsDoor() || IsCar() || IsScen() || IsGrid() || !IsCanPickUp()) is_ground = false;
 		return is_ground;
 	}
@@ -887,7 +811,7 @@ struct NpcPlane
 		struct
 		{
 			bool   IsRun;
-			uint   WaitMinute;
+			uint   WaitSecond;
 			int    ScriptBindId;
 		} Misc;
 
@@ -907,7 +831,7 @@ struct NpcPlane
 			uint16 HexX;
 			uint16 HexY;
 			uint8  Dir;
-			uint8  Cut;
+			uint   Cut;
 		} Walk;
 
 		struct
@@ -934,8 +858,8 @@ struct NpcPlane
 		uint   TargId;
 		uint16 HexX;
 		uint16 HexY;
-		uint8  Cut;
-		uint8  Trace;
+		uint   Cut;
+		uint   Trace;
 	} Move;
 
 	bool   Assigned;
@@ -988,8 +912,8 @@ struct Item
 		uint16 SortValue;
 		uint8  Info;
 		uint8  Reserved0;
-		uint16 PicMap;
-		uint16 PicInv;
+		uint   PicMapHash;
+		uint   PicInvHash;
 		uint16 AnimWaitBase;
 		uint8  AnimStay[2];
 		uint8  AnimShow[2];
@@ -997,7 +921,7 @@ struct Item
 		uint   Flags;
 		uint8  Rate;
 		int8   LightIntensity;
-		uint8  LightRadius;
+		uint8  LightDistance;
 		uint8  LightFlags;
 		uint   LightColor;
 		uint16 ScriptId;
@@ -1047,18 +971,17 @@ struct Item
 	bool  IsNotValid;
 	bool  Reserved1;
 
-	// ViewByCritter, ChildItems, Lexems used only in server
+	// Used only in server
+	int      FuncId[ITEM_EVENT_MAX];
 	Critter* ViewByCritter;
 	ItemVec* ChildItems;
 	int8*    Lexems;
 
-	int   FuncId[ITEM_EVENT_MAX];
-
 	uint   GetId()      {return Id;}
 	uint16 GetProtoId() {return Proto->GetPid();}
 	uint   GetInfo()    {return Proto->GetInfo() + Data.Info;}
-	uint16 GetPicMap()  {return Data.PicMap ? Data.PicMap : Proto->PicMap;}
-	uint16 GetPicInv()  {return Data.PicInv ? Data.PicInv : Proto->PicInv;}
+	uint   GetPicMap()  {return Data.PicMapHash ? Data.PicMapHash : Proto->PicMapHash;}
+	uint   GetPicInv()  {return Data.PicInvHash ? Data.PicInvHash : Proto->PicInvHash;}
 	uint8  GetType()    {return Proto->GetType();}
 	bool   IsGrouped()  {return Proto->IsGrouped();}
 
@@ -1082,6 +1005,7 @@ struct Item
 	bool   IsNoLightInfluence() {return FLAG(Data.Flags, ITEM_NO_LIGHT_INFLUENCE);}
 	bool   IsNoLoot()           {return FLAG(Data.Flags, ITEM_NO_LOOT);}
 	bool   IsNoSteal()          {return FLAG(Data.Flags, ITEM_NO_STEAL);}
+	bool   IsCanPickUp()        {return FLAG(Data.Flags, ITEM_CAN_PICKUP);}
 
 	bool   IsWeared()           {return GetId() && Proto->IsWeared();}
 	bool   IsBroken()           {return (IsWeared() ? FLAG(Data.TechInfo.DeteorationFlags, BI_BROKEN) : false);}
@@ -1104,25 +1028,25 @@ struct Item
 	// Weapon
 	bool   IsWeapon()                {return GetType() == ITEM_WEAPON;}
 	bool   WeapIsEmpty()             {return !Data.TechInfo.AmmoCount;}
-	bool   WeapIsFull()              {return Data.TechInfo.AmmoCount >= Proto->WEAPON.VolHolder;}
+	bool   WeapIsFull()              {return Data.TechInfo.AmmoCount >= Proto->Weapon.VolHolder;}
 	uint   WeapGetAmmoCount()        {return Data.TechInfo.AmmoCount;}
 	uint   WeapGetAmmoPid()          {return Data.TechInfo.AmmoPid;}
-	uint   WeapGetMaxAmmoCount()     {return Proto->WEAPON.VolHolder;}
-	int    WeapGetAmmoCaliber()      {return Proto->WEAPON.Caliber;}
+	uint   WeapGetMaxAmmoCount()     {return Proto->Weapon.VolHolder;}
+	int    WeapGetAmmoCaliber()      {return Proto->Weapon.Caliber;}
 	bool   WeapIsWeared()            {return Proto->WeapIsWeared();}
 	bool   WeapIsGrouped()           {return Proto->WeapIsGrouped();}
-	bool   WeapIsEffect(int use)     {return Proto->WEAPON.aEffect[use] != 0;}
-	uint16 WeapGetEffectPid(int use) {return Proto->WEAPON.aEffect[use];}
-	int    WeapGetNeedStrength()     {return Proto->WEAPON.MinSt;}
-	bool   WeapIsUseAviable(int use) {uint8 ca = Proto->WEAPON.CountAttack; if(use == USE_PRIMARY) return FLAG(ca, 1); if(use == USE_SECONDARY) return FLAG(ca, 2); if(use == USE_THIRD) return FLAG(ca, 4); return false;}
-	bool   WeapIsCanAim(int use)     {return use < MAX_USES && Proto->WEAPON.aAim[use];}
-	bool   WeapIsFastReload()        {return Proto->WEAPON.Perk == WEAPON_PERK_FAST_RELOAD;}
+	bool   WeapIsEffect(int use)     {return Proto->Weapon.Effect[use] != 0;}
+	uint16 WeapGetEffectPid(int use) {return Proto->Weapon.Effect[use];}
+	int    WeapGetNeedStrength()     {return Proto->Weapon.MinSt;}
+	bool   WeapIsUseAviable(int use) {uint8 ca = Proto->Weapon.CountAttack; if(use == USE_PRIMARY) return FLAG(ca, 1); if(use == USE_SECONDARY) return FLAG(ca, 2); if(use == USE_THIRD) return FLAG(ca, 4); return false;}
+	bool   WeapIsCanAim(int use)     {return use < MAX_USES && Proto->Weapon.Aim[use];}
+	bool   WeapIsFastReload()        {return Proto->Weapon.Perk == WEAPON_PERK_FAST_RELOAD;}
 
 	// Container
 	bool   IsContainer()          {return Proto->IsContainer();}
-	bool   ContIsCannotPickUp()   {return Proto->CONTAINER.CannotPickUp != 0;}
-	bool   ContIsMagicHandsGrnd() {return Proto->CONTAINER.MagicHandsGrnd != 0;}
-	bool   ContIsChangeble()      {return Proto->CONTAINER.Changeble != 0;}
+	bool   ContIsCannotPickUp()   {return Proto->Container.CannotPickUp != 0;}
+	bool   ContIsMagicHandsGrnd() {return Proto->Container.MagicHandsGrnd != 0;}
+	bool   ContIsChangeble()      {return Proto->Container.Changeble != 0;}
 
 	// Door
 	bool   IsDoor()               {return GetType() == ITEM_DOOR;}
@@ -1132,15 +1056,12 @@ struct Item
 	uint   LockerDoorId()         {return Data.Locker.DoorId;}
 	bool   LockerIsOpen()         {return FLAG(Data.Locker.Condition, LOCKER_ISOPEN);}
 	bool   LockerIsClose()        {return !LockerIsOpen();}
-	bool   LockerIsNeedKey()      {return Data.Locker.DoorId && !FLAG(Data.Locker.Condition, LOCKER_BROKEN);}
-	bool   LockerIsLock()         {return LockerIsClose() && LockerIsNeedKey();}
-	bool   LockerIsNoOpen()       {return Proto->LockerIsNoOpen() || FLAG(Data.Locker.Condition, LOCKER_NOOPEN);}
 	bool   LockerIsChangeble()    {return Proto->LockerIsChangeble();}
 	int    LockerComplexity()     {return Data.Locker.Complexity;}
 
 	// Ammo
 	bool   IsAmmo()         {return Proto->IsAmmo();}
-	int    AmmoGetCaliber() {return Proto->AMMO.Caliber;}
+	int    AmmoGetCaliber() {return Proto->Ammo.Caliber;}
 
 	// Key
 	bool   IsKey()          {return Proto->IsKey();}
@@ -1152,12 +1073,17 @@ struct Item
 	// Misc
 	bool   IsMisc()         {return Proto->IsMisc();}
 
+	// Colorize
+	bool   IsColorize()        {return FLAG(Data.Flags, ITEM_COLORIZE);}
+	uint   GetColor()          {return (Data.LightColor ? Data.LightColor : Proto->LightColor) & 0xFFFFFF;}
+	uint8  GetAlpha()          {return (Data.LightColor ? Data.LightColor : Proto->LightColor) >> 24;}
+
 	// Light
-	bool   IsLight()           {return Data.LightIntensity != 0 || Proto->IntensityLight != 0;}
-	int    LightGetIntensity() {return Data.LightIntensity ? Data.LightIntensity : (Proto->IntensityLight > 100 ? 50 : Proto->IntensityLight);}
-	int    LightGetRadius()    {return Data.LightIntensity ? Data.LightRadius : Proto->DistanceLight;}
-	int    LightGetFlags()     {return Data.LightIntensity ? Data.LightFlags : 0;}
-	uint   LightGetColor()     {return Data.LightIntensity ? Data.LightColor : 0;}
+	bool   IsLight()           {return FLAG(Data.Flags, ITEM_LIGHT);}
+	int    LightGetIntensity() {return Data.LightIntensity ? Data.LightIntensity : Proto->LightIntensity;}
+	int    LightGetDistance()  {return Data.LightDistance ? Data.LightDistance : Proto->LightDistance;}
+	int    LightGetFlags()     {return Data.LightFlags ? Data.LightFlags : Proto->LightFlags;}
+	uint   LightGetColor()     {return (Data.LightColor ? Data.LightColor : Proto->LightColor) & 0xFFFFFF;}
 
 	// Radio
 	bool   IsRadio()                    {return GetProtoId() == PID_RADIO;}
@@ -1168,13 +1094,13 @@ struct Item
 	bool   IsCar()                 {return Proto->IsCar();}
 	uint   CarGetDoorId()          {return Data.Car.DoorId;}
 	uint16 CarGetFuel()            {return Data.Car.Fuel;}
-	uint16 CarGetFuelTank()        {return Proto->MISC2.CAR.FuelTank;}
-	uint8  CarGetFuelConsumption() {return Proto->MISC2.CAR.FuelConsumption;}
+	uint16 CarGetFuelTank()        {return Proto->MiscEx.Car.FuelTank;}
+	uint8  CarGetFuelConsumption() {return Proto->MiscEx.Car.FuelConsumption;}
 	uint16 CarGetWear()            {return Data.Car.Deteoration;}
-	uint16 CarGetRunToBreak()      {return Proto->MISC2.CAR.RunToBreak;}
-	uint8  CarGetWearConsumption() {return Proto->MISC2.CAR.WearConsumption;}
-	uint   CarGetSpeed()           {return Proto->MISC2.CAR.Speed;}
-	uint8  CarGetCritCapacity()    {return Proto->MISC2.CAR.CritCapacity;}
+	uint16 CarGetRunToBreak()      {return Proto->MiscEx.Car.RunToBreak;}
+	uint8  CarGetWearConsumption() {return Proto->MiscEx.Car.WearConsumption;}
+	uint   CarGetSpeed()           {return Proto->MiscEx.Car.Speed;}
+	uint8  CarGetCritCapacity()    {return Proto->MiscEx.Car.CritCapacity;}
 
 	// Holodisk
 	bool   IsHolodisk()            {return GetProtoId() == PID_HOLODISK;}
@@ -1223,6 +1149,7 @@ typedef vector<CritterTimeEvent>::iterator CritterTimeEventVecIt;
 
 struct Critter
 {
+	uint   Id;
 	uint16 HexX;
 	uint16 HexY;
 	uint16 WorldX;
@@ -1236,12 +1163,12 @@ struct Critter
 	uint   ShowCritterDist1;
 	uint   ShowCritterDist2;
 	uint   ShowCritterDist3;
-	uint   CrTimeEventFullMinute;
+	uint16 Reserved00;
+	int16  Multihex;
 	uint   GlobalGroupUid;
 	uint16 LastHexX;
 	uint16 LastHexY;
 	uint   Reserved1[4];
-	uint   Id;
 	uint   MapId;
 	uint16 MapPid;
 	uint16 Reserved2;
@@ -1418,12 +1345,12 @@ struct Scenery
 	uint16 ProtoId;
 	uint16 MapX;
 	uint16 MapY;
-	uint8  Dir;
+	int16  Dir;
 
 	uint   LightRGB;
 	uint8  LightDay;
 	uint8  LightDirOff;
-	uint8  LightRadius;
+	uint8  LightDistance;
 	int8   LightIntensity;
 
 	int8   ScriptName[MAPOBJ_SCRIPT_NAME+1];
@@ -1527,20 +1454,22 @@ struct SceneryToClient
 {
 	uint16 ProtoId;
 	uint8  Flags;
-	uint8  LightR;
+	uint8  Reserved0;
 	uint16 MapX;
 	uint16 MapY;
 	int16  OffsetX;
 	int16  OffsetY;
-	uint16 LightGB;
-	uint8  LightRadius;
+	uint   LightColor;
+	uint8  LightDistance;
 	uint8  LightFlags;
 	int8   LightIntensity;
 	uint8  InfoOffset;
 	uint8  AnimStayBegin;
 	uint8  AnimStayEnd;
 	uint16 AnimWait;
-	uint16 PicMap;
+	uint   PicMapHash;
+	int16  Dir;
+	uint16 Reserved1;
 };
 typedef vector<SceneryToClient> SceneryToClientVec;
 
@@ -1561,6 +1490,8 @@ struct ProtoMap
 		int    CenterY;
 		int8   ScriptModule[MAX_SCRIPT_NAME+1];
 		int8   ScriptFunc[MAX_SCRIPT_NAME+1];
+		int    DayTime[4];
+		uint8  DayColor[12];
 	} Header;
 
 	SceneryVec MObjects;
@@ -1597,14 +1528,23 @@ struct Map
 	CrVec     MapCritters;
 	ClVec     MapPlayers;
 	PcVec     MapNpcs;
-
 	Location* MapLocation;
-	uint      MapId;
-	int       MapTime;
-	uint8     MapRain;
-	int       MapData[MAP_MAX_DATA];
+
+	struct 
+	{
+		uint   MapId;
+		uint16 MapPid;
+		uint8  MapRain;
+		bool   IsTurnBasedAviable;
+		int    MapTime;
+		uint   ScriptId;
+		int    MapDayTime[4];
+		uint8  MapDayColor[12];
+		uint   Reserved[20];
+		int    UserData[MAP_MAX_DATA];
+	} Data;
+
 	bool      NeedProcess;
-	uint      ScriptId;
 	uint      FuncId[MAP_EVENT_MAX];
 	uint      LoopEnabled[MAP_LOOP_FUNC_MAX];
 	uint      LoopLastTick[MAP_LOOP_FUNC_MAX];
@@ -1613,13 +1553,12 @@ struct Map
 	ItemVec   HexItems;
 	ProtoMap* Proto;
 
-	bool      IsTurnBasedAviable;
 	bool      IsTurnBasedOn;
 	uint      TurnBasedEndTick;
 	int       TurnSequenceCur;
 	UintVec   TurnSequence;
 	bool      IsTurnBasedTimeout;
-	uint      TurnBasedBeginMinute;
+	uint      TurnBasedBeginSecond;
 	bool      NeedEndTurnBased;
 	uint      TurnBasedRound;
 	uint      TurnBasedTurn;
@@ -1630,46 +1569,13 @@ struct Map
 
 	uint16 GetMaxHexX()                       {return Proto->Header.MaxHexX;}
 	uint16 GetMaxHexY()                       {return Proto->Header.MaxHexY;}
-	bool   IsHexDoor(uint16 hx, uint16 hy)    {return FLAG(HexFlags[hy * GetMaxHexX() + hx], FH_DOOR);}
 	bool   IsHexTrigger(uint16 hx, uint16 hy) {return FLAG(Proto->HexFlags[hy*GetMaxHexX() + hx], FH_TRIGGER);}
 	bool   IsHexTrap(uint16 hx, uint16 hy)    {return FLAG(HexFlags[hy * GetMaxHexX() + hx], FH_WALK_ITEM);}
 	bool   IsHexCritter(uint16 hx, uint16 hy) {return FLAG(HexFlags[hy * GetMaxHexX() + hx], FH_CRITTER | FH_DEAD_CRITTER);}
 	bool   IsHexGag(uint16 hx, uint16 hy)     {return FLAG(HexFlags[hy * GetMaxHexX() + hx], FH_GAG_ITEM);}
-
-	uint16 GetHexFlags(uint16 hx, uint16 hy)
-	{
-		return (HexFlags[hy * GetMaxHexX() + hx] <<8 ) | Proto->HexFlags[hy * GetMaxHexX() + hx];
-	}
-
-	Item* GetItemDoor(uint16 hx, uint16 hy)
-	{
-		for(ItemVecIt it = HexItems.begin(), end = HexItems.end(); it != end; ++it)
-		{
-			Item* item = *it;
-			if(item->ACC_HEX.HexX == hx && item->ACC_HEX.HexY == hy && item->IsDoor()) return item;
-		}
-		return NULL;
-	}
-
-	bool IsHexPassed(uint16 hx, uint16 hy)
-	{
-		if(IsHexDoor(hx, hy))
-		{
-			Item* door = GetItemDoor(hx, hy);
-			if(door && door->LockerIsClose()) return false;
-		}
-		return !FLAG(GetHexFlags(hx, hy), FH_NOWAY);
-	}
-
-	bool IsHexRaked(uint16 hx, uint16 hy)
-	{
-		if(IsHexDoor(hx, hy))
-		{
-			Item* door = GetItemDoor(hx,hy);
-			if(door && door->LockerIsClose()) return false;
-		}
-		return !FLAG(GetHexFlags(hx, hy), FH_NOSHOOT);
-	}
+	uint16 GetHexFlags(uint16 hx, uint16 hy)  {return (HexFlags[hy * GetMaxHexX() + hx] <<8 ) | Proto->HexFlags[hy * GetMaxHexX() + hx];}
+	bool   IsHexPassed(uint16 hx, uint16 hy)  {return !FLAG(GetHexFlags(hx, hy), FH_NOWAY);}
+	bool   IsHexRaked(uint16 hx, uint16 hy)   {return !FLAG(GetHexFlags(hx, hy), FH_NOSHOOT);}
 };
 
 struct GlobalMapZone
@@ -1688,6 +1594,7 @@ struct ProtoLocation
 
 	uint16      MaxCopy;
 	Uint16Vec   ProtoMapPids;
+	Uint16Vec   AutomapsPids;
 	UintPairVec Entrance;
 	int         ScriptBindId;
 
@@ -1794,23 +1701,23 @@ void static_asserts()
 	STATIC_ASSERT(sizeof(IntSet)  == 12);
 	STATIC_ASSERT(sizeof(IntPair) == 8);
 
-	STATIC_ASSERT(offsetof(ProtoItem, WEAPON.Weapon_DmgMax) == 174);
+	STATIC_ASSERT(offsetof(ProtoItem,Weapon.Weapon_Aim)     == 182);
 	STATIC_ASSERT(offsetof(GameVar, RefCount)               == 22);
 	STATIC_ASSERT(offsetof(TemplateVar, Flags)              == 76);
-	STATIC_ASSERT(offsetof(NpcPlane, RefCounter)            == 84);
+	STATIC_ASSERT(offsetof(NpcPlane, RefCounter)            == 88);
 	STATIC_ASSERT(offsetof(GlobalMapGroup, EncounterForce)  == 84);
-	STATIC_ASSERT(offsetof(Item, Lexems)                    == 124);
+	STATIC_ASSERT(offsetof(Item, Lexems)                    == 160);
 	STATIC_ASSERT(offsetof(CritterTimeEvent, Identifier)    == 12);
-	STATIC_ASSERT(offsetof(Critter, RefCounter)             == 9756);
-	STATIC_ASSERT(offsetof(Client, LanguageMsg)             == 9824);
-	STATIC_ASSERT(offsetof(Npc, Reserved)                   == 9788);
+	STATIC_ASSERT(offsetof(Critter, RefCounter)             == 9768);
+	STATIC_ASSERT(offsetof(Client, LanguageMsg)             == 9836);
+	STATIC_ASSERT(offsetof(Npc, Reserved)                   == 9800);
 	STATIC_ASSERT(offsetof(Scenery, RunTime.RefCounter)     == 244);
 	STATIC_ASSERT(offsetof(MapEntire, Dir)                  == 8);
-	STATIC_ASSERT(offsetof(SceneryToClient, PicMap)         == 22);
-	STATIC_ASSERT(offsetof(ProtoMap, HexFlags)              == 292);
-	STATIC_ASSERT(offsetof(Map, RefCounter)                 == 510);
+	STATIC_ASSERT(offsetof(SceneryToClient, Reserved1)      == 30);
+	STATIC_ASSERT(offsetof(ProtoMap, HexFlags)              == 320);
+	STATIC_ASSERT(offsetof(Map, RefCounter)                 == 766);
 	STATIC_ASSERT(offsetof(GlobalMapZone, Reserved)         == 20);
-	STATIC_ASSERT(offsetof(ProtoLocation, GeckEnabled)      == 76);
+	STATIC_ASSERT(offsetof(ProtoLocation, GeckEnabled)      == 92);
 	STATIC_ASSERT(offsetof(Location, RefCounter)            == 286);
 }
 

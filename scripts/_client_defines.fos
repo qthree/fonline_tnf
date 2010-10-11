@@ -1,6 +1,17 @@
 #ifndef __CLIENT_DEFINES__
 #define __CLIENT_DEFINES__
 
+//Global client variables
+//binyan - Hotkeys
+#pragma globalvar "bool __IsTextInput = false" 
+#pragma globalvar "bool __IsHotkeysUse = false" 
+#pragma globalvar "string __MessagePrefix" 
+//binyan - Hex Attack
+#pragma globalvar "bool __IsHexAttack = false"
+//binyan - Timeouts
+#pragma globalvar "bool __ShowTimeouts = false"
+/////////////////////////////////////////////////
+
 // Messages types in messbox
 #define FOMB_GAME              int(0) // Default
 #define FOMB_TALK              int(1)
@@ -26,33 +37,43 @@
 #define CRITTER_LOOK_SHORT     (1)
 #define CRITTER_LOOK_FULL      (2)
 
-// Pathes
-#define PT_ART_CRITTERS        (0)
-#define PT_ART_INTRFACE        (1) // intrface.lst
-#define PT_ART_INVEN           (2) // inven.lst
-#define PT_ART_ITEMS           (3) // items.lst
-#define PT_ART_MISC            (4) // misc.lst
-#define PT_ART_SCENERY         (5) // scenery.lst
-#define PT_ART_SKILLDEX        (6) // skilldex.lst
-#define PT_ART_SPLASH          (7) // splash.lst
-#define PT_ART_TILES           (8) // tiles.lst
-#define PT_ART_WALLS           (9) // walls.lst
-#define PT_ART_TEXTURES        (10)
-#define PT_ART_EFFECTS         (11)
-#define PT_MAPS                (12)
-#define PT_PRO_ITEMS           (13)
-#define PT_PRO_MISC            (14)
-#define PT_PRO_SCENERY         (15)
-#define PT_PRO_TILES           (16)
-#define PT_PRO_WALLS           (17)
-#define PT_PRO_CRIT            (18)
-#define PT_SND_MUSIC           (19)
-#define PT_SND_SFX             (20)
-#define PT_TXT_GAME            (21)
-#define PT_DATA                (22)
-#define PT_DIALOGS             (23)
-#define PT_VIDEO               (24)
-#define PT_SCRIPTS             (25)
+// Paths
+	// Client and mapper paths
+#define PT_ROOT                (0)
+#define PT_DATA                (1)
+#define PT_ART                 (2)
+#define PT_ART_CRITTERS        (3)
+#define PT_ART_INTRFACE        (4)
+#define PT_ART_INVEN           (5)
+#define PT_ART_ITEMS           (6)
+#define PT_ART_MISC            (7)
+#define PT_ART_SCENERY         (8)
+#define PT_ART_SKILLDEX        (9)
+#define PT_ART_SPLASH          (10)
+#define PT_ART_TILES           (11)
+#define PT_ART_WALLS           (12)
+#define PT_TEXTURES            (13)
+#define PT_EFFECTS             (14)
+#define PT_MAPS                (15)
+#define PT_TERRAIN             (16)
+#define PT_SND_MUSIC           (17)
+#define PT_SND_SFX             (18)
+#define PT_SCRIPTS             (19)
+#define PT_VIDEO               (20)
+#define PT_TEXTS               (21)
+#define PT_SAVE                (22)
+	// Server paths
+#define PT_SERVER_ROOT         (30)
+#define PT_SERVER_DATA         (31)
+#define PT_SERVER_TEXTS        (32)
+#define PT_SERVER_DIALOGS      (33)
+#define PT_SERVER_MAPS         (34)
+#define PT_SERVER_PRO_ITEMS    (35)
+#define PT_SERVER_PRO_CRITTERS (36)
+#define PT_SERVER_SCRIPTS      (37)
+#define PT_SERVER_SAVE         (38)
+#define PT_SERVER_CLIENTS      (39)
+#define PT_SERVER_BANS         (40)
 
 // Fonts
 #define FONT_OLD_FO            (0)
@@ -114,6 +135,7 @@
 #define CLIENT_SCREEN_USE                (31)
 #define CLIENT_SCREEN_PERK               (32)
 #define CLIENT_SCREEN_TOWN_VIEW          (33)
+#define CLIENT_SCREEN_SAVE_LOAD          (34)
 	// New script screens
 #define CLIENT_SCREEN_TEST               (40) // client_screen_test.fos
 

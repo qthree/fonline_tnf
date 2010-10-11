@@ -4,7 +4,7 @@
 //Dagnir, 23.03.2010
 
 #include "_macros.fos"
-#include "MsgStr.h"
+#include "_msgstr.fos"
 
 
 bool TryRepairItem(Critter& cr, Item& item) // Export

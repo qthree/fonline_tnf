@@ -1,12 +1,12 @@
 // Author: cvet
 // Some stuff for work with time.
 
-// import uint GetNearFullMinute(uint16 year, uint16 month, uint16 day, uint16 hour, uint16 minute) from "time";
-// Result is greather than __FullMinute at least on one.
+// import uint GetNearFullSecond(uint16 year, uint16 month, uint16 day, uint16 hour, uint16 minute, uint16 second) from "time";
+// Result is greather than __FullSecond at least on one.
 
 // For client:
-// import string@ GetTimeString(const string& format, uint fullMinute) from "time";
-// import string@ GetTimeString(const string& format, int year, int month, int day, int dayOfWeek, int hour, int minute) from "time";
+// import string@ GetTimeString(const string& format, uint fullSecond) from "time";
+// import string@ GetTimeString(const string& format, int year, int month, int day, int dayOfWeek, int hour, int minute, int second) from "time";
 // Tags format:
 //  %YEAR% - year,
 //  %MONTH% - month,
@@ -14,8 +14,9 @@
 //  %DOW% - day of week,
 //  %HOUR% - hour,
 //  %MINUTE% - minute;
+//  %SECOND% - second;
 // To show names of values add "-STR" to format tag (%MONTH% -> %MONTH-STR%), supported by month and day of week.
-// Example: GetTimeString("%HOUR%:%MINUTE% %DAY% (%DOW-STR%) %MONTH-STR% %YEAR%",fullMinute) -> "14:05 23 (Sunday) November 2299"/"14:05 23 (Воскресенье) Ноябрь 2299".
+// Example: GetTimeString("%HOUR%:%MINUTE% %DAY% (%DOW-STR%) %MONTH-STR% %YEAR%",fullSecond) -> "14:05 23 (Sunday) November 2299"/"14:05 23 (Воскресенье) Ноябрь 2299".
 
 #include "_defines.fos"
 
@@ -23,7 +24,7 @@
 #define STR_DAY_OF_WEEK #(dow)       (33+(dow))
 
 
-uint GetNearFullMinute(uint16 year, uint16 month, uint16 day, uint16 hour, uint16 minute)
+uint GetNearFullSecond(uint16 year, uint16 month, uint16 day, uint16 hour, uint16 minute, uint16 second)
 {
 	int jump=0; // 1 - years, 2 - months, 3 - days
 	if(year==0)
@@ -42,13 +43,13 @@ uint GetNearFullMinute(uint16 year, uint16 month, uint16 day, uint16 hour, uint1
 		jump=3;
 	}
 
-	uint fullMinute=GetFullMinute(year,month,day,hour,minute);
-	while(fullMinute<=__FullMinute)
+	uint fullSecond=::GetFullSecond(year,month,day,hour,minute,second);
+	while(fullSecond<=__FullSecond)
 	{
 		switch(jump)
 		{
 		case 0:
-			return __FullMinute+1; // Time expired, call faster
+			return __FullSecond+1; // Time expired, call faster
 		case 1:
 			year++;
 			break;
@@ -77,9 +78,9 @@ uint GetNearFullMinute(uint16 year, uint16 month, uint16 day, uint16 hour, uint1
 			break;
 		}
 
-		fullMinute=GetFullMinute(year,month,day,hour,minute);
+		fullSecond=::GetFullSecond(year,month,day,hour,minute,second);
 	}
-	return fullMinute;
+	return fullSecond;
 }
 
 uint GetDaysInMonth(uint16 year, uint16 month)
@@ -98,14 +99,14 @@ uint GetDaysInMonth(uint16 year, uint16 month)
 }
 
 #ifdef __CLIENT
-string@ GetTimeString(const string& format, uint fullMinute) // Export
+string@ GetTimeString(const string& format, uint fullSecond) // Export
 {
-	uint16 year=0,month=0,day=0,dayOfWeek=0,hour=0,minute=0;
-	GetGameTime(fullMinute,year,month,day,dayOfWeek,hour,minute);
-	return GetTimeString(format,year,month,day,dayOfWeek,hour,minute);
+	uint16 year=0,month=0,day=0,dayOfWeek=0,hour=0,minute=0,second=0;
+	::GetGameTime(fullSecond,year,month,day,dayOfWeek,hour,minute,second);
+	return GetTimeString(format,year,month,day,dayOfWeek,hour,minute,second);
 }
 
-string@ GetTimeString(const string& format, int year, int month, int day, int dayOfWeek, int hour, int minute) // Export
+string@ GetTimeString(const string& format, int year, int month, int day, int dayOfWeek, int hour, int minute, int second) // Export
 {
 	string result=format;
 
@@ -123,6 +124,7 @@ string@ GetTimeString(const string& format, int year, int month, int day, int da
 	}
 	if(hour!=-1) result=ReplaceText(result,"%HOUR%",hour);
 	if(minute!=-1) result=ReplaceText(result,"%MINUTE%",minute);
+	if(second!=-1) result=ReplaceText(result,"%SECOND%",second);
 
 	return result;
 }

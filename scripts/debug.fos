@@ -1,11 +1,27 @@
 // Debug functions
 
 #include "_macros.fos"
+import void AffectRadiation(Critter& cr, int value) from "radiation";
+import void ApplyMutation(Critter& cr) from "morphes";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Trinitro
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define FIND_DIST    (16)
+
+void Radiate(Critter& player, int param0, int param1, int param2)
+{
+Critter@ target=null;
+if(param0==0) @target=player; else @target=GetCritter(param0);
+AffectRadiation(target, param1);
+}
+
+void Mutate(Critter& player, int param0, int param1, int param2)
+{
+Critter@ target=null;
+if(param0==0) @target=player; else @target=GetCritter(param0);
+ApplyMutation(target);
+}
 
 void ViewPlanes(Critter& player, int param0, int param1, int param2)
 {
@@ -36,7 +52,7 @@ void ViewPlanes(Critter& player, int param0, int param1, int param2)
 			{
 				case AI_PLANE_MISC:
 					param.resize(5);
-					param[3] = p[j].Misc_WaitMinute; param[4] = p[j].Misc_ScriptId;
+					param[3] = p[j].Misc_WaitSecond; param[4] = p[j].Misc_ScriptId;
 					break;
 				case AI_PLANE_ATTACK:
 					param.resize(5);
@@ -52,10 +68,9 @@ void ViewPlanes(Critter& player, int param0, int param1, int param2)
 					param[3] = p[j].Pick_HexX; param[4] = p[j].Pick_HexY; param[5] = p[j].Pick_Pid;
 					break;
 			}
-			CreateTimeEvent(__FullMinute + 1 + j, "e_ViewPlanes", param, false);
+			CreateTimeEvent(__FullSecond + 60 + j, "e_ViewPlanes", param, false);
 		}
 	}
-
 }
 
 uint e_ViewPlanes(uint[]@ values)
@@ -240,16 +255,27 @@ void ctd(Critter& player, int param0, int param1, int param2)
 	Map@ map=daddy.GetMap();
 	if (not valid(map)) return;
 	//if(not map.IsHexPassed(daddy.HexX+1, daddy.HexY)) return;
-
+	uint8 temp_dir = Random(0, 5);
 	for(uint i=0; i<6; i++)
 	{
 		uint16 hexX = daddy.HexX, hexY = daddy.HexY;
-		map.MoveHexByDir (hexX, hexY, i, 1);
+		map.MoveHexByDir (hexX, hexY, (temp_dir+i)%6, 1+param1);
 		if(not map.IsHexPassed(hexX, hexY)) continue;
 		child.TransitToMap(map.Id, hexX, hexY, 0);
 		break;	
 	}
 	
+}
+
+void CalmDown(Critter& player, int crId, int param1, int param2)
+{
+	Critter@ cr=GetCritter(crId);
+	if(!valid(cr) || cr.IsPlayer())
+	{
+		player.Say(SAY_NETMSG, "НПЦ не найдет");
+		return;
+	}
+	else cr.ClearEnemyStack();
 }
 
 void god(Critter& player, int, int, int)
@@ -318,6 +344,20 @@ void ToMapEntire(Critter& player, int mapPid, int entire, int)
 		player.Say(SAY_NETMSG,"Карта с pid="+mapPid+" не найдена");
 	}
 }
+
+void ToMap(Critter& player, int mapPid, int X, int Y)
+{
+	Map@ map=GetMapByPid(mapPid,0);
+	if(valid(map))
+	{
+		player.TransitToMap(map.Id, X, Y, 0);
+	}
+	else
+	{
+		player.Say(SAY_NETMSG,"Карта с pid="+mapPid+" не найдена");
+	}
+}
+
 //ищет нпц по диалогу на карте указанного прототипа
 void NpcByDialog(Critter& player, int mapPid, int dialog, int)
 {
@@ -354,6 +394,22 @@ void SetReputation(Critter& cr, int crId, int num, int val)
 	if(valid(toCr)) toCr.ReputationBase[num]=val;
 }
 
+void Siren(Critter & cr, int,int,int)
+{
+	Map @ map = cr.GetMap();
+	if(!valid(map))
+	{
+		cr.Say(SAY_NETMSG, "Невозможно проиграть звук на глобальной карте");
+		return;
+	}
+	map.PlaySound("AIRSIREN.OGG");
+}
+
+void Mirelurk(Critter & cr, int,int,int)
+{
+	cr.GetMap().AddNpc(487, cr.HexX-3, cr.HexY-3, 0, null, null, null);
+
+}
 
 /*
 ~run debug ToMapEntire 137 0 0
@@ -422,7 +478,6 @@ else
    player.Say(SAY_NORM, "Хуй вам, словарь не обрабатывает звездочку в ключе");
 }
 
-
 void SetRain(Critter& player, int capacity, int param1, int param2)
 {
 	Map@ map=player.GetMap();
@@ -442,6 +497,13 @@ void GetParam(Critter& player, int crId, int num, int val)
 	if(crId==0) crId=player.Id;
 	Critter@ toCr=GetCritter(crId);
 	if(valid(toCr)) player.Say(SAY_NETMSG, " "+toCr.Param[num]);
+}
+
+void GetParamBase(Critter& player, int crId, int num, int val)
+{
+	if(crId==0) crId=player.Id;
+	Critter@ toCr=GetCritter(crId);
+	if(valid(toCr)) player.Say(SAY_NETMSG, " "+toCr.ParamBase[num]);
 }
 
 void SetParam(Critter& player, int crId, int num, int val)
@@ -473,4 +535,296 @@ void showId(Critter& player, int param0, int param1, int param2)
 {
 	player.RunClientScript("client_main@_showId", param0, 0, 0, null, null);
 
+}
+
+/* new from SDK
+import void AddWave(int waveNum, int mapId, int type) from "mob_wave";
+import void AddSpawnStep(int waveNum, uint8 radius, uint timeNext, uint x, uint y) from "mob_wave";
+import void AddMob(int waveNum, int pid, int team) from "mob_wave";
+import void AddMoveStep(int waveNum, uint8 radius, uint timeNext, uint x, uint y) from "mob_wave";
+import void AddAttackStep(int waveNum, uint8 radius, uint timeNext, uint timeRepeat, uint x, uint y) from "mob_wave";
+import void AddDeleteStep(int waveNum, uint8 radius, uint timeNext) from "mob_wave";
+import void _StartWave(int waveNum) from "mob_wave";
+import void AddTransitStep(int waveNum, uint8 radius, uint timeNext, uint x, uint y, uint mapId) from "mob_wave";
+
+
+void NewWave(Critter& cr, int num, int type, int)
+{
+	AddWave(num, cr.GetMap().Id, type);
+}
+
+void AddStepSpawn(Critter & cr, int num, int radius, int timeNext)
+{
+	AddSpawnStep(num, radius, timeNext, cr.HexX, cr.HexY);
+}
+
+void AddStepMove(Critter & cr, int num, int radius, int timeNext)
+{
+	AddMoveStep(num, radius, timeNext, cr.HexX, cr.HexY);
+}
+
+void AddStepAttack(Critter & cr, int num, int radius, int timeNext)
+{
+	AddAttackStep(num, radius, timeNext, 10, cr.HexX, cr.HexY);
+}
+
+void AddStepDelete(Critter & cr, int num, int radius, int timeNext)
+{
+	AddDeleteStep(num, radius, timeNext);
+}
+
+void AddMob(Critter& cr, int num, int pid, int team)
+{
+	AddMob(num, pid, team);
+}
+
+void AddStepTransit(Critter& cr, int num, int radius, int timeNext)
+{
+	AddTransitStep(num, radius, timeNext, cr.HexX, cr.HexY, cr.GetMap().Id);
+}
+
+void BeginWave(Critter& cr, int num, int,int)
+{
+	_StartWave(num);
+}
+
+*/
+/*
+~run debug NewWave 1 3 0
+~run debug AddStepSpawn 1 10 10
+~run debug AddStepMove 1 10 10
+~run debug AddStepAttack 1 10 10
+
+~run debug AddMob 1 111 27~run debug AddStepDelete 1 10 10
+~run debug BeginWave 1
+*/
+
+void NetId(Critter & player, int searchRadius, int, int)
+{
+	Critter @[] crits;
+	player.GetMap().GetCrittersHex(player.HexX, player.HexY, searchRadius, FIND_ALL, crits);
+	player.Say(SAY_NETMSG, "my info: HexX="+player.HexX+"; HexY="+player.HexY+"; SearchRadius="+searchRadius);
+	for(uint i=0;i<crits.length();i++)
+	{
+		player.Say(SAY_NETMSG,"Critter Pid:"+crits[i].GetProtoId()+"; Dialog:"+crits[i].Stat[ST_DIALOG_ID]+"; Id:"+ crits[i].Id+ "; Name: "+GetPlayerName(crits[i].Id));
+	}
+	player.Say(SAY_NETMSG,"Total: "+crits.length());
+}
+
+void SetCritParam(Critter & player, int id, int param, int value)
+{
+	Critter @ cr = GetCritter(id);
+	if(valid(cr))
+	{
+		cr.ParamBase[param]=value;
+	}
+}
+
+void GetCritParam(Critter & player, int id, int param, int value)
+{
+	Critter @ cr = GetCritter(id);
+	if(valid(cr))
+	{
+		player.Say(SAY_NETMSG,"Param #" + param+" val= "+cr.Param[param]);
+	}
+}
+
+void ShowLocation(Critter & player, int, int, int)
+{
+	Map @ map = player.GetMap();
+	if(valid(map)) 
+	{
+		Location @ loc = map.GetLocation();
+		if(valid(loc) && !loc.Visible)
+			loc.Visible = true;
+	}
+}
+
+// end of new from SDK
+
+void GetMap(Critter& player, int param0, int param1, int param2)
+{
+Map@ map=player.GetMap();
+string str=map.Id;
+player.Say(SAY_NETMSG, "КАРТА - "+str);
+str=player.HexX+" "+player.HexY;
+player.Say(SAY_NETMSG, "Координаты - "+str);
+str=player.Dir;
+player.Say(SAY_NETMSG, "Направление - "+str);
+}
+
+void GetEnemyStack(Critter& player, int crId, int param1, int param2)
+{
+	uint[] enemyStack;
+	uint x=0;
+	string str;
+	Critter@ cr=GetCritter(crId);
+	if(!valid(cr)) player.Say(SAY_NETMSG, "Криттер не найдет");
+	else if(cr.IsPlayer()) player.Say(SAY_NETMSG, "Криттер не является НПЦ");
+	else 
+	{
+		cr.GetEnemyStack(enemyStack);
+		player.Say(SAY_NETMSG, "Список врагов:");
+		while(x<enemyStack.length())
+		{
+			str="";
+			str+=x;
+			str+=": ";
+			str+=enemyStack[x];
+			player.Say(SAY_NETMSG, str);
+			x++;
+		}
+	}
+	
+}
+
+/*
+#pragma bindfunc "bool Critter::toNpc() -> fonline_tla.dll Critter_toNpc"
+#pragma bindfunc "bool Critter::toPlayer() -> fonline_tla.dll Critter_toPlayer"
+
+void toNpc(Critter & player, int playerId, int, int)
+{
+	Critter@ cr = GetCritter((playerId==0)?player.Id:playerId);
+	cr.toNpc();
+}
+
+void toPlayer(Critter & player, int playerId, int, int)
+{
+	Critter@ cr = GetCritter((playerId==0)?player.Id:playerId);
+	cr.toPlayer();
+}
+
+void isNpc(Critter & player, int playerId, int, int)
+{
+	Critter@ cr = GetCritter((playerId==0)?player.Id:playerId);
+	player.GetMap().SetText (player.HexX, player.HexY, 0xFFFFFFFF, "Криттер "+cr.Id+(cr.IsNpc()?" нпс.":" игрок."));
+}
+
+#pragma bindfunc "string@ Critter::getName() -> fonline_tla.dll Critter_getName"
+
+
+void getName(Critter & player, int playerId, int, int)
+{
+	Critter@ cr = GetCritter((playerId==0)?player.Id:playerId);
+	player.Say(SAY_NETMSG, "У #"+ cr.Id +" имя: "+cr.getName());
+}
+
+#pragma bindfunc "string@ Critter::setName(int num) -> fonline_tla.dll Critter_setName"
+
+void setName(Critter & player, int playerId, int num, int)
+{
+	Critter@ cr = GetCritter((playerId==0)?player.Id:playerId);
+	cr.setName(num);
+}
+*/
+
+void deleteCritter(Critter& player, int id, int param, int value)
+{
+	Critter@ cr = GetCritter(id);
+	if(valid(cr)) DeleteNpc(cr);
+}
+
+void rotateCritter(Critter& player, int id, int param, int value)
+{
+	Critter@ cr = GetCritter(id);
+	if(valid(cr))
+	{
+		cr.SetHomePos(cr.HexX, cr.HexY, param);
+		cr.SetDir(param);
+	}
+}
+
+void changeHome(Critter& player, int id, int x, int y)
+{
+	Critter@ cr = GetCritter(id);
+	cr.SetHomePos(x, y, 0);
+}
+
+void teleportCritter(Critter& player, int id, int x, int y)
+{
+	Critter@ cr = GetCritter(id);
+	if(valid(cr)) cr.TransitToHex (x, y, 0);	
+}
+
+void getCoords(Critter& player, int id, int x, int y)
+{
+	Critter@ cr = GetCritter(id);
+	player.Say(SAY_NETMSG, "X = " + cr.HexX + " Y = " + cr.HexY);
+}
+
+void lock(Critter& player, int itemId, int complexity, int lockId)
+{
+	Map@ map = player.GetMap();
+	Item@ item = map.GetItem(itemId);
+	if (valid(item))
+	{
+		item.LockerCondition = LOCKER_LOCKED;
+		item.LockerComplexity = complexity;
+		item.LockerId = lockId;
+		item.Update();
+		Item@ key = player.AddItem(PID_KEY, 1);
+		if (valid(key)) key.LockerId = lockId;
+		key.Update();
+	}
+}
+
+void unlock(Critter& player, int itemId, int param, int param2)
+{
+	Map@ map = player.GetMap();
+	Item@ item = map.GetItem(itemId);
+		
+	if (valid(item))
+	{
+		item.LockerCondition = LOCKER_ISOPEN;
+		item.LockerComplexity = 0;
+		item.LockerId = 0;
+		item.Update();
+	}
+}
+
+void cleanEnemyStacks(Critter& player , int, int, int)
+{
+Map@ map = player.GetMap();
+Critter@[] crits;
+uint crCount = map.GetCritters(0, FIND_LIFE, crits);
+	for(uint i = 0; i<crCount; ++i)
+	{
+		if(crits[i].IsNpc()) 
+		{
+		   crits[i].ClearEnemyStack ();
+		   crits[i].DropPlanes();
+		}
+	}
+}
+
+
+void SetSkin(Critter& player, int param0, int param1, int param2)
+{
+	Critter@ target=GetCritter(def(param0,player.Id));
+	if (not valid(target)) return;
+	if(target.ChangeCrType(param1))
+	target.StatBase[ST_BASE_CRTYPE] = param1;
+}
+
+void CreateLoc(Critter& player, int param0, int param1, int param2)
+{
+	CreateLocation(param0, param1, param2, null);
+}
+
+void DeleteLoc(Critter& player, int param0, int param1, int param2)
+{
+	Location@ loc = GetLocationByPid(param0, 0);
+	DeleteLocation(loc.Id);
+}
+
+void getMapId(Critter& cr, int param0, int param1, int param2)
+{
+  Map @ map = cr.GetMap();
+  if(!valid(map)) return;
+  string msg = map.Id;
+//   cr.Say(SAY_NETMSG, msg);
+  Location @ loc = map.GetLocation();
+  if(!valid(loc)) {msg += "loc err";} else {msg += " "+loc.Id;}
+  cr.Say(SAY_NETMSG, msg);
+  
 }

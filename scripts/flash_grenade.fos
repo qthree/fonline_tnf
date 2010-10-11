@@ -4,29 +4,30 @@
 import void FlushScreen(Critter& cr, uint fromColor, uint toColor, uint timeMs) from "effects";
 
 
-void ApplyFlashEff(Critter& target, uint min)
+void ApplyFlashEff(Critter& target, uint8 dist)
 {
-uint perc = target.StatBase[ST_PERCEPTION], bLook = target.StatBase[ST_BONUS_LOOK];
+uint perc = target.StatBase[ST_PERCEPTION], bLook = target.StatBase[ST_BONUS_LOOK], end = target.StatBase[ST_ENDURANCE];
+
+uint sec = perc*2-end-dist+1;
+sec = sec<2?1:sec;
 
 if(target.IsPlayer())
 {
-uint ms = (min*60/__TimeMultiplier)*1000;
-FlushScreen(target, COLOR_WHITE, COLOR_WHITE, ms);//Белим экран
-target.StatBase[ST_BONUS_LOOK] = -100;//Ухушаем видимость
-target.RefreshVisible();  
+FlushScreen(target, COLOR_WHITE, COLOR_WHITE, 150);//Белим экран
 }
 
-target.AddTimeEvent("ReturnLook",min,perc|(bLook<<16));//Добавляем таймаут на восстановление зрения
+target.StatBase[ST_BONUS_LOOK] = -33;//Ухушаем видимость
+target.RefreshVisible();  
 target.StatBase[ST_PERCEPTION]=0; //Сбиваем восприятие на нет
+target.AddTimeEvent("ReturnLook",sec*__TimeMultiplier,perc|(bLook<<16));//Добавляем таймаут на восстановление зрения
+
 }
+
 
 uint ReturnLook (Critter& cr, int val, uint& rate)
 {
-if(cr.IsPlayer())
-  {
-    cr.StatBase[ST_BONUS_LOOK] = (val>>16)&0xFFFF; //Возвращаем зрение
-    cr.RefreshVisible(); 
-  }
+cr.StatBase[ST_BONUS_LOOK] = (val>>16)&0xFFFF; //Возвращаем зрение
+cr.RefreshVisible(); 
 cr.StatBase[ST_PERCEPTION]= (val)&0xF;//Возвращаем восприятие
 return 0;
 }

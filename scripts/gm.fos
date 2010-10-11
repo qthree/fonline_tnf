@@ -1,0 +1,120 @@
+#include "_macros.fos"
+/*
+bool inited = false;
+
+uint[] agm_admin;
+
+void agm_init()
+{
+	if(inited) return;
+
+	if(IsAnyData("agm_admin") && GetAnyData("agm_admin", agm_admin) )
+	{
+		Log("AGM: loaded "+agm_admin.length()+" vals to agm_admin");
+	}
+	else if(SetAnyData("agm_admin", agm_admin, 0))
+	{
+		Log("AGM: saved "+agm_admin.length()+" vals from agm_admin");
+	}
+	else
+	{
+		Log("AGM: error, can't load or save agm_admin data.");
+	}
+
+	inited = true;
+}
+
+void agm_check(Critter& cr)
+{
+	agm_init();
+
+	uint id = cr.Id;
+
+	for(uint i=0; i<agm_admin.length(); i++)
+	{
+		if(agm_admin[i]!=id) continue;
+		
+		cr.
+	}
+
+
+
+
+}
+*/
+
+void getItemsByPid(Critter& player, int pid, int param1, int param2)
+{
+	Item@[] items;
+	uint count = GetAllItems(pid,  items);
+	player.Say(SAY_NETMSG, "Count: "+count);
+	
+	Item@ item = null;
+	
+	for(uint i=0; i<count; i++)
+	{
+		@item = items[i];
+		if(!valid(item)) continue;
+		//player.Say(SAY_NETMSG, "#"+item.Id+": acc "+item.Accessory);
+		switch(item.Accessory)
+		{
+		case ACCESSORY_HEX:
+			{
+				Map@ map = GetMap(item.MapId);
+				if(!valid(map))
+				{
+					player.Say(SAY_NETMSG, "#"+item.Id+": map "+item.MapId+" not valid");
+					continue;
+				}
+				player.Say(SAY_NETMSG, "#"+item.Id+": map "+map.Id+" ("+item.HexX+", "+item.HexY+")");
+			}
+			break;
+		case ACCESSORY_CRITTER:
+			{
+				Critter@ cr = GetCritter(item.CritId);
+				if(!valid(cr))
+				{
+					player.Say(SAY_NETMSG, "#"+item.Id+": crit "+item.CritId+" not valid");
+					continue;
+				}
+				Map@ map = cr.GetMap();
+				if(valid(map))
+				{
+					player.Say(SAY_NETMSG, "#"+item.Id+": crit "+cr.Id+" (map "+map.Id+": "+cr.HexX+", "+cr.HexY+")");
+				}					
+				else
+				{
+					player.Say(SAY_NETMSG, "#"+item.Id+": crit "+cr.Id+" (global)");
+				}
+			}
+			break;
+		case ACCESSORY_CONTAINER:
+			{
+				Map@ map = GetMap(item.MapId);
+				if(!valid(map))
+				{
+					player.Say(SAY_NETMSG, "#"+item.Id+": map "+item.MapId+" not valid");
+					continue;
+				}
+
+				Item@ cont = map.GetItem(item.ContainerId);
+				if(!valid(cont)) continue;
+
+				player.Say(SAY_NETMSG, "#"+item.Id+": map "+map.Id+" (cont "+cont.Id+": "+cont.HexX+", "+cont.HexY+")");
+			}
+			break;
+		}
+	}
+
+
+}
+
+void delItemsByPid(Critter& player, int pid, int param1, int param2)
+{
+	Item@[] items;
+	uint  count = GetAllItems(pid,  items);
+
+	DeleteItems(items);
+	
+	player.Say(SAY_NETMSG, "Deleted "+count+" items.");
+}

@@ -99,7 +99,7 @@ class SniperPattern : CommonPattern
 
 		// Скопировано из основного обработчика
 		cr.TimeoutBase[TO_AGGRESSOR]=__FullMinute+__TimeMultiplier;
-		CombatAttack(cr, target, weapon, ammo, HIT_LOCATION_EYES);
+		CombatAttack(cr, target, weapon, ammo, HIT_LOCATION_EYES, 0, 0);
 		this._SetOnAfterAttackEvent(cr, target);
 		return true;
 	}

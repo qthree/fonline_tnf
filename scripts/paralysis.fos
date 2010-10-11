@@ -5,7 +5,7 @@
 
 #include "_macros.fos"
 #include "_colors.fos"
-#define EVENT_ID(5)
+#define EVENT_ID(6)
 int strength, perception, agility, endurance;
 
 void AffectParalysis(Critter& cr, int value) // Export
@@ -28,7 +28,7 @@ if(cr.ParamBase[ST_PARALYSIS_LEVEL]>0)  cr.ParamBase[DAMAGE_POISONED]=1;
 
 if(!isActive)
 {
-cr.AddTimeEvent("cte_Paralysis",10,EVENT_ID,stats);
+cr.AddTimeEvent("cte_Paralysis",10*60,EVENT_ID,stats);
 }
 }
 
@@ -54,7 +54,7 @@ if(cr.Param[ST_PARALYSIS_LEVEL]==0) paral_stage=0;
 if(paral_stage!=0 && cr.IsPlayer())
 {
  cr.ParamBase[DAMAGE_POISONED]=1; 
- cr.SayMsg(SAY_EMOTE_ON_HEAD,TEXTMSG_GAME,Random(12904,12907));
+ if(cr.Stat[ST_BODY_TYPE]<5 && cr.Stat[ST_BODY_TYPE]!=10) cr.SayMsg(SAY_EMOTE_ON_HEAD,TEXTMSG_GAME,Random(12904,12907));
 }
 else cr.ParamBase[DAMAGE_POISONED]=0;
 
@@ -75,7 +75,7 @@ cr.ParamBase[ST_AGILITY]--;
 cr.ParamBase[ST_ENDURANCE]--;
 cr.ParamBase[ST_PARALYSIS_LEVEL]-=5;
 cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12900);
-return 10;
+return 10*60;
 
 case 2:
 cr.ParamBase[ST_STRENGTH]-=2;
@@ -84,7 +84,7 @@ cr.ParamBase[ST_AGILITY]-=2;
 cr.ParamBase[ST_ENDURANCE]-=2;
 cr.ParamBase[ST_PARALYSIS_LEVEL]-=5;
 cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12901);
-return 30;
+return 30*60;
 
 case 3:
 if(!cr.IsKnockout()) cr.ToKnockout(false,50,cr.HexX,cr.HexY);
@@ -94,11 +94,11 @@ cr.ParamBase[ST_AGILITY]=1;
 cr.ParamBase[ST_ENDURANCE]=1;
 cr.ParamBase[ST_PARALYSIS_LEVEL]-=5;
 cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12902);
-return 60;
+return 60*60;
 
-default:return 10;
+default:return 10*60;
 }
-return 20;
+return 20*60;
 }
 
 void DropParalysis(Critter& cr, int value) // Export

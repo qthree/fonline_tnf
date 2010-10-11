@@ -25,6 +25,8 @@ import bool TransitToMap(Critter& cr, int locPid, int mapIndex, int entranceNum)
  * @remarks Данная функция будет запускать диалог только в том случае,
  *          если игрок не использовал на сценери навыков или предметов.
  */
+
+/* повтор
 bool s_Dialog(Critter& player, Scenery& scenery, int skill, Item@ item, int dialogId)
 {
 	// запускаем диалог, если игрок не применял к сценери скилл или итем
@@ -37,6 +39,7 @@ bool s_Dialog(Critter& player, Scenery& scenery, int skill, Item@ item, int dial
 		return false;
 	}
 }
+*/
 
 bool s_DialogNpc(Critter& player, Scenery& scenery, int skill, Item@ item)
 {
@@ -261,11 +264,13 @@ bool s_DoorClose(Critter& player, Scenery& scenery, int skill, Item@ item)
     0,0,0,0,0, skill, item)==1;
 }
 
+
 bool s_DoorControl(Critter& player, Scenery& scenery, int skill, Item@ item)
 {
   return DoorControl(RUN_SCENERY, player, scenery.HexX, scenery.HexY, -1, null, scenery, null,
     0,0,0,0,0, skill, item)==1;
 }
+
 
 bool s_Secret(Critter& player, Scenery& scenery, int skill, Item@ item)
 {

@@ -8,7 +8,7 @@
 Если игрок не пройдет проверку на ловкость, получит от MIN_DMG до MAX_DMG повреждений.
 Если на пути бутылки стоит другой криттер, получить повреждения может он. Игрок, использовавший монетку будет считаться атакующим.
 */
-#define ONE_GAME_WEEK                                              (60*24*7)
+#define ONE_GAME_WEEK                                              (60*60*24*7)
 #define MAX_STOCK												   (10)
 #define HIT_RANGE                                                  (3) // расстояние, на которое "стреляет" автомат
 #define MIN_DMG                                                    (1)
@@ -41,10 +41,10 @@ bool _UseCapsOnNukeMachine(Critter& player, Scenery& scenery, int skill, Item@ i
 
 	if(!valid(stock)||!valid(restock_time)) return false;
 
-	if(uint(restock_time.GetValue())<__FullMinute)
+	if(uint(restock_time.GetValue())<__FullSecond)
 	{
 		stock = uint(Random(MAX_STOCK/2, MAX_STOCK));
-		restock_time = __FullMinute + ONE_GAME_WEEK;
+		restock_time = __FullSecond + ONE_GAME_WEEK;
 	}
 
 	if(stock.GetValue()>0)
@@ -64,13 +64,10 @@ bool _UseCapsOnNukeMachine(Critter& player, Scenery& scenery, int skill, Item@ i
 			TryHitSomeOne(player, scenery);
 			return true;
 		}
-
 	}else{
 		player.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, STR_EMPTY);
 		return true;
 	}
-
-
 }
 
 void TryHitSomeOne(Critter & player, Scenery& nukeMashine)
@@ -114,7 +111,6 @@ void TryHitSomeOne(Critter & player, Scenery& nukeMashine)
 							}
 						}
 					}
-
 				}else{
 					target.SayMsg(SAY_SHOUT, TEXTMSG_TEXT,STR_HITTED);
 					targetHitted = true;
@@ -125,8 +121,6 @@ void TryHitSomeOne(Critter & player, Scenery& nukeMashine)
 			}
 		}
 	}
-
-
 }
 
 

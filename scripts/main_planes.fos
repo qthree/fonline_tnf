@@ -1,4 +1,4 @@
-// Auhtors: cvet, Atom
+// Authors: cvet, Atom
 #include "tracing_util.fos"
 import int RawToHit(Critter &cr, Critter &target, ProtoItem@ weapon, ProtoItem@ ammo) from "combat";
 
@@ -31,7 +31,6 @@ bool npc_plane_begin(Critter& npc, NpcPlane& plane, int reason, Critter@ someCr,
 // REASON_TARGET_DISAPPEARED     someCr as Enemy
 // REASON_USE_ITEM_NOT_FOUND
 // REASON_GAG_CRITTER            someCr as Enemy
-// REASON_GAG_DOOR               someItem as Door
 // REASON_GAG_ITEM               someItem as Item
 // REASON_NO_UNARMED
 bool npc_plane_end(Critter& npc, NpcPlane& plane, int reason, Critter@ someCr, Item@ someItem)
@@ -63,26 +62,38 @@ bool npc_plane_end(Critter& npc, NpcPlane& plane, int reason, Critter@ someCr, I
 		}
 		return false; // Cancel deleting
 	}
-	else if(reason==REASON_GAG_DOOR)
-	{
-		if(valid(someItem) && AI_CAN_OPEN_DOORS(npc.Stat[ST_AI_ID]) && IsKeyAviable(npc,someItem.LockerId))
-		{
-			NpcPlane@ child=CreatePlane();
-			child.Type=AI_PLANE_PICK;
-			child.Priority=0;
-			child.Pick_HexX=someItem.HexX;
-			child.Pick_HexY=someItem.HexY;
-			child.Pick_Pid=someItem.GetProtoId();
-			child.Pick_UseItemId=GetKeyId(npc,someItem.LockerId);
-			child.Pick_ToOpen=true;
-			child.Run=plane.Run;
-			plane.SetChild(child);
-			return false; // Cancel deleting
-		}
-	}
 	else if(reason==REASON_GAG_ITEM)
 	{
-		//
+		if(valid(someItem))
+		{
+			if(someItem.GetType()==ITEM_DOOR && !FLAG(someItem.LockerCondition,LOCKER_ISOPEN) &&
+				AI_CAN_OPEN_DOORS(npc.Stat[ST_AI_ID]) && IsKeyAviable(npc,someItem.LockerId))
+			{
+				NpcPlane@ child=CreatePlane();
+				child.Type=AI_PLANE_PICK;
+				child.Priority=0;
+				child.Pick_HexX=someItem.HexX;
+				child.Pick_HexY=someItem.HexY;
+				child.Pick_Pid=someItem.GetProtoId();
+				child.Pick_UseItemId=GetKeyId(npc,someItem.LockerId);
+				child.Pick_ToOpen=true;
+				child.Run=plane.Run;
+				plane.SetChild(child);
+				return false; // Cancel deleting
+			}
+			else if(someItem.GetType()!=ITEM_DOOR)
+			{
+				NpcPlane@ child=CreatePlane();
+				child.Type=AI_PLANE_PICK;
+				child.Priority=0;
+				child.Pick_HexX=someItem.HexX;
+				child.Pick_HexY=someItem.HexY;
+				child.Pick_Pid=someItem.GetProtoId();
+				child.Run=plane.Run;
+				plane.SetChild(child);
+				return false; // Cancel deleting
+			}
+		}
 	}
 	else if(reason==REASON_RUN_AWAY && npc.IsCanWalk())
 	{
@@ -111,7 +122,9 @@ bool npc_plane_end(Critter& npc, NpcPlane& plane, int reason, Critter@ someCr, I
 			}
 			AI_TrySayCombatText(npc,COMBAT_TEXT_RUN_AWAY);
 		}
-		if(npc.Timeout[TO_BATTLE]<int(__TimeoutBattle)) npc.TimeoutBase[TO_BATTLE]=__FullMinute+__TimeoutBattle;
+
+		int npcTimeout=BATTLE_TIMEOUT(npc);
+		if(npc.Timeout[TO_BATTLE]<npcTimeout-__FullSecond) npc.TimeoutBase[TO_BATTLE]=npcTimeout;
 	}
 	else if(reason==REASON_NO_UNARMED)
 	{
@@ -145,7 +158,7 @@ bool npc_plane_end(Critter& npc, NpcPlane& plane, int reason, Critter@ someCr, I
 //  Out: r0 use, r1 aim, r2 disable attack and wait this time (in ms)
 bool npc_plane_run(Critter& npc, NpcPlane& plane, int reason, uint& r0, uint& r1, uint& r2)
 {
-	//Log("npc_plane_run");
+	//Log("npc_plane_run "+reason);
 	if(reason==REASON_ATTACK_WEAPON)
 	{
 		// Special weapons
@@ -304,12 +317,14 @@ bool npc_plane_run(Critter& npc, NpcPlane& plane, int reason, uint& r0, uint& r1
 		Critter@ target=GetCritter(r0);
 		ProtoItem@ weapon=npc.GetSlotProto(SLOT_HAND1);
 		ProtoItem@ ammo=(weapon.Weapon_VolumeHolder>0 && weapon.Weapon_Caliber!=0?GetProtoItem(_CritGetItemHand(npc).WeaponAmmoPid):null);
-		int wpnDist = weapon.Weapon_MaxDist;
+		int wpnDist=weapon.Weapon_MaxDist;
+		int multihex=npc.GetMultihex()+target.GetMultihex();
 
 		if (not npc.IsCanWalk())
 		{
-			uint dist=GetDistantion(npc.HexX,npc.HexY,target.HexX,target.HexY);
-			if (weapon.Weapon_MaxDist < dist) dist=weapon.Weapon_MaxDist;
+			int dist=GetDistantion(npc.HexX,npc.HexY,target.HexX,target.HexY);
+			if (wpnDist<dist) dist=wpnDist;
+			dist+=multihex;
 			r0=r1=r2=dist;
 			return true;
 		}
@@ -339,9 +354,9 @@ bool npc_plane_run(Critter& npc, NpcPlane& plane, int reason, uint& r0, uint& r1
 			}
 			else
 			{
-				r0=1;
-				r1=1;
-				r2=wpnDist;
+				r0=1+multihex;
+				r1=1+multihex;
+				r2=wpnDist+multihex;
 			}
 			return true;
 		}
@@ -358,19 +373,18 @@ bool npc_plane_run(Critter& npc, NpcPlane& plane, int reason, uint& r0, uint& r1
 				if (dmgType==DAMAGE_PLASMA || dmgType==DAMAGE_EMP || dmgType==DAMAGE_EXPLODE)
 					r0=3;
 			}
-			else
-				if (valid(ammo))
+			else if (valid(ammo))
+			{
+				switch (ammo.GetProtoId())
 				{
-					switch (ammo.GetProtoId())
-					{
-					case PID_EXPLOSIVE_ROCKET:
-					case PID_ROCKET_AP:
-					case PID_ROBO_ROCKET_AMMO:
-						r1=4;
-					default:
-						break;
-					}
+				case PID_EXPLOSIVE_ROCKET:
+				case PID_ROCKET_AP:
+				case PID_ROBO_ROCKET_AMMO:
+					r1=4;
+				default:
+					break;
 				}
+			}
 
 			if ((weapon.Weapon_Perk == WEAPON_PERK_SCOPE_RANGE) && (r1<8)) r1=8;
 
@@ -453,6 +467,11 @@ bool npc_plane_run(Critter& npc, NpcPlane& plane, int reason, uint& r0, uint& r1
 				r2=weapon.Weapon_MaxDist;
 				if (r0>r2) r0=r2;
 			}
+
+			// Multihex
+			r0+=multihex;
+			r1+=multihex;
+			r2+=multihex;
 			return true;
 		}
 	}

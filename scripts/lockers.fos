@@ -1,7 +1,7 @@
-// Auhtor: cvet
+// Author: cvet
 // Doors and keys stuff.
 #include "_macros.fos"
-#include "MsgStr.h"
+#include "_msgstr.fos"
 
 
 bool UseItemOnLocker(Critter& cr, Item& locker, Item& item) // Export
@@ -37,16 +37,16 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 			}
 
 			// Check key
-			if(!FLAG(locker.LockerCondition,LOCKER_ISOPEN) && locker.LockerId!=0
-			&& !FLAG(locker.LockerCondition,LOCKER_BROKEN) && !IsKeyAviable(cr,locker.LockerId))
+			if(!FLAG(locker.LockerCondition,LOCKER_ISOPEN) && locker.LockerId!=0 &&
+				!FLAG(locker.LockerCondition,LOCKER_BROKEN) && !IsKeyAviable(cr,locker.LockerId))
 			{
 				cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_ITEM_LOCKER_NEED_KEY);
 				return true;
 			}
 
 			// Change state
-			if(FLAG(locker.LockerCondition,LOCKER_ISOPEN)) map.CloseDoor(locker);
-			else map.OpenDoor(locker);
+			if(FLAG(locker.LockerCondition,LOCKER_ISOPEN)) locker.LockerClose();
+			else locker.LockerOpen();
 		}
 		else if(locker.GetType()==ITEM_CONTAINER)
 		{
@@ -58,8 +58,8 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 			}
 
 			// Check key
-			if(!FLAG(locker.LockerCondition,LOCKER_ISOPEN) && locker.LockerId!=0
-			&& !FLAG(locker.LockerCondition,LOCKER_BROKEN) && !IsKeyAviable(cr,locker.LockerId))
+			if(!FLAG(locker.LockerCondition,LOCKER_ISOPEN) && locker.LockerId!=0 &&
+				!FLAG(locker.LockerCondition,LOCKER_BROKEN) && !IsKeyAviable(cr,locker.LockerId))
 			{
 				cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_ITEM_LOCKER_NEED_KEY);
 				return true;
@@ -69,10 +69,10 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 			if(locker.Proto.Container_IsChangeble)
 			{
 				// Change state
-				if(FLAG(locker.LockerCondition,LOCKER_ISOPEN)) map.CloseDoor(locker);
+				if(FLAG(locker.LockerCondition,LOCKER_ISOPEN)) locker.LockerClose();
 				else
 				{
-					map.OpenDoor(locker);
+					locker.LockerOpen();
 					cr.ShowContainer(null,locker,locker.Proto.Container_IsGroundLevel()?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
 				}
 			}
@@ -104,6 +104,16 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 
 		int base=cr.Skill[SK_LOCKPICK]-locker.LockerComplexity;
 		uint16 activePid=cr.GetSlotProto(SLOT_HAND1).GetProtoId();
+		
+		Log("Lockpick, lockerCompl = " +locker.LockerComplexity);
+		//Sargonius
+		//Грубое решение
+		if(activePid!=PID_LOCKPICKS && activePid!=PID_EXP_LOCKPICK_SET)
+		{
+			cr.Say(SAY_NETMSG, "Без отмычек ваши шансы на взлом замка стремятся к нулю.");
+			base=0; //-100 оказалось мало
+		}
+		
 		if(activePid==PID_LOCKPICKS)
 		{
 			base+=25;
@@ -114,19 +124,25 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 			base+=50;
 			if(Random(0,30)==0) cr.DeleteItem(PID_EXP_LOCKPICK_SET,1);
 		}
+
 		// Todo: PID_ELECTRONIC_LOCKPICKS, PID_ELEC_LOCKPICK_MKII
 
-		base=CLAMP(base,0,95);
-		if(base>=Random(1,100))
+		if(cr.GetAccess()!=ACCESS_ADMIN) base=CLAMP(base,0,95);
+		
+		if (locker.LockerComplexity == 300 && cr.GetAccess()!=ACCESS_ADMIN) cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_SKILL_LOCKPICK_FAIL); //постоянный замок
+		else if(base>=Random(1,100))
 		{
-			map.OpenDoor(locker);
+			locker.LockerOpen();
 			if(locker.GetType()==ITEM_CONTAINER) cr.ShowContainer(null,locker,locker.Proto.Container_IsGroundLevel()?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
 			locker.LockerComplexity = 0;
 			locker.LockerId = 0;
 			locker.LockerCondition = LOCKER_ISOPEN;
 			locker.Update();
-			cr.StatBase[ST_EXPERIENCE]+=(ABS(locker.LockerComplexity - cr.SkillBase[SK_LOCKPICK]) + Random(0, 50)) * 2;
+			//cr.StatBase[ST_EXPERIENCE]+=(ABS(locker.LockerComplexity - cr.SkillBase[SK_LOCKPICK]) + Random(0, 50)) * 2;
+			cr.StatBase[ST_EXPERIENCE]+=(ABS(locker.LockerComplexity + 10) + Random(0, 50)); //занижено значительно, т.к. идёт abuse и прокачка с помощью ключей.
 			cr.AddScore(SCORE_CRACKER,1);
+			//cr.StatBase[ST_EXPERIENCE]+=50;
+			//cr.AddScore(SCORE_CRACKER,1);
 		}
 		else
 		{
@@ -165,19 +181,18 @@ uint GetKeyId(Critter& cr, uint lockerId) // Export
 
 void SwitchState(Item& locker) // Export
 {
+	// Todo: show messages
+
 	if(locker.GetType()==ITEM_DOOR || locker.GetType()==ITEM_CONTAINER)
 	{
-		// Not NoOpen
+		// Check open aviability
 		if(not FLAG(locker.LockerCondition,LOCKER_NOOPEN))
 		{
 			// Change state
 			if(FLAG(locker.LockerCondition,LOCKER_ISOPEN))
-				UNSETFLAG(locker.LockerCondition,LOCKER_ISOPEN);
+				locker.LockerClose();
 			else
-				SETFLAG(locker.LockerCondition,LOCKER_ISOPEN);
-
-			// Update view
-			locker.Update();
+				locker.LockerOpen();
 		}
 	}
 }

@@ -22,9 +22,9 @@ class Sprite
 		FrmCount=GetSpriteCount(Id);
 	}
 
-	void Load(uint16 sprNum, uint8 dir, int path)
+	void Load(uint nameHash, uint8 dir)
 	{
-		Id=LoadSprite(sprNum,dir,path);
+		Id=LoadSprite(nameHash,dir);
 		Width=GetSpriteWidth(Id,0);
 		Height=GetSpriteHeight(Id,0);
 		FrmCount=GetSpriteCount(Id);

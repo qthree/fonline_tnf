@@ -1794,16 +1794,16 @@ position=huddle, spacing:3*/
 	group.TeamNum=0;
 	group.Position=POSITION_SURROUNDING;
 	group.Spacing=2;
-	group.AddCritter(252).Ratio(25).Dialog(0).Script("encounter_npc@_NpcInit")
+	group.AddCritter(252).Ratio(25).Dialog(0).Script("broken_common@_SaboteurInit")
 		.AddItem(PID_POWER_FIST,1,1,SLOT_HAND1)
 		.AddItem(PID_BOTTLE_CAPS,0,40,SLOT_INV);
-	group.AddCritter(252).Ratio(25).Dialog(0).Script("encounter_npc@_NpcInit")
+	group.AddCritter(252).Ratio(25).Dialog(0).Script("broken_common@_SaboteurInit")
 		.AddItem(PID_RIPPER,1,1,SLOT_HAND1)
 		.AddItem(PID_BOTTLE_CAPS,0,40,SLOT_INV);
-	group.AddCritter(253).Ratio(25).Dialog(0).Script("encounter_npc@_NpcInit")
+	group.AddCritter(253).Ratio(25).Dialog(0).Script("broken_common@_SaboteurInit")
 		.AddItem(PID_POWER_FIST,1,1,SLOT_HAND1)
 		.AddItem(PID_BOTTLE_CAPS,0,40,SLOT_INV);
-	group.AddCritter(253).Ratio(25).Dialog(0).Script("encounter_npc@_NpcInit")
+	group.AddCritter(253).Ratio(25).Dialog(0).Script("broken_common@_SaboteurInit")
 		.AddItem(PID_RIPPER,1,1,SLOT_HAND1)
 		.AddItem(PID_BOTTLE_CAPS,0,40,SLOT_INV);
 /*type_00=ratio:25%, pid:16777468, Item:235(wielded), Item:(0-40)41, Script:764                              ; Press Gang male w/ Power Fist
@@ -2317,6 +2317,75 @@ position=Surrounding, Spacing:2, distance:4*/
 /*type_00=ratio:0%, pid:19 */
 
 
+	//Roleplay Mirelurk
+	@group=@EncounterGroups[GROUP_COAST_Mirelurk] ;
+	group.TeamNum=0;
+	group.Position=POSITION_SURROUNDING;
+	group.Spacing=2;
+	group.AddCritter(487).Ratio(100).Dialog(0).Script("mob@_MobInit");
+	//group.AddCritter(488).Ratio(30).Dialog(0).Script("mob@_MobInit");
+
+										// SF Mirelurk invasion 
+	@group=@EncounterGroups[GROUP_SF_Mirelurk] ;
+	group.TeamNum=0;
+	group.Position=POSITION_SURROUNDING;
+	group.Spacing=2;
+	group.AddCritter(487).Ratio(70).Dialog(0).Script("mob@_MobInit");
+	group.AddCritter(488).Ratio(30).Dialog(0).Script("mob@_MobInit");
+	group.AddCritter(486).Dead(true).Dialog(0).CheckRandom(10).CheckGVar(GVAR_sf_bos_armour_counter,'>',0).CheckParam(ST_LEVEL,'>',2).Script("sf_invasion@_DeadPaladinInit");
+
+										// Rangers patrol quest raiders
+	@group=@EncounterGroups[GROUP_NCR_Patrol_Raiders];
+	group.TeamNum=8; //TEAM_Bandit
+	group.Position=POSITION_STRAIGHT_LINE;
+	group.Distance=15;
+	group.Spacing=2;
+	group.AddCritter(30).Ratio(20).Dialog(0).Script("ai_pattern@_Term1Init")
+		.AddItem(PID_ROCKET_LAUNCHER,1,1,SLOT_HAND1)
+		.AddItem(PID_FLAMER,1,1,SLOT_HAND2)
+		.AddItem(PID_EXPLOSIVE_ROCKET,3,6,SLOT_INV)
+		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);
+	group.AddCritter(30).Ratio(30).Dialog(0).Script("ai_pattern@_Term1Init")
+		.AddItem(PID_MINIGUN,1,1,SLOT_HAND1)
+		.AddItem(PID_5MM_JHP,100,200,SLOT_INV)
+		.AddItem(PID_FLAMER,1,1,SLOT_HAND2)
+		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);
+	group.AddCritter(31).Ratio(20).Dialog(0).Script("ai_pattern@_Medic2Init")	
+		.AddItem(PID_LASER_PISTOL,1,1,SLOT_HAND1)
+		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);
+	group.AddCritter(358).Ratio(30).Dialog(0).Script("ai_pattern@_Sniper1Init")
+		.AddItem(PID_HUNTING_RIFLE,1,1,SLOT_HAND1)
+		.AddItem(PID_223_FMJ,33,44,SLOT_HAND2)
+		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);											
+	
+											// Rangers patrol quest rebels
+	@group=@EncounterGroups[GROUP_NCR_Patrol_Rebels];
+	group.TeamNum=8; //TEAM_Bandit
+	group.Position=POSITION_SURROUNDING;
+	group.Distance=15;
+	group.Spacing=2;
+	group.AddCritter(222).Ratio(20).Dialog(2103).Script("ai_pattern@_Term1Init")
+		.AddItem(PID_ROCKET_LAUNCHER,1,1,SLOT_HAND1)
+		.AddItem(PID_MINIGUN,1,1,SLOT_HAND2)
+		.AddItem(PID_SUPER_STIMPAK,1,1,SLOT_INV)
+		.AddItem(PID_5MM_JHP,100,200,SLOT_INV)
+		.AddItem(PID_EXPLOSIVE_ROCKET,3,6,SLOT_INV)
+		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);
+	group.AddCritter(222).Ratio(30).Dialog(2103).Script("ai_pattern@_Slayer2Init")
+		.AddItem(PID_ROCKET_LAUNCHER,1,1,SLOT_HAND1)
+		.AddItem(PID_5MM_JHP,100,200,SLOT_INV)	
+		.AddItem(PID_SUPER_STIMPAK,1,2,SLOT_INV)
+		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);
+	group.AddCritter(222).Ratio(20).Dialog(2103).Script("ai_pattern@_Medic2Init")	
+		.AddItem(PID_LASER_PISTOL,1,1,SLOT_HAND1)	
+		.AddItem(PID_SUPER_STIMPAK,3,5,SLOT_INV)
+		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);
+	group.AddCritter(222).Ratio(30).Dialog(2103).Script("ai_pattern@_Sniper4Init")
+		.AddItem(PID_SNIPER_RIFLE,1,1,SLOT_HAND1)
+		.AddItem(PID_SUPER_STIMPAK,1,2,SLOT_INV)
+		.AddItem(PID_223_FMJ,33,44,SLOT_HAND2)
+		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);	
+	
 	
 /*
 
@@ -2530,11 +2599,13 @@ table.AddEncounter( 10, 10048650).AddGroup(GROUP_DMRV_Scorpions        , 1,2).Ad
 	table.AddEncounter( 12, 10053140).AddGroup(GROUP_EPA_Fire_Geckos       , 1, 4).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
 
 @table=@EncounterTables[TABLE_Coast_Normal];// Побережье - нормальное
-	table.AddLocationPid(LOCATION_DesertEncounter1);
-	//table.AddLocationPid(LOCATION_CoastEncounter1);
-	//table.AddLocationPid(LOCATION_CoastEncounter2);
-	//table.AddLocationPid(LOCATION_CoastEncounter3);
-	//table.AddLocationPid(LOCATION_CoastEncounter4);
+	table.AddLocationPid(LOCATION_CoastEncounter1);
+	table.AddLocationPid(LOCATION_CoastEncounter2);
+	table.AddLocationPid(LOCATION_CoastEncounter3);
+	table.AddLocationPid(LOCATION_CoastEncounter4);
+	table.AddLocationPid(LOCATION_CoastEncounter5);
+	table.AddLocationPid(LOCATION_CoastEncounter6);
+	table.AddLocationPid(LOCATION_CoastEncounter7);
 	table.AddEncounter(  15, 10033020).AddGroup(GROUP_ARRO_Spore_Plants     , 4, 7).AddGroup(GROUP_ARRO_Silver_Geckos, 2, 5).AddGroup(GROUP_Player, 0, 0).Fighting(0,2).Fighting(1,2);
 	table.AddEncounter( 15, 10033030).AddGroup(GROUP_ARRO_Silver_Geckos    , 1, 4).AddGroup(GROUP_Player            , 0, 0).Fighting(0,1);
 	table.AddEncounter( 15, 10033130).AddGroup(GROUP_ARRO_Sm_Scorpions     , 1, 6).AddGroup(GROUP_Player            , 0, 0).Fighting(0,1);
@@ -2551,23 +2622,32 @@ table.AddEncounter( 10, 10048650).AddGroup(GROUP_DMRV_Scorpions        , 1,2).Ad
 	table.AddEncounter( 10, 10048650).AddGroup(GROUP_DMRV_Scorpions        , 2,4).AddGroup(GROUP_Player                , 0, 0).Fighting(0,1);
 	
 @table=@EncounterTables[TABLE_Coast_Hard];// Побережье - тяжелое
-	table.AddLocationPid(LOCATION_DesertEncounter1);
-	//table.AddLocationPid(LOCATION_CoastEncounter3);
-	//table.AddLocationPid(LOCATION_CoastEncounter4);
-	//table.AddLocationPid(LOCATION_CoastEncounter5);
+	table.AddLocationPid(LOCATION_CoastEncounter1);
+	table.AddLocationPid(LOCATION_CoastEncounter2);
+	table.AddLocationPid(LOCATION_CoastEncounter3);
+	table.AddLocationPid(LOCATION_CoastEncounter4);
+	table.AddLocationPid(LOCATION_CoastEncounter5);
+	table.AddLocationPid(LOCATION_CoastEncounter6);
+	table.AddLocationPid(LOCATION_CoastEncounter7);
 	table.AddEncounter( 10, 10048640).AddGroup(GROUP_WILD2_Mutated_Molerats, 2,4).AddGroup(GROUP_Player                , 0, 0).Fighting(0,1);
 	table.AddEncounter( 10, 10037240).AddGroup(GROUP_DMRV_Golden_Geckos    , 2, 4).AddGroup(GROUP_DMRV_Scorpions , 2, 3).Fighting(0,1);
 	table.AddEncounter( 5, 10053130).AddGroup(GROUP_EPA_Deathclaws        , 1, 1).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
 	table.AddEncounter( 5, 10053140).AddGroup(GROUP_EPA_Fire_Geckos       , 1, 1).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
+	table.AddEncounter(5, 10068100).AddGroup(GROUP_COAST_Mirelurk, 1, 1).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
+	
 		
 @table=@EncounterTables[TABLE_Coast_Deadly];// Побережье - смертельное
-	table.AddLocationPid(LOCATION_DesertEncounter1);
-	//table.AddLocationPid(LOCATION_CoastEncounter7);
-	//table.AddLocationPid(LOCATION_CoastEncounter8);
-	//table.AddLocationPid(LOCATION_CoastEncounter9);
+	table.AddLocationPid(LOCATION_CoastEncounter1);
+	table.AddLocationPid(LOCATION_CoastEncounter2);
+	table.AddLocationPid(LOCATION_CoastEncounter3);
+	table.AddLocationPid(LOCATION_CoastEncounter4);
+	table.AddLocationPid(LOCATION_CoastEncounter5);
+	table.AddLocationPid(LOCATION_CoastEncounter6);
+	table.AddLocationPid(LOCATION_CoastEncounter7);
 	table.AddEncounter(  8, 10037240).AddGroup(GROUP_DMRV_Golden_Geckos    , 5, 10).AddGroup(GROUP_DMRV_Scorpions , 3, 6).Fighting(0,1);
 	table.AddEncounter( 12, 10053130).AddGroup(GROUP_EPA_Deathclaws        , 1, 4).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
 	table.AddEncounter( 12, 10053140).AddGroup(GROUP_EPA_Fire_Geckos       , 1, 4).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
+	table.AddEncounter(15, 10068110).AddGroup(GROUP_COAST_Mirelurk, 2, 3).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
 
 
 @table=@EncounterTables[TABLE_City_Normal]; //Городские энки
@@ -2971,6 +3051,8 @@ enc_24=Chance:5%,Enc:(3-5) ARRO_Nomads*/
 	table.AddEncounter(  1, 10034760).Special(true).LocationPid(LOCATION_SpecialHolyEncounter1).CheckParam(ST_LEVEL,'>',9).CheckLVar(LVAR_special_encounter_holy1,'<',1).AssignLVar(LVAR_special_encounter_holy1,'=',1);
 	table.AddEncounter(  1, 10034770).Special(true).LocationPid(LOCATION_SpecialWoodsmanEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_woodsman,'<',1).AssignLVar(LVAR_special_encounter_woodsman,'=',1);
 	table.AddEncounter(  1, 10034780).Special(true).LocationPid(LOCATION_SpecialUnwashedEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_unwashed,'<',1).AssignLVar(LVAR_special_encounter_unwashed,'=',1);
+	table.AddEncounter(  1, 10034790).Special(true).LocationPid(LOCATION_SpecialWastelandChildren).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_wasteland_children,'<',1).AssignLVar(LVAR_special_wasteland_children,'=',1);
+
 /*lookup_name=Arrok_D                                              ; Arroyo Klamath Trade Route
 maps=Desert Encounter 1, Desert Encounter 2, Desert Encounter 3, Desert Encounter 8, Desert Encounter 10
 enc_00=Chance:2%,Counter:1,Special,Map:Special Toxic Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(607) < 1)
@@ -3085,6 +3167,8 @@ enc_20=Chance:1%,Counter:1,Special,Map:Special Holy Encounter 2,Enc:Special1, If
 	table.AddEncounter(  1, 10035870).Special(true).LocationPid(LOCATION_SpecialHolyEncounter1).CheckParam(ST_LEVEL,'>',9).CheckLVar(LVAR_special_encounter_holy1,'<',1).AssignLVar(LVAR_special_encounter_holy1,'=',1);
 	table.AddEncounter(  1, 10035880).Special(true).LocationPid(LOCATION_SpecialWoodsmanEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_woodsman,'<',1).AssignLVar(LVAR_special_encounter_woodsman,'=',1);
 	table.AddEncounter(  1, 10035890).Special(true).LocationPid(LOCATION_SpecialUnwashedEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_unwashed,'<',1).AssignLVar(LVAR_special_encounter_unwashed,'=',1);
+	table.AddEncounter(  1, 10034790).Special(true).LocationPid(LOCATION_SpecialWastelandChildren).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_wasteland_children,'<',1).AssignLVar(LVAR_special_wasteland_children,'=',1);
+	table.AddEncounter(  1, 10034800).Special(true).LocationPid(LOCATION_SpecialKotW).CheckParam(ST_LEVEL,'>',12).CheckLVar(LVAR_special_encounter_kotw,'<',1).AssignLVar(LVAR_special_encounter_kotw,'=',1);
 /*lookup_name=Kla_D                                                       ; Areas around Klamath
 maps=Desert Encounter 2, Desert Encounter 4, Desert Encounter 6, Desert Encounter 12, Desert Encounter 11
 enc_00=Chance:2%,Counter:1,Special,Map:Special Toxic Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(607) < 1)
@@ -3225,7 +3309,9 @@ enc_31=Chance:1%,Counter:1,Special,Map:Special Holy Encounter 2,Enc:Special1, If
 	table.AddEncounter(  1, 10036820).Special(true).LocationPid(LOCATION_SpecialHolyEncounter1).CheckParam(ST_LEVEL,'>',9).CheckLVar(LVAR_special_encounter_holy1,'<',1).AssignLVar(LVAR_special_encounter_holy1,'=',1);
 	table.AddEncounter(  1, 10036830).Special(true).LocationPid(LOCATION_SpecialWoodsmanEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_woodsman,'<',1).AssignLVar(LVAR_special_encounter_woodsman,'=',1);
 	table.AddEncounter(  1, 10036840).Special(true).LocationPid(LOCATION_SpecialUnwashedEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_unwashed,'<',1).AssignLVar(LVAR_special_encounter_unwashed,'=',1);
-/*lookup_name=Klad_D                                                      ; Klamath-Den Trade Route
+	table.AddEncounter(  1, 10034790).Special(true).LocationPid(LOCATION_SpecialWastelandChildren).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_wasteland_children,'<',1).AssignLVar(LVAR_special_wasteland_children,'=',1);
+	table.AddEncounter(  1, 10034800).Special(true).LocationPid(LOCATION_SpecialKotW).CheckParam(ST_LEVEL,'>',12).CheckLVar(LVAR_special_encounter_kotw,'<',1).AssignLVar(LVAR_special_encounter_kotw,'=',1);
+	/*lookup_name=Klad_D                                                      ; Klamath-Den Trade Route
 maps=Desert Encounter 5, Desert Encounter 4, Desert Encounter 9, Desert Encounter 10
 enc_00=Chance:2%,Counter:1,Special,Map:Special Toxic Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(607) < 1)
 enc_01=Chance:2%,Counter:1,Special,Map:Special Pariahs Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(608) < 1)
@@ -3409,7 +3495,9 @@ enc_24=Chance:1%,Counter:1,Special,Map:Special Holy Encounter 2,Enc:Special1, If
 	table.AddEncounter(  1, 10038290).Special(true).LocationPid(LOCATION_SpecialHolyEncounter1).CheckParam(ST_LEVEL,'>',9).CheckLVar(LVAR_special_encounter_holy1,'<',1).AssignLVar(LVAR_special_encounter_holy1,'=',1);
 	table.AddEncounter(  1, 10038300).Special(true).LocationPid(LOCATION_SpecialWoodsmanEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_woodsman,'<',1).AssignLVar(LVAR_special_encounter_woodsman,'=',1);
 	table.AddEncounter(  1, 10038310).Special(true).LocationPid(LOCATION_SpecialUnwashedEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_unwashed,'<',1).AssignLVar(LVAR_special_encounter_unwashed,'=',1);
-/*lookup_name=Den_D                                                       ; Areas around the Den
+	table.AddEncounter(  1, 10034790).Special(true).LocationPid(LOCATION_SpecialWastelandChildren).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_wasteland_children,'<',1).AssignLVar(LVAR_special_wasteland_children,'=',1);
+	table.AddEncounter(  1, 10034800).Special(true).LocationPid(LOCATION_SpecialKotW).CheckParam(ST_LEVEL,'>',12).CheckLVar(LVAR_special_encounter_kotw,'<',1).AssignLVar(LVAR_special_encounter_kotw,'=',1);
+	/*lookup_name=Den_D                                                       ; Areas around the Den
 maps=Desert Encounter 8, Desert Encounter 9, Desert Encounter 10, Desert Encounter 7
 enc_00=Chance:2%,Counter:1,Special,Map:Special Toxic Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(607) < 1)
 enc_01=Chance:2%,Counter:1,Special,Map:Special Pariahs Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(608) < 1)
@@ -4910,7 +4998,9 @@ enc_19=Chance:1%,Counter:1,Special,Map:Special Holy Encounter 2,Enc:Special1, If
 	table.AddEncounter( 12, 10053650).AddGroup(GROUP_EPA_Alien             , 6, 9).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
 	table.AddEncounter( 12, 10053660).AddGroup(GROUP_EPA_Centaurs          , 6, 8).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
 	table.AddEncounter( 12, 10053670).AddGroup(GROUP_EPA_Floaters          , 6,10).AddGroup(GROUP_Player        , 0, 0).Fighting(0,1);
-/*lookup_name=EPA_C                                                               ; Area around the EPA
+	table.AddEncounter(  1, 10054230).Special(true).LocationPid(LOCATION_SpecialTeleportEncounter).CheckParam(ST_LEVEL,'>',10).CheckLVar(LVAR_special_encounter_teleport,'<',1).AssignLVar(LVAR_special_encounter_teleport,'=',1);
+	table.AddEncounter(  1, 10034800).Special(true).LocationPid(LOCATION_SpecialKotW).CheckParam(ST_LEVEL,'>',12).CheckLVar(LVAR_special_encounter_kotw,'<',1).AssignLVar(LVAR_special_encounter_kotw,'=',1);
+	/*lookup_name=EPA_C                                                               ; Area around the EPA
 maps=City Encounter 1, City Encounter 2, City Encounter 3, City Encounter 4, City Encounter 5, City Encounter 6, City Encounter 7, City Encounter 8
 enc_00=Chance:4%,Enc:(3-6) EPA_Tough_Alien AND (3-5) EPA_Deathclaws AMBUSH Player
 enc_01=Chance:12%,Enc:(6-8) EPA_Floater_Centaurs AMBUSH Player
@@ -4950,6 +5040,8 @@ enc_17=Chance:12%,Enc:(6-10) EPA_Floaters AMBUSH Player*/
 	table.AddEncounter(  1, 10054200).Special(true).LocationPid(LOCATION_SpecialWoodsmanEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_woodsman,'<',1).AssignLVar(LVAR_special_encounter_woodsman,'=',1);
 	table.AddEncounter(  1, 10054210).Special(true).LocationPid(LOCATION_SpecialUnwashedEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_unwashed,'<',1).AssignLVar(LVAR_special_encounter_unwashed,'=',1);
 	table.AddEncounter(  1, 10054220).Special(true).LocationPid(LOCATION_SpecialCafeEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_gecko_find_woody,'<',1).AssignLVar(LVAR_gecko_find_woody,'=',1);
+	table.AddEncounter(  1, 10054230).Special(true).LocationPid(LOCATION_SpecialTeleportEncounter).CheckParam(ST_LEVEL,'>',10).CheckLVar(LVAR_special_encounter_teleport,'<',1).AssignLVar(LVAR_special_encounter_teleport,'=',1);
+	table.AddEncounter(  1, 10034800).Special(true).LocationPid(LOCATION_SpecialKotW).CheckParam(ST_LEVEL,'>',12).CheckLVar(LVAR_special_encounter_kotw,'<',1).AssignLVar(LVAR_special_encounter_kotw,'=',1);
 /*lookup_name=Wild4_D                                                             ; Area Between EPA and Coast
 maps=Desert Encounter 9, Desert Encounter 8, Desert Encounter 11
 enc_00=Chance:2%,Counter:1,Special,Map:Special Toxic Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(607) < 1)
@@ -5053,6 +5145,8 @@ enc_11=Chance:10%,Enc:(4-7) Morton_Brother, If(Global(386) > 0) , If(Global(386)
 	table.AddEncounter(  1, 10055760).Special(true).LocationPid(LOCATION_SpecialHolyEncounter1).CheckParam(ST_LEVEL,'>',9).CheckLVar(LVAR_special_encounter_holy1,'<',1).AssignLVar(LVAR_special_encounter_holy1,'=',1);
 	table.AddEncounter(  1, 10055770).Special(true).LocationPid(LOCATION_SpecialWoodsmanEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_woodsman,'<',1).AssignLVar(LVAR_special_encounter_woodsman,'=',1);
 	table.AddEncounter(  1, 10055780).Special(true).LocationPid(LOCATION_SpecialUnwashedEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_unwashed,'<',1).AssignLVar(LVAR_special_encounter_unwashed,'=',1);
+	table.AddEncounter(  1, 10054230).Special(true).LocationPid(LOCATION_SpecialTeleportEncounter).CheckParam(ST_LEVEL,'>',10).CheckLVar(LVAR_special_encounter_teleport,'<',1).AssignLVar(LVAR_special_encounter_teleport,'=',1);
+	table.AddEncounter(  1, 10034800).Special(true).LocationPid(LOCATION_SpecialKotW).CheckParam(ST_LEVEL,'>',12).CheckLVar(LVAR_special_encounter_kotw,'<',1).AssignLVar(LVAR_special_encounter_kotw,'=',1);
 /*lookup_name=SRNRRN_D                                                             ; San Fran - NCR - Redding - Reno Trade route
 maps=Desert Encounter 4, Desert Encounter 2, Desert Encounter 3, Desert Encounter 5
 enc_00=Chance:2%,Counter:1,Special,Map:Special Toxic Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(607) < 1)
@@ -5356,12 +5450,15 @@ enc_18=Chance:1%,Counter:1,Special,Map:Special Holy Encounter 2,Enc:Special1, If
 	table.AddLocationPid(LOCATION_CoastEncounter11);
 	table.AddEncounter( 15, 10059000).AddGroup(GROUP_FRAN_Mercenaries      , 4, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter( 15, 10059010).AddGroup(GROUP_FRAN_Press_Gang       , 7,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
+	table.AddEncounter( 99, 10059010).AddGroup(GROUP_FRAN_Press_Gang       , 7,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_bh_super_new_technology,'=',2).CheckLVar(LVAR_bh_dead_saboteurs_counter,'<',40);
 	table.AddEncounter(  7, 10059020).AddGroup(GROUP_EPA_Deathclaws        , 4, 7).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter(  7, 10059030).AddGroup(GROUP_EPA_Tough_Fire_Geckos , 6,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter(  7, 10059130).AddGroup(GROUP_EPA_Tough_Alien       ,10,12).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter( 10, 10059140).AddGroup(GROUP_FRAN_Elronologists    , 5, 8).AddGroup(GROUP_FRAN_Mercenaries, 3, 6).Fighting(0,1);
 	table.AddEncounter( 10, 10059150).AddGroup(GROUP_FRAN_Elronologists    , 5, 8).AddGroup(GROUP_FRAN_Press_Gang , 3, 6).Fighting(0,1);
 	table.AddEncounter( 20, 10059160).AddGroup(GROUP_FRAN_Elronologists    , 4, 8);
+	table.AddEncounter( 40, 10059170).AddGroup(GROUP_SF_Mirelurk           ,10,12).AddGroup(GROUP_Player          , 0, 0).CheckGVar(GVAR_sf_invasion_status,'>',0).Fighting(0,1);
+	table.AddEncounter( 35, 10059180).LocationPid(LOCATION_Quest_Sid_And_Nancy).CheckLVar(LVAR_q_sf_slim_sidnancy,'=',2).AssignLVar(LVAR_q_sf_slim_sidnancy,'=',3);
 /*lookup_name=Fran_O                                                                   ; Areas around San Francisco
 maps=Coast Encounter 7, Coast Encounter 8, Coast Encounter 10, Coast Encounter 5, Coast Encounter 11
 enc_00=Chance:15%,Enc:(4-9) FRAN_Mercenaries AMBUSH Player
@@ -5391,6 +5488,7 @@ enc_16=Chance:20%,Enc:(4-8) FRAN_Elronologists*/
 	table.AddLocationPid(LOCATION_MountainEncounter4);
 	table.AddEncounter( 15, 10059500).AddGroup(GROUP_FRAN_Mercenaries      , 4, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter( 15, 10059510).AddGroup(GROUP_FRAN_Press_Gang       , 7,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
+	table.AddEncounter( 99, 10059010).AddGroup(GROUP_FRAN_Press_Gang       , 7,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_bh_super_new_technology,'=',2).CheckLVar(LVAR_bh_dead_saboteurs_counter,'<',40);
 	table.AddEncounter(  7, 10059520).AddGroup(GROUP_EPA_Deathclaws        , 4, 7).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter(  7, 10059530).AddGroup(GROUP_EPA_Tough_Fire_Geckos , 6,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter(  7, 10059630).AddGroup(GROUP_EPA_Tough_Alien       ,10,12).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
@@ -5433,12 +5531,14 @@ enc_18=Chance:1%,Counter:1,Special,Map:Special Holy Encounter 2,Enc:Special1, If
 	table.AddLocationPid(LOCATION_CityEncounter8);
 	table.AddEncounter( 15, 10060000).AddGroup(GROUP_FRAN_Mercenaries      , 4, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter( 15, 10060010).AddGroup(GROUP_FRAN_Press_Gang       , 7,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
+	table.AddEncounter( 99, 10059010).AddGroup(GROUP_FRAN_Press_Gang       , 7,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_bh_super_new_technology,'=',2).CheckLVar(LVAR_bh_dead_saboteurs_counter,'<',40);
 	table.AddEncounter(  7, 10060020).AddGroup(GROUP_EPA_Deathclaws        , 4, 7).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter(  7, 10060030).AddGroup(GROUP_EPA_Tough_Fire_Geckos , 6,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter(  7, 10060130).AddGroup(GROUP_EPA_Tough_Alien       ,10,12).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter( 10, 10060140).AddGroup(GROUP_FRAN_Elronologists    , 5, 8).AddGroup(GROUP_FRAN_Mercenaries, 3, 6).Fighting(0,1);
 	table.AddEncounter( 10, 10060150).AddGroup(GROUP_FRAN_Elronologists    , 5, 8).AddGroup(GROUP_FRAN_Press_Gang , 3, 6).Fighting(0,1);
 	table.AddEncounter( 20, 10060160).AddGroup(GROUP_FRAN_Elronologists    , 4, 8);
+	table.AddEncounter( 40, 10059170).AddGroup(GROUP_SF_Mirelurk           ,10,12).AddGroup(GROUP_Player          , 0, 0).CheckGVar(GVAR_sf_invasion_status,'>',0).Fighting(0,1);
 /*lookup_name=Fran_C                                                                    ; Areas around San Francisco
 maps=City Encounter 1, City Encounter 2, City Encounter 3, City Encounter 4, City Encounter 5, City Encounter 6, City Encounter 7, City Encounter 8
 enc_00=Chance:15%,Enc:(4-9) FRAN_Mercenaries AMBUSH Player
@@ -5469,6 +5569,7 @@ enc_16=Chance:20%,Enc:(4-8) FRAN_Elronologists*/
 	table.AddEncounter(  2, 10060520).Special(true).LocationPid(LOCATION_SpecialMadBrahminEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_brahmin,'<',1).AssignLVar(LVAR_special_encounter_brahmin,'=',1);
 	table.AddEncounter( 15, 10060530).AddGroup(GROUP_FRAN_Mercenaries      , 4, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter( 15, 10060630).AddGroup(GROUP_FRAN_Press_Gang       , 7,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
+	table.AddEncounter( 99, 10059010).AddGroup(GROUP_FRAN_Press_Gang       , 7,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_bh_super_new_technology,'=',2).CheckLVar(LVAR_bh_dead_saboteurs_counter,'<',40);
 	table.AddEncounter(  7, 10060640).AddGroup(GROUP_EPA_Deathclaws        , 4, 7).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter(  7, 10060650).AddGroup(GROUP_EPA_Tough_Fire_Geckos , 6,10).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
 	table.AddEncounter(  7, 10060660).AddGroup(GROUP_EPA_Tough_Alien       ,10,12).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1);
@@ -5483,7 +5584,8 @@ enc_16=Chance:20%,Enc:(4-8) FRAN_Elronologists*/
 	table.AddEncounter(  1, 10060750).Special(true).LocationPid(LOCATION_SpecialWoodsmanEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_woodsman,'<',1).AssignLVar(LVAR_special_encounter_woodsman,'=',1);
 	table.AddEncounter(  1, 10060760).Special(true).LocationPid(LOCATION_SpecialUnwashedEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_unwashed,'<',1).AssignLVar(LVAR_special_encounter_unwashed,'=',1);
 	table.AddEncounter(  1, 10060770).Special(true).LocationPid(LOCATION_SpecialCafeEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_gecko_find_woody,'<',1).AssignLVar(LVAR_gecko_find_woody,'=',1);
-	/*lookup_name=Fran_D                                                                    ; Areas around San Francisco
+	table.AddEncounter( 40, 10059170).AddGroup(GROUP_SF_Mirelurk           ,10,12).AddGroup(GROUP_Player          , 0, 0).CheckGVar(GVAR_sf_invasion_status,'>',0).Fighting(0,1);
+/*lookup_name=Fran_D                                                                    ; Areas around San Francisco
 maps=Desert Encounter 1, Desert Encounter 2, Desert Encounter 3
 enc_00=Chance:2%,Counter:1,Special,Map:Special Toxic Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(607) < 1)
 enc_01=Chance:2%,Counter:1,Special,Map:Special Pariahs Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(608) < 1)
@@ -6028,8 +6130,8 @@ enc_18=Chance:1%,Counter:1,Special,Map:Special Holy Encounter 2,Enc:Special1, If
 	table.AddEncounter(  1, 10066750).Special(true).LocationPid(LOCATION_SpecialWoodsmanEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_woodsman,'<',1).AssignLVar(LVAR_special_encounter_woodsman,'=',1);
 	table.AddEncounter(  1, 10066760).Special(true).LocationPid(LOCATION_SpecialUnwashedEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_unwashed,'<',1).AssignLVar(LVAR_special_encounter_unwashed,'=',1);
 	table.AddEncounter(  1, 10066770).Special(true).LocationPid(LOCATION_SpecialCafeEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_gecko_find_woody,'<',1).AssignLVar(LVAR_gecko_find_woody,'=',1);
-	table.AddEncounter( 50, 10066190).AddGroup(GROUP_NCR_Patrol_Raiders    , 3, 8).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
-	table.AddEncounter( 30, 10066200).AddGroup(GROUP_NCR_Patrol_Rebels     , 6, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
+	table.AddEncounter( 30, 10066190).AddGroup(GROUP_NCR_Patrol_Raiders    , 3, 8).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
+	table.AddEncounter( 20, 10066200).AddGroup(GROUP_NCR_Patrol_Rebels     , 6, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
 	/*lookup_name=NCR_D                                                                  ; Area arounc NCR
 maps=Desert Encounter 1, Desert Encounter 2, Desert Encounter 3, Desert Encounter 4, Desert Encounter 5, Desert Encounter 6, Desert Encounter 11
 enc_00=Chance:2%,Counter:1,Special,Map:Special Toxic Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(607) < 1)
@@ -6072,8 +6174,8 @@ enc_27=Chance:1%,Counter:1,Special,Map:Special Cafe Encounter, Enc:Special1, If(
 	table.AddEncounter( 20, 10067020).AddGroup(GROUP_DVMV_Mantis_Swarm     , 8,10).AddGroup(GROUP_Player                , 0, 0).Fighting(0,1);
 	table.AddEncounter( 10, 10067030).AddGroup(GROUP_WILD2_Mutated_Molerats, 4, 8).AddGroup(GROUP_Player                , 0, 0).Fighting(0,1);
 	table.AddEncounter( 20, 10067130).AddGroup(GROUP_DMRV_Scorpions        , 6,12).AddGroup(GROUP_Player                , 0, 0).Fighting(0,1);
-	table.AddEncounter( 50, 10066190).AddGroup(GROUP_NCR_Patrol_Raiders    , 3, 8).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
-	table.AddEncounter( 30, 10066200).AddGroup(GROUP_NCR_Patrol_Rebels     , 6, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
+	table.AddEncounter( 40, 10066190).AddGroup(GROUP_NCR_Patrol_Raiders    , 3, 8).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
+	table.AddEncounter( 20, 10066200).AddGroup(GROUP_NCR_Patrol_Rebels     , 6, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
 	table.AddEncounter(  5, 10067140).Special(true).LocationPid(LOCATION_SpecialBridgeEncounter).CheckParam(ST_LEVEL,'>',9).CheckLVar(LVAR_special_encounter_bridge,'<',1).AssignLVar(LVAR_special_encounter_bridge,'=',1);
 	table.AddEncounter(  1, 10067150).Special(true).LocationPid(LOCATION_SpecialHolyEncounter2).CheckLVar(LVAR_special_encounter_holy1,'>',0).CheckLVar(LVAR_special_encounter_holy2,'<',1).AssignLVar(LVAR_special_encounter_holy2,'=',1);
 /*lookup_name=V15_M                                                              ; Area arounc Vault 15
@@ -6117,8 +6219,8 @@ enc_15=Chance:1%,Counter:1,Special,Map:Special Holy Encounter 2,Enc:Special1, If
 	table.AddEncounter(  1, 10067720).Special(true).LocationPid(LOCATION_SpecialWoodsmanEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_woodsman,'<',1).AssignLVar(LVAR_special_encounter_woodsman,'=',1);
 	table.AddEncounter(  1, 10067730).Special(true).LocationPid(LOCATION_SpecialUnwashedEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_special_encounter_unwashed,'<',1).AssignLVar(LVAR_special_encounter_unwashed,'=',1);
 	table.AddEncounter(  1, 10067740).Special(true).LocationPid(LOCATION_SpecialCafeEncounter).CheckParam(ST_LEVEL,'>',5).CheckLVar(LVAR_gecko_find_woody,'<',1).AssignLVar(LVAR_gecko_find_woody,'=',1);
-	table.AddEncounter( 50, 10066190).AddGroup(GROUP_NCR_Patrol_Raiders    , 3, 8).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
-	table.AddEncounter( 30, 10066200).AddGroup(GROUP_NCR_Patrol_Rebels     , 6, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
+	table.AddEncounter( 40, 10066190).AddGroup(GROUP_NCR_Patrol_Raiders    , 3, 8).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
+	table.AddEncounter( 20, 10066200).AddGroup(GROUP_NCR_Patrol_Rebels     , 6, 9).AddGroup(GROUP_Player          , 0, 0).Fighting(0,1).CheckLVar(LVAR_q_ncr_hate_patrol,'=',2);
 	/*lookup_name=V15_D                                                              ; Area arounc Vault 15
 maps=Desert Encounter 1, Desert Encounter 2, Desert Encounter 3
 enc_00=Chance:2%,Counter:1,Special,Map:Special Toxic Encounter,Enc:Special1, If(Player(Level) > 5) , If(Global(607) < 1)

@@ -7,6 +7,7 @@
 #include "sprite.fos"
 #include "_colors.fos"
 #include "_animation.fos"
+#include "combat_h.fos"
 
 import void InitTestScreen() from "client_screen_test";
 import void GUI_Init() from "client_gui";
@@ -26,15 +27,14 @@ import bool CritterGenerateCheck(int[]& data) from "parameters";
 import void InitNameColorizing() from "name_colorizing";
 import bool TryColorizeCritter(CritterCl& cr) from "name_colorizing";
 //binyan - Hotkeys
-import bool IsHotkeysUse() from "hotkeys";
 import void SetHotkeysUse(bool use) from "hotkeys";
-import void TxtInputSet(bool IsInput) from "client_gui"; 
+//binyan - timeouts
+import void show_timeouts() from "client_timeouts";
 /////////////////////////////////////////////////////////
 import bool gm_msg(string& message) from "client_gm";
 
 int MouseX=0;
 int MouseY=0;
-
 bool showId = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +54,10 @@ bool start()
 	//if(!LoadDataFile("fonline007.zip")) Message("File fonline007.zip with patched files not found. Run Updater.exe.");
 	if(!LoadDataFile("mirelurk.dat")) Message("File mirelurk.dat with Black Combat Armor animations not found. Run Updater.exe.");
 	if(!LoadDataFile("tnf.zip")) Message("File tnf.zip with Super_Secret_Files not found. Run Updater.exe.");
+	if(!LoadDataFile("tnf2.zip")) Message("File tnf2.zip not found. Run Updater.exe.");
+	if(!LoadDataFile("tnf3.zip")) Message("File tnf3.zip not found. Run Updater.exe.");
+	if(!LoadDataFile("balddude.zip")) Message("File balddude.zip not found. Run Updater.exe.");
+	if(!LoadDataFile("sandrobe.zip")) Message("File sandrobe.zip not found. Run Updater.exe.");
 
 #include "start_server_client.fos"
 	GUI_Init();
@@ -62,7 +66,7 @@ bool start()
 	//InitTestScreen();
 
 	__ShowPlayerNames = true;
-	__ShowNpcNames = true;
+	__ShowNpcNames = false;
 
 	return true;
 
@@ -79,7 +83,7 @@ uint loop()
 	cr.NameOnHead="|0xff77ff22 "+cr.Name+" |0xffff0000 (Id:"+cr.Id+")\n|0xffAA55BB HexX: "+cr.HexX+"\n|0xff11ffff HexY: "+cr.HexY;
 	return 100;
 */
-
+/*
 	int[] result;
 	GUI_GetActiveScreens(result);
 
@@ -88,7 +92,7 @@ uint loop()
 		SaveNames();
 		return 30000;
 	}
-	
+*/	
 	return 10000;
 }
 
@@ -103,6 +107,10 @@ void get_active_screens(int[]& result)
 // Show/hide screen behaviour.
 void screen_change(bool show, int screen, int p0, int p1, int p2)
 {
+//binyan - Hotkeys
+if(screen==CLIENT_SCREEN_SAY || screen==CLIENT_SCREEN_TIMER || screen==CLIENT_SCREEN_INPUT_BOX || screen==CLIENT_SCREEN_SPLIT)
+   __IsTextInput = show?true:false;
+///////////////////////////////////////  
 	if(show) GUI_ShowScreen(screen,p0,p1,p2);
 	else GUI_HideScreen(screen,p0,p1,p2);
 }
@@ -125,6 +133,18 @@ void screen_change(bool show, int screen, int p0, int p1, int p2)
 void render_iface(uint layer)
 {
 	if(layer==3) GUI_Render();
+//binyan - Hex attack
+	if(__IsHexAttack)
+	{
+	  int tohit = to_hit_hex();
+	  if(tohit>0)
+	   	DrawText(tohit+"%", MouseX+7, MouseY+8, ((tohit/10>=1?2:1)+2)*10 , 10, COLOR_RED, FONT_FALLOUT, 0);
+	}
+	if(__ShowTimeouts)
+	   show_timeouts();
+
+
+//////////////////////////////////
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,7 +203,9 @@ uint prevId = 0;
 // Called on something critter in/out game.
 void critter_in(CritterCl& cr)
 {
+/*
 	CritterCl@ ch = GetChosen();
+	
 	if(!(ch is null) && (ch.Id==cr.Id) && (prevId!=cr.Id))
 	{
 		LoadNames();
@@ -197,10 +219,20 @@ void critter_in(CritterCl& cr)
 	if(!(s_temp is null)) cr.Name=s_temp;
 	else if(GetChosen().Id==cr.Id) {}
 	else cr.Name="";
-
+*/
 	// Default colors
-	cr.NameColor=COLOR_CRITTER_NAME;
-	cr.ContourColor=(cr.IsPlayer()?COLOR_CONTOUR_YELLOW:COLOR_CONTOUR_RED);
+	if(cr.IsPlayer())
+	{
+		cr.NameColor=(cr.StatBase[ST_PLAYER_TEAM]==1?COLOR_GREEN:COLOR_RED);
+		cr.ContourColor=(cr.StatBase[ST_PLAYER_TEAM]==1?COLOR_CONTOUR_GREEN:COLOR_CONTOUR_RED);
+	}
+	else
+	{
+		cr.NameColor=COLOR_CRITTER_NAME;
+		cr.ContourColor=COLOR_CONTOUR_YELLOW;
+	}
+
+//	if(cr.Stat[ARCADE_MODE]==1) cr.ContourColor=COLOR_CONTOUR_RED;
 
 	// Try colorize from file
 	//if(TryColorizeCritter(cr)) return;
@@ -277,22 +309,71 @@ bool map_message(string& message, uint16& hexX, uint16& hexY, uint& color, uint&
 // By default delay == [TextDelay + message length * 100] ms
 bool in_message(string& message, int& sayType, uint& critterId, uint& delay)
 {
+//binyan - Language barrier
+CritterCl@ sender = GetCritter(critterId);
+if(!sender.IsPlayer())
+return true;
+CritterCl@ receiver = GetChosen();
+int bs = sender.Stat[ST_BODY_TYPE];
+int br = receiver.Stat[ST_BODY_TYPE];
+if((bs==br&&bs!=BT_PLANT)||(((bs>=BT_MEN&&bs<BT_BRAHMIN)||bs==BT_ROBOT||bs==BT_BIG_BAD_BOSS)&&((br>=BT_MEN&&br<BT_BRAHMIN)||br==BT_ROBOT||br==BT_BIG_BAD_BOSS))
+   ||((bs==BT_MANTI||bs==BT_RADSCORPION||bs==BT_GIANT_ANT||bs==BT_GIANT_BEETLE||bs==BT_GIANT_WASP)&&(br==BT_MANTI||br==BT_RADSCORPION||br==BT_GIANT_ANT||br==BT_GIANT_BEETLE||br==BT_GIANT_WASP)))
 	return true;
+else
+{
+ sayType=SAY_EMOTE;
+ switch(bs)
+   {
+   case BT_MEN:message="Говорит";break;
+   case BT_WOMEN:message="Говорит";break;
+   case BT_CHILDREN:message="Говорит";break;
+   case BT_SUPER_MUTANT:message="Говорит";break;
+   case BT_GHOUL: message="Говорит";break;
+   case BT_BRAHMIN: message="Мычит";break;
+   case BT_RADSCORPION: message="Щелкает клешнями";break;
+   case BT_RAT: message="Пищит";break;
+   case BT_FLOATER: message="Хрипение";break;
+   case BT_CENTAUR: message="Хрипение";break;
+   case BT_ROBOT: message="Попикивает";break;
+   case BT_DOG: message="Лает";break;
+   case BT_MANTI: message="Стрекочет";break;
+   case BT_DEADCLAW: message="Рычит";break;
+   case BT_PLANT: message="";break;
+   case BT_GECKO: message="Шипит";break;
+   case BT_ALIEN: message="Хрипит";break;
+   case BT_GIANT_ANT: message="Стрекочет";break;
+   case BT_BIG_BAD_BOSS: message="Говорит";break;
+   case BT_GIANT_BEETLE: message="Стрекочет";break;
+   case BT_GIANT_WASP: message="Жужит";break;
+   case MAX_BODY_TYPES: message="";break;
+   }
+return true;
+}
+///////////////////////////////////////////////////	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on send message.
 bool out_message(string& message, int& sayType)
 {
- //binyan - Hotkyes
-if(IsHotkeysUse())
-TxtInputSet(true);
+if(findFirst(message, "$arcade")==0) RunServerScriptUnsafe("arcade_menu@unsafe_arcade",0,0,0,null,null);
+
+//binyan - Hotkyes
+
+if(__MessagePrefix!="")
+  {
+    message = __MessagePrefix+" "+message;
+    __MessagePrefix="";
+  }
+
+if(__IsHotkeysUse)
+   __IsTextInput=true;
 
 if(findFirst(message, "~hotkeys")==0)
   {
     string@[]@ msg = split(message, " ");
 	if(msg.length()==1)
-	   Message("Hotkeys use is now "+(IsHotkeysUse()?"on":"off"));
+	   Message("Hotkeys use is now "+(__IsHotkeysUse?"on":"off"));
 	else
 	{
 	   if(msg[1] == "on")
@@ -300,17 +381,17 @@ if(findFirst(message, "~hotkeys")==0)
 	   else if(msg[1] == "off")
 	      SetHotkeysUse(false);
 
-	   if(IsHotkeysUse())
-          TxtInputSet(true);
+	   if(__IsHotkeysUse)
+          __IsTextInput=true;;
   
-	   Message("Hotkeys use is now "+(IsHotkeysUse()?"on":"off"));
+	   Message("Hotkeys use is now "+(__IsHotkeysUse?"on":"off"));
 	}
 	return false;
   }	
  /////////////////////////////////////////////// 
 
 
-	if(message[0]=='~') // Command
+/*	if(message[0]=='~') // Command
 	{
 		if(message=="~names")
 		{
@@ -320,7 +401,7 @@ if(findFirst(message, "~hotkeys")==0)
 		}
 		return true;
 	}
-
+*/
 	if(message[0]=='#' || message[0]=='%' || message[0]=='$') //GM
 	{
 		return gm_msg(message);
@@ -354,12 +435,10 @@ if(findFirst(message, "~hotkeys")==0)
 			message=substring(message,1,message.length()-2);
 		}
 	}
-
 	if(sayType==SAY_RADIO)
 	{
 		bool result=false;
 //TMP		if (CallSignHook1(message, sayType, result)) return result;
-
 		CritterCl@ chosen=GetChosen();
 		if(not valid(chosen)) return false;
 		ItemCl@ hand1=_CritGetItemHand(chosen);
@@ -386,6 +465,105 @@ if(findFirst(message, "~hotkeys")==0)
 	return result;
 }
 
+//binyan - Hex attack
+int to_hit_hex()
+{
+//Used only on empty hex and throwing weapon and rocket launchers
+CritterCl@ chosen = GetChosen();
+if (!chosen.IsLife()) return 0;
+CritterCl@ target = GetMonitorCritter (MouseX, MouseY);
+if (valid(target)) return 0;	
+
+ProtoItem@ weapon = chosen.GetSlotProto(SLOT_HAND1);
+ItemCl@ realWeapon=_CritGetItemHand(chosen);
+bool isRocket=(realWeapon.WeaponAmmoPid == PID_EXPLOSIVE_ROCKET) || (realWeapon.WeaponAmmoPid == PID_ROCKET_AP) || (realWeapon.WeaponAmmoPid == PID_ROBO_ROCKET_AMMO) || (realWeapon.WeaponAmmoPid == PID_GRENADELAUNCHER_AMMO);
+uint skillNum=weapon.Weapon_Skill;
+  if(not (skillNum == SK_THROWING) && !isRocket)
+     return 0;
+
+if (valid(realWeapon) && weapon.Weapon_Round>0)
+   if (realWeapon.WeaponAmmoCount==0) return 0;
+	 
+uint16 tx = 0, ty = 0;
+GetMonitorHex(MouseX, MouseY, tx, ty);
+if(tx==0&&ty==0)
+   return 0;
+   
+int dist=GetDistantion(chosen.HexX, chosen.HexY, tx, ty);
+	
+uint16 toHx = tx, toHy = ty;
+GetHexCoord ( chosen.HexX,  chosen.HexY, toHx, toHy,  0.0f, dist);
+if((tx!=toHx)||(ty!=toHy))
+  return 0;
+
+ 
+   
+    int wpnMaxDist=weapon.Weapon_MaxDist;
+    if (skillNum == SK_THROWING) wpnMaxDist = MIN(wpnMaxDist, 3 * MIN(int(10), chosen.Stat[ST_STRENGTH] + 2*chosen.Perk[PE_HEAVE_HO]));
+
+
+    if (dist>wpnMaxDist) return 0;
+
+    int toHit=int(chosen.Skill[skillNum]);
+    int weaponPerk=weapon.Weapon_Perk;
+    int blockers=0;
+
+    bool isMachineGun=(realWeapon.GetProtoId()==PID_MINIGUN) || (realWeapon.GetProtoId()==PID_AVENGER_MINIGUN) || (realWeapon.GetProtoId()==PID_VINDICATOR_MINIGUN) || (realWeapon.GetProtoId()==PID_BOZAR) || (realWeapon.GetProtoId()==PID_LIGHT_SUPPORT_WEAPON) || (realWeapon.GetProtoId()==PID_M60); //cs
+    bool isRifle=(realWeapon.GetProtoId()==PID_SCOPED_HUNTING_RIFLE) || (realWeapon.GetProtoId()==PID_SNIPER_RIFLE) || (realWeapon.GetProtoId()==PID_M72_GAUSS_RIFLE) || (realWeapon.GetProtoId()==PID_LASER_RIFLE) || (realWeapon.GetProtoId()==PID_LASER_RIFLE_EXT_CAP) || (realWeapon.GetProtoId()==PID_YK42B_PULSE_RIFLE); //cs
+
+    int distmod1=2; // used for initial weapon bonus
+    int distmod2=0; // minimal distance
+    if (weaponPerk==WEAPON_PERK_LONG_RANGE) distmod1=4;
+    else if (weaponPerk==WEAPON_PERK_SCOPE_RANGE)
+     {
+        distmod1=5;
+        distmod2=8;
+     }
+    else if (isMachineGun)  distmod1=-2;
+    if (dist<9 && isRifle) toHit=5; //cs
+
+    int perception=chosen.Stat[ST_PERCEPTION];
+    int acc=dist;
+
+    if (dist < distmod2) acc+=distmod2;
+    else
+    {
+        if (chosen.IsPlayer()) acc-=(perception-2)*distmod1; // we want to keep it, because fo2238 might use it to display NPCs chance (via possessing)
+        else acc-=perception*distmod1;
+    }
+
+    if (-2*perception > acc) acc = -2*perception;
+
+    acc-=2*chosen.Perk[PE_SHARPSHOOTER];
+
+    if (acc >= 0)
+    {
+        if (chosen.Damage[DAMAGE_EYE]!=0) acc*=-12;
+        else acc*=-4;
+    }
+    else acc*=-4;
+
+    toHit+=acc;
+        blockers=GetCrittersPath(chosen.HexX, chosen.HexY, tx, ty, 0.0f, dist, FIND_LIFE, null); // + map
+        toHit-=10*blockers;
+
+
+    if (chosen.Trait[TRAIT_ONE_HANDER]!=0 && valid(realWeapon))
+        toHit+=(FLAG(weapon.Flags,ITEM_TWO_HANDS)?-40:20);
+
+    int handlingStrength=chosen.Stat[ST_STRENGTH];
+    int reqStrength=weapon.Weapon_MinStrength;
+    if (chosen.Perk[PE_WEAPON_HANDLING]!=0) handlingStrength+=3;
+    if (handlingStrength<reqStrength) toHit-=(reqStrength-handlingStrength)*20;
+    if (weaponPerk == WEAPON_PERK_ACCURATE) toHit+=20;
+    
+
+    if (chosen.Damage[DAMAGE_EYE]!=0) toHit-=25;
+    toHit=CLAMP(toHit,5,95);
+
+    return toHit;
+
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // To-hit chance.
 int to_hit(CritterCl& chosen, CritterCl& target, ProtoItem& weapon, int hitLocation)
@@ -401,18 +579,60 @@ int to_hit(CritterCl& chosen, CritterCl& target, ProtoItem& weapon, int hitLocat
         if (realWeapon.WeaponAmmoCount==0) return 0;
         @ammo=GetProtoItem(realWeapon.WeaponAmmoPid);
     }
-
-    uint skillNum=weapon.Weapon_Skill;
+	uint skillNum=weapon.Weapon_Skill;
+    int skillVal=chosen.Skill[skillNum];
     int wpnMaxDist=weapon.Weapon_MaxDist;
     if (skillNum == SK_THROWING) wpnMaxDist = MIN(wpnMaxDist, 3 * MIN(int(10), chosen.Stat[ST_STRENGTH] + 2*chosen.Perk[PE_HEAVE_HO]));
-
+    uint8 weaponSubtype= (skillNum==SK_SMALL_GUNS || skillNum==SK_BIG_GUNS || skillNum==SK_ENERGY_WEAPONS)?WS_GUN:((skillNum==SK_THROWING)?WS_THROWING:(skillNum==SK_MELEE_WEAPONS)?WS_MELEE:WS_UNARMED);
+	 //Roleplay
+	//Добавляем плюсы к рассчётам за счёт вторичных навыков стрельбы.
+	//Выше 150 навык таким образом не поднять, можно даже урезать до 100-120.
+	//Но нормально стрелять теперь можно. Ура.
+	if (weaponSubtype == WS_GUN)
+	{
+		//Log("Тип оружия - стрелковое. Используется " + skillNum + " скилл (200 - лёгкое, 201 - тяжелое, 202 - энерго)");
+		//Log("Скилл стреляющего " + skillVal + ", а номер скилла - " + skillNum);
+		if (skillNum == SK_SMALL_GUNS && skillVal < SECONDARY_SKILLS_BONUS_CAP)
+		{
+		//Log("Скилл для текущего оружия - лёгкое оружие, навык криттера - " + chosen.Skill[skillNum]);
+		skillVal += chosen.Skill[SK_BIG_GUNS] / 3;
+		//Log("Добавляем скилл тяжелого оружия, поделенный на 3, к вычислению, теперь скилл " + skillVal);
+		skillVal += chosen.Skill[SK_ENERGY_WEAPONS] / 2;
+		//Log("Добавляем энергооружие, поделенное на 2, к вычислению, теперь скилл " + skillVal);
+		if (skillVal > SECONDARY_SKILLS_BONUS_CAP) { skillVal = SECONDARY_SKILLS_BONUS_CAP; /* Log("Устанавливаем кап на " + SECONDARY_SKILLS_BONUS_CAP +", чтобы не получалось слишком круто. Значение после установки - " + skillVal); */ }
+		//Log("Итоговый скилл для рассчётов " + skillVal);
+		}
+		
+		if (skillNum == SK_BIG_GUNS && skillVal < SECONDARY_SKILLS_BONUS_CAP)
+		{
+		//Log("Скилл для текущего оружия - тяжелое оружие, навык криттера - " + chosen.Skill[skillNum]);
+		skillVal += chosen.Skill[SK_SMALL_GUNS] / 3;
+		//Log("Добавляем скилл лёгкого оружия, поделенный на 3, к вычислению, теперь скилл " + skillVal);
+		skillVal += chosen.Skill[SK_ENERGY_WEAPONS] / 3;
+		//Log("Добавляем энергооружие, поделенное на 3, к вычислению, теперь скилл " + skillVal);
+		if (skillVal > SECONDARY_SKILLS_BONUS_CAP) { skillVal = SECONDARY_SKILLS_BONUS_CAP; /* Log("Устанавливаем кап на " + SECONDARY_SKILLS_BONUS_CAP +", чтобы не получалось слишком круто. Значение после установки - " + skillVal); */ }
+		//Log("Итоговый скилл для рассчётов " + skillVal);
+		}
+		
+		if (skillNum == SK_ENERGY_WEAPONS && skillVal < SECONDARY_SKILLS_BONUS_CAP)
+		{
+		//Log("Скилл для текущего оружия - энергетическое оружие, навык криттера - " + chosen.Skill[skillNum]);
+		skillVal += chosen.Skill[SK_SMALL_GUNS] / 2;
+		//Log("Добавляем скилл лёгкого оружия, поделенный на 2, к вычислению, теперь скилл " + skillVal);
+		skillVal += chosen.Skill[SK_BIG_GUNS] / 3;
+		//Log("Добавляем скилл тяжелого оружия, поделенный на 3, к вычислению, теперь скилл " + skillVal);
+		if (skillVal > SECONDARY_SKILLS_BONUS_CAP) { skillVal = SECONDARY_SKILLS_BONUS_CAP; /* Log("Устанавливаем кап на " + SECONDARY_SKILLS_BONUS_CAP +", чтобы не получалось слишком круто. Значение после установки - " + skillVal); */ }
+		//Log("Итоговый скилл для рассчётов " + skillVal);
+		}
+	}	
+	//Roleplay  
     int dist=GetCrittersDistantion(chosen,target);
     if (dist>wpnMaxDist) return 0;
 
-    int toHit=int(chosen.Skill[skillNum]);
+    int toHit=skillVal;
     int weaponPerk=weapon.Weapon_Perk;
     int blockers=0;
-
+ 
     if (skillNum!=SK_UNARMED && skillNum!=SK_MELEE_WEAPONS)
     {
         //cr.Say(SAY_NETMSG, "Applying range modifiers.");
@@ -467,12 +687,12 @@ int to_hit(CritterCl& chosen, CritterCl& target, ProtoItem& weapon, int hitLocat
     int acmod=target.Stat[ST_ARMOR_CLASS];
     if (valid(ammo)) acmod += ammo.Ammo_AcMod;
     if (acmod>0) toHit-=acmod;
-    // TODO: tohit+=15 if target is multihex
+
     // TODO: light penalty
 
     if (chosen.Damage[DAMAGE_EYE]!=0) toHit-=25;
     if (target.IsKnockout()) toHit+=40;
-    toHit+=target.GetMultihex()*15;
+    if (target.GetMultihex()>0) toHit+=15;
 
     int hitMod=GetHitAim(hitLocation);
     if (skillNum==SK_MELEE_WEAPONS || skillNum==SK_UNARMED) hitMod/=2;
@@ -992,6 +1212,7 @@ string critter_description(CritterCl& cr, int lookType)
 {
 	string result;
 	int gender=cr.Stat[ST_GENDER];
+	int crType=cr.CrType;
 
 	// Player
 	if(cr.IsPlayer())
@@ -1016,21 +1237,83 @@ string critter_description(CritterCl& cr, int lookType)
 			else
 			{
 				result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK1(gender));
-				if(cr.Name!="") result+=cr.Name+".";
-				else result+="???";
+				if(cr.Param[ARCADE_MODE]!=1)
+				{
+					if(cr.Name!="") result+=cr.Name+".";
+					else result+="???";
+				}
+				else
+				{
+					if(crType==20||crType==21||crType==114) result+=GetMsgStr(TEXTMSG_GAME,10950);
+					else if(crType==28||crType==29||crType==79) result+=GetMsgStr(TEXTMSG_GAME,10953);
+					else if(crType==22||crType==59) result+=GetMsgStr(TEXTMSG_GAME,10952);
+					else if(crType==25) result+=GetMsgStr(TEXTMSG_GAME,10951);
+					else if(crType==15) result+=GetMsgStr(TEXTMSG_GAME,10954);
+					else if(crType==19) result+=GetMsgStr(TEXTMSG_GAME,10955);
+					else if(crType==23) result+=GetMsgStr(TEXTMSG_GAME,10956);
+					else if(crType==70||crType==75) result+=GetMsgStr(TEXTMSG_GAME,10957);
+					else if(crType==16) result+=GetMsgStr(TEXTMSG_GAME,10958);
+					else if(crType==52) result+=GetMsgStr(TEXTMSG_GAME,10959);
+					else if(crType==51||crType==60||crType==100) result+=GetMsgStr(TEXTMSG_GAME,10960);
+					else if(crType==65) result+=GetMsgStr(TEXTMSG_GAME,10961);
+					else if(crType==67) result+=GetMsgStr(TEXTMSG_GAME,10962);
+					else if(crType==80) result+=GetMsgStr(TEXTMSG_GAME,10963);
+					else if(crType==97) result+=GetMsgStr(TEXTMSG_GAME,10964);
+					else if(crType==17) result+=GetMsgStr(TEXTMSG_GAME, 10965);
+					else if(crType==53) result+=GetMsgStr(TEXTMSG_GAME, 10966);
+					else if(crType==54) result+=GetMsgStr(TEXTMSG_GAME, 10967);
+					else if(crType==66) result+=GetMsgStr(TEXTMSG_GAME, 10968);
+					else if(crType==101) result+=GetMsgStr(TEXTMSG_GAME, 10969);
+					else if(crType==24) result+=GetMsgStr(TEXTMSG_GAME, 10970);
+					else if(crType==55) result+=GetMsgStr(TEXTMSG_GAME, 10971);
+					else if(crType==76) result+=GetMsgStr(TEXTMSG_GAME, 10972);
+					else if(crType==68) result+=GetMsgStr(TEXTMSG_GAME, 10973);
+					else if(crType==81) result+=GetMsgStr(TEXTMSG_GAME, 10974);
+					else if(crType==86) result+=GetMsgStr(TEXTMSG_GAME, 10975);	
+					result+=".";
+				}
 			}
 		}
 		// Full info
 		else
 		{
 			result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK1(gender));
-
 			// Age
+			if(crType==20||crType==21||crType==114) result+=GetMsgStr(TEXTMSG_GAME,10950);
+			else if(crType==28||crType==29||crType==79) result+=GetMsgStr(TEXTMSG_GAME,10953);
+			else if(crType==22||crType==59) result+=GetMsgStr(TEXTMSG_GAME,10952);
+			else if(crType==25) result+=GetMsgStr(TEXTMSG_GAME,10951);
+			else if(crType==15) result+=GetMsgStr(TEXTMSG_GAME,10954);
+			else if(crType==19) result+=GetMsgStr(TEXTMSG_GAME,10955);
+			else if(crType==23) result+=GetMsgStr(TEXTMSG_GAME,10956);
+			else if(crType==70||crType==75) result+=GetMsgStr(TEXTMSG_GAME,10957);
+			else if(crType==16) result+=GetMsgStr(TEXTMSG_GAME,10958);
+			else if(crType==52) result+=GetMsgStr(TEXTMSG_GAME,10959);
+			else if(crType==51||crType==60||crType==100) result+=GetMsgStr(TEXTMSG_GAME,10960);
+			else if(crType==65) result+=GetMsgStr(TEXTMSG_GAME,10961);
+			else if(crType==67) result+=GetMsgStr(TEXTMSG_GAME,10962);
+			else if(crType==80) result+=GetMsgStr(TEXTMSG_GAME,10963);
+			else if(crType==97) result+=GetMsgStr(TEXTMSG_GAME,10964);
+			else if(crType==17) result+=GetMsgStr(TEXTMSG_GAME, 10965);
+			else if(crType==53) result+=GetMsgStr(TEXTMSG_GAME, 10966);
+			else if(crType==54) result+=GetMsgStr(TEXTMSG_GAME, 10967);
+			else if(crType==66) result+=GetMsgStr(TEXTMSG_GAME, 10968);
+			else if(crType==101) result+=GetMsgStr(TEXTMSG_GAME, 10969);
+			else if(crType==24) result+=GetMsgStr(TEXTMSG_GAME, 10970);
+			else if(crType==55) result+=GetMsgStr(TEXTMSG_GAME, 10971);
+			else if(crType==76) result+=GetMsgStr(TEXTMSG_GAME, 10972);
+			else if(crType==68) result+=GetMsgStr(TEXTMSG_GAME, 10973);
+			else if(crType==81) result+=GetMsgStr(TEXTMSG_GAME, 10974);
+			else if(crType==86) result+=GetMsgStr(TEXTMSG_GAME, 10975);
+			else
+			{			
 			uint ageStr=GetMsgStrNumUpper(TEXTMSG_GAME,STR_CRIT_LOOK_AGE(gender,cr.Stat[ST_AGE]));
 			if(ageStr!=0) result+=GetMsgStr(TEXTMSG_GAME,ageStr);
 			else if(cr.Name=="") result+="???";
 			else{ result+=cr.Name;
 			result+=".";}
+			}
+
 
 /*			// Condition
 			if(IsMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_COND(gender,cr.Cond,cr.CondExt)))
@@ -1339,13 +1622,13 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 	{
 		switch(action)
 		{
-		case ACTION_SHOW_ITEM:
+		case ACTION_SHOW_ITEM: 
 		case ACTION_HIDE_ITEM:
 		case ACTION_MOVE_ITEM:
-		case ACTION_USE_ITEM:
+		//case ACTION_USE_ITEM: binyan - правка для действий по хоткеям
 		case ACTION_DROP_ITEM:
 		//case ACTION_USE_WEAPON:   binyan - правка для мяча
-		case ACTION_RELOAD_WEAPON:
+		//case ACTION_RELOAD_WEAPON: binyan - правка для действий по хоткеям
 		case ACTION_USE_SKILL:
 		//case ACTION_PICK_ITEM:
 		//case ACTION_PICK_CRITTER:
@@ -1967,3 +2250,15 @@ void _showId(int param0, int param1, int param2, string@ param3, int[]@ param4)
 	showId = (param0!=0);
 }
 
+
+void colorizeCritterByTeam(int team, int param1, int param2, string@ param3, int[]@ param4)
+{
+  CritterCl@ cr = GetChosen();
+  if(!valid(cr)) return;
+  switch(team)
+  {
+    case 0 : cr.ContourColor=COLOR_CONTOUR_RED; break;
+    case 1 : cr.ContourColor=COLOR_CONTOUR_GREEN; break;
+    default: cr.ContourColor=COLOR_CONTOUR_YELLOW; break; 
+  }
+}

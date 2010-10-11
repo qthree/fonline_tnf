@@ -6,7 +6,7 @@
 //        1 - в инвентаре НПЦ на той же карте,
 //		  2 - в контейнере на той же карте
 //		  3+ - если режим>2, то итем располагается гденибудь неподалеку от гекса с таким номером
-// респауну подвержены только итемы типов: ITEM_ARMOR, ITEM_DRUG, ITEM_WEAPON, ITEM_MISC, ITEM_MISC2, ITEM_KEY
+// респауну подвержены только итемы типов: ITEM_ARMOR, ITEM_DRUG, ITEM_WEAPON, ITEM_MISC, ITEM_MISC_EX, ITEM_KEY
 // Для итемов типа MISC2 есть дополнительная возможность указать номер переменной (поле Val3), чье значение будет проверяться при попытке поднять итем
 // если значение переменной = 1, предмет будет поднят и после этого переменная будет установлена в 0
 
@@ -22,15 +22,17 @@ void SetItemRespawn(Item& item, uint mode, uint respTime)
 	item.Val5 = mode;
 	item.Val4 = respTime;
 	item.SetEvent(ITEM_EVENT_SKILL, "e_ItemOnSkill");
+	item.SetScript("_RespItemInit");
 	item.Update();
 }
 
 void SetItemNoPick(Item & item, uint varNum)
 {
-	if(item.GetType()!=ITEM_MISC2)  return;
+	if(item.GetType()!=ITEM_MISC_EX)  return;
 
 	item.Val3 = varNum;
 	item.SetEvent(ITEM_EVENT_SKILL, "e_ItemOnSkill");
+	item.SetScript("_RespItemInit");
 	item.Update();
 }
 
@@ -39,7 +41,7 @@ bool CheckItemValidToRespawn(Item @ item)
 	if(!valid(item)) return false;
 
 	uint8 protoType = item.GetType();
-	return protoType==ITEM_ARMOR||protoType==ITEM_DRUG||protoType==ITEM_WEAPON||protoType==ITEM_MISC||protoType==ITEM_MISC2||protoType==ITEM_KEY;
+	return protoType==ITEM_ARMOR||protoType==ITEM_DRUG||protoType==ITEM_WEAPON||protoType==ITEM_MISC||protoType==ITEM_MISC_EX||protoType==ITEM_KEY;
 }
 
 bool e_ItemOnSkill(Item& item, Critter& cr, int skill)
@@ -47,7 +49,7 @@ bool e_ItemOnSkill(Item& item, Critter& cr, int skill)
 	//Log("sk"+skill);
 	if(skill<0)
 	{
-		if(item.GetType()==ITEM_MISC2)
+		if(item.GetType()==ITEM_MISC_EX)
 		{
 
 			// проверка, может ли игрок поднять предмет
@@ -66,7 +68,7 @@ bool e_ItemOnSkill(Item& item, Critter& cr, int skill)
 				}
 			}
 		}
-		if(item.Val5>0&&valid(cr.GetMap()))
+		if(item.Val4>0&&valid(cr.GetMap()))
 		{
 
 			uint[] values = {
@@ -76,13 +78,13 @@ bool e_ItemOnSkill(Item& item, Critter& cr, int skill)
 				item.GetScriptId(),  // скрипт
 				item.HexX,           // координаты
 				item.HexY,           // координаты
-				(item.GetType()==ITEM_MISC2?item.Val3:0), // номер переменной в которой хранится признак может ли игрок поднять этот итем
+				(item.GetType()==ITEM_MISC_EX?item.Val3:0), // номер переменной в которой хранится признак может ли игрок поднять этот итем
 				item.Val5,           // режим респауна
 				item.Val4,            // время следующего респауна
 				item.Info
 			};
 
-			CreateTimeEvent(__FullMinute+item.Val5, "e_RespawnItem", values, true);
+			CreateTimeEvent(__FullSecond+item.Val4*60, "e_RespawnItem", values, true);
 		}
 
 		item.SetEvent(ITEM_EVENT_SKILL, "");

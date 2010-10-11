@@ -1,5 +1,6 @@
 #include "_client_defines.fos"
 #include "_macros.fos"
+#include "_colors.fos"
 
 // message
 
@@ -8,7 +9,6 @@
 #define CH_P_NUM #(CHN)     (num_args_b[CHN])
 
 #define ARG_NUM #(CHN)	(num_args[CHN])
-
 
 string[] parts;
 uint num = 0;
@@ -27,8 +27,17 @@ bool gm_msg_cmd(string& message)
 			message = "~respawn "+chosen.Id;
 			return true;
 		}
+		else if(CH_P(0, "#save"))
+		{
+			if(chosen.Param[ST_VAR5]>3)
+			{
+				Message("Antiflood.");
+				return false;
+			}
+			RunServerScriptUnsafe  ("activation@unsafe_save",  0, 0, 0, null, null);
+			return false;
+		}
 	}
-
 	else if(num==2)
 	{
 		if(CH_P_NUM(1))
@@ -48,9 +57,34 @@ bool gm_msg_cmd(string& message)
 				message = "~run warning Warn "+ ARG_NUM(1) + " 0 0";
 				return true;
 			}
+			else if(CH_P(0, "#restore"))
+			{
+				if(chosen.Param[ST_VAR5]>3)
+				{
+					Message("Antiflood.");
+					return false;
+				}
+				RunServerScriptUnsafe("activation@unsafe_restore",  ARG_NUM(1), 0, 0, parts[2], null);
+				return false;
+			}
 		}
 	}
-
+	else if(num==3)
+	{
+		if(CH_P_NUM(1))
+		{
+			if(CH_P(0, "#restore"))
+			{
+				if(chosen.Param[ST_VAR5]>3)
+				{
+					Message("Antiflood.");
+					return false;
+				}
+				RunServerScriptUnsafe("activation@unsafe_restore",  ARG_NUM(1), 0, 0, parts[2], null);
+				return false;
+			}
+		}
+	}
 
 	return false;
 }
@@ -64,8 +98,14 @@ bool gm_msg_run(string& message)
 	else if(CH_P(0, "%t")) parts[0]="~run test";
 	else if(CH_P(0, "%ac")) parts[0]="~run activation";
 	else if(CH_P(0, "%sk")) parts[0]="~run skins";
-	//else if(CH_P(0, "%gm")) parts[0]="~run gm";
-	else return false;
+	else if(CH_P(0, "%gm")) parts[0]="~run gm";
+	//else return false;
+	else
+	{
+		string ts = parts[0];
+		
+
+	}
 
 	if(num==2)
 	{
@@ -103,14 +143,41 @@ bool gm_msg_run(string& message)
 	return true;
 }
 
+import void SetConsoleName(string& name) from "client_names";
+
 bool gm_msg_longstr(string& message)
 {
+	CritterCl@ chosen=GetChosen();
+	if(!valid(chosen)) return false;
+
+	if(num>=2)
+	{
+		if(CH_P(0, "$name") && GetCurrentCursor()<=CURSOR_MOVE)
+		{
+				string@[] parts_temp2;
+
+				parts_temp2.resize(parts.length()-1);
+
+				for(uint i=1; i<parts.length(); i++)
+				{
+					@parts_temp2[i-1]=@parts[i];
+				}
+
+				string name = join(parts_temp2, " ");
+
+				SetConsoleName(name);
+
+				ChangeCursor(CURSOR_USE_SKILL);
+
+		}
+
+	}
+
 	return false;
 }
 
 bool gm_msg(string& message)
 {
-	
 	if(message.length()<2 || message[1]==' ') return false;
 
 	string@[]@ parts_temp = split(message, " ");
@@ -135,6 +202,7 @@ bool gm_msg(string& message)
 	{
 		return gm_msg_longstr(message);
 	}
+	
 	if(message[0]=='%')
 	{
 		return gm_msg_run(message);

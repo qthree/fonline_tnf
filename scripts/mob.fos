@@ -40,8 +40,7 @@
 #include "_npc_pids.fos"
 
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
-import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint8 cut) from "npc_planes";
-import bool AddMiscPlane(Critter& npc, uint priority, uint waitMinute, string@ funcName) from "npc_planes";
+import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";
 import uint EraseAttackPlane(Critter& npc, Critter& target) from "npc_planes";
 
 // OPTIONS:
@@ -94,7 +93,8 @@ void _MobInit(Critter& npc, bool firstTime)
 
 	uint16 locPid=npc.GetMap().GetLocation().GetProtoId();
 	if(LOCATION_IS_CITY(locPid))
-		npc.StatBase[ST_REPLICATION_TIME]= 6 * 60 * __TimeMultiplier; // 6 real hours
+		//npc.StatBase[ST_REPLICATION_TIME]= 6 * 60 * __TimeMultiplier; // 6 real hours
+		npc.StatBase[ST_REPLICATION_TIME]= 15; // 15 real minutes
 	else
 		npc.StatBase[ST_REPLICATION_TIME]= -1; // Newer
 
@@ -234,7 +234,7 @@ void _ShowPlayer(Critter& npc, Critter& player)
 	}
 	else
 	{
-		npc.AddEnemyInStack(player.Id);
+		if(player.Param[ARCADE_MODE]!=1) npc.AddEnemyInStack(player.Id);
 	}
 }
 
@@ -317,7 +317,7 @@ int _PlaneBegin(Critter& npc, NpcPlane& plane, int reason, Critter@ someCr, Item
 			{
 				// если противник подошел достаточно близко, то разрешаем атаку
 				// анализ на дальность
-				uint pathLength = npc.GetMap().GetPathLength(npc.HexX, npc.HexY, target.HexX, target.HexY, 1);
+				uint pathLength = npc.GetMap().GetPathLength(npc, target.HexX, target.HexY, 1);
 				// если пройти нельзя, то не идем
 				if(pathLength == 0) return PLANE_DISCARD;
 				// если слишком далеко, то не идем
@@ -345,6 +345,7 @@ bool _Attacked(Critter& npc, Critter& attacker)
 	npc.SendMessage(MSG_GROUP_FURY, attacker.Id, MESSAGE_TO_WHO_SEES_ME);
 	// зовем друзей
 	npc.SendMessage(MSG_GROUP_ATTACK, attacker.Id, MESSAGE_TO_WHO_SEES_ME);
+	AddAttackPlane(npc, 0, attacker);
 
 	if(npc.VarFear <= npc.VarMaxFear && npc.Stat[ST_CURRENT_HP] < npc.Stat[ST_MAX_LIFE] / 5)
 		npc.VarFear = npc.VarMaxFear + 1;

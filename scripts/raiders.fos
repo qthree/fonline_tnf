@@ -1,0 +1,159 @@
+/*
+Рейдеры: система автоматических набегов на локации.
+
+Задача: дать возможность запускать на локации группы агрессивных монстров или нпц, по команде Гейммастера.
+
+ToDo:
+- обработка входящих данных (локация, сложность, количество)
+- выбор места появления группы монстров
+- генерация группы монстров
+- установка параметров и поведения
+- инициализация нападения
+
+За основу берём зомби - работают ведь и цель ровно такая же.
+
+EntireHex:
+70 - точки входа, по периметру города
+71 - главные ворота
+72 - центральная площадь
+73 - бедный район
+74 - арсенал
+
+AIs:
+#define   AIPACKET_FO1_GENERIC_RAIDER            (207)
+#define   AIPACKET_FO1_RAIDER_GUARD              (208)
+#define   AIPACKET_FO1_RAIDER_LEADER             (209)
+
+
+*/
+#include "_macros.fos"
+#include "entire.fos"
+#include "pids_groups.fos"
+#include "_npc_pids.fos"
+#include "_teams.fos"
+#include "_bags.fos"
+
+#define GuardPID (128)
+
+import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
+import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";  
+
+uint attackTarget = 0;
+//temp
+void sendAttack(Critter& player, int param0, int param1, int param2)
+{
+	
+	//Log("sendAttack init, player map = " +player.GetMapProtoId());
+	uint toMap = 18;
+	int mobGroup = param1, mobLevel = param2;
+	Map@ map = GetMapByPid(toMap, 0);
+	//Log("Map+");
+	spawnMobs(map, param0);
+	//Log("SpawnMob+");
+	sendWave(map);		
+}
+
+//temp
+
+void _OnDeadEvent (Critter& dead, Critter@ killer)
+{
+	//Log("Raider: Critter is dead");
+	dead.AddTimeEvent("cte_deleteCorpse",60*60*6,0);
+	//e_deleteCorpse (dead, killer);   
+}
+
+uint cte_deleteCorpse (Critter& dead, int identifier, uint& rate)
+{
+	//Log("Raider: Deleting!");
+	DeleteNpc(dead);
+   return 0;
+}
+
+/*
+bool sendAttack(uint toMap, int mobGroup, int mobLevel)
+{
+	Map@ map = GetMap(toMap);
+	spawnMobs(map, mobGroup, mobLevel);
+	sendWave(map);	
+	return true;	
+}*/
+
+void spawnMobs(Map& map, int count)
+{
+	//Log("spawnMobs init");
+	uint16 x = 0, y = 0, totalEnt = 0;
+	totalEnt = map.CountEntire(70);
+	//Log("totalEnt = " +totalEnt);
+	//Log("x and y = "+x+" "+y);
+	map.GetEntireCoords(70, Random(0,totalEnt-1), x, y);
+	//Log("After GetEntireCoords x and y = "+x+" "+y);
+	for (int i = 0; i<count; i++)
+	{
+	//if (map.IsHexPassed(x,y)) //проверяем можно ли заспауниться в данной клетке
+		//{
+			//Log("X and Y passed.");
+			Critter@ cr = map.AddNpc(NPC_PID_RaiderMale, x, y, Random(0,5), null, null, null);
+			if (valid(cr)) {
+				//Log("Critter valid");
+				cr.SetEvent(CRITTER_EVENT_DEAD,"_OnDeadEvent");
+				cr.StatBase[ST_AI_ID]=207; 
+				cr.StatBase[ST_BAG_ID]=BAG_Empty;
+				cr.StatBase[ST_TEAM_ID]=TEAM_Mob6;
+				cr.StatBase[ST_REPLICATION_TIME] = 0;
+				//cr.AddItem(PID_HUNTING_RIFLE,1);
+				//cr.AddItem(PID_223_FMJ, 20);
+				cr.ModeBase[MODE_NO_HOME] = 1;
+				cr.ModeBase[MODE_UNLIMITED_AMMO] = 1;
+				int weaponSelector = Random(0,3);
+				switch(weaponSelector)
+				{
+					case 0:	cr.AddItem(PID_10MM_PISTOL,1); break;
+					case 1: cr.AddItem(PID_HUNTING_RIFLE,1); break;
+					case 2: cr.AddItem(PID_14MM_PISTOL, 1); break;
+					case 3: cr.AddItem(PID_SPEAR, 1); break;
+					default: break;
+					}
+				}
+		//}
+	}
+}
+
+void sendWave(Map& map)
+{
+	Critter@[] raiders, players, guards;
+	if(map.GetCritters(0, FIND_LIFE_AND_KO|FIND_ONLY_PLAYERS, players)>0 && map.GetCritters(NPC_PID_RaiderMale, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders)>0)
+	{
+		for(uint i=0,ii=raiders.length();i<ii;i++)
+		{
+			Critter@ raider=raiders[i];
+			for(uint j=0,jj=players.length();j<jj;j++) 
+			{
+				AddAttackPlane(raider,0,players[j]);
+				raider.AddEnemyInStack(players[j].Id);
+				//raider.AddWalkPlane(
+			}
+		}
+	}
+	if(map.GetCritters(GuardPID,FIND_LIFE_AND_KO|FIND_ONLY_NPC, guards) > 0)
+	{
+		for(uint i=0,ii=guards.length();i<ii;i++)
+		{
+			Critter@ guard=guards[i];
+			for(uint j=0,jj=raiders.length();j<jj;j++) 
+			{
+				AddAttackPlane(guard,0,raiders[j]);
+				guard.AddEnemyInStack(raiders[j].Id);
+			}
+		}
+		
+		for(uint i=0,ii=raiders.length();i<ii;i++)
+		{
+			Critter@ raider=raiders[i];
+			for(uint j=0,jj=guards.length();j<jj;j++) 
+			{
+				AddAttackPlane(raider,0,guards[j]);
+				raider.AddEnemyInStack(guards[j].Id);
+			}
+		}
+	}
+}

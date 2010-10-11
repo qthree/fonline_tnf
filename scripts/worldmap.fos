@@ -3,6 +3,8 @@
 #include "_bags.fos"
 
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
+//import void GenerateItems(Map& map, Critter@[]@  grp) from "encounter_items";
+//import void GenerateCavernEncounter(Map@ map, Critter@[]@ critters) from "cave_mobs";
 
 #define ZONE_COUNT_X                           (7)
 #define ZONE_COUNT_Y                           (12)
@@ -182,7 +184,8 @@ uint[][] PositionDirs={
 #define GROUP_SF_Mirelurk                      (110)
 #define GROUP_NCR_Patrol_Rebels                (111)
 #define GROUP_NCR_Patrol_Raiders               (112)
-#define GROUP_MAX                              (113)
+#define	GROUP_COAST_Mirelurk				   (113)
+#define GROUP_MAX                              (114)
 
 #define TABLE_DstN                             (0)
 #define TABLE_DstS                             (1)
@@ -654,14 +657,14 @@ void AssignChecks(CCheck[]& checks, Critter@[]& critters)
 // Stored founded encounters
 //
 
-#define FOUNDED_ENCOUNTER_LIVE_TIME       (__TimeMultiplier*10) // 10 real minutes		//One real minute
+#define FOUNDED_ENCOUNTER_LIVE_TIME       (REAL_MINUTE(30)) // 30 real minutes
 class CFoundedEncounter
 {
 	uint Index;
 	uint16[] LocationPids;
 	CEncounter@ Encounter;
 	bool IsGenerated;
-	uint FullMinute;
+	uint FullSecond;
 	uint PositionX;
 	uint PositionY;
 	uint OwnerId;
@@ -678,7 +681,7 @@ class CFoundedEncounter
 		Index=0;
 		@Encounter=null;
 		IsGenerated=false;
-		FullMinute=0;
+		FullSecond=0;
 		PositionX=0;
 		PositionY=0;
 		OwnerId=0;
@@ -699,14 +702,14 @@ CFoundedEncounter@ CreateFoundedEncounter(uint x, uint y, CEncounter@ encounter,
 	for(int i=0,j=FoundedEncounters.length();i<j;i++)
 	{
 		CFoundedEncounter@ ge=FoundedEncounters[i];
-		if(ge.Index==0 || __FullMinute-ge.FullMinute>=FOUNDED_ENCOUNTER_LIVE_TIME)
+		if(ge.Index==0 || __FullSecond-ge.FullSecond>=FOUNDED_ENCOUNTER_LIVE_TIME+REAL_MINUTE(1))
 		{
 			FoundedEncountersLastIndex++;
 			ge.Index=FoundedEncountersLastIndex;
 			ge.LocationPids=locationPids;
 			@ge.Encounter=encounter;
 			ge.IsGenerated=false;
-			ge.FullMinute=__FullMinute;
+			ge.FullSecond=__FullSecond;
 			ge.PositionX=x;
 			ge.PositionY=y;
 			ge.OwnerId=ownerId;
@@ -716,9 +719,10 @@ CFoundedEncounter@ CreateFoundedEncounter(uint x, uint y, CEncounter@ encounter,
 			return ge;
 		}
 	}
-	Log("Buffer overflow.");
-	// FoundedEncounters.resize(FoundedEncounters.length()+100);
-	return null;
+
+	// Grow buffer and refind
+	FoundedEncounters.resize(FoundedEncounters.length()*2);
+	return CreateFoundedEncounter(x,y,encounter,locationPids,ownerId,ownerGroup);
 }
 
 CFoundedEncounter@ GetFoundedEncounter(uint index)
@@ -737,13 +741,14 @@ CFoundedEncounter@ GetNearFoundedEncounter(Critter@[]@ group, uint x, uint y, ui
 	for(int i=0,j=FoundedEncounters.length();i<j;i++)
 	{
 		CFoundedEncounter@ ge=FoundedEncounters[i];
+		if(ge.Index==0) continue;
 		if(ge.TurnBased && combatMode==COMBAT_MODE_REAL_TIME) continue;
 		if(not ge.TurnBased && combatMode==COMBAT_MODE_TURN_BASED) continue;
-		if(__FullMinute-ge.FullMinute<FOUNDED_ENCOUNTER_LIVE_TIME/2 && ge.IsGenerated
-		&& (not valid(ge.Encounter) || (not ge.Encounter.Special && CheckChecks(ge.Encounter.Checks,group)))
-		&& uint(sqrt(float(POW2(ge.PositionX-x)+POW2(ge.PositionY-y))))<=radius
-		&& group[0].Id!=ge.OwnerId
-		&& valid(GetLocation(ge.LocationId)))
+		if(__FullSecond-ge.FullSecond<FOUNDED_ENCOUNTER_LIVE_TIME && ge.IsGenerated &&
+			(not valid(ge.Encounter) || (not ge.Encounter.Special && CheckChecks(ge.Encounter.Checks,group))) &&
+			uint(sqrt(float(POW2(ge.PositionX-x)+POW2(ge.PositionY-y))))<=radius &&
+			group[0].Id!=ge.OwnerId &&
+			valid(GetLocation(ge.LocationId)))
 		{
 			return ge;
 		}
@@ -912,7 +917,21 @@ Map@ GenerateEncounter(CFoundedEncounter@ fe, Critter@[]@ critters)
 		Log("GetLocation fail.");
 		return null;
 	}
-
+/*
+	// Генерация итемов на всех картах энкаунтера
+	for(uint i=0,l=location.GetMapCount();i<l;i++)
+	{
+		Map@ m=location.GetMapByIndex(i);
+		if(valid(m))
+		{
+			GenerateItems(m,critters);
+			if(i>0)
+			{
+				GenerateCavernEncounter(m,critters);
+			}
+		}
+	}
+*/
 	Map@ map=location.GetMapByIndex(0);
 	if(not valid(map))
 	{

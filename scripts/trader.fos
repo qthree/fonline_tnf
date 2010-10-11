@@ -1,4 +1,4 @@
-//Author: cvet
+// Author: cvet
 #include "_macros.fos"
 #include "trader_table.fos"
 
@@ -32,16 +32,18 @@ void _TraderInit(Critter& trader, bool firstTime)
 		trader.ModeBase[MODE_NO_STEAL]=1;
 		trader.ModeBase[MODE_NO_LOOT]=1;
 		trader.ModeBase[MODE_NO_ENEMY_STACK]=1;
-		uint nextCall=UpdateItems(trader);
-		if(nextCall>0) CreateTimeEvent(__FullMinute+nextCall,"e_UpdateItems",trader.Id,false);
+
+		if(trader.GetTimeEvents(CTE_TRADER,null,null,null)==0)
+		{
+			uint nextCall=UpdateItems(trader);
+			if(nextCall>0) trader.AddTimeEvent("cte_UpdateItems",nextCall,CTE_TRADER);
+		}
 	}
 }
 
-uint e_UpdateItems(uint[]@ values)
+uint cte_UpdateItems(Critter& trader, int identifier, uint& stage)
 {
-	Critter@ trader=::GetCritter(values[0]);
-	if(not valid(trader)) return 0;
-	if(trader.IsDead()) return trader.Timeout[TO_REPLICATION]+10;
+	if(trader.IsDead()) return trader.Timeout[TO_REPLICATION]+REAL_MINUTE(1);
 	return UpdateItems(trader);
 }
 
@@ -57,7 +59,7 @@ int GetTraderIndex(Critter& trader)
 	{
 		for(uint i=0,j=TABLE_TRADERS_COUNT;i<j;i++)
 		{
-			if(TABLE_DIALOG_ID(i)==dialogId) 
+			if(TABLE_DIALOG_ID(i)==dialogId) return i;
 		}
 	}
 	return -1;*/
@@ -94,13 +96,6 @@ uint UpdateItems(Critter& trader)
 	//int hour=TABLE_REFRESH_HOUR(traderIndex);
 	int hour=10;
 	if(hour<=0) return 0;
-	return hour*60+Random(-30,30);
+	return hour*(60+Random(-30,30))*60;
 }
-
-
-
-
-
-
-
 

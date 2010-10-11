@@ -1,0 +1,224 @@
+//flags mod
+//powermagic
+
+/*
+Val1 - team id
+flag.Val2 - flagPoint.Id;
+flagPoint.Val2 - have(1) \ haven't flag(0)
+flagPoint.Val3 - count flags
+*/
+
+#include "_macros.fos"
+#include "_colors.fos"
+
+#define 	FLAG_EXPERIENCE		(1000)
+#define		ROUND_COUNT		(20)
+
+import void GetAllPlayers(Critter@[]@ crs) from "main";
+
+string msg;
+
+//flag point functions
+
+void _FlagPointInit(Item& item, bool firstTime)
+{
+  if(firstTime)
+  {
+    item.SetEvent(ITEM_EVENT_SKILL, "e_FlagPointSkill");
+    item.SetEvent(ITEM_EVENT_USE_ON_ME, "e_FlagPointUseOnMe");
+  }
+//   item.LightRadius = 10;
+  ChangeFrame(item, 0);
+}
+
+bool e_FlagPointSkill(Item& item, Critter& cr, int skill)
+{
+  if(skill == SKILL_PICK_ON_GROUND)
+  {
+    Item @ flag;
+    if(cr.StatBase[ST_PLAYER_TEAM] != item.Val1 && item.Val2 > 0)
+    {
+      @flag = cr.AddItem(PID_FLAG, 1);
+      if(!valid(flag)) return true;
+      ChangeFrame(item, 1);
+      flag.Val1 = item.Val1;
+      flag.Val2 = item.Id;
+      item.Val2 = 0;
+      msg = "flag "+cr.StatBase[ST_PLAYER_TEAM]+" was stolen";
+      PlayerMessage(cr.GetMap(), msg);
+      return true;
+    }
+    else if(cr.StatBase[ST_PLAYER_TEAM] == item.Val1 && item.Val2 > 0)
+    {
+      @flag = cr.GetItem(PID_FLAG, -1);
+      if(!valid(flag) || flag.Val1 == item.Val1) return true;
+      Item @ flagPoint = GetItem(flag.Val2);
+      if(!valid(flagPoint)) return true;
+      flagPoint.Val2 = 1;
+      item.Val3 += 1;
+      if(item.Val3 >= ROUND_COUNT)
+      {
+	msg = "team "+cr.StatBase[ST_PLAYER_TEAM]+" win";
+	PlayerMessage(cr.GetMap(), msg);
+	ErasePoint();
+	return true;
+      }
+      ChangeFrame(flagPoint, 0);
+      cr.StatBase[ST_EXPERIENCE]+= FLAG_EXPERIENCE;
+      cr.StatBase[ST_PLAYER_POINTS] += 10000;
+      msg = "team "+cr.StatBase[ST_PLAYER_TEAM]+" get a point";
+      PlayerMessage(cr.GetMap(), msg);
+      DeleteItem(flag);
+    }
+  }
+  return true;
+}
+
+bool e_FlagPointUseOnMe(Item& flagPoint, Critter& cr, Item@ flag)
+{
+  if(!valid(flag) || (flagPoint.Val1 == flag.Val1)) return false;
+   {	
+	Item @ flagPoint1 = GetItem(flag.Val2);
+	flagPoint1.Val2 = 1;
+	ChangeFrame(flagPoint, 0);
+	cr.StatBase[ST_EXPERIENCE]+= FLAG_EXPERIENCE;
+	msg = "team "+cr.StatBase[ST_PLAYER_TEAM]+" get a point";
+	PlayerMessage(cr.GetMap(), msg);
+	DeleteItem(flag);
+   }
+return true;
+}
+
+//end of flagPoint
+
+
+//flag functions
+
+void _FlagInit(Item& item, bool firstTime)
+{
+  if(firstTime)
+  {
+    item.SetEvent(ITEM_EVENT_SKILL, "e_FlagSkill");
+  }
+}
+
+bool e_FlagSkill(Item& item, Critter& cr, int skill)
+{
+  if(skill == SKILL_PICK_ON_GROUND && cr.StatBase[ST_PLAYER_TEAM] == item.Val1)
+  {
+    Item @ flagPoint = GetItem(item.Val2);
+    if(!valid(flagPoint)) return true;
+    flagPoint.Val2 = 1;
+    ChangeFrame(flagPoint, 0);
+    msg = "flag "+cr.StatBase[ST_PLAYER_TEAM]+" returned";
+    PlayerMessage(cr.GetMap(), msg);
+    DeleteItem(item);
+    return true;
+  }
+return false;
+}
+
+//edn of flag
+
+
+void ErasePoint()
+{
+     Critter@[] players;
+     GetAllPlayers(players);
+     for(uint16 i = 0; i < players.length(); i++)
+     {
+       players[i].StatBase[ST_PLAYER_POINTS] = 0;
+       players[i].ToDead(Random(1,13), null);
+     }
+     Item@[] items;
+     GetAllItems(PID_FLAG_POINT, items);
+     for(uint8 i = 0; i < items.length(); i++)
+     {
+       items[i].Val2 = 1;
+       items[i].Val3 = 0;
+       ChangeFrame(items[i], 0);
+     }
+     GetAllItems(PID_FLAG, items);
+     for(uint8 i = 0; i < items.length(); i++)
+     {
+       DeleteItem(items[i]);
+     }
+}
+
+void PlayerMessage(Map& map, string msg)
+{
+     Critter@[] players;
+//      GetAllPlayers(players);
+     uint16 count = map.GetCritters(-1, FIND_ALL | FIND_ONLY_PLAYERS , players);
+     if(count > 0)
+     {
+	string message = "|4294901760"+msg;
+	for(uint16 i = 0; i < players.length(); i++)
+	{
+	  players[i].Say(SAY_NETMSG, message);
+	}
+     }
+}
+
+void ChangeFrame(Item& item, uint8 color)
+{
+  /*
+  item.AnimStayBegin = frame;
+  item.AnimStayEnd = frame;
+  item.Update();
+  */
+  switch(color)
+  {
+    case 0 :  item.LightColor = COLOR_BLUE; break;
+    case 1 :  item.LightColor = COLOR_RED; break;
+  }
+  item.Update();
+}
+
+void r_TransitToMap(Critter& master, Critter@ slave, int val0, int val1)
+{
+//   Location @ loc = Get
+    Map @ map = GetMapByPid(val0, 0);
+    if(!valid(map)) return;
+//   map.GetEntireCoord
+    master.TransitToMap(map.Id, val1);
+    //return true;
+}
+
+//dialogs
+
+void r_ColorizeCrit(Critter & player, Critter @ npc, int team)
+{
+	player.Say(SAY_NETMSG, ""+team);
+  player.RunClientScript("client_main@colorizeCritterByTeam", team, 0, 0, "", null);
+}
+
+void dlg_ShowPoints(Critter& player, Critter@ npc, string@ lexems)
+{
+  if(!IS_DIALOG_GENERATED(lexems)) return;
+  lexems = "$points"+player.StatBase[ST_PLAYER_POINTS];
+}
+
+
+//end of dialogs
+
+//debug
+
+void addflagpoint(Critter& cr, int p0, int p1, int p2)
+{
+	Item @ item = cr.AddItem(PID_FLAG_POINT, 1);
+	item.Val1 = p0;
+	item.Val2 = 1;
+}
+
+void changeteam(Critter& cr, int p0, int p1, int p2)
+{
+	Critter @ pl = GetCritter(def(p0,cr.Id));
+	pl.StatBase[ST_PLAYER_TEAM] = p1;
+}
+
+void transit(Critter& cr, int p0, int p1, int p2)
+{
+  r_TransitToMap(cr, cr, p0, p1);
+}
+//end of debug

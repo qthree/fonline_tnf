@@ -1,6 +1,7 @@
 // Author: cvet, rifleman17
 #include "_macros.fos"
 #include "_colors.fos"
+#include "_msgstr.fos"
 
 
 #define START_BET             (5)
@@ -9,39 +10,43 @@
 #define STR_ONEHANDED_RING    (2000)
 
 #define MapLimitGet           GetData(60)
-#define MapLimitSet #(value)  SetData(60, value)
+#define MapLimitSet #(value)  SetData(60,value)
 #define TimeRenewGet          GetData(61)
-#define TimeRenewSet #(value) SetData(61, value)
-#define RENEW_TIME            (60*24*7) // Обновление лимитов карты на автоматы раз в неделю
+#define TimeRenewSet #(value) SetData(61,value)
+#define RENEW_TIME            (60*60*24*7) // Обновление лимитов карты на автоматы раз в неделю
 #define MAX_ONEHANDED_LIMIT   (8000) // Максимальная сумма, которую можно выжать из автоматов(без учета джекпотов)
 #define STR_EMPTY             (2001) // Реплика "деньги в автомате закончились"
 
 
 bool s_Onehanded(Critter& cr, Scenery& onehanded, int skill, Item@ item)
 {
-	if(skill!=SKILL_PICK_ON_GROUND) return true;
-
-	// Сheck map weekly OneHanded limit Expire
-	Map @map = cr.GetMap();
-	if(!valid(map)) return true;
-
-	if(map.TimeRenewGet<int(__FullMinute))
+	if(skill!=SKILL_PICK_ON_GROUND || (valid(item) && item.GetProtoId()!=PID_BOTTLE_CAPS))
 	{
-		map.MapLimitSet(MAX_ONEHANDED_LIMIT);
-		map.TimeRenewSet(__FullMinute+RENEW_TIME);
+		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_USE_NOTHING);
+		return true;
 	}
 
-	int OnehandedMoney = map.MapLimitGet;
+	// Сheck map weekly OneHanded limit Expire
+	Map@ map=cr.GetMap();
+	if(!valid(map)) return true;
 
-	if (OnehandedMoney<=0)
+	if(map.TimeRenewGet<int(__FullSecond))
 	{
-		cr.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, STR_EMPTY);
+		map.MapLimitSet(MAX_ONEHANDED_LIMIT);
+		map.TimeRenewSet(__FullSecond+RENEW_TIME);
+	}
+
+	int OnehandedMoney=map.MapLimitGet;
+
+	if(OnehandedMoney<=0)
+	{
+		cr.SayMsg(SAY_NETMSG,TEXTMSG_TEXT,STR_EMPTY);
 		return true;
 	}
 
 	// Count bet
 	uint bet=START_BET;
-	if(valid(item) && item.GetProtoId()==PID_BOTTLE_CAPS)
+	if(valid(item))
 	{
 		// Set all money
 		bet=item.GetCount();
@@ -49,8 +54,13 @@ bool s_Onehanded(Critter& cr, Scenery& onehanded, int skill, Item@ item)
 	else
 	{
 		// Check money
-		uint money=_CritCountItem(cr,PID_BOTTLE_CAPS);
-		if(money<MIN_BET) return true;
+		bet=_CritCountItem(cr,PID_BOTTLE_CAPS);
+		if(bet<MIN_BET)
+		{
+			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_USE_NOTHING);
+			return true;
+		}
+		if(bet>START_BET) bet=START_BET;
 	}
 
 	// Check max bet

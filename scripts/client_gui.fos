@@ -13,16 +13,9 @@
 
 //binyan - Hotkeys
 import void SetHotkeysUse(bool use) from "hotkeys";
-import bool ProcessCommand(uint8 curKey, uint8 prevKey, bool[] KeysPressed) from "hotkeys";
-import bool IsAllowedScreen(int scr) from "hotkey_commands";
-import bool IsHotkeysUse() from "hotkeys";
-uint8 previews;
-bool TxtInput=false;
-
-void TxtInputSet (bool IsInput) //Export
-{
-TxtInput = IsInput;
-}
+import bool ProcessCommand(uint8 curKey, uint8 prevKey, bool[] KeysPressed, uint8 mainScreen, uint8 curScreen) from "hotkeys";
+import bool IsScreenAllowed(string screen) from "hotkeys";
+uint8 previews=0;
 ///////////////////////////////////
 
 
@@ -209,6 +202,14 @@ class GUIScreen : IGUIScreenOpt
 					return true;
 				}	
  		}
+		
+		if(IsHardcoded && Index==CLIENT_MAIN_SCREEN_GAME && click==MOUSE_CLICK_LEFT && GetCurrentCursor()==CURSOR_USE_WEAPON && (KeyPressed[DIK_LCONTROL] || KeyPressed[DIK_RCONTROL]))
+		  {
+		    uint16 hexX=0, hexY=0;
+			GetMonitorHex(x, y, hexX, hexY);
+     		RunServerScriptUnsafe("client_unsafe@unsafe_hex_attack", hexX, hexY, 0, null, null);
+		  }
+
 
 		for(uint i=0,j=Elements.length();i<j;i++) Elements[i].IsFocused=false;
 		for(uint i=Elements.length();i>0;)
@@ -289,29 +290,23 @@ class GUIScreen : IGUIScreenOpt
 	{
 
 	//binyan - Hotkeys
-	if(IsHotkeysUse())
+	if((__IsHotkeysUse) && IsScreenAllowed(""+Index+""))
 	{
-	  bool ScreenExists=false;
+	if((Index==CLIENT_SCREEN_PIP_BOY)&&(key==DIK_P))
+	  return false;
+	  uint8 mainScr=0;
 	  for(uint i = 0; i<ActiveScreens.length(); i++)
 	  {
-	     if(ActiveScreens[i].Index==CLIENT_MAIN_SCREEN_GAME)
+	     if((ActiveScreens[i].Index==CLIENT_MAIN_SCREEN_GAME)||(ActiveScreens[i].Index==CLIENT_MAIN_SCREEN_GLOBAL_MAP))
 	     {
-	        ScreenExists=true;
+	        mainScr = ActiveScreens[i].Index;
   		    break;
    	     }
 	  }
-	  if(((key==DIK_RETURN)||(key==DIK_NUMPADENTER)) && ScreenExists)
-	  {
-  	     TxtInput=!TxtInput;
-	     return false;
-	  }
-
-	  if(TxtInput==false)
-	  {
-	      if(IsAllowedScreen(Index))
-		      return ProcessCommand(key, previews, KeyPressed);
-
-	  }
+     if(mainScr!=0)
+        return ProcessCommand(key, previews, KeyPressed, mainScr, Index);
+	 else
+	    return false;
 	}
 	////////////////////////////////////////////////
 	
@@ -617,6 +612,7 @@ void GUI_Render()
 		}
 		screen.Draw();
 	}
+	
 }
 
 bool GUI_MouseDown(int click, int x, int y)
@@ -669,18 +665,30 @@ bool result;
 	if(KeyPressed.length()!=0) KeyPressed[key]=true;
 	uint len=ActiveScreens.length();
 	if(len!=0)
+	  {
+	   if(ActiveScreens[len-1].Index==CLIENT_MAIN_SCREEN_GAME && GetCurrentCursor()==CURSOR_USE_WEAPON && (key == DIK_LCONTROL||key == DIK_RCONTROL))
+	   __IsHexAttack = true;
 	   result = ActiveScreens[len-1].KeyPress(key);
+	  }
 	else 
 	   result = false;
-	
-	if(IsHotkeysUse())
-	previews = key; //binyan - Hotkeys
-	
+//binyan - Hotkeys	
+	if(__IsHotkeysUse)
+       if(previews==0)
+	      previews=key; 
+////////////////////////////////////////////	
 	return result;
 }
 
 bool GUI_KeyUp(uint8 key)
 {
+if((key == DIK_LCONTROL||key == DIK_RCONTROL)&& __IsHexAttack)
+	 __IsHexAttack = false; 
+//binyan - Hotkeys
+if(__IsHotkeysUse)
+   if(key==previews)
+      previews=0;
+////////////////////////////////////////////
 	if(KeyPressed.length()!=0) KeyPressed[key]=false;
 	return false;
 }

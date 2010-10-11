@@ -7,7 +7,7 @@
 #define STOP_TRACE #(a,b) a=0;b=0
 #define TRACE_IS_STOPPED #(a,b) ((a==0)&&(b==0))
 
-import bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint8 cut) from "npc_planes";
+import bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";
 
 
 /*-------------------------------лерндш дкъ лъвю хрелю-----------------------------------*/

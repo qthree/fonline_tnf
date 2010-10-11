@@ -6,6 +6,7 @@
 ****************/
 #define PID_SKIN_CHANGER					(905)
 #define PID_ACTIVATOR						(906)
+#define PID_MODOC_DOCUMENTS					(910)
 
 /******************************************************************
 ***************       Armor                         ***************
@@ -31,6 +32,8 @@
 #define PID_HARDENED_POWER_ARMOR            (232)
 #define PID_ADVANCED_POWER_ARMOR            (348)
 #define PID_ADVANCED_POWER_ARMOR_MK2        (349)
+#define PID_MUMARMOR						(592) //TabaK. Железная броня мутантов.
+#PID_MUJACKET								(593) //TabaK. Кожаная куртка мутантов.
 
 // Robes
 #define PID_PURPLE_ROBE                     (113)
@@ -57,6 +60,7 @@
 #define PID_44_MAGNUM_SPEEDLOADER           (398)
 #define PID_NEEDLER_PISTOL                  (388)  // HN Needler
 #define PID_PK12_GAUSS_PISTOL               (394)  // 2mm EC
+#define PID_COLT							(591) //Кольт М1991
 	// Rifles
 #define PID_HUNTING_RIFLE                   (10)
 #define PID_SCOPED_HUNTING_RIFLE            (287)
@@ -97,6 +101,7 @@
 #define PID_BOZAR                           (350)
 #define PID_LIGHT_SUPPORT_WEAPON            (355)
 #define PID_M60                             (387)  // 7.62
+#define PID_SOUND_BLASTER                   (594) //TabaK
 
 // Energo
 	// Laser
@@ -219,8 +224,12 @@
 #define PID_BBS                             (163)
 #define PID_HN_NEEDLER_CARTRIDGE            (361)
 #define PID_HN_AP_NEEDLER_CARTRIDGE         (362)
-#define PID_DEFIB                           (588)
-#define PID_ANTIDOTE_2                      (589)
+#define PID_DEFIB                           (670)
+#define PID_ANTIDOTE_2                      (680)
+#define PID_HANDCUFFS                       (690)
+#define PID_CUFFS_KEY                       (691)
+#define PID_HANDCUFFS_USED                  (692)
+#define PID_BROKEN_CUFFS                    (693)
 
 // Special
 #define PID_ROBO_ROCKET_AMMO                (274)

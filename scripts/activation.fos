@@ -169,8 +169,7 @@ void activation_get_code(Critter& player, uint id, string& code)
 
 bool transit_start(Critter& cr)
 {
-	uint locid = CreateLocation(50,cr.WorldX,cr.WorldY,null);
-
+	uint locid = CreateLocation(50,cr.WorldX,cr.WorldY,null); 
 	Location@ loc=GetLocation(locid);
 
 	if(not valid(loc)) {Log("can't create start loc"); return false;}
@@ -183,6 +182,24 @@ bool transit_start(Critter& cr)
 
 	return true;
 }
+
+bool transit_dead(Critter& cr)
+{
+	uint locid = CreateLocation(6,cr.WorldX,cr.WorldY,null); 
+	Location@ loc=GetLocation(locid);
+
+	if(not valid(loc)) {Log("can't create dead loc"); return false;}
+
+	Map@ map = loc.GetMapByIndex(0);
+
+	if(not valid(map)) return false;
+
+	cr.TransitToMap(map.Id,241);
+
+	return true;
+}
+
+
 
 bool transit_modoc(Critter& player)
 {
@@ -212,15 +229,30 @@ bool transit_modoc(Critter& player)
 
 bool start_items(Critter& cr)
 {
-	if(cr.CountItem(906)==0)
-	{
-		Item@ hand_item = _CritGetItemHand(cr);
-		if(valid(hand_item)) _CritMoveItem(cr,hand_item,SLOT_INV);
+	Item@[] items;
+	cr.GetItems(-1, items);
 
-		Item@ doc = cr.AddItem(906,1); // 906 - pid документов
-		cr.MoveItem(doc.Id,1,SLOT_HAND1);
-		
-		return true;
+	for(uint i=0; i<items.length(); i++)
+	{
+		Item@ item = items[i];
+		if(!valid(item)) continue;
+		if(item.GetProtoId()==PID_ACTIVATOR) DeleteItem(item);		
+	}
+	
+//	if(cr.CountItem(PID_ACTIVATOR)==0)
+//	{
+
+
+	Item@ hand_item = _CritGetItemHand(cr);
+	if(valid(hand_item)) _CritMoveItem(cr,hand_item,SLOT_INV);
+
+	Item@ doc = cr.AddItem(PID_ACTIVATOR,1);
+	if(valid(doc)) cr.MoveItem(doc.Id,1,SLOT_HAND1);
+	
+	return true;
+
+
+/*
 	}
 	else	
 	{
@@ -230,7 +262,7 @@ bool start_items(Critter& cr)
 			if(hand_item.GetProtoId()==906) return true;
 			_CritMoveItem(cr,hand_item,SLOT_INV);
 		}
-		Item@ doc = cr.GetItem (906, -1);
+		Item@ doc = cr.GetItem (PID_ACTIVATOR, -1);
 
 		if(valid(doc))
 		{
@@ -238,13 +270,24 @@ bool start_items(Critter& cr)
 			return true;
 		}
 	}
-
-	return false;
+*/
+//	return false;
 }
 
 bool player_items(Critter& cr)
 {
-	if(cr.CountItem(905)==0) cr.AddItem(905,1);
+	Item@[] items;
+	cr.GetItems(-1, items);
+
+	for(uint i=0; i<items.length(); i++)
+	{
+		Item@ item = items[i];
+		if(!valid(item)) continue;
+		if(item.GetProtoId()==PID_ACTIVATOR) DeleteItem(item);
+		else if(item.GetProtoId()==PID_SKIN_CHANGER) DeleteItem(item);				
+	}
+
+	cr.AddItem(PID_SKIN_CHANGER,1);
 	return true;
 }
 
@@ -277,14 +320,14 @@ bool setActivation(uint playerId, int toAct, Critter@ initiator, Item@ doc, bool
 
 	int act = gvAct.GetValue();
 
-	if(!force && (act<0 || act>ACT_BLOCK))
+	if(!force && (act<0 || act>ACT_DEAD))
 	{
 		if(valid(initiator)) initiator.Say(SAY_NETMSG, "Ошибка активации: неправильный act: "+act);
 		return false;
 
 	}
 
-	if(toAct<0 || toAct>ACT_BLOCK)
+	if(toAct<0 || toAct>ACT_DEAD)
 	{
 		if(valid(initiator)) initiator.Say(SAY_NETMSG, "Ошибка активации: неправильный toAct: "+toAct);
 		return false;
@@ -301,7 +344,7 @@ bool setActivation(uint playerId, int toAct, Critter@ initiator, Item@ doc, bool
 	{
 	case ACT_DEACT:
 		{
-			if(act==ACT_DEACT && curMapPid==50 && !force)
+			if(act==ACT_DEACT && curMapPid==70 && !force)
 			{
 				if(valid(initiator)) initiator.Say(SAY_NETMSG, "Персонаж #"+playerId+" уже был деактивирован.");
 				return false; 
@@ -309,7 +352,7 @@ bool setActivation(uint playerId, int toAct, Critter@ initiator, Item@ doc, bool
 			
 			if(!transit_start(cr)) return false;
 	
-			start_items(cr);
+			 start_items(cr);
 
 			gvAct=ACT_DEACT; 
 		}
@@ -353,6 +396,21 @@ bool setActivation(uint playerId, int toAct, Critter@ initiator, Item@ doc, bool
 
 			gvAct=ACT_BLOCK;			
 		}
+	case ACT_DEAD:
+		{
+			GameVar@ former = GetLocalVar(LVAR_former_act, cr.Id);
+			former=gvAct;
+			if(act>=ACT_DEAD && !force && curMapPid==70)
+			{
+				if(valid(initiator)) initiator.Say(SAY_NETMSG, "Персонаж #"+playerId+" отправлен в мертвяк.");
+				
+				return false;
+			}
+
+			if(!transit_dead(cr)) return false;
+
+			gvAct=ACT_DEAD;	
+		}
 		break;
 	default:
 		{
@@ -372,6 +430,7 @@ bool setActivation(uint playerId, int toAct, Critter@ initiator, Item@ doc, bool
 		case ACT_CODE:	status = " активирован кодом."; break;
 		case ACT_GM:		status = " активирован командой."; break;
 		case ACT_BLOCK:	status = " заблокирован."; break;
+		case ACT_DEAD: status = " отправлен в мертвяк."; break;
 		}
 
 		initiator.Say(SAY_NETMSG, "Персонаж #"+cr.Id+status);
@@ -408,6 +467,11 @@ bool deact(Critter& cr)		// Export
 	return setActivation(cr.Id, ACT_DEACT, null, null, false);
 }
 
+bool dead(Critter& cr)		// Export
+{
+	return setActivation(cr.Id, ACT_DEAD, null, null, false);
+}
+
 // =================================================
 //			Раздел для функций работы с переменной (старое)
 // =================================================
@@ -419,19 +483,25 @@ int act_var_get(Critter& player)
 	else return(act.GetValue());
 }
 
+bool act_check_dead(Critter& player)	// Export
+{
+	int var = act_var_get(player);
+	return (var==ACT_DEAD);
+}
 
 bool act_var_check(Critter& player)	// Export
 {
 	int var = act_var_get(player);
-	return (var>0 && var<3);
+	return (var>0 && var<3 || var==4);
 }
 
 
 void act_var_set(Critter& player, int var)
 {
 	GameVar@ act = GetLocalVar(LVAR_activationStatus, player.Id);
+	GameVar@ former = GetLocalVar(LVAR_former_act, player.Id);
 	if(!valid(act)) return;
-
+	if(var==ACT_DEAD) former=act;
 	act=var;
 }
 
@@ -530,4 +600,4 @@ bool act(Critter& player)
 
 #include "activation_gm.fos"
 
-
+#include "activation_store.fos"

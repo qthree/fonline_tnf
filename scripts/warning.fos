@@ -1,22 +1,30 @@
 #include "_macros.fos"
 
+int PlayerId;
+string Reason;
+string AdminName;
 
-void Warn(Critter& player, int param0, int param1, int param2)
+void Warn(Critter& admin, int param0, int param1, int param2)
 {
-Critter@ cr=GetCritter(param0);
-if(valid(cr))
+Critter@ player=GetCritter(param0);
+PlayerId=param0;
+if(valid(player) && player.IsPlayer())
 	{
-	cr.ParamBase[ST_WARNINGS]+=1;
-	uint WarnCount=cr.Param[ST_WARNINGS];
-		cr.AddTimeEvent("Dialog",1,3,WarnCount);
+	string WarnCount=player.Param[ST_WARNINGS];
+	string PlayerName=GetPlayerName(player.Id);
+	admin.ShowScreen(SCREEN_CLOSE,0,"");
+	admin.ShowScreen(SCREEN_DIALOGBOX, 1, "Approve");
+	admin.SayMsg(SAY_DIALOGBOX_TEXT,TEXTMSG_GAME,12935, "$WarnCount"+WarnCount+"$PlayerName"+PlayerName);
+	admin.SayMsg(SAY_DIALOGBOX_BUTTON(0),TEXTMSG_GAME,12932);
 	}
+else admin.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12936);
 }
 
 uint Dialog(Critter& cr, int identifier, uint& rate)
 {
 string str=rate;
 cr.ShowScreen(SCREEN_DIALOGBOX, 1, "AnswerMe");
-if(rate<3)cr.SayMsg(SAY_DIALOGBOX_TEXT,TEXTMSG_GAME,12930); else cr.SayMsg(SAY_DIALOGBOX_TEXT,TEXTMSG_GAME,12934);
+if(rate<3)cr.SayMsg(SAY_DIALOGBOX_TEXT,TEXTMSG_GAME,12930, "$reason"+Reason); else cr.SayMsg(SAY_DIALOGBOX_TEXT,TEXTMSG_GAME,12934,"$reason"+Reason);
 cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12931);
 cr.Say(SAY_NETMSG,str);
 cr.SayMsg(SAY_DIALOGBOX_BUTTON(0),TEXTMSG_GAME,12932);
@@ -25,10 +33,26 @@ if(rate>2)
 	cr.ToDead(COND_DEAD_EXPLODE, null); 
 	return 0;
 	}
-return 7;
+return 7*60;
 }
 
 void AnswerMe(Critter& cr, uint answerI, string& answerS)
 {
-if(answerI==0)cr.EraseTimeEvents(3);
+if(answerI==0)cr.EraseTimeEvents(CTE_WARNING);
+}
+
+void Apply(Critter& cr, uint answerI, string& answerS)
+{
+	Reason=answerS;
+	Critter@ player=GetCritter(PlayerId);
+	player.ParamBase[ST_WARNINGS]+=1;
+	uint WarnCount=player.Param[ST_WARNINGS];
+	player.AddTimeEvent("Dialog",1,CTE_WARNING,WarnCount);
+}
+
+void Approve(Critter& admin, uint answerI, string& answerS)
+{
+	admin.ShowScreen(SCREEN_CLOSE,0,"");
+	admin.ShowScreen(SCREEN_SAY,0,"Apply");
+	admin.SayMsg(SAY_SAY_TITLE,TEXTMSG_GAME,12937);
 }

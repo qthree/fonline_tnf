@@ -5,7 +5,12 @@
 //* Locations                                                            */
 //************************************************************************/
 
+/*
 #define LOCATION_IS_CITY #(locPid)                  ((locPid)>=LOCATION_Den && (locPid)<=LOCATION_Vault13 && (locPid)!=LOCATION_Cathedral && (locPid)!=LOCATION_MilitaryBase && (locPid)!=LOCATION_Sierra && (locPid)!=LOCATION_ReplicationHell)
+*/
+
+//для roleplay сервера
+#define LOCATION_IS_CITY #(locPid)                  ((locPid)==LOCATION_Modoc || (locPid)==LOCATION_Sacramento || (locPid)==LOCATION_ghostfarm)
 
 #define LOCATION_Den                                (1)
 #define LOCATION_Klamath                            (2)
@@ -26,12 +31,16 @@
 #define LOCATION_PrimalTribe                        (17)
 #define LOCATION_Rangers                            (18)
 #define LOCATION_Vault13                            (19)
+#define LOCATION_Sacramento                       (20)
 #define LOCATION_TechBunker                         (21)
 #define LOCATION_Replication1                       (40)
 #define LOCATION_Replication2                       (41)
 #define LOCATION_Replication3                       (42)
 #define LOCATION_Replication4                       (43)
 #define LOCATION_ReplicationHell                    (44)
+#define LOCATION_GeckCity                           (45)
+
+#define LOCATION_ghostfarm                    (60)
 
 #define LOCATION_SpecialFirstSpecial                (50) // Todo
 #define LOCATION_SpecialToxicEncounter              (51)
@@ -50,6 +59,9 @@
 #define LOCATION_SpecialWoodsmanEncounter           (64)
 #define LOCATION_SpecialUnwashedEncounter           (65)
 #define LOCATION_SpecialBridgeEncounter             (66)
+#define LOCATION_SpecialTeleportEncounter           (67)
+#define LOCATION_SpecialWastelandChildren           (68)
+#define LOCATION_SpecialKotW                        (69)
 
 #define LOCATION_DesertEncounter1                   (101)
 #define LOCATION_DesertEncounter2                   (102)
@@ -92,7 +104,7 @@
 #define LOCATION_CoastEncounter3                    (183)
 #define LOCATION_CoastEncounter4                    (184)
 #define LOCATION_CoastEncounter5                    (185)
-//#define LOCATION_CoastEncounter6                  (186)
+#define LOCATION_CoastEncounter6                  	(186)
 #define LOCATION_CoastEncounter7                    (187)
 #define LOCATION_CoastEncounter8                    (188)
 #define LOCATION_CoastEncounter9                    (189)
@@ -105,7 +117,6 @@
 #define LOCATION_OceanEncounter4                    (196)
 #define LOCATION_OceanEncounter5                    (197)
 
-
 //#define LOCATION_BessDead                         (201)
 #define LOCATION_Wanamingo_Cavern                   (202)
 #define LOCATION_Quest_Dappo_Lost_Caravan           (203)
@@ -116,6 +127,8 @@
 #define LOCATION_Quest_NCR_SIEGE5                   (209)
 #define LOCATION_arroyo_mynoc_defence1              (210)
 #define LOCATION_arroyo_mynoc_defence2              (211)
+#define LOCATION_Quest_Sid_And_Nancy                (212)
+#define LOCATION_Quest_MirelurksLair                (213)
 
 #define LOCATION_Warehouse                          (220)
 #define LOCATION_Warehouse1                         (221)
@@ -127,10 +140,7 @@
 #define LOCATION_Warehouse_First                    (LOCATION_Warehouse)
 #define LOCATION_Warehouse_Last                     (LOCATION_Warehouse6)
 
-#define LOCATION_Intro1                             (260)
-#define LOCATION_Intro2                             (261)
-#define LOCATION_Intro3                             (262)
-#define LOCATION_Intro4                             (263)
+#define LOCATION_IntroMartin                        (263)
 #define LOCATION_IntroInit                          (264)
 
 //************************************************************************/
@@ -139,8 +149,12 @@
 
 #define MAP_vcity_courtyard							(15)
 #define MAP_Modoc									(18)
-
+#define MAP_barter_ground                           (24)
 #define MAP_sad_enter                               (25)
+#define MAP_sad_powersub                            (26)
+#define MAP_sad_level1                              (27)
+#define MAP_sad_level2                              (28)
+#define MAP_sad_level3                              (29)
 #define MAP_sad_level4                              (30)
 #define MAP_gecko_settlement                        (31)
 #define MAP_v15_village                             (34)
@@ -148,32 +162,36 @@
 #define MAP_ncr_ranch                               (44)
 #define MAP_ncr_bazaar                              (45)
 #define MAP_mariposa_enter                          (49)
-#define MAP_newr1                                   (54)
+#define MAP_mariposa_level1                         (50)
+#define MAP_mariposa_level2                         (51)
+#define MAP_mariposa_level3                         (52)
 #define MAP_mariposa_level4                         (53)
-#define MAP_redding_miners							(63)
+#define MAP_newr1                                   (54)
+#define MAP_redding_outer                           (62)
+#define MAP_redding_miners                          (65)
+#define MAP_redding_mine                            (66)
 #define MAP_cath_enter                              (75)
+#define MAP_cath_main                               (76)
+#define MAP_cath_level1                             (77)
+#define MAP_cath_level2                             (78)
 #define MAP_cath_level3                             (79)
-#define MAP_tech_bunker1                            (94)
-#define MAP_tech_bunker3                            (96)
 #define MAP_broken                                  (115)
 #define MAP_sf_dock                                 (136)
+#define MAP_sf_china                                (137)
 
 #define MAP_replication1                            (221)
 #define MAP_replication2                            (222)
 #define MAP_replication3                            (223)
 #define MAP_replication4                            (224)
-#define MAP_hell_main                               (225)
-#define MAP_hell_out                                (226)
-#define MAP_hell_level1                             (227)
-#define MAP_hell_level2                             (228)
-#define MAP_hell_level3                             (229)
-#define MAP_hell_corridor                           (230)
-#define MAP_hell_bunker                             (231)
-#define MAP_hell_mines                              (232)
-#define MAP_hell_forest                             (233)
-#define MAP_hell_pipboys                            (234)
-#define MAP_hell_level4                             (235)
-#define MAP_hell_burrow                             (236)
+#define MAP_replication_hell                        (225)
+
+#define MAP_e_cave0_in                              (349)
+#define MAP_e_cave1_in                              (351)
+#define MAP_e_cave2_in                              (353)
+#define MAP_e_cave3_in                              (355)
+#define MAP_e_cave4_in                              (357)
+#define MAP_e_cave5_in                              (359)
+#define MAP_e_coast5_cave                           (392)
 
 //************************************************************************/
 //*                                                                      */

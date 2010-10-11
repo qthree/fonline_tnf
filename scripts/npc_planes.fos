@@ -2,12 +2,12 @@
 // Export functions
 #include "_macros.fos"
 
-bool AddMiscPlane(Critter& npc, uint priority, uint waitMinute, string@ funcName)
+bool AddMiscPlane(Critter& npc, uint priority, uint waitSecond, string@ funcName)
 {
 	NpcPlane@ plane=CreatePlane();
 	plane.Type=AI_PLANE_MISC;
 	plane.Priority=(priority==0?AI_PLANE_MISC_PRIORITY:priority);
-	plane.Misc_WaitMinute=waitMinute;
+	plane.Misc_WaitSecond=waitSecond;
 	if(valid(funcName) && not plane.Misc_SetScript(funcName))
 	{
 		Log("Set script <"+funcName+"> fail");
@@ -16,7 +16,7 @@ bool AddMiscPlane(Critter& npc, uint priority, uint waitMinute, string@ funcName
 	return npc.AddPlane(plane);
 }
 
-bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint8 cut)
+bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut)
 {
 	if(not npc.IsCanWalk()) return false;
 
@@ -31,7 +31,7 @@ bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 d
 	return npc.AddPlane(plane);
 }
 
-bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint8 cut)
+bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut)
 {
 	if(not npc.IsCanWalk()) return false;
 
@@ -60,12 +60,7 @@ bool AddAttackPlane(Critter& npc, uint priority, Critter& target)
 	plane.Attack_GagHexY=0;
 	plane.Attack_LastHexX=target.HexX;
 	plane.Attack_LastHexY=target.HexY;
-#ifdef VANILLA
 	plane.Run=false;
-#endif
-#ifndef VANILLA
-	plane.Run=true;
-#endif
 	return npc.AddPlane(plane);
 }
 
@@ -88,12 +83,7 @@ bool AddAttackPlane(Critter& npc, uint priority, uint critId)
 	plane.Attack_GagHexY=0;
 	plane.Attack_LastHexX=target.HexX;
 	plane.Attack_LastHexY=target.HexY;
-#ifdef VANILLA
 	plane.Run=false;
-#endif
-#ifndef VANILLA
-	plane.Run=true;
-#endif
 	return npc.AddPlane(plane);
 }
 
@@ -109,12 +99,7 @@ bool AddAttackPlane(Critter& npc, uint priority, Critter& target, int minHp)
 	plane.Attack_GagHexY=0;
 	plane.Attack_LastHexY=target.HexY;
 	plane.Attack_LastHexX=target.HexX;
-#ifdef VANILLA
 	plane.Run=false;
-#endif
-#ifndef VANILLA
-	plane.Run=true;
-#endif
 	return npc.AddPlane(plane);
 }
 
@@ -137,12 +122,7 @@ bool AddAttackPlane(Critter& npc, uint priority, uint critId, int minHp)
 	plane.Attack_GagHexY=0;
 	plane.Attack_LastHexX=target.HexX;
 	plane.Attack_LastHexY=target.HexY;
-#ifdef VANILLA
 	plane.Run=false;
-#endif
-#ifndef VANILLA
-	plane.Run=true;
-#endif
 	return npc.AddPlane(plane);
 }
 

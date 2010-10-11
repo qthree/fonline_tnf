@@ -2,44 +2,88 @@
 
 #include "_macros.fos"
 /*import void InjureCritter(Critter& cr, uint dmg, uint dmgType, uint8 dir, uint attackerId) from "combat";*/
-void _ItemInit(Item& item, bool FirstTime)
+import bool IsNotHuman(Critter& cr) from "handcuffs";
+void _itemInit(Item& item, bool FirstTime)
 {
- item.SetEvent(ITEM_EVENT_USE, "_Reanimate");
- }
-
-bool _Reanimate(Item& item, Critter& crit, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
-{
-
-if(!valid(onCritter)) return false;
-
-if(onCritter.IsLife())
-{
-//InjureCritter(onCritter, 50, 5, 0, crit.Id);
-crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12923);
-return true;
+ item.SetEvent(ITEM_EVENT_USE, "_reanimate");
 }
 
-if(crit.Param[SK_DOCTOR]<80)
+bool _reanimate(Item& item, Critter& crit, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
 {
-crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12920);
-return true;
-}
-if(onCritter.IsDead())
-{
-	if(onCritter.CondExt==COND_DEAD_FRONT||onCritter.CondExt==COND_DEAD_BACK||onCritter.CondExt==COND_DEAD_BURST)
+	if(!valid(onCritter) || (IsNotHuman(onCritter)))
 	{
-	if(onCritter.CondExt==COND_DEAD_BURST) crit.ParamBase[ST_EXPERIENCE]+=300; else crit.ParamBase[ST_EXPERIENCE]+=200;
-	onCritter.ToLife();
-	crit.DeleteItem(PID_DEFIB,1);
-	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12921);
-	if(onCritter.IsNpc())onCritter.EraseEnemyFromStack(crit.Id);
-	return true;
+		return false;
 	}
-	else 
+
+	if(onCritter.IsLife() && (!IsNotHuman(onCritter)))
 	{
-	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12922);
-	return true;
+		//InjureCritter(onCritter, 50, 5, 0, crit.Id);
+		crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12923);
+		return true;
 	}
-}
-return false;
+
+	if(crit.Param[SK_DOCTOR]<80 && (!IsNotHuman(onCritter)) )
+	{
+		crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12920);
+		return true;
+	}	
+	if(onCritter.IsDead() && (!IsNotHuman(onCritter)) )
+	{
+		if(onCritter.CondExt<=COND_DEAD_BURST)
+		{
+			if(onCritter.IsPlayer())
+			{
+				GameVar@ act = GetLocalVar(LVAR_activationStatus, onCritter.Id);
+				GameVar@ former = GetLocalVar(LVAR_former_act, onCritter.Id);
+				act=former;
+			}
+				Map@ map=onCritter.GetMap();
+				if(onCritter.CondExt==COND_DEAD_BURST) crit.ParamBase[ST_EXPERIENCE]+=300; else crit.ParamBase[ST_EXPERIENCE]+=200;
+				
+				if(map.IsHexPassed(onCritter.HexX, onCritter.HexY))
+				{
+					onCritter.ToLife();
+				}
+				else if (map.IsHexPassed(onCritter.HexX+1, onCritter.HexY))
+				{
+					onCritter.TransitToHex(onCritter.HexX+1, onCritter.HexY, onCritter.Dir);
+					onCritter.ToLife();
+				}
+				else if (map.IsHexPassed(onCritter.HexX-1, onCritter.HexY))
+				{
+					onCritter.TransitToHex(onCritter.HexX-1, onCritter.HexY, onCritter.Dir);
+					onCritter.ToLife();
+				}
+				else if (map.IsHexPassed(onCritter.HexX, onCritter.HexY+1)) 
+				{
+					onCritter.TransitToHex(onCritter.HexX, onCritter.HexY+1, onCritter.Dir);
+					onCritter.ToLife();
+				}
+				else if (map.IsHexPassed(onCritter.HexX, onCritter.HexY-1))
+				{
+					onCritter.TransitToHex(onCritter.HexX, onCritter.HexY-1, onCritter.Dir);
+					onCritter.ToLife();
+				}
+				else if (map.IsHexPassed(onCritter.HexX+1, onCritter.HexY+1))
+				{
+					onCritter.TransitToHex(onCritter.HexX+1, onCritter.HexY+1, onCritter.Dir);
+					onCritter.ToLife();
+				}
+				else if (map.IsHexPassed(onCritter.HexX-1, onCritter.HexY-1))
+				{
+					onCritter.TransitToHex(onCritter.HexX-1, onCritter.HexY-1, onCritter.Dir);
+					onCritter.ToLife();
+				}
+				crit.DeleteItem(PID_DEFIB,1);
+				crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12921);
+				if(onCritter.IsNpc())onCritter.EraseEnemyFromStack(crit.Id);
+				return true;
+		}
+		else 
+		{
+			crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12922);
+			return true;
+		}
+	}
+	return false;
 }

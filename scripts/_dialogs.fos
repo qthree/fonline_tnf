@@ -44,6 +44,8 @@
 #define DIALOG_all_hunter                              (89)
 #define DIALOG_all_poker                               (90)
 #define DIALOG_all_roulette                            (95)
+#define DIALOG_all_energy_barier_terminal              (96)
+#define DIALOG_all_energy_barier_guard                 (97)
 #define DIALOG_den_leanna                              (100)
 #define DIALOG_den_kliff                               (101)
 #define DIALOG_den_monk                                (102)
@@ -419,6 +421,10 @@
 #define DIALOG_redd_fight_fanat                        (1332)
 #define DIALOG_redd_oldman                             (1333)
 #define DIALOG_redd_drugdealer                         (1334)
+#define DIALOG_redd_regulator                          (1337)
+#define DIALOG_redd_regulator_f                        (1338)
+#define DIALOG_redd_anderson                           (1345)
+#define	DIALOG_redd_patrol                             (1348)
 #define DIALOG_sf_citizen_shue                         (1400)
 #define DIALOG_sf_guard_shue                           (1401)
 #define DIALOG_sf_trader_chiang                        (1402)
@@ -615,6 +621,7 @@
 #define DIALOG_crvg_rat                                (4210)
 #define DIALOG_all_mslaver_elize_quest                 (4211)
 #define DIALOG_all_fslaver_elize_quest                 (4212)
+#define DIALOG_geck_door_comp                          (4213)
 #define	DIALOG_hell_mines_out_door_guard               (4456)
 #define DIALOG_hell_out_pipboys_terminal               (4458)
 #define	DIALOG_hell_pipboys_overseer                   (4459)
@@ -672,6 +679,7 @@
 #define DIALOG_enc_trav_trader                         (10110)
 #define DIALOG_enc_ncr_trader                          (10120)
 #define DIALOG_enc_v15_trader                          (10130)
+#define DIALOG_se_kotw_console1                        (10134)
 
 #endif // __DIALOGS__
 

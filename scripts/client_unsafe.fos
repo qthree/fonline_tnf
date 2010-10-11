@@ -1,0 +1,107 @@
+#include "_macros.fos"
+
+import void critter_reload_weapon(Critter& cr, Item& weapon, Item@ ammo) from "main";
+import bool critter_use_item(Critter& cr, Item& item, Critter@ targetCr, Item@ targetItem, Scenery@ targetScen, uint param) from "main";
+import void CombatAttack(Critter& cr, Critter@ target, ProtoItem& weapon, ProtoItem@ ammo, uint8 aim, uint16 hexX, uint16 hexY) from "combat";
+
+void unsafe_hotkey_command (Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+
+string type = "", command = "";
+string@[]@ cmd = split(param3, "*");
+  {command = cmd[0]; type = cmd.length()>1?cmd[1]:"";}
+if (type == "TEXT")
+{
+  if(__FullSecond<player.Timeout[TO_SAY])
+    {player.SayMsg(SAY_NETMSG, TEXTMSG_GAME, 12601); return;}
+  player.TimeoutBase[TO_SAY] = SAY_TIMEOUT;
+  if(command.length()>64)
+  command = substring(command, 0, 64);
+  string@[]@ words = split(command, "_");
+  string text = join(words, " ");
+  player.Say(/*(param4[0]>3)?SAY_RADIO:*/(param4[0]*2+1), text);  //Param4[0]: 0 - norm, 1 - shout, 2 - emote, 3 - whisp
+} 
+  
+else
+{
+if(command == "RELOAD")
+  {
+   Item@[] weapon; 
+   player.GetItems(SLOT_HAND1, weapon); 
+   if (not valid(weapon[0]))
+   return; 
+   Item@ ammo = player.GetItem(weapon[0].WeaponAmmoPid, SLOT_INV); 
+
+   if(valid (ammo) && weapon[0].WeaponAmmoCount< weapon[0].Proto.Weapon_VolumeHolder && player.Stat[ST_CURRENT_AP]>=2)
+      {
+      critter_reload_weapon(player, weapon[0], ammo);
+	  player.Action(ACTION_RELOAD_WEAPON, 0, weapon[0]);
+      player.ParamBase[ST_CURRENT_AP]-=200;
+	  }
+   else if (not valid (ammo) && weapon[0].WeaponAmmoCount>0 && player.Stat[ST_CURRENT_AP]>=2)
+      {
+        critter_reload_weapon(player, weapon[0], null);
+	    player.Action(ACTION_RELOAD_WEAPON, 0, weapon[0]);
+        player.ParamBase[ST_CURRENT_AP]-=200;
+	  }
+  }
+  
+else if (command == "USE_SELF")
+  {
+  Item@ use_item = player.GetItem(param4[0], -1);
+  if( valid(use_item) && player.Stat[ST_CURRENT_AP]>=2)
+    {
+	  critter_use_item(player, use_item, null, null, null, 0);
+	  player.Action(ACTION_USE_ITEM, 0, use_item);
+	  player.ParamBase[ST_CURRENT_AP]-=200;
+	}
+  }
+  
+else
+    Log("Chiter detected: "+GetPlayerName(player.Id));
+}
+}
+
+void unsafe_hex_attack(Critter& player, int hexX, int hexY, int param2, string@ command, int[]@ param4)
+{
+
+Item@[] realweapon; 
+Map@ map = player.GetMap();
+ player.GetItems(SLOT_HAND1, realweapon); 
+ ProtoItem@ weapon = GetProtoItem(realweapon[0].GetProtoId()); 
+ ProtoItem@ ammo;
+ 
+ 
+uint16 toHx = hexX, toHy = hexY;
+int dist=GetDistantion(player.HexX,  player.HexY, hexX, hexY);
+map.GetHexCoord( player.HexX,  player.HexY, toHx, toHy,  0.0f, dist);
+if((hexX!=toHx)||(hexY!=toHy))
+{player.SayMsg(SAY_NETMSG, TEXTMSG_COMBAT, 104); return;}
+
+bool isRocket=(realweapon[0].WeaponAmmoPid == PID_EXPLOSIVE_ROCKET) || (realweapon[0].WeaponAmmoPid == PID_ROCKET_AP) || (realweapon[0].WeaponAmmoPid == PID_ROBO_ROCKET_AMMO) || (realweapon[0].WeaponAmmoPid == PID_GRENADELAUNCHER_AMMO);
+ if(weapon.Weapon_Skill!=SK_THROWING && !isRocket)
+    return;	
+	
+int wpnMaxDist=weapon.Weapon_MaxDist;
+   if(weapon.Weapon_Skill==SK_THROWING) wpnMaxDist = MIN(wpnMaxDist, 3 * MIN(int(10), player.Stat[ST_STRENGTH] + 2*player.Perk[PE_HEAVE_HO]));	
+ if (dist>wpnMaxDist)
+    {player.SayMsg(SAY_NETMSG, TEXTMSG_COMBAT, 102); return;}
+	
+	
+ if(player.Stat[ST_CURRENT_AP]<weapon.Weapon_ApCost)
+   return;
+
+if(weapon.Weapon_VolumeHolder>0)
+  {
+  if(realweapon[0].WeaponAmmoCount==0)
+     return;
+  else
+    @ammo = GetProtoItem(realweapon[0].WeaponAmmoPid);
+  }
+
+
+Critter@ target = map.GetCritter(uint16(hexX), uint16(hexY));
+player.ParamBase[ST_CURRENT_AP]-=weapon.Weapon_ApCost*100;
+CombatAttack(player, target, weapon, ammo, HIT_LOCATION_UNCALLED, uint16(hexX), uint16(hexY));
+
+}

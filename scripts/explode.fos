@@ -4,7 +4,7 @@
 import void InjureCritter(Critter& cr, uint dmg, uint dmgType, uint8 dir, uint attackerId) from "combat";
 import void QuakeScreen(Map& map) from "effects";
 
-#define TRAPS_HIDE #(traps)              ((traps)/5+10)
+#define TRAPS_HIDE #(traps)              ((traps)/5+5)
 #define EXPLODE_CLEARANCE_EXPERIENCE     (50)
 
 #define _ExplodeSetNumEvent #(explode,eventNum) explode.Val1=int(eventNum)
@@ -43,14 +43,14 @@ bool OnUseExplode(Critter& cr, Item& explode, Critter@ targetCr, Item@ targetIte
 		if(int(timer)<TIMER_MIN_VALUE) timer=TIMER_MIN_VALUE;
 		if(int(timer)>TIMER_MAX_VALUE) timer=TIMER_MAX_VALUE;
 
-		uint numEvent=::CreateTimeEvent(__FullMinute+timer,"explode@e_Explode",activateExpl,true);
+		uint numEvent=CreateTimeEvent(__FullSecond+timer*60,"explode@e_Explode",activateExpl,true);
 		SETFLAG(activateExpl.Flags,ITEM_TRAP);
 		_ExplodeSetNumEvent(activateExpl,numEvent);
 		_ExplodeSetOwner(activateExpl,cr.Id);
 		activateExpl.TrapValue=TRAPS_HIDE(cr.Skill[SK_TRAPS]);
-		_ExplodeSetBonusDamage(activateExpl,trapsSkill);
+		_ExplodeSetBonusDamage(activateExpl,Random(0, trapsSkill/10));
 		_ExplodeSetBonusRadius(activateExpl,isExpert?1:0);
-		if(cr.Timeout[TO_REMOVE_FROM_GAME]<int(timer)+5) cr.TimeoutBase[TO_REMOVE_FROM_GAME]=__FullMinute+timer+5;
+		if(cr.Timeout[TO_REMOVE_FROM_GAME]<int(timer)+5*60) cr.TimeoutBase[TO_REMOVE_FROM_GAME]=__FullSecond+timer+5*60;
 	}
 	// Activate plastic explosion
 	else if(pid==PID_PLASTIC_EXPLOSIVES)
@@ -64,7 +64,7 @@ bool OnUseExplode(Critter& cr, Item& explode, Critter@ targetCr, Item@ targetIte
 		_ExplodeSetSwitch(expl,explSwitch);
 		_ExplodeSetOwner(expl,cr.Id);
 		expl.TrapValue=TRAPS_HIDE(cr.Skill[SK_TRAPS]);
-		_ExplodeSetBonusDamage(expl,trapsSkill);
+		_ExplodeSetBonusDamage(expl,Random(0, trapsSkill/10));
 		_ExplodeSetBonusRadius(expl,isExpert?1:0);
 
 		expl.Info+=2;
@@ -96,7 +96,7 @@ bool OnUseExplode(Critter& cr, Item& explode, Critter@ targetCr, Item@ targetIte
 		SETFLAG(mine.Flags,ITEM_TRAP);
 		_ExplodeSetOwner(mine,cr.Id);
 		mine.TrapValue=TRAPS_HIDE(cr.Skill[SK_TRAPS]);
-		_ExplodeSetBonusDamage(mine,trapsSkill);
+		_ExplodeSetBonusDamage(mine,Random(0, trapsSkill/10));
 		_ExplodeSetBonusRadius(mine,isExpert?1:0);
 		mine.SetScript("_ExplodeInit");
 	}
@@ -137,9 +137,9 @@ void _ExplodeInit(Item& item, bool firstTime)
 // Item walk event
 void _MineWalk(Item& mine, Critter& cr, bool entered, uint8 dir)
 {
-	if(entered)
+	if(entered && cr.Stat[ST_LOCOMOTION_TYPE]!=LOCOMOTION_FLY && (cr.Perk[PE_LIGHT_STEP]==0 || Random(0,1)==0))
 	{
-		if(cr.Perk[PE_LIGHT_STEP]==0 || Random(0,1)==0) CreateTimeEvent(__FullMinute,"e_Explode",mine,false);
+		CreateTimeEvent(__FullSecond,"e_Explode",mine,false);
 	}
 }
 
@@ -259,17 +259,15 @@ void _TimerMineInit(Item & mine, bool firstTime)
 void _TimerMineWalk(Item& mine, Critter& cr, bool entered, uint8 dir)
 {
 	// Cкопировано из _MineWalk
-	if(entered)
+	if(entered && cr.Stat[ST_LOCOMOTION_TYPE]!=LOCOMOTION_FLY && (cr.Perk[PE_LIGHT_STEP]==0 || Random(0,1)==0))
 	{
-		if(cr.Perk[PE_LIGHT_STEP]==0 || Random(0,1)==0)
+		CreateTimeEvent(__FullSecond,"e_Explode",mine,false);
+
+		// Respawn
+		if(mine.Val1>0)
 		{
-			CreateTimeEvent(__FullMinute,"e_Explode",mine,false);
-			// respawn
-			if(mine.Val1>0)
-			{
-				uint[] values = {mine.MapId, mine.HexX, mine.HexY, mine.GetProtoId() , mine.Val1, mine.Val2, mine.TrapValue, mine.Val3, mine.Val4}; // 9 элементов массива
-				CreateTimeEvent(__FullMinute + mine.Val1,"e_RespawnTimerMine",values,true);
-			}
+			uint[] values = {mine.MapId, mine.HexX, mine.HexY, mine.GetProtoId() , mine.Val1, mine.Val2, mine.TrapValue, mine.Val3, mine.Val4}; // 9 элементов массива
+			CreateTimeEvent(__FullSecond + mine.Val1 * 60,"e_RespawnTimerMine",values,true);
 		}
 	}
 }
@@ -325,7 +323,7 @@ bool _OnSkillTimerMine (Item& mine, Critter& cr, int skill)
 	if(mine.Val1>0)
 	{
 		uint[] values = {mine.MapId, mine.HexX, mine.HexY, mine.GetProtoId() , mine.Val1, mine.Val2, mine.TrapValue, mine.Val3, mine.Val4}; // 9 элементов массива
-		CreateTimeEvent(__FullMinute + mine.Val1 + Random(120, 240),"e_RespawnTimerMine",values,true);
+		CreateTimeEvent(__FullSecond + mine.Val1 * 60 + Random(120, 240) * 60,"e_RespawnTimerMine",values,true);
 	}
 
 	_SubItem(mine,1);

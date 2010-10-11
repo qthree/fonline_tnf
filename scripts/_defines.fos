@@ -13,7 +13,9 @@
 // To set start value use '=' after var name.
 // This vars works like engine global vars.
 // Also recommended use "__" prefix in var name.
-#pragma globalvar "int __MyGlobalVar = 100"
+//#pragma globalvar "int __MyGlobalVar = 100"
+//#pragma globalvar "bool __MainStoryLineActive = false"
+//#pragma globalvar "uint __PermanentDeath = 0" // Number of deaths to account blocking, zero to disable
 
 // Say types
 #define SAY_NORM                    (1)
@@ -49,7 +51,8 @@
 #define TEXTMSG_QUEST               (6)
 #define TEXTMSG_HOLO                (7)
 #define TEXTMSG_CRAFT               (8)
-#define DLGSTR #(dialogId,strNum)   (100000000+(dialogId)*100000+(strNum))
+#define TEXTMSG_INTERNAL            (9)
+#define DLGSTR #(dialogId,strNum)   (1000000000+(dialogId)*100000+(strNum))
 
 // Critter conditions
 #define COND_LIFE                   (1) // Криттер жив
@@ -93,7 +96,7 @@
 #define ITEM_WEAPON                 (3)
 #define ITEM_AMMO                   (4)
 #define ITEM_MISC                   (5)
-#define ITEM_MISC2                  (6)
+#define ITEM_MISC_EX                (6)
 #define ITEM_KEY                    (7)
 #define ITEM_CONTAINER              (8)
 #define ITEM_DOOR                   (9)
@@ -124,11 +127,14 @@
 #define ITEM_NO_LOOT                (0x00080000)
 #define ITEM_NO_STEAL               (0x00100000)
 #define ITEM_GAG                    (0x00200000)
+#define ITEM_COLORIZE               (0x00400000)
+#define ITEM_COLORIZE_INV           (0x00800000)
 #define ITEM_CAN_USE_ON_SMTH        (0x01000000)
 #define ITEM_CAN_LOOK               (0x02000000)
 #define ITEM_CAN_TALK               (0x04000000)
 #define ITEM_CAN_PICKUP             (0x08000000)
 #define ITEM_CAN_USE                (0x10000000)
+#define ITEM_CACHED                 (0x80000000)
 
 // Damage types
 #define DAMAGE_UNCALLED             (0)
@@ -231,6 +237,21 @@
 #define ARMOR_PERK_ADVANCED_I         (3) // +4 strength, +60 radiation resist
 #define ARMOR_PERK_ADVANCED_II        (4) // +4 strength, +75 radiation resist
 #define ARMOR_PERK_CHARISMA           (5) // 1+ charisma
+#define ARMOR_PERK_LEATHER_ARMOR      (6)
+#define ARMOR_PERK_LEATHER_ARMOR_MK_II (7)
+#define ARMOR_PERK_CURED_LEATHER_ARMOR      (8)
+#define ARMOR_PERK_CURED_LEATHER_ARMOR_MK_II (9)
+#define ARMOR_PERK_METAL_ARMOR	  (10)
+#define ARMOR_PERK_METAL_ARMOR_MK_II  (11)
+#define ARMOR_PERK_TESLA_ARMOR	  (12)
+#define ARMOR_PERK_COMBAT_ARMOR_MK_II (13)
+#define ARMOR_PERK_BROTHERHOOD_COMBAT_ARMOR (14)
+#define ARMOR_PERK_MIRELURK_ARMOR	  (15)
+#define ARMOR_PERK_POWERED_II		  (16)
+#define ARMOR_PERK_PURPLE_ROBE	  (17)
+#define ARMOR_PERK_KEEPBRIGE_ROBE	  (18)
+#define ARMOR_PERK_BLACK_ROBE	 	  (19)
+#define ARMOR_PERK_SANDROBE		  (20)
 #define SLOT_PERK_MIRROR_SHADES       (0x01) // +1 charisma
 #define SLOT_PERK_COSMETIC_CASE       (0x02) // +1 charisma to female
 #define SLOT_PERK_MOTION_SENSOR       (0x04) // +20 outdoorsman
@@ -263,6 +284,7 @@
 #define ACTION_BARTER               (13) //   s      0 - item taken, 1 - item given                                 +
 #define ACTION_DODGE                (14) //          0 - front, 1 - back
 #define ACTION_DAMAGE               (15) //          0 - front, 1 - back
+#define ACTION_DAMAGE_FORCE			(24) //          0 - front, 1 - back
 #define ACTION_KNOCKOUT             (16) //   s      0 - front, 1 - back
 #define ACTION_STANDUP              (17) //   s
 #define ACTION_FIDGET               (18) // l
@@ -278,6 +300,20 @@
 #define SLOT_HAND2                  (2) // Extended slot
 #define SLOT_ARMOR                  (3) // Armor slot
 #define SLOT_GROUND                 (255) // Ground slot, used when critter drop/pick item
+
+// Critter timeevents identifiers
+#define CTE_POISON                  (1)
+#define CTE_RADIATION               (2)
+#define CTE_TRADER                  (3)
+#define CTE_OBSERVING               (4)
+#define CTE_AUTOKILL                (5)
+#define CTE_MUTATION                (7)
+#define CTE_HAIR_GROW               (8)
+#define CTE_WARNING                 (9)
+#define CTE_SLOWRELOAD              (10)
+#define CTE_CHOOSESKIN				(11)
+#define CTE_DELETECORPSE            (12)
+// Drugs time events                40 (PID_STIMPAK) .. 1000
 
 // Parameters
 	/// Stats
@@ -351,10 +387,11 @@
 #define ST_EXPLODE_RESIST_EXT       (61)
 #define ST_RADIATION_RESISTANCE_EXT (62)
 #define ST_POISON_RESISTANCE_EXT    (63) // Used in engine ---
-// 64..65
+#define ST_TOXIC                    (64)
+#define ST_RADIOACTIVE              (65)
 #define ST_KILL_EXPERIENCE          (66)
 #define ST_BODY_TYPE                (67)
-#define ST_LOCOMOTION_TYPE          (68)
+#define ST_LOCOMOTION_TYPE          (68) // See Locomotion types
 #define ST_DAMAGE_TYPE              (69)
 #define ST_AGE                      (70) // Used in engine
 #define ST_GENDER                   (71) // Used in engine
@@ -396,19 +433,29 @@
 #define ST_BAG_ID                   (107) // Used in engine
 #define ST_LAST_STEAL_CR_ID         (108)
 #define ST_STEAL_COUNT              (109)
-#define ST_LAST_WEAPON_ID           (110)
+#define ST_LAST_WEAPON_ID           (110) // Used in engine
 #define ST_LAST_WEAPON_USE          (111)
 #define ST_BASE_CRTYPE              (112) // Used in engine
 #define ST_DEAD_BLOCKER_ID          (113)
 #define ST_CURRENT_ARMOR_PERK       (114)
 #define ST_TALK_DISTANCE            (115) // Used in engine; if zero than taked __TalkDistance
-// 116..150
+#define ST_SCALE_FACTOR             (116) // Used in engine
+
+#define ST_LAST_DOOR		    (117)
+#define ST_PLAYER_TEAM		    (118) //tnf pvp
+#define ST_PLAYER_POINTS	    (119) //tnf pvp
+
+// 117..149
 	// Initial values of animation 3d layers
 #define ST_ANIM3D_LAYERS            (150)
 // 150..179 reserved for 30 layers
 // 182..199
 #define ST_PARALYSIS_LEVEL          (180) //Уровень паралича. TabaK
 #define ST_WARNINGS      		    (181) //Количество предупреждений. TabaK
+#define HANDCUFFS					(182) //Параметры наручников. TabaK
+#define ST_MUTATION					(183) //Уровень мутации. TabaK.
+#define ARCADE_MODE                 (184) //Аркадный режим.
+#define LAST_ATTACKED				(185) // Id последнего атакованного игрока.
 
 
 	/// Skills
@@ -445,7 +492,7 @@
 #define TAG_SKILL4                  (229) // Used in engine
 
 	/// Timeouts
-#pragma crdata "Timeout 230 249"
+#pragma crdata "Timeout 230 251"
 #define TIMEOUT_BEGIN              (__TimeoutBegin)
 #define TIMEOUT_END                (__TimeoutEnd)
 #define TIMEOUT_COUNT              (TIMEOUT_END-TIMEOUT_BEGIN+1)
@@ -465,15 +512,17 @@
 // 244..247
 #define TO_STEALING                 (248)
 #define TO_AGGRESSOR                (249)
-// 250..259
+#define TO_HAIR_GROW                (250)
+#define TO_SAY                      (251)
+// 252..259
 
 	/// Kills
-#pragma crdata "Kill 260 278"
-// Reserved 260..299 (BT_MEN..BT_BIG_BAD_BOSS)
+#pragma crdata "Kill 260 280"
+// Reserved 260..299 (BT_MEN..BT_GIANT_WASP)
 #define KILL_BEGIN                 (__KillBegin)
 #define KILL_END                   (__KillEnd)
 #define KILL_COUNT                 (KILL_END-KILL_BEGIN+1)
-// 279..299
+// 281..299
 
 	/// Perks
 #pragma crdata "Perk 300 469"
@@ -588,7 +637,11 @@
 #define PE_NCR_ENDURANCE            (437)
 #define PE_NCR_BARTER               (438)
 #define PE_NCR_REPAIR               (439)
-// 440..469
+#define PE_COWBOY                   (440) //cs
+#define PE_ENERGY_MANIAC	      (441) //cs
+#define PE_AMMO_MASTER			(442) //cs
+#define PE_FIELD_DOCTOR			(443) //cs
+// 441..469
 
 	/// Addictions
 #pragma crdata "Addiction 470 476"
@@ -663,7 +716,7 @@
 #define MODE_NO_LOOSE_LIMBS         (524) // Не может терять конечности
 #define MODE_DEAD_AGES              (525) // Мёртвое тело не исчезает
 #define MODE_NO_HEAL                (526) // Повреждения не излечиваются с течением времени         Used in engine
-#define MODE_INVULNERABLE           (527) // Неуязвимый
+#define MODE_INVULNERABLE           (527) // Неуязвимый                                             Used in engine
 #define MODE_NO_FLATTEN             (528) // Не помещать труп на задний план после смерти           Used in engine
 #define MODE_SPECIAL_DEAD           (529) // Есть особый вид смерти
 #define MODE_RANGE_HTH              (530) // Возможна рукопашная атака на расстоянии                Used in engine
@@ -698,6 +751,7 @@
 #define TRAIT_SKILLED               (564)
 #define TRAIT_NIGHT_PERSON          (565) // Used in engine
 //#define TRAIT_GIFTED                (566)
+#define TRAIT_MACHINE_GUNNER		(567)
 // 17..19
 
 	/// Reputation
@@ -790,9 +844,8 @@
 #define REASON_TARGET_DISAPPEARED   (39)
 #define REASON_USE_ITEM_NOT_FOUND   (40)
 #define REASON_GAG_CRITTER          (41)
-#define REASON_GAG_DOOR             (42)
-#define REASON_GAG_ITEM             (43)
-#define REASON_NO_UNARMED           (44)
+#define REASON_GAG_ITEM             (42)
+#define REASON_NO_UNARMED           (43)
 	// Run
 #define REASON_ATTACK_TARGET        (50)
 #define REASON_ATTACK_WEAPON        (51)
@@ -800,7 +853,7 @@
 #define REASON_ATTACK_USE_AIM       (53)
 
 // Locker
-#define LOCKER_ISOPEN               (0x01)
+#define LOCKER_ISOPEN               (0x01) // Used in engine
 #define LOCKER_LOCKED               (0x02)
 #define LOCKER_JAMMED               (0x04)
 #define LOCKER_BROKEN               (0x08)
@@ -812,18 +865,23 @@
 #define TIMER_MAX_VALUE             (599)
 
 // Timeouts in real seconds, generic values
-#define FIRST_AID_TIMEOUT #(cr)     (__FullMinute+(__TimeMultiplier*100/(((cr.Skill[SK_FIRST_AID])>3?cr.Skill[SK_FIRST_AID]:3)*100/MAX_SKILL_VAL))) // Orig 3 time on day, 5 min - sk
-#define DOCTOR_TIMEOUT #(cr)        (__FullMinute+(__TimeMultiplier*100/(((cr.Skill[SK_DOCTOR])>3?cr.Skill[SK_DOCTOR]:3)*100/MAX_SKILL_VAL)*3)) // Orig 1 time on day, 20 min - sk
-#define REPAIR_TIMEOUT #(cr)        (__FullMinute+(__TimeMultiplier)) // Orig 4 time on day, 1 min
-#define SCIENCE_TIMEOUT #(cr)       (__FullMinute+(__TimeMultiplier)) // Orig 6 time on day, 1 min
-#define LOCKPICK_TIMEOUT #(cr)      (__FullMinute+(__TimeMultiplier*2)) // Orig 15 minutes, 2 min
-#define STEAL_TIMEOUT #(cr)         (__FullMinute+(__TimeMultiplier*2)) // 2 minutes
-#define TRANSFER_TIMEOUT #(cr)      (__FullMinute+(__TimeoutTransfer))
-#define BATTLE_TIMEOUT #(cr)        (__FullMinute+(__TimeoutBattle))
-#define TRAPS_TIMEOUT #(cr)         (__FullMinute+(__TimeMultiplier))
-#define SNEAK_TIMEOUT #(cr)         (__FullMinute+(34-cr.Stat[ST_SEQUENCE])/3) // 34 second - sequence, for _TimeMultiplier == 20
-#define IS_TURN_BASED_TIMEOUT #(cr) (cr.Timeout[TO_BATTLE]>100000)
-#define MAXIMUM_TIMEOUT             (6000) // Doctor timeout with min skill
+//Roleplay
+//binyan: timeout to hotkey say
+#define SAY_TIMEOUT                 (__FullSecond+REAL_SECOND(3))
+#define FIRST_AID_TIMEOUT #(cr)     (__FullSecond+(__TimeMultiplier*100/(((cr.Skill[SK_FIRST_AID])>3?cr.Skill[SK_FIRST_AID]:3)*100/MAX_SKILL_VAL))*60) // Orig 3 time on day, 5 min - sk
+#define DOCTOR_TIMEOUT #(cr)        (__FullSecond+(__TimeMultiplier*100/(((cr.Skill[SK_DOCTOR])>3?cr.Skill[SK_DOCTOR]:3)*100/MAX_SKILL_VAL)*3)*60) // Orig 1 time on day, 20 min - sk
+#define FIELD_DOCTOR_TIMEOUT #(cr)     (__FullSecond+REAL_SECOND(15))
+//#define DOCTOR_TIMEOUT #(cr)        (__FullSecond+REAL_SECOND(30))
+#define REPAIR_TIMEOUT #(cr)        (__FullSecond+REAL_SECOND(20)) // Orig 4 time on day, 1 min
+#define SCIENCE_TIMEOUT #(cr)       (__FullSecond+REAL_SECOND(20)) // Orig 6 time on day, 1 min
+#define LOCKPICK_TIMEOUT #(cr)      (__FullSecond+REAL_SECOND(30)) // Orig 15 minutes, 2 min
+#define STEAL_TIMEOUT #(cr)         (__FullSecond+REAL_MINUTE(1)) // 2 minutes
+#define TRANSFER_TIMEOUT #(cr)      (__FullSecond+__TimeoutTransfer)
+#define BATTLE_TIMEOUT #(cr)  (__FullSecond+MAX(__TimeoutBattle-REAL_SECOND(cr.Stat[ST_ARMOR_CLASS]),int(REAL_SECOND(12))))
+#define TRAPS_TIMEOUT #(cr)         (__FullSecond+REAL_SECOND(30))
+#define SNEAK_TIMEOUT #(cr)         (__FullSecond+REAL_SECOND(MAX(34-cr.Stat[ST_SEQUENCE],3))) // 34 second - sequence
+#define IS_TURN_BASED_TIMEOUT #(cr) (cr.Timeout[TO_BATTLE]>10000000)
+#define MAXIMUM_TIMEOUT             (REAL_HOUR(5)) // Doctor timeout with min skill
 
 // Transfer types
 #define TRANSFER_CLOSE              (0)
@@ -873,6 +931,7 @@
 
 // Car flags
 #define CAR_BIO_ENGINE              (0x0001)
+#define CAR_NO_LOCKPICK             (0x0002)
 
 // Body types
 #define BT_MEN                      (0)
@@ -894,12 +953,15 @@
 #define BT_ALIEN                    (16)
 #define BT_GIANT_ANT                (17)
 #define BT_BIG_BAD_BOSS             (18)
-#define MAX_BODY_TYPES              (19)
+#define BT_GIANT_BEETLE             (19)
+#define BT_GIANT_WASP               (20)
+#define MAX_BODY_TYPES              (21)
 
 // Locomotion types
 #define LOCOMOTION_BIPED            (0)
 #define LOCOMOTION_QUADRUPED        (1)
 #define LOCOMOTION_ROBOTIC          (2)
+#define LOCOMOTION_FLY              (3)
 
 // Other
 #define FLUSH_SCREEN_DEFAULT        (1000) // Flush screen time
@@ -1051,6 +1113,7 @@
 #define SKILL_TAKE_ALL_CONT        (-4)
 #define SKILL_LOOT_CRITTER         (-5)
 #define SKILL_PUSH_CRITTER         (-6)
+#define SKILL_TALK                 (-7)
 
 // Look checks
 #define LOOK_CHECK_DIR              (0x01) // Nerfe look by directions of look
@@ -1060,15 +1123,18 @@
 #define LOOK_CHECK_SCRIPT           (0x10) // Allow bool check_look(...) in main.fos, all other defines ignored
 
 // Critter base types
-#define CRTYPE_DEFAULT_M            (CRTYPE_DW_JUMPSUIT_M) // Before CRTYPE_VAULT_M
+#define CRTYPE_DEFAULT_M            (CRTYPE_LHD_JUMPSUIT) // Before CRTYPE_VAULT_M
 #define CRTYPE_DEFAULT_F            (CRTYPE_DW_JUMPSUIT_F)
 #define CRTYPE_NONE                 (0) // Used with ST_BASE_CRTYPE as default
 	// Dweller
 #define CRTYPE_DW_JUMPSUIT_M        (11)
 #define CRTYPE_DW_JUMPSUIT_F        (4)
+#define CRTYPE_DW_LEATHER_JACKET_F  (6)
 #define CRTYPE_DW_LEATHER_ARMOR_M   (12)
 #define CRTYPE_DW_LEATHER_JACKET_M  (13)
 #define CRTYPE_DW_METAL_ARMOR_M     (14)
+#define CRTYPE_DW_TRIBAL_F          (63)
+#define CRTYPE_DW_TRIBAL_M          (64)
 	// Vault citizen
 #define CRTYPE_VAULT_M              (69)
 #define CRTYPE_VAULT_F              (74)
@@ -1078,6 +1144,12 @@
 #define CRTYPE_LHD_LEATHER_JACKET   (108)
 #define CRTYPE_LHD_METAL_ARMOR      (109)
 #define CRTYPE_LHD_TRIBAL           (110)
+	//Bald dude
+#define CRTYPE_BLD_JUMPSUIT         (116)
+#define CRTYPE_BLD_LEATHER_ARMOR    (117)
+#define CRTYPE_BLD_LEATHER_JACKET   (118)
+#define CRTYPE_BLD_METAL_ARMOR      (119)
+#define CRTYPE_BLD_TRIBAL           (120)
 
 // Global map events
 #define GLOBAL_PROCESS_MOVE         (0)
@@ -1114,19 +1186,35 @@
 #define AS_SCRIPT_SCANNER               (11) // 0
 #define AS_INCLUDE_JIT_INSTRUCTIONS     (12) // false
 #define AS_STRING_ENCODING              (13) // 0 (ascii)
+#define AS_PROPERTY_ACCESSOR_MODE       (14) // 0 disable, 1 app registered only, 2 app and script created (default)
 
+// Item data masks
+#define ITEM_DATA_MASK_CHOSEN       (0)
+#define ITEM_DATA_MASK_CRITTER      (1)
+#define ITEM_DATA_MASK_CRITTER_EXT  (2)
+#define ITEM_DATA_MASK_CONTAINER    (3)
+#define ITEM_DATA_MASK_MAP          (4)
 
-// FOnline Roleplay Activation #qthree
+// FOnline Roleplay
+
+//Бонусы от вторичных навыков при стрельбе.
+#define SECONDARY_SKILLS_BONUS_CAP		(125)
+
+// Activation #qthree
 
 #define ACT_DEACT  (0)
 #define ACT_CODE  (1)
 #define ACT_GM  (2)
 #define ACT_BLOCK  (3)
+#define ACT_DEAD   (4)
 
 #endif // __DEFINES__
 
-
-
+// Яйца и матки аркадников. Пошло звучит мля =/
+#define TEAM_DEATHCLAW_METRA          (38)
+#define TEAM_ALIEN_METRA              (39)
+#define TEAM_FIREGECKO_METRA          (40)
+#define TEAM_CENTAUR_METRA            (41)
 
 
 

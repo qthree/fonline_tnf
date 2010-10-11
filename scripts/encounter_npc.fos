@@ -4,11 +4,12 @@
 #include "_animation.fos"
 
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target, bool run) from "npc_planes";
-import bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint8 cut) from "npc_planes";
+import bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";
 import void SetWear(Item& item, int wearProcent) from "repair";
 
 #define MESSAGE_COLLECT_NPC     (30)
 #define MESSAGE_ATTACK_HIM      (31)
+#define MESSAGE_ATTACK_ME       (32)
 #define PLANE_LOOT              (30)
 
 uint LastDeadId=0;
@@ -103,21 +104,24 @@ void _NpcSmthDropItem(Critter& npc, Critter& fromCr, Item& item)
 	}
 }
 
-
 void _NpcMessage(Critter& npc, Critter& fromCr, int message, int value)
 {
-	if(message==MESSAGE_COLLECT_NPC && not npc.IsDead()) push_back_handle(CollectedNpc,npc);
-
-	if(message==MESSAGE_ATTACK_HIM)
+	if(message==MESSAGE_COLLECT_NPC)
 	{
-		if(fromCr.Stat[ST_TEAM_ID]==npc.Stat[ST_TEAM_ID]&&npc.IsLife())
+		if(not npc.IsDead()) push_back_handle(CollectedNpc,npc);
+	}
+	else if(message==MESSAGE_ATTACK_HIM)
+	{
+		if(fromCr.Stat[ST_TEAM_ID]==npc.Stat[ST_TEAM_ID] && npc.IsLife())
 		{
-			Critter @ target = GetCritter(value);
-			if(valid(target))
-			{
-				AddAttackPlane(npc, 0, target,__RunOnCombat);
-			}
+			Critter@ target=GetCritter(value);
+			if(valid(target)) AddAttackPlane(npc,0,target,__RunOnCombat);
 		}
+	}
+	else if(message==MESSAGE_ATTACK_ME)
+	{
+		Critter@ target=GetCritter(value);
+		if(valid(target)) AddAttackPlane(npc,0,target,__RunOnCombat);
 	}
 }
 

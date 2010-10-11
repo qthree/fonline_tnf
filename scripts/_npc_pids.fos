@@ -90,6 +90,8 @@
 #define NPC_PID_Alien                       (242)
 #define NPC_PID_ToughAlien                  (243)
 
+#define NPC_PID_SmDeathclaw                 (7)
+#define NPC_PID_Deathclaw                   (8)
 #define NPC_PID_SmToughDeathclaw            (244)
 #define NPC_PID_ToughDeathclaw              (245)
 
@@ -162,6 +164,13 @@
 #define NPC_PID_MirelurkWeak                (487) // Болотник ядовитый
 #define NPC_PID_MirelurkTough               (488) // Болотник прочный (PE_SLAYER, PE_BETTER_CRITICALS)
 #define NPC_PID_Ball                        (490) //Мячик
+
+#define NPC_PID_CaveRobber_male_1           (499) // Рандомные бандиты в пещерах
+#define NPC_PID_CaveRobber_female_1         (500)
+#define NPC_PID_CaveRobber_male_2           (501)
+#define NPC_PID_CaveRobber_female_2         (502)
+#define NPC_PID_CaveRobber_male_3           (503)
+#define NPC_PID_CaveRobber_female_3         (504)
 
 /*const uint16[] Pids_AllNpc={
 	NPC_PID_SmallSilverGecko,NPC_PID_ToughSilverGecko,NPC_PID_GoldenGecko,NPC_PID_ToughGoldenGecko,NPC_PID_FireGecko,NPC_PID_ToughFireGecko,

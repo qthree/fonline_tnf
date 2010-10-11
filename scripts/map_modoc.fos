@@ -4,9 +4,41 @@
 #define ENTRANCE_SOUTH     (0)
 #define ENTRANCE_NORTH     (1)
 
+import uint EraseAttackPlane(Critter& npc, Critter& target) from "npc_planes";
+
+void _MapInit(Map& map, bool firstTime)
+{
+map.SetEvent(MAP_EVENT_OUT_CRITTER, "_imLeaving");
+}
+
 bool entrance_Modoc(Critter@[]& critters, uint8 entrance)
 {
 	Critter@ leader=critters[0];
 	if(entrance==ENTRANCE_NORTH) return leader.Skill[SK_OUTDOORSMAN]>=50;
 	return true;
 }
+
+void _imLeaving(Map& map, Critter& cr)
+{
+Critter@ [] crits;
+uint npcCount = map.GetCritters(0, FIND_LIFE, crits);
+uint stop=0;
+	while(stop!=npcCount)
+	{
+		if(crits[stop].IsNpc() && crits[stop].Stat[ST_TEAM_ID]==5 && crits[stop].CheckEnemyInStack(cr.Id)) 
+		{
+		crits[stop].EraseEnemyFromStack(cr.Id);
+		EraseAttackPlane(crits[stop], cr);
+		}
+		stop++;
+	}
+}
+
+
+
+
+
+
+
+
+

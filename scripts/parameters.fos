@@ -1,4 +1,4 @@
-// Auhtor: cvet
+// Author: cvet
 #include "_macros.fos"
 
 #ifdef __CLIENT
@@ -78,8 +78,9 @@ void _StatExperienceChanged(Critter& cr, uint, int oldValue)
 				//if(cr.Trait[TRAIT_GIFTED]!=0) cr.StatBase[ST_UNSPENT_SKILL_POINTS]-=5; // Gifted trait
 				cr.StatBase[ST_UNSPENT_SKILL_POINTS]+=cr.Perk[PE_EDUCATED]*2; // Educated perk
 				if(cr.StatBase[ST_UNSPENT_SKILL_POINTS]>99) cr.StatBase[ST_UNSPENT_SKILL_POINTS]=99; // Clamp skill points
-				//cr.StatBase[ST_MAX_LIFE]+=2+cr.StatBase[ST_ENDURANCE]/2+cr.Perk[PE_LIFEGIVER]*4; // Add max hp //Roleplay
-				//Прирост ХП за уровень убран
+				//cr.StatBase[ST_MAX_LIFE]+=2+cr.StatBase[ST_ENDURANCE]/2+cr.Perk[PE_LIFEGIVER]*4; // Add max hp 
+				cr.StatBase[ST_MAX_LIFE]+=2+cr.Perk[PE_LIFEGIVER]*4; // qthree for combat system
+				
 
 				if((level%perkUp)==0)
 				{
@@ -101,8 +102,8 @@ int _SkillGet(Critter& cr, uint skill)
 int _TimeoutGet(Critter& cr, uint timeout)
 {
 	uint to=uint(cr.ParamBase[timeout]);
-	if(__FullMinute>=to) return 0;
-	return to-__FullMinute;
+	if(__FullSecond>=to) return 0;
+	return to-__FullSecond;
 }
 
 #ifndef __CLIENT
@@ -162,9 +163,14 @@ void _GoodEvilListChanged(CritterCl& chosen, uint index, int oldValue)
 int GetStrength(Critter& cr)
 {
 	int val=cr.StatBase[ST_STRENGTH]+cr.StatBase[ST_STRENGTH_EXT];
+
+//	if(cr.Perk[PE_ADRENALINE_RUSH]!=0 && cr.Timeout[TO_BATTLE]!=0
+//	&& cr.StatBase[ST_CURRENT_HP]<=(cr.StatBase[ST_MAX_LIFE]+cr.StatBase[ST_STRENGTH]+cr.StatBase[ST_ENDURANCE]*2)/2) val++;
+
+//qthree for combat system
 	if(cr.Perk[PE_ADRENALINE_RUSH]!=0 && cr.Timeout[TO_BATTLE]!=0
-	&& cr.StatBase[ST_CURRENT_HP]<=(cr.StatBase[ST_MAX_LIFE]+cr.StatBase[ST_STRENGTH]+cr.StatBase[ST_ENDURANCE]*2+LIFEBONUS)/2) val++; //Roleplay
-	//Вероятный багфикс перка.
+	&& cr.StatBase[ST_CURRENT_HP]<=(cr.StatBase[ST_MAX_LIFE]+cr.StatBase[ST_ENDURANCE]*22)/2) val++;
+
 	return CLAMP(val,1,10);
 }
 
@@ -208,7 +214,8 @@ int GetLuck(Critter& cr)
 
 int GetMaxLife(Critter& cr)
 {
-	int val=cr.StatBase[ST_MAX_LIFE]+cr.StatBase[ST_MAX_LIFE_EXT]+cr.StatBase[ST_STRENGTH]+cr.StatBase[ST_ENDURANCE]*2+LIFEBONUS; //Roleplay
+	int val=cr.StatBase[ST_MAX_LIFE]+cr.StatBase[ST_MAX_LIFE_EXT]+cr.StatBase[ST_ENDURANCE]*22; //qthree for combat system
+	//int val=cr.StatBase[ST_MAX_LIFE]+cr.StatBase[ST_MAX_LIFE_EXT]+cr.StatBase[ST_STRENGTH]+cr.StatBase[ST_ENDURANCE]*2;
 	return CLAMP(val,1,9999);
 }
 
@@ -220,7 +227,7 @@ int GetMaxAp(Critter& cr)
 
 int GetAc(Critter& cr)
 {
-	int val=cr.StatBase[ST_ARMOR_CLASS]+cr.StatBase[ST_ARMOR_CLASS_EXT]+cr.Stat[ST_AGILITY];
+	int val=cr.StatBase[ST_ARMOR_CLASS]+cr.StatBase[ST_ARMOR_CLASS_EXT]+cr.Stat[ST_AGILITY]+cr.StatBase[ST_TURN_BASED_AC];
 	Item@ armor=cr.GetItem(0,SLOT_ARMOR);
 	if(valid(armor))
 	{
@@ -427,9 +434,9 @@ void CritterGenerate(int[]& data) // Export to client_main@player_data_generate
 	_param_[SK_GAMBLING]+=0+5*_param_[ST_LUCK];
 	_param_[SK_OUTDOORSMAN]+=0+2*(_param_[ST_ENDURANCE]+_param_[ST_INTELLECT]);
 
-	if(_param_[TAG_SKILL1]!=0) _param_[_param_[TAG_SKILL1]]+=30; //Roleplay
-	if(_param_[TAG_SKILL2]!=0) _param_[_param_[TAG_SKILL2]]+=30; //Roleplay
-	if(_param_[TAG_SKILL3]!=0) _param_[_param_[TAG_SKILL3]]+=30; //Roleplay
+	if(_param_[TAG_SKILL1]!=0) _param_[_param_[TAG_SKILL1]]+=20; 
+	if(_param_[TAG_SKILL2]!=0) _param_[_param_[TAG_SKILL2]]+=20; 
+	if(_param_[TAG_SKILL3]!=0) _param_[_param_[TAG_SKILL3]]+=20; 
 
 	if(_param_[TRAIT_FAST_METABOLISM]!=0)
 	{
@@ -450,7 +457,8 @@ void CritterGenerate(int[]& data) // Export to client_main@player_data_generate
 #ifdef __CLIENT
 	// Runtime calculations, only for client registration
 	_param_[ST_ARMOR_CLASS]+=_param_[ST_AGILITY];
-	_param_[ST_MAX_LIFE]+=_param_[ST_STRENGTH]+_param_[ST_ENDURANCE]*2; //Roleplay
+//	_param_[ST_MAX_LIFE]+=_param_[ST_STRENGTH]+_param_[ST_ENDURANCE]*2; //Roleplay
+	_param_[ST_MAX_LIFE]+=_param_[ST_ENDURANCE]*22; //qthree for combat system
 	_param_[ST_ACTION_POINTS]+=_param_[ST_AGILITY]/2;
 	_param_[ST_CARRY_WEIGHT]+=LBS_TO_GRAMM(25+_param_[ST_STRENGTH]*(25-_param_[TRAIT_SMALL_FRAME]*10));
 	_param_[ST_MELEE_DAMAGE]+=(_param_[ST_STRENGTH]>6?_param_[ST_STRENGTH]-5:1);
@@ -461,14 +469,14 @@ void CritterGenerate(int[]& data) // Export to client_main@player_data_generate
 	_param_[ST_CRITICAL_CHANCE]+=_param_[ST_LUCK];
 #endif
 
-	_param_[ST_MAX_LIFE]+=LIFEBONUS; //Roleplay
+	//_param_[ST_MAX_LIFE]+=15; //qthree for combat system
 	_param_[ST_ACTION_POINTS]+=5;
 	_param_[ST_CURRENT_HP]=_param_[ST_MAX_LIFE];
 	_param_[ST_CURRENT_AP]=_param_[ST_ACTION_POINTS]*100;
 }
 
 #ifdef __CLIENT
-#include "MsgStr.h"
+#include "_msgstr.fos"
 // Check valid of input data
 bool CritterGenerateCheck(int[]& data) // Export to client_main@player_data_check
 {

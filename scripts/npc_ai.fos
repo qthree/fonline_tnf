@@ -1,6 +1,6 @@
 #include "_ai.fos"
 #include "_defines.fos"
-#include "ITEMPID.H"
+#include "_itempid.fos"
 
 // AI data offsets
 #define AI_AGGRESSION #(ai)         AIData_[(((ai)<AIPACKET_COUNT?(ai):0)*22+0)]

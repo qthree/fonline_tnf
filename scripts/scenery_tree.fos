@@ -35,7 +35,7 @@ bool UseAxeOnTree(Critter@ cr, Scenery@ tree) // Если обрабатывать по умолчанию,
 // Получение всех чисел для расчета.
 	uint8 randNum_tree = (tree.HexX*tree.HexY)% 100 + 1;
 	uint8 randNum_crit = cr.Id			% 100 + 1;
-	uint8 randNum_time = (__FullMinute/10)	% 100 + 1;
+	uint8 randNum_time = (__FullSecond/10)	% 100 + 1;
 	uint8 randNum      = (randNum_tree*randNum_crit*randNum_time) % 100;
 	uint8 crLuck       = cr.Stat[ST_LUCK];
 // Штраф на вероятность успеха при повреждени глаз.
@@ -56,14 +56,14 @@ bool UseAxeOnTree(Critter@ cr, Scenery@ tree) // Если обрабатывать по умолчанию,
 		if (valid(axeLastTime)) axeLastTime_value = axeLastTime.GetValue();
 			else Log("LVAR_scenery_axe_lasttime is not valid.");
 		// С момента последнего использования прошло недостаточно времени.
-		if (axeLastTime_value > __FullMinute-4+cr.Stat[ST_ENDURANCE]/3)
+		if (axeLastTime_value > __FullSecond-REAL_SECOND(15-cr.Stat[ST_ENDURANCE]))
 		{
 			cr.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, 2201);
 //____________________________
 			return true;
 		}
 		// Запоминание текущего времени.
-		if (valid(axeLastTime)) axeLastTime = __FullMinute;
+		if (valid(axeLastTime)) axeLastTime = __FullSecond;
 	// Есть небольшой шанс повредить руку.
 		if (!damArmL && !damArmR && Random(1, crLuck*20 + (CLAMP(cr.Stat[ST_AGILITY], 4, 10)-4)*10)==1)
 		{

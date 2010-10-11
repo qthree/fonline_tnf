@@ -81,6 +81,11 @@ void react(Critter& player, int playerId, int param1, int param2)
 	setActivation((playerId==0)?player.Id:playerId, ACT_GM, player, null, true);
 }
 
+void redeact(Critter& player, int playerId, int param1, int param2)
+{
+	setActivation((playerId==0)?player.Id:playerId, ACT_DEACT, player, null, true);
+}
+
 void act_login(Critter& player, int playerId, int param1, int param2)
 {
 	player.ShowScreen(SCREEN_CLOSE,0,"");

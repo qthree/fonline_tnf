@@ -5,6 +5,10 @@
 // import void DropRadiation(Critter& cr) from "radiation";
 
 #include "_macros.fos"
+import bool IsHuman(Critter& cr) from "races";
+import bool IsMutant(Critter& cr) from "races";
+import bool IsGhoul(Critter& cr) from "races";
+import void ApplyGhoul(Critter& cr) from "morphes";
 
 #define RADIATION_IDENTIFIER       (2)
 #define RADIATION_STAGES           (6)
@@ -38,9 +42,17 @@ const int[] RadiationEffects={
 
 void AffectRadiation(Critter& cr, int value) // Export
 {
+	int body=cr.Stat[ST_BASE_CRTYPE];
 	if(cr.IsDead()) return;
+	
 	if(cr.Stat[ST_BODY_TYPE]==BT_ROBOT || cr.Stat[ST_BODY_TYPE]==BT_ALIEN) return;
-
+	
+	if(IsGhoul(cr) || IsMutant(cr))
+	{
+	cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,Random(12961,12964));
+	return;
+	}
+	
 	uint[] indexes;
 	uint[] rates;
 	bool isActive=cr.GetTimeEvents(RADIATION_IDENTIFIER,indexes,null,rates)!=0;
@@ -50,6 +62,19 @@ void AffectRadiation(Critter& cr, int value) // Export
 	if(value>=0) value-=value*resistVal/100;
 	cr.StatBase[ST_RADIATION_LEVEL]=CLAMP(levelVal+value,0,2000);
 	levelVal=cr.Stat[ST_RADIATION_LEVEL];
+	
+	if(cr.Stat[ST_RADIATION_LEVEL]>450 && (body==0 || body==CRTYPE_DW_JUMPSUIT_M || body==CRTYPE_LHD_JUMPSUIT))
+	{
+		int crType=cr.CrType;
+		cr.StatBase[ST_BASE_CRTYPE]=CRTYPE_BLD_JUMPSUIT;
+		if(crType==CRTYPE_LHD_LEATHER_ARMOR) crType=CRTYPE_BLD_LEATHER_ARMOR;
+		else if(crType==CRTYPE_LHD_LEATHER_JACKET) crType=CRTYPE_BLD_LEATHER_JACKET;
+		else if(crType==CRTYPE_LHD_METAL_ARMOR) crType=CRTYPE_BLD_METAL_ARMOR;
+		else if(crType==CRTYPE_DW_LEATHER_ARMOR_M) crType=CRTYPE_BLD_LEATHER_ARMOR;
+		else if(crType==CRTYPE_DW_LEATHER_JACKET_M) crType=CRTYPE_BLD_LEATHER_JACKET;
+		else if(crType==CRTYPE_DW_METAL_ARMOR_M) crType=CRTYPE_BLD_METAL_ARMOR;
+		cr.ChangeCrType(crType);
+	}
 
 	if(value>RADIATION_HIGH_DOSE) cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_RADIATION_HIGH_DOSE);
 
@@ -96,7 +121,28 @@ void DropRadiation(Critter& cr) // Export
 
 uint cte_Radiation(Critter& cr, int identifier, uint& stage)
 {
+	int body=cr.Stat[ST_BASE_CRTYPE];
 	if(cr.IsDead()) return 100;
+	if(cr.Stat[ST_RADIATION_LEVEL]>450 && (body==0 || body==CRTYPE_DW_JUMPSUIT_M || body==CRTYPE_LHD_JUMPSUIT))
+	{
+		int crType=cr.CrType;
+		cr.StatBase[ST_BASE_CRTYPE]=CRTYPE_BLD_JUMPSUIT;
+		if(crType==CRTYPE_LHD_LEATHER_ARMOR) crType=CRTYPE_BLD_LEATHER_ARMOR;
+		else if(crType==CRTYPE_LHD_LEATHER_JACKET) crType=CRTYPE_BLD_LEATHER_JACKET;
+		else if(crType==CRTYPE_LHD_METAL_ARMOR) crType=CRTYPE_BLD_METAL_ARMOR;
+		else if(crType==CRTYPE_DW_LEATHER_ARMOR_M) crType=CRTYPE_BLD_LEATHER_ARMOR;
+		else if(crType==CRTYPE_DW_LEATHER_JACKET_M) crType=CRTYPE_BLD_LEATHER_JACKET;
+		else if(crType==CRTYPE_DW_METAL_ARMOR_M) crType=CRTYPE_BLD_METAL_ARMOR;
+		cr.ChangeCrType(crType);
+	}
+	if(cr.Stat[ST_RADIATION_LEVEL]>800 && cr.Stat[ST_RADIATION_LEVEL]<1000 && IsHuman(cr))
+	{
+		if((cr.Stat[ST_MUTATION]!=0 || Random(0,100)>40) || Random(0,100)>80)
+		{
+			ApplyGhoul(cr);
+			return 0;
+		}
+	}
 
 	uint newStage=GetRadiationStage(cr.Stat[ST_RADIATION_LEVEL]);
 	uint duration=RADIATION_DURATION;

@@ -1,126 +1,13 @@
-// Author: cvet, heX, Тринитротолуол
-// Ver 3.1
+// Author: cvet, heX, Тринитротолуол, Tab10id
 #include "_macros.fos"
 #include "stdlib_h.fos"
-#include "stdlib_dialog.fos"
 
-/*
-Как использовать эти функции в диалогах?
-Есть функции типа "d_" - Условия (Demand,Требования)
-и функции типа "r_" - Результат (Result)
-Вы выбираете понравившуюся вам функцию, и затем:
-
-Тип "d_" :
- На вкладке "Условие":
- Выбираете пункт скрипт, и вписывайте в него,
- этот текст: "dialog@ИМЯ_ФУНКЦИИ" (например "dialog@d_IsToHeal").
- Если функция требует VAL, то в пункте "Значение условия" вписывайте ваше число.
-
-Тип "r_" :
- На вкладке "Результат":
- Выбираете пункт скрипт, и вписывайте в него,
- этот текст: "dialog@ИМЯ_ФУНКЦИИ" (например "dialog@r_ShowLocation").
- Если функция требует VAL, то в пункте "Значение результата" вписывайте ваше число.
-
-Номера локаций вы можете узнать в CITY.TXT и _maps.fos
-Номера карт вы можете узнать в MAPS.TXT
-Номера предметов вы можете узнать в ITEMPID.H
-
-Иногда вы можете встретить тип "df_", "dx_", "rx_" - покачто они системные и недоступны.
-
-*/
-
-////////////////
-// Demands /////
-////////////////
-
-//!/ НПЦ стоит на домашней позиции?
-// это нужно чтобы например перса с квестом не увели куданибуть в темный угол и не вызвали в квесте баг.
-bool d_NpcStayOnHomePos(Critter& player, Critter@ npc)
-{
-	uint16 m=0,x=0,y=0,d=0;
-	npc.GetHomePos(m,x,y,d);
-	if(m!=npc.GetMapId()) return false;
-	if((x!=npc.HexX) && (y!=npc.HexY)) return false;
-	return true;
-}
-
-//!/ Игрок нуждаеться в лечении?
-bool d_IsToHeal(Critter& player, Critter@ npc)
-{
-	return player.Stat[ST_CURRENT_HP] < player.Stat[ST_MAX_LIFE];
-}
-
-//!/ Игроку известна эта локация?
-// VAL - номер локации
-bool d_IsLocationVisible(Critter& player, Critter@ npc, int val)
-{
-	return player.IsKnownLoc( false, uint16(val) );
-}
-
-//!/ Игроку НЕ известна эта локация?
-// VAL - номер локации
-bool d_IsLocationNotVisible(Critter& player, Critter@ npc, int val)
-{
-	return not player.IsKnownLoc( false, uint16(val) );
-}
-
-//!/ Есть зависимости от наркотиков?
-bool d_IsAddict(Critter& player, Critter@ npc)
-{
-	for(uint i=ADDICTION_BEGIN;i<=ADDICTION_END;i++) if(player.Addiction[i]!=0) return true;
-	return false;
-}
-
-//!/ У игрока нет зависимостей от наркотиков?
-bool d_IsNotAddict(Critter& player, Critter@ npc)
-{
-	return not d_IsAddict(player,npc);
-}
-
-//!/ Random
-// VAL - шанс выпадания.
-// Например:
-// 1 - один к одному, тоесть выпадать будет всегда
-// 2 - один из двух. тоесть 50/50.
-// 6 - шанс один из шести.
-// 1000 - один раз из тысячи. тоесть очень очень редко.
-bool d_Random(Critter& player, Critter@ npc, int val)
-{
-	return Random(1,val)==1;
-}
-
-//!/ Random с учетом удачи
-// VAL - шанс выпадания минус удача.
-// Чем выше удача тем больше шанс выпадания.
-// Рекомендованные значение от 12 до 16.
-// Например:
-// VAL=10 & Luck=1 - один шанс из 9  - очень редко.
-// VAL=10 & Luck=10 - один шанс из 1 - выпадать будет всегда.
-// VAL=12 & Luck=1 - один шанс из 11 - очень редко.
-// VAL=12 & Luck=10 - один шанс из 2 - очень часто.
-// VAL=16 & Luck=1 - один шанс из 15 - очень редко.
-// VAL=16 & Luck=10 - один шанс из 6 - русская рулетка.
-bool d_RandomWithLuck(Critter& player, Critter@ npc, int val)
-{
-	return Random(1,CLAMP(val-player.Stat[ST_LUCK], 1, 100))==1;
-}
-
-//!/ Random c процентом выпадания
-// VAL - процент выпадания.
-// Например:
-// 5% - это пять процентов выпадания. выпадать будет редко.
-// 50% - 50/50.
-// 100% - это 100 процентов выпадания. выпадать будет всегда.
-bool d_RandomPercent(Critter& player, Critter@ npc, int val)
-{
-	val=CLAMP(val,0,100);
-	return Random(1,100)<=val;
-}
-
-//!/ Возвращает размер группы (живых ее участников)
+// Возвращает размер группы (живых ее участников)
 // размер береться вне зависимости от того лидер это или просто партиец
-int df_GroupCount(Critter& player, Critter@ npc)
+
+import void FlushScreen(Critter& cr, bool fadeOut, uint timeMs) from "effects";
+
+int DFGroupCount(Critter& player, Critter@ npc)
 {
 	Critter @ leader;
 	if (not valid(player.GetFollowLeader())) // если у игрока нет лидера
@@ -134,314 +21,149 @@ int df_GroupCount(Critter& player, Critter@ npc)
 	return groups.length();
 }
 
-//!/ Размер группы больше >=VAL
-bool d_GroupCountMore(Critter& player, Critter@ npc, int val)
+// Игрок нуждаеться в лечении?
+bool d_IsToHeal(Critter& player, Critter@ npc)
 {
-	return df_GroupCount(player, npc)>=val;
+	return player.Stat[ST_CURRENT_HP] < player.Stat[ST_MAX_LIFE];
 }
 
-//!/ Размер группы меньше <=VAL
-bool d_GroupCountLess(Critter& player, Critter@ npc, int val)
+// Игроку известна эта локация?
+bool d_IsLocationVisible(Critter& player, Critter@ npc, int LocNum)
 {
-	return df_GroupCount(player, npc)<=val;
+	return player.IsKnownLoc(false, uint16(LocNum));
 }
 
-//!/ Игрок в группе? (лидер тоже считаеться)
+// Игроку НЕ известна эта локация?
+bool d_IsLocationNotVisible(Critter& player, Critter@ npc, int LocNum)
+{
+	return not player.IsKnownLoc( false, uint16(LocNum) );
+}
+
+// Есть зависимости от наркотиков?
+bool d_IsAddict(Critter& player, Critter@ npc)
+{
+	for(uint i=ADDICTION_BEGIN;i<=ADDICTION_END;i++) if(player.Addiction[i]!=0) return true;
+	return false;
+}
+
+// У игрока нет зависимостей от наркотиков?
+bool d_IsNotAddict(Critter& player, Critter@ npc)
+{
+	return not d_IsAddict(player,npc);
+}
+
+// Игрок в группе? (лидер тоже считаеться)
 bool d_GroupPresent(Critter& player, Critter@ npc)
 {
-	return df_GroupCount(player, npc)>1;
+	return DFGroupCount(player, npc)>1;
 }
 
-//!/ Игрок НЕ в группе? (лидер тоже считаеться)
+// Игрок НЕ в группе? (лидер тоже считаеться)
 bool d_NotGroupPresent(Critter& player, Critter@ npc)
 {
 	return not d_GroupPresent(player, npc);
 }
 
-//!/ Игрок лидер группы?
-bool d_IsGroupLeader(Critter& player, Critter@ npc)
-{
-	// если есть группа и у этого игрока нет лидера - то значит он и есть лидер группы
-	if (d_GroupPresent(player, npc) and (not valid(player.GetFollowLeader())))
-		return true; else
-		return false;
-}
-
-//!/ Дистанция до НПЦ
-// Проверка чтобы все игроки группы были от НПЦ на дистанции не меньше указанной в VAL.
-bool d_GroupMinDistance(Critter& player, Critter@ npc, int val)
-{
-	Critter @ leader;
-	if (not valid(player.GetFollowLeader())) // если у игрока нет лидера
-		@leader = player; // тогда считаем что он и есть лидер
-		else
-		@leader = player.GetFollowLeader(); // иначе берем лидера
-
-	Critter@[] groups;
-	ArrayPushBack(groups,leader);
-	leader.GetFollowGroup(FIND_LIFE,groups);
-	for(uint i=0;i<groups.length();i++)
-		if (int(GetDistantion(npc.HexX, npc.HexY, groups[i].HexX, groups[i].HexY)) > val)
-		// ктото ходит слишком далеко от НПС
-			return false;
-	// цикл прошел - значит все стоят рядом.
-	return true;
-}
-
-//!/ инверсия d_GroupMinDistance
-bool d_NotGroupMinDistance(Critter& player, Critter@ npc, int val)
-{
-	return not d_GroupMinDistance(player, npc, val);
-}
-
-//!/ сумма уровней в группе
-int df_GroupLevelSum(Critter& player, Critter@ npc)
-{
-	int result=0;
-	Critter@[] groups;
-	ArrayPushBack(groups,player);
-	player.GetFollowGroup(FIND_LIFE,groups);
-	for(uint i=0;i<groups.length();i++)
-		result+=groups[i].Stat[ST_LEVEL];
-	return result;
-}
-
-//!/ сумма уровней группы больше >=VAL
-bool d_GroupLevelSumMore(Critter& player, Critter@ npc, int val)
-{
-	return df_GroupLevelSum(player, npc)>=val;
-}
-
-//!/ сумма уровней группы меньше <=VAL
-bool d_GroupLevelSumLess(Critter& player, Critter@ npc, int val)
-{
-	return df_GroupLevelSum(player, npc)<=val;
-}
-
-//!/ У всех уровень больше >=VAL
-// Проверка что все игроки в группе больше или равны указанному уровню.
-bool d_GroupLevelMore(Critter& player, Critter@ npc, int val)
-{
-	Critter@[] groups;
-	ArrayPushBack(groups,player);
-	player.GetFollowGroup(FIND_LIFE,groups);
-	for(uint i=0;i<groups.length();i++)
-		if(groups[i].Stat[ST_LEVEL]<val) // если хотябы один из них меньше требуемого уровня
-			return false;
-	return true;
-}
-
-//!/ У когото уровень меньше <=VAL
-// Проверка что все игроки в группе меньше или равны указанному уровню.
-bool d_GroupLevelLess(Critter& player, Critter@ npc, int val)
-{
-	Critter@[] groups;
-	ArrayPushBack(groups,player);
-	player.GetFollowGroup(FIND_LIFE,groups);
-	for(uint i=0;i<groups.length();i++)
-		if(groups[i].Stat[ST_LEVEL]>val) // если хотябы один из них больше требуемого уровня
-			return false;
-	return true;
-}
-
-//!/ У игрока этот тип броника?
-// VAL - требуемый тип брони
-bool d_IsArmor(Critter& player, Critter@ npc, int val)
-{
-	return ItemToProt(_CritGetItemArmor(player)) == val;
-}
-
-//!/ На игрока не надет этот тип брони?
-// инверсия d_IsArmor
-bool d_IsNotArmor(Critter& player, Critter@ npc, int val)
-{
-	return not d_IsArmor(player, npc, val);
-}
-
 /** проверка на таймаут
- используйте функцию r_TimeOutSet для инициализации
+ используйте функцию r_TimeoutSet для инициализации
  если таймаут кончился (или еще и не начинался)
  то функция вернет истинну (разрешит ответ)
  иначе вернет ложь (ответ будет скрыт)
 */
-bool d_TimeOutCheck(Critter& player, Critter@ npc)
+bool d_TimeoutCheck(Critter& player, Critter@ npc, int timeoutNumber)
 {
-	GameVar @ t = GetLocalVar(LVAR_timeout, npc.Id);
-	if(not valid(t)) return true; // таймаут еще и не начался
-	if(__FullMinute >= uint(t.GetValue()))
-		return true; // таймаут истек
-		else
-		return false; // таймаут еще жив
+	//GameVar@ x = GetGlobalVar(GVAR_inf_clinic_money);
+	//Log("Money: " + x.GetValue());
+	//GameVar@ y = GetGlobalVar(GVAR_inf_clinic_medicine);
+	//Log("Medicine: " + y.GetValue());
+	int variable = 0;
+	//Log("TO_Number"+timeoutNumber);
+	switch(timeoutNumber)
+	{
+		case 0: variable = LVAR_timeout; break;
+		case 1: variable = LVAR_timeout1; break;
+		case 2: variable = LVAR_timeout2; break;
+		case 3: variable = LVAR_timeout3; break;
+		case 4: variable = LVAR_timeout4; break;
+		case 5: variable = LVAR_timeout5; break;
+		case 6: variable = LVAR_timeout6; break;
+		case 7: variable = LVAR_timeout7; break;
+		case 8: variable = LVAR_timeout8; break;
+	}
+	GameVar@ t=GetLocalVar(variable, npc.Id);
+	//Log("Timeout check demand, timeoutNumber = " +timeoutNumber+ ", timeoutVariable = "+variable+", timeout = "+uint(t.GetValue()));
+	if(not valid(t)) return true;// таймаут еще и не начался
+	if(__FullSecond >= uint(t.GetValue())) return true; // таймаут истек
+	else return false; // таймаут еще жив
 }
 
 /**
-  инверсия d_TimeOutCheck
+	инверсия d_TimeoutCheck
 */
-bool d_NotTimeOutCheck(Critter& player, Critter@ npc)
+bool d_NotTimeoutCheck(Critter& player, Critter@ npc, int timeoutNumber)
 {
-	return not d_TimeOutCheck(player, npc);
-}
-
-/** Есть машина у игрока?
- !!! НУЖНА НОРМАЛЬНАЯ РЕАЛИЗАЦИЯ !!!
- сначала ищет ключ от машины.
- затем делает проверку на существование на этой карте подходящей машины (если это вообще возможно...).
-*/
-bool d_CarIsPresent(Critter& player, Critter@ npc)
-{
-	return _CritCountItem(player, PID_KEY)>0;
-}
-
-//!/ Есть машина у когото из группы игроков?
-// bool d_CarIsPresentInGroup(Critter& player, Critter@ npc)
-
-//!/ проверяет нетли у когото из группы установленной не в ноль переменной указанной в VAL
-// неактуально.
-// bool d_GroupVarIsNotZero(Critter& player, Critter@ npc, int val)
-
-//!/ проверка на разведанность зон вокруг города.
-// разведанной считается зона без тумана.
-// VAL - радиус.
-// bool d_ZoneCheck(Critter& player, Critter@ npc, int val)
-// bool d_ZoneCheckXY(Critter& player, Critter@ npc, int val)
-
-//!/ проверка навыка у группы (НЕДОСТУПНО)
-// достаточно одного партийца у которого навык(VAL1) выше чем VAL2
-bool d_GroupCheckStat(Critter& player, Critter@ npc, int val, int val2)
-{
-	Critter@[] groups;
-	ArrayPushBack(groups,player);
-	player.GetFollowGroup(FIND_LIFE,groups);
-	for(uint i=0;i<groups.length();i++)
-		if(player.Skill[val2] > val)
-			return true;
-	return false;
-}
-
-//!/ проверка навыка у группы
-// достаточно одного партийца у которого навык выше чем VAL
-bool d_GroupCheckSmallGuns (Critter& player, Critter@ npc, int val)     { return d_GroupCheckStat(player, npc, val, SK_SMALL_GUNS); }
-bool d_GroupCheckBigGuns (Critter& player, Critter@ npc, int val)       { return d_GroupCheckStat(player, npc, val, SK_BIG_GUNS); }
-bool d_GroupCheckEnergyWeapons (Critter& player, Critter@ npc, int val) { return d_GroupCheckStat(player, npc, val, SK_ENERGY_WEAPONS); }
-bool d_GroupCheckUnarmed (Critter& player, Critter@ npc, int val)       { return d_GroupCheckStat(player, npc, val, SK_UNARMED); }
-bool d_GroupCheckMeleeWeapons (Critter& player, Critter@ npc, int val)  { return d_GroupCheckStat(player, npc, val, SK_MELEE_WEAPONS); }
-bool d_GroupCheckThrowing (Critter& player, Critter@ npc, int val)      { return d_GroupCheckStat(player, npc, val, SK_THROWING); }
-bool d_GroupCheckFirstAid (Critter& player, Critter@ npc, int val)      { return d_GroupCheckStat(player, npc, val, SK_FIRST_AID); }
-bool d_GroupCheckDoctor (Critter& player, Critter@ npc, int val)        { return d_GroupCheckStat(player, npc, val, SK_DOCTOR); }
-bool d_GroupCheckSneak (Critter& player, Critter@ npc, int val)         { return d_GroupCheckStat(player, npc, val, SK_SNEAK); }
-bool d_GroupCheckLockpick (Critter& player, Critter@ npc, int val)      { return d_GroupCheckStat(player, npc, val, SK_LOCKPICK); }
-bool d_GroupCheckSteal (Critter& player, Critter@ npc, int val)         { return d_GroupCheckStat(player, npc, val, SK_STEAL); }
-bool d_GroupCheckTraps (Critter& player, Critter@ npc, int val)         { return d_GroupCheckStat(player, npc, val, SK_TRAPS); }
-bool d_GroupCheckScience(Critter& player, Critter@ npc, int val)        { return d_GroupCheckStat(player, npc, val, SK_SCIENCE); }
-bool d_GroupCheckRepair(Critter& player, Critter@ npc, int val)         { return d_GroupCheckStat(player, npc, val, SK_REPAIR); }
-bool d_GroupCheckSpeech(Critter& player, Critter@ npc, int val)         { return d_GroupCheckStat(player, npc, val, SK_SPEECH); }
-bool d_GroupCheckBarter(Critter& player, Critter@ npc, int val)         { return d_GroupCheckStat(player, npc, val, SK_BARTER); }
-bool d_GroupCheckGambling(Critter& player, Critter@ npc, int val)       { return d_GroupCheckStat(player, npc, val, SK_GAMBLING); }
-bool d_GroupCheckOutdoorsman(Critter& player, Critter@ npc, int val)    { return d_GroupCheckStat(player, npc, val, SK_OUTDOORSMAN); }
-
-//!/ узнать сколько дней прошло после старта сессии(сервера).
-// VAL - требуемое кол-во дней.
-//bool d_DayAfterStart(Critter& player, Critter@ npc, int val)    { return dx_GroupCheckStat(player, npc, val, 17); }
-
-// НПЦ жив?
-// в v0 указываем NpcRole НПЦ (на карте должен быть в 1 экземпляре)
-// в v1 указываем PID карты (карта должна быть в игре в одном экземпляре)
-bool d_IsLife(Critter& player, Critter@ npc, int v0, int v1)
-{
-	Map @ map = GetMapByPid(v1, 0);
-	if(not valid(map)) { Log("error");return false;}
-	Critter @ crit = map.GetNpc(v0, FIND_ALL|FIND_ONLY_NPC, 0);
-	if(not valid(crit)) { Log("error");return false;}
-	if(crit.IsLife())
-		return true; else
-		return false;
-}
-
-// НПЦ мертв?
-bool d_IsDead(Critter& player, Critter@ npc, int v0, int v1)
-{
-	return not d_IsLife(player,npc,v0,v1);
-}
-
-uint16 ItemToProt(Item@ item) //lib
-{
-  if (not valid(item))
-	return 0; else
-	return item.GetProtoId();
+	return not d_TimeoutCheck(player, npc, timeoutNumber);
 }
 
 
-//стат больше чем локальная переменная для игрока
-// stat - номер стата (характеристики)
-// varNum - номер переменной
-bool d_StatMoreThanLVar (Critter & player, Critter @ npc, uint stat, uint varNum)
+// Проверка уникальной переменной - таймаута игрок-нпц
+// Время прошло, или таймаут не назначался
+bool d_TimeoutOk(Critter & player, Critter @ npc)
 {
-	if (stat<STAT_BEGIN||stat>STAT_END) return false;
-	GameVar @ v = GetLocalVar(varNum, player.Id);
-	if (!valid(v)) return false;
-
-	return player.StatBase[stat]>v.GetValue();
-
-}
-// стат меньше чем локальная переменная
-bool d_StatLessThanLVar (Critter & player, Critter @ npc, uint stat, uint varNum)
-{
-	if (stat<STAT_BEGIN||stat>STAT_END) return false;
-	GameVar @ v = GetLocalVar(varNum, player.Id);
-	if (!valid(v)) return false;
-
-	return player.StatBase[stat]<v.GetValue();
-
-}
-// стат равен локальной переменной
-bool d_StatEqualsLVar (Critter & player, Critter @ npc, uint stat, uint varNum)
-{
-	if (stat<STAT_BEGIN||stat>STAT_END) return false;
-	GameVar @ v = GetLocalVar(varNum, player.Id);
-	if (!valid(v)) return false;
-
-	return player.StatBase[stat]==v.GetValue();
-
-}
-////////////////
-// Results /////
-////////////////
-
-// Убить НПК.
-// v0 - тип смерти. Смотрите Critter conditions - COND_DEAD в _defines.fos
-// v1 - убийца игрок или нет. 1 - игрок, 0 - нет.
-void r_NpcToDead(Critter& master, Critter@ slave, int v0, int v1)
-{
-	if(not valid(slave)) return;
-	if(slave.IsNpc())
-	{
-		if(v1 == 0) slave.ToDead(v0, null);
-		else slave.ToDead(v0, master);
-	}
-	else
-	{
-		if(v1 == 0) master.ToDead(v0, null);
-		else master.ToDead(v0, slave);
-	}
+	if(!valid(npc)) return false;
+	GameVar @ to = GetUnicumVar(UVAR_uniq_timeout, player.Id, npc.Id);
+	if(!valid(to)) return false;
+	uint time = to.GetValue();
+	if(time==0) return true;
+	return (time<__FullSecond);
 }
 
-// Убить НПК. Обычная смерть.
-void r_NpcToDead(Critter& master, Critter@ slave)
+// Таймаут не закончился
+bool d_NotTimeoutOk(Critter & player, Critter @ npc)
 {
-	r_NpcToDead(master, slave, COND_DEAD_FRONT, 0);
+	return !d_TimeoutOk(player,npc);
 }
-////////////////
-// Dialogs /////
-////////////////
 
-// +++++++++++++++++++++ ШПИОНАЖ +++++++++++++++++++++ \\
+bool d_CheckMonth(Critter & playe, Critter @npc, int monthFrom, int monthTo)
+{
+	return (__Month<=monthTo&&__Month>=monthFrom);
+}
+
+// Установка таймаута. value - время в минутах, через которое таймаут пройдет
+void r_SetUniqTO(Critter & player, Critter @ npc, int value)
+{
+	if(!valid(npc)) return;
+	GameVar @ to = GetUnicumVar(UVAR_uniq_timeout, player.Id, npc.Id);
+	if(!valid(to)) return;
+	to = value*60+__FullSecond;
+}
+
+// Отложенная всплывающая строка над нпц
+void r_SayMessageDelayed(Critter & player, Critter @ npc, int strNum, int delaySeconds, int sayType)
+{
+	if(!valid(npc)) return;
+	uint[] values = {npc.Id, uint(sayType), uint(strNum)};
+	CreateTimeEvent(__FullSecond + delaySeconds, "e_SayMessage", values, false);
+}
+
+uint e_SayMessage(uint[]@ values)
+{
+	if(values.length() < 3) return 0;
+	Critter @ cr = GetCritter(values[0]);
+	if(!valid(cr)) return 0;
+	int did = cr.Stat[ST_DIALOG_ID];
+	if(did == 0) return 0;
+	cr.SayMsg(values[1], TEXTMSG_DLG, DLGSTR(did, values[2]));
+	return 0;
+}
+
+// Шпионаж
 void dlg_TrySpy( Critter& player, Critter@ banker, string@ playerName )
 {
-
 	if ( !valid(banker) ) return;
 	if ( !IS_DIALOG_SAY_MODE(playerName) || IS_DIALOG_END(playerName) ) return;
 	if ( playerName.length() <= 1 ) return;
-	
+
 	uint BankerDialog = banker.Stat[ST_DIALOG_ID];
 	uint DlgStr = 100;
 	string lexems = "$Victim " + playerName;
@@ -451,7 +173,7 @@ void dlg_TrySpy( Critter& player, Critter@ banker, string@ playerName )
 		player.SayMsg( SAY_DIALOG, TEXTMSG_DLG, DLGSTR( BankerDialog, DlgStr + 0 ), lexems );
 		return;
 	}
-	
+
 	if ( player.Id == cr.Id ){
 		player.SayMsg( SAY_DIALOG, TEXTMSG_DLG, DLGSTR( BankerDialog, DlgStr + 9 ) );
 		return;
@@ -465,7 +187,7 @@ void dlg_TrySpy( Critter& player, Critter@ banker, string@ playerName )
 	} else {
 		lexems += "$Gender @msg dlg " + DLGSTR( BankerDialog, DlgStr + 12 ) + "@";
 	}
-	
+
 	// Репликации.
 	if ( cr.Stat[ST_REPLICATION_COUNT]/cr.Stat[ST_LEVEL] <= 2 ) {
 		lexems += "$ReplCount @msg dlg " + DLGSTR( BankerDialog, DlgStr + 13 ) + "@";
@@ -474,25 +196,25 @@ void dlg_TrySpy( Critter& player, Critter@ banker, string@ playerName )
 	} else {
 		lexems += "$ReplCount @msg dlg " + DLGSTR( BankerDialog, DlgStr + 15 ) + "@";
 	}
-	
+
 	// Год рождения.
 	lexems += "$Born " + ( __Year - cr.Stat[ST_AGE] );
 
 	if ( player.Skill[SK_SPEECH] >= 40 - ( player.Stat[ST_CHARISMA] + player.Stat[ST_LUCK] )/2 ) {
 		player.SayMsg( SAY_DIALOG, TEXTMSG_DLG, DLGSTR( BankerDialog, DlgStr + 1 ), lexems );
 	}
-	
+
 	// Уровень.
 	if ( player.Skill[SK_SPEECH] >= 50 - ( player.Stat[ST_CHARISMA] + player.Stat[ST_LUCK] )/2 ) {
 		lexems = "";
 		lexems += "$Level " + cr.Stat[ST_LEVEL];
 		player.SayMsg( SAY_APPEND, TEXTMSG_DLG, DLGSTR( BankerDialog, DlgStr + 2 ), lexems );
 	}
-	
+
 	// Карма.
 	if ( player.Skill[SK_SPEECH] >= 60 - ( player.Stat[ST_CHARISMA] + player.Stat[ST_LUCK] )/2 ) {
-		int[] Values = { -2147483647, -1000, -750, -500, -250, 250,  500,  750,  1000 };
-		int[] Descs =  { 6125,        6122,  6119, 6116, 6113, 6110, 6107, 6104, 6101 };
+		int[] Values = { -2147483647, -1000, -750, -500, -250, 250,	500,	750,	1000 };
+		int[] Descs =	{ 6125,				6122,	6119, 6116, 6113, 6110, 6107, 6104, 6101 };
 		int CurKarma = 0;
 		for ( uint i=0; i<Values.length(); i++ ){
 			if ( int(cr.Stat[ST_KARMA]) >= Values[i] ) {
@@ -501,9 +223,9 @@ void dlg_TrySpy( Critter& player, Critter@ banker, string@ playerName )
 				break;
 			}
 		}
-		player.SayMsg( SAY_APPEND, TEXTMSG_GAME, CurKarma );		
+		player.SayMsg( SAY_APPEND, TEXTMSG_GAME, CurKarma );
 	}
-	
+
 	// Статы.
 	if ( player.Skill[SK_SPEECH] >= 70 - ( player.Stat[ST_CHARISMA] + player.Stat[ST_LUCK] )/2 ) {
 		lexems = "";
@@ -579,7 +301,7 @@ void dlg_TrySpy( Critter& player, Critter@ banker, string@ playerName )
 		}
 		player.SayMsg( SAY_APPEND, TEXTMSG_DLG, DLGSTR( BankerDialog, DlgStr + 3 ), lexems );
 	}
-	
+
 	// Тагнутые боевые навыки.
 	if ( player.Skill[SK_SPEECH] >= 80 - ( player.Stat[ST_CHARISMA] + player.Stat[ST_LUCK] )/2 ) {
 
@@ -607,7 +329,7 @@ void dlg_TrySpy( Critter& player, Critter@ banker, string@ playerName )
 		}
 
 	}
-	
+
 	// Тагнутые небоевые навыки.
 	if ( player.Skill[SK_SPEECH] >= 85 - ( player.Stat[ST_CHARISMA] + player.Stat[ST_LUCK] )/2 ) {
 		uint[] Skills = { SK_FIRST_AID, SK_DOCTOR, SK_SNEAK, SK_LOCKPICK, SK_STEAL, SK_TRAPS, SK_SCIENCE, SK_REPAIR, SK_SPEECH, SK_BARTER, SK_GAMBLING, SK_OUTDOORSMAN };
@@ -639,7 +361,7 @@ void dlg_TrySpy( Critter& player, Critter@ banker, string@ playerName )
 		}
 
 	}
-	
+
 	// Прокачаный боевой навык.
 	if ( player.Skill[SK_SPEECH] >= 90 - ( player.Stat[ST_CHARISMA] + player.Stat[ST_LUCK] )/2 ) {
 
@@ -711,20 +433,17 @@ void dlg_TrySpy( Critter& player, Critter@ banker, string@ playerName )
 		player.SayMsg( SAY_APPEND, TEXTMSG_DLG, DLGSTR( BankerDialog, DlgStr + 5 ), lexems );
 
 	}
-	
+
 	// Количество денег на счету.
 	if ( player.Skill[SK_SPEECH] >= 110 - ( player.Stat[ST_CHARISMA] + player.Stat[ST_LUCK] )/2 ) {
 		lexems = "";
 		lexems += "$ReplMoney " + cr.Stat[ST_REPLICATION_MONEY] + "$ReplCount " + cr.Stat[ST_REPLICATION_COUNT];
 		player.SayMsg( SAY_APPEND, TEXTMSG_DLG, DLGSTR( BankerDialog, DlgStr + 8 ), lexems );
 	}
-
 }
-
 
 void dlg_ForSearching( Critter& player, Critter@ barman, string@ playerName )
 {
-
 	if ( !valid(barman) ) return;
 	if ( !IS_DIALOG_SAY_MODE(playerName) || IS_DIALOG_END(playerName) ) return;
 	if ( playerName.length() <= 1 ) return;
@@ -752,14 +471,12 @@ void dlg_ForSearching( Critter& player, Critter@ barman, string@ playerName )
 	}
 	player.SayMsg( SAY_DIALOG, TEXTMSG_DLG, DLGSTR( BankerDialog, DlgStr + 11 ), lexems );
 	return;
-
 }
-
 
 void dlg_TrySearching( Critter& player, Critter@ barman, string@ playerName )
 {
 
-	#define LOC_NAME #(mapId)   		((mapId + 100) * 1000 )// поиск названия локации в файле FOGM.msg
+	#define LOC_NAME #(mapId)	 		((mapId + 100) * 1000 )// поиск названия локации в файле FOGM.msg
 	if ( !valid(barman) ) return;
 	if ( !IS_DIALOG_SAY_MODE(playerName) || IS_DIALOG_END(playerName) ) return;
 	if ( playerName.length() <= 1 ) return;
@@ -810,4 +527,61 @@ void dlg_TrySearching( Critter& player, Critter@ barman, string@ playerName )
 		player.SayMsg( SAY_DIALOG, TEXTMSG_DLG, DLGSTR( BankerDialog, DlgStr + 2 ), lexems );
 		return;
 	}
+}
+
+void r_ToHeal(Critter& player, Critter@ npc )
+{
+	HealCritter(player);
+}
+
+void r_ShowLocation(Critter& player, Critter@ npc ,int locNum)
+{
+	player.SetKnownLoc(false, uint16(locNum));
+}
+
+void r_FadeOut(Critter& player, Critter@ npc ,int time)
+{
+	if (time==0) time=2000;
+	FlushScreen(player, false, time);
+}
+
+void r_TransitToGlobal(Critter& player, Critter@ npc )
+{
+	player.TransitToGlobal(false);
+}
+
+void r_TransitToLocation(Critter& player, Critter@ npc,int locPid,int mapIndex)
+{
+	TransitToLoc(player,locPid,mapIndex,0);
+}
+
+void r_InfoMessage(Critter& player, Critter@ npc ,int strNum)
+{
+	InfoMessage(player,npc,strNum);
+}
+
+void r_TimeoutSet(Critter& player, Critter@ npc, int timeoutNumber, int gameHours)
+{
+	//temp
+	int variable = 0;
+	switch(timeoutNumber)
+	{
+		case 0: variable = LVAR_timeout;
+		case 1: variable = LVAR_timeout1;
+		default:
+	}
+	Log("r_Timeoutset: " +variable+" timeout");
+	//temp
+	TimeoutSet(npc, timeoutNumber, gameHours);
+	Log("r_timeoutset: timeoutNumber = "+timeoutNumber+" gameHours = "+gameHours);
+}
+
+void r_DoorOpen(Critter& player, Critter@ npc ,int entireNum)
+{
+	DoorControl(player,entireNum,true);
+}
+
+void r_DoorClose(Critter& player, Critter@ npc ,int entireNum)
+{
+	DoorControl(player,entireNum,false);
 }

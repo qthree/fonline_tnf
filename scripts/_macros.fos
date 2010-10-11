@@ -6,10 +6,13 @@
 #include "_vars.fos" // Game vars
 #include "_maps.fos" // Maps and locations
 #include "_dialogs.fos" // Dialogs
-#include "ITEMPID.H" // Items pids
+#include "_itempid.fos" // Items pids
 #include "_npc_pids.fos" // Critters pids
 
 //************** Other ***************************//
+
+
+#define def #(X,DEF) (X==0?DEF:X)
 
 //Направления
 #define REVERSE_DIRECTION  #(revDir, CurDir) revDir = CurDir+3; if(revDir > 5) revDir = revDir - 6; 
@@ -29,6 +32,15 @@
 #define FLAG #(x,flag)      (((x)&(flag))!=0)
 #define SETFLAG #(x,flag)   (x=(x)|(flag))
 #define UNSETFLAG #(x,flag) (x=((x)&(~(flag))))
+
+// Time
+#define REAL_MS #(x)              ((x)*__TimeMultiplier/1000)
+#define REAL_SECOND #(x)          ((x)*__TimeMultiplier)
+#define REAL_MINUTE #(x)          ((x)*__TimeMultiplier*60)
+#define REAL_HOUR #(x)            ((x)*__TimeMultiplier*3600)
+#define REAL_DAY #(x)             ((x)*__TimeMultiplier*86400)
+#define REAL_MONTH #(x)           ((x)*__TimeMultiplier*2592000)
+#define REAL_YEAR #(x)            ((x)*__TimeMultiplier*31536000)
 
 //************** Critter *************************//
 // Move
@@ -77,15 +89,30 @@
 #define _WeapIsHtHAttack #(weap) (weap.Proto.Weapon_Skill==SK_UNARMED || weap.Proto.Weapon_Skill==SK_MELEE_WEAPONS)
 #define _WeapIsGunAttack #(weap) (weap.Proto.Weapon_Skill==SK_SMALL_GUNS || weap.Proto.Weapon_Skill==SK_BIG_GUNS || weap.Proto.Weapon_Skill==SK_ENERGY_WEAPONS)
 #define _WeapIsRangedAttack #(weap) (_WeapIsGunAttack(weap) || weap.Proto.Weapon_Skill==SK_THROWING)
+
 // Locker
 #define _LockerIsOpen #(door) ((door.LockerCondition&LOCKER_ISOPEN)!=0)
 #define _LockerIsClose #(door) (not _LockerIsOpen(door))
+
 // Car
-#define _CarGetcritCapacity #(car) (car.Proto.Car_CritCapacity)
-#define _CarIsBioEngine #(car) ((car.Val0&CAR_BIO_ENGINE)!=0)
-#define _CarSetBioEngine #(car) car.Val0|=CAR_BIO_ENGINE
+#define _CarGetCritCapacity #(car) (car.Proto.Car_CritCapacity)
 #define _CarGetFuelTank #(car) (car.Proto.Car_FuelTank)
 #define _CarGetRunToBreak #(car) (car.Proto.Car_RunToBreak)
+#define _CarIsBioEngine #(car) ((car.Val0&CAR_BIO_ENGINE)!=0)
+#define _CarSetBioEngine #(car) car.Val0|=CAR_BIO_ENGINE
+#define _CarIsNoLockpick #(car) ((car.Val0&CAR_NO_LOCKPICK)!=0)
+#define _CarSetNoLockpick #(car) car.Val0|=CAR_NO_LOCKPICK
+
+// Light
+#define _LightIsIgnoreDir #(lightItem,dir) (FLAG(lightItem.LightFlags,1<<CLAMP(dir,0,5)))
+#define _LightSetIgnoreDir #(lightItem,dir) (SETFLAG(lightItem.LightFlags,1<<CLAMP(dir,0,5)))
+#define _LightUnsetIgnoreDir #(lightItem) (UNSETFLAG(lightItem.LightFlags,1<<CLAMP(dir,0,5)))
+#define _LightIsGlobal #(lightItem) (FLAG(lightItem.LightFlags,1<<6))
+#define _LightSetGlobal #(lightItem) (SETFLAG(lightItem.LightFlags,1<<6))
+#define _LightUnsetGlobal #(lightItem) (UNSETFLAG(lightItem.LightFlags,1<<6))
+#define _LightIsInverse #(lightItem) (FLAG(lightItem.LightFlags,1<<7))
+#define _LightSetInverse #(lightItem) (SETFLAG(lightItem.LightFlags,1<<7))
+#define _LightUnsetInverse #(lightItem) (UNSETFLAG(lightItem.LightFlags,1<<7))
 
 //************************************************//
 

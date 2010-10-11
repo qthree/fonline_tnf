@@ -1,0 +1,143 @@
+//Автор: TabaK
+
+// import void ApplyMutation(Critter& cr) from "morphes";
+
+import bool IsHuman(Critter& cr) from "races";
+#include "_macros.fos"
+#include "_colors.fos"
+
+#define EVENT_MUT		(7)
+
+import void DropRadiation(Critter& cr) from "radiation";
+import void FlushScreen(Critter& cr, uint fromColor, uint toColor, uint timeMs) from "effects";
+
+
+void ApplyMutation(Critter& cr)
+{
+if(!IsHuman(cr)) return;
+uint roll=Random(1,100)-cr.Stat[ST_LUCK];
+if(cr.Stat[ST_MUTATION]>2) return;
+	if(roll<50)
+	{
+	cr.AddTimeEvent("cte_mutation", 60*60, EVENT_MUT);
+	}
+	else if(roll==51)
+	{
+	cr.AddTimeEvent("cte_superman", 60*60, EVENT_MUT);
+	}
+	else cr.AddTimeEvent("cte_deadman", 60*60, EVENT_MUT);
+}
+
+void ApplyGhoul(Critter& cr)
+{
+uint newSkin=Random(28, 29);
+if(newSkin==29) newSkin+=50;
+FlushScreen(cr, COLOR_WHITE, COLOR_WHITE, 10000);
+cr.StatBase[ST_MUTATION]=3;
+cr.StatBase[ST_STRENGTH]-=Random(1,4);
+cr.StatBase[ST_PERCEPTION]+=Random(3,6);
+cr.StatBase[ST_CARRY_WEIGHT]-=Random(10,50);
+cr.StatBase[ST_CHARISMA]-=Random(1,4);
+cr.StatBase[ST_ENDURANCE]+=Random(4,8);
+cr.StatBase[ST_AGILITY]-=Random(1,3);
+cr.ParamBase[ST_BODY_TYPE]=BT_GHOUL;
+cr.ChangeCrType(newSkin);
+cr.StatBase[ST_BASE_CRTYPE]=newSkin;
+cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12960);
+DropRadiation(cr);
+}
+
+uint cte_mutation(Critter& cr, int identifier, uint& rate)
+{
+	if((cr.Stat[ST_RADIATION_LEVEL]+Random(0,400))>800)
+	{
+	ApplyGhoul(cr);
+	return 0;
+	}
+	if( (cr.Stat[ST_ENDURANCE]+cr.Stat[ST_LUCK]+Random(1,10))>24 )
+	{
+	cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12970);
+	return 0;
+	}
+	else
+	{
+		if(cr.Stat[ST_MUTATION]<2)
+		{
+		cr.StatBase[ST_STRENGTH]+=Random(0,3);
+		cr.StatBase[ST_INTELLECT]-=Random(0,2);
+		cr.StatBase[ST_MAX_LIFE]+=Random(0,50);
+		cr.StatBase[ST_CHARISMA]-=Random(0,2);
+		cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
+		cr.StatBase[ST_AGILITY]-=Random(0,1);
+		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,Random(12971, 12975));
+		cr.StatBase[ST_MUTATION]++;
+		return Random(120,240) * 60;
+		}
+		else
+		{
+		cr.ParamBase[SK_BIG_GUNS]+=Random(50,100);
+		cr.ParamBase[SK_UNARMED]+=Random(50,100);
+		cr.StatBase[ST_STRENGTH]+=Random(1,5);
+		cr.StatBase[ST_INTELLECT]-=Random(1,4);
+		cr.StatBase[ST_ENDURANCE]+=Random(4,8);
+		cr.StatBase[ST_MAX_LIFE]+=Random(50,150);
+		cr.StatBase[ST_CHARISMA]-=Random(1,4);
+		cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
+		cr.StatBase[ST_CARRY_WEIGHT]+=Random(5000,15000);
+		cr.StatBase[ST_AGILITY]-=Random(1,2);
+		FlushScreen(cr, COLOR_WHITE, COLOR_WHITE, 10000);
+		cr.ParamBase[ST_BODY_TYPE]=BT_SUPER_MUTANT;
+		cr.ChangeCrType(21);
+		cr.StatBase[ST_BASE_CRTYPE]=21;
+		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12960);
+		cr.StatBase[ST_MUTATION]==3;
+		return 0;
+		}
+	}
+}
+
+uint cte_superman(Critter& cr, int identifier, uint& rate)
+{
+	if((cr.Stat[ST_RADIATION_LEVEL]+Random(0,400))>800)
+	{
+	ApplyGhoul(cr);
+	return 0;
+	}
+	else
+	{
+		cr.StatBase[ST_STRENGTH]+=Random(1,5);
+		cr.StatBase[ST_INTELLECT]+=Random(1,4);
+		cr.StatBase[ST_ENDURANCE]+=Random(1,8);
+		cr.StatBase[ST_MAX_LIFE]+=Random(50,200);
+		cr.StatBase[ST_CHARISMA]+=Random(1,4);
+		cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
+		cr.StatBase[ST_CARRY_WEIGHT]+=Random(50,150);
+		cr.StatBase[ST_RADIATION_RESISTANCE]+=Random(10,100);
+		cr.StatBase[ST_POISON_RESISTANCE]+=Random(10,100);
+		cr.StatBase[ST_ACTION_POINTS]+=Random(1,2);
+		cr.StatBase[ST_AGILITY]+=Random(1,2);
+		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12980);
+		cr.StatBase[ST_MUTATION]=3;
+		return 0;
+	}
+
+}
+
+uint cte_deadman(Critter& cr, int identifier, uint& rate)
+{
+	if( (cr.Stat[ST_RADIATION_LEVEL]+Random(0,400))>800 )
+	{
+	ApplyGhoul(cr);
+	return 0;
+	}
+	else
+	{
+	FlushScreen(cr, COLOR_BLACK, COLOR_BLACK, 2000);
+	cr.ChangeCrType(115);
+	cr.ToDead(1,null);
+	cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12981);
+	return 0;
+	}
+}
+
+

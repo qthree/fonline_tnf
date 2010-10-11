@@ -1,0 +1,196 @@
+// Author: TabaK
+
+#include "_macros.fos"
+import void skin(Critter& player, int playerId, int crType, int param2) from "skins";
+uint16 StartValue;
+uint16 maxValue;
+uint16[]  body = {24, 52, 97, 55, 67, 16, 68, 15, 19, 76, 59, 22, 60, 80, 25, 51, 23, 86, 100, 81};
+//  Index:         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17,  18, 19.  
+uint16[] realbody(8,0);          
+
+
+void unsafe_arcade(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+
+if(player.Stat[ST_LEVEL]>1 || player.Stat[ST_EXPERIENCE]>0 || player.Stat[ST_MUTATION]>0)
+{
+player.SayMsg(SAY_NETMSG, TEXTMSG_GAME, 102941);
+return;
+}
+Item@[] items;
+player.GetItems(SLOT_INV,items);
+player.GetItems(SLOT_HAND1,items);
+player.GetItems(SLOT_HAND2,items);
+DeleteItems(items);
+DontPickItUp(player);
+	if(player.Param[ARCADE_MODE]==1)
+	{
+	player.SayMsg(SAY_NETMSG, TEXTMSG_GAME, 102940);
+	return;
+	}
+	else
+	{
+	player.ParamBase[ARCADE_MODE]=1;
+	SkinMenu(player);
+	}
+return;
+}
+
+void DontPickItUp(Critter& cr) //Export
+{
+cr.SetEvent(CRITTER_EVENT_USE_SKILL, "_noPickUp");
+}
+
+bool _noPickUp(Critter& cr, int skill, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+if(skill==SKILL_PICK_ON_GROUND || skill==SKILL_LOOT_CRITTER || skill==SKILL_TALK || skill==SK_STEAL) return true;
+return false;
+}
+
+void SkinMenu(Critter@ cr) // Export
+{
+GameVar@ firegecko=GetGlobalVar(GVAR_firegecko_population);
+GameVar@ alien=GetGlobalVar(GVAR_alien_population);
+GameVar@ deathclaw=GetGlobalVar(GVAR_deathclaw_population);
+GameVar@ flocent=GetGlobalVar(GVAR_floaterandcentaur_population);
+int level=cr.Stat[ST_LEVEL];
+if(level<2) maxValue=1;
+else if(level==2) maxValue=2;
+else if(level==3) maxValue=5;
+else if(level==4) maxValue=7;
+else if(level==5) maxValue=8;
+else if(level==6) maxValue=9;
+else if(level==7) maxValue=10;
+else if(level==8) maxValue=11;
+else if(level==9) maxValue=13;
+else if(level==10) maxValue=15;
+else if(level==11) maxValue=16;
+else if(level>11) maxValue=19;
+StartValue=maxValue;
+if(StartValue>=13 && alien>=15) maxValue--;
+if(StartValue>=17 && alien>=15) maxValue--;
+if(StartValue>=19 && firegecko>=15) maxValue--;
+if(StartValue>=12 && deathclaw>=15) maxValue--;
+if(StartValue>=15 && deathclaw>=15) maxValue--;
+if(StartValue>=18 && deathclaw>=15) maxValue--;
+if(StartValue>=14 && flocent>=15) maxValue--;
+if(StartValue>=16 && flocent>=15) maxValue--;
+cr.AddTimeEvent("Menu", 1, CTE_CHOOSESKIN);
+}
+
+uint Menu(Critter& cr, int identifier, uint& rate)
+{
+	uint8 butNumber=10;
+	GameVar@ firegecko=GetGlobalVar(GVAR_firegecko_population);
+	GameVar@ alien=GetGlobalVar(GVAR_alien_population);
+	GameVar@ deathclaw=GetGlobalVar(GVAR_deathclaw_population);
+	GameVar@ flocent=GetGlobalVar(GVAR_floaterandcentaur_population);
+	cr.ShowScreen(SCREEN_CLOSE, 0, "");
+	cr.ShowScreen(SCREEN_DIALOGBOX, maxValue, "skinChoose");
+	cr.SayMsg(SAY_DIALOGBOX_TEXT, TEXTMSG_GAME, 102910);
+	cr.SayMsg(SAY_DIALOGBOX_BUTTON(0),TEXTMSG_GAME, 102911);
+	if(StartValue>1)cr.SayMsg(SAY_DIALOGBOX_BUTTON(1),TEXTMSG_GAME, 102913);
+	if(StartValue>2)cr.SayMsg(SAY_DIALOGBOX_BUTTON(2),TEXTMSG_GAME, 102914);
+	if(StartValue>3)cr.SayMsg(SAY_DIALOGBOX_BUTTON(3),TEXTMSG_GAME, 102915);
+	if(StartValue>4)cr.SayMsg(SAY_DIALOGBOX_BUTTON(4),TEXTMSG_GAME, 102916);
+	if(StartValue>5)cr.SayMsg(SAY_DIALOGBOX_BUTTON(5),TEXTMSG_GAME, 102917);
+	if(StartValue>6)cr.SayMsg(SAY_DIALOGBOX_BUTTON(6),TEXTMSG_GAME, 102918);
+	if(StartValue>7)cr.SayMsg(SAY_DIALOGBOX_BUTTON(7),TEXTMSG_GAME, 102919);
+	if(StartValue>8)cr.SayMsg(SAY_DIALOGBOX_BUTTON(8),TEXTMSG_GAME, 102920);
+	if(StartValue>9)cr.SayMsg(SAY_DIALOGBOX_BUTTON(9),TEXTMSG_GAME, 102922);
+	if(StartValue>10)cr.SayMsg(SAY_DIALOGBOX_BUTTON(10),TEXTMSG_GAME, 102923);
+	
+	if(StartValue>11 && deathclaw<15)
+	{
+		butNumber++;
+		realbody[butNumber-11]=12;
+		cr.SayMsg(SAY_DIALOGBOX_BUTTON(butNumber),TEXTMSG_GAME, 102924);
+	}
+		
+	if(StartValue>12 && alien<15)
+	{
+		butNumber++;
+		realbody[butNumber-11]=13;
+		cr.SayMsg(SAY_DIALOGBOX_BUTTON(butNumber),TEXTMSG_GAME, 102925);
+	}
+		
+	if(StartValue>13 && flocent<15)
+	{
+		butNumber++;
+		realbody[butNumber-11]=14;
+		cr.SayMsg(SAY_DIALOGBOX_BUTTON(butNumber),TEXTMSG_GAME, 102926);
+	}
+		
+	if(StartValue>14 && deathclaw<15)
+	{
+		butNumber++;
+		realbody[butNumber-11]=15;
+		cr.SayMsg(SAY_DIALOGBOX_BUTTON(butNumber),TEXTMSG_GAME, 102927);
+	}
+		
+	if(StartValue>15 && flocent<15)
+	{
+		butNumber++;
+		realbody[butNumber-11]=16;
+		cr.SayMsg(SAY_DIALOGBOX_BUTTON(butNumber),TEXTMSG_GAME, 102928);
+	}
+		
+	if(StartValue>16 && alien<15)
+	{
+		butNumber++;
+		realbody[butNumber-11]=17;
+		cr.SayMsg(SAY_DIALOGBOX_BUTTON(butNumber),TEXTMSG_GAME, 102929);
+	}
+		
+	if(StartValue>17 && deathclaw<15)
+	{
+		butNumber++;
+		realbody[butNumber-11]=18;
+		cr.SayMsg(SAY_DIALOGBOX_BUTTON(butNumber),TEXTMSG_GAME, 102930);
+	}
+		
+	if(StartValue>18 && firegecko<15)
+	{
+		butNumber++;
+		realbody[butNumber-11]=19;
+		cr.SayMsg(SAY_DIALOGBOX_BUTTON(butNumber),TEXTMSG_GAME, 102931);
+	}
+	return REAL_SECOND(30);
+}
+
+void skinChoose(Critter& cr, uint answerI, string& answerS)
+{
+	if(answerI==0) LetsGo(cr, Random(0,1));
+	else if(answerI<11) LetsGo(cr, answerI+1);
+	else LetsGo(cr, answerI);
+	return;
+}
+
+void LetsGo(Critter& cr, int num)
+{
+	if(cr.Param[ARCADE_MODE]!=1)
+	{
+		Log("Функция LetsGo была вызвана неверно!");
+		return;
+	}
+	cr.EraseTimeEvents(CTE_CHOOSESKIN);
+	uint x=0, y=0;
+	bool freeToGo=false;
+	if(cr.IsDead()) cr.ToLife();
+	if(num<11) skin(cr, cr.Id, body[num],0); else skin(cr, cr.Id, body[realbody[num-11]],0);
+	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
+	Map@ map=GetMapByPid(101,0);
+	uint maxIndex=map.CountEntire(111);
+
+	while(!freeToGo)
+	{
+		map.GetEntireCoords(111, Random(0, maxIndex-1), x, y);
+		if(map.IsHexPassed(x,y)) freeToGo=true;
+	}
+	cr.TransitToMap(map.Id, x,y,Random(0,5));
+	return;
+}
+
+
+
+

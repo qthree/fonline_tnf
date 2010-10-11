@@ -5,28 +5,51 @@
 #define DELIMITER         "*"
 #define CLIENT_PREFIX     "C"
 #define SERVER_PREFIX     "S"
+#define KEY_MAIN          (0x00000001)
+#define KEY_GLOBAL        (0x00000002)  
+#define KEY_TEXT          (0x00000004)  
+#define FLAG #(x,flag)      (((x)&(flag))!=0)
+#define SETFLAG #(x,flag)   (x=(x)|(flag))
+#define UNSETFLAG #(x,flag) (x=((x)&(~(flag))))     
 
-import void RunClientCommand(string type, string command) from "hotkey_commands";
-import void RunServerCommand(string type, string command) from "hotkey_commands";
+import bool RunClientCommand(string type, string command, int[]@ params) from "hotkey_commands";
+import bool RunServerCommand(string type, string command, int[]@ params) from "hotkey_commands";
 import void LoadScreensDict() from "hotkey_commands";
 
-
-bool UseHotkeys = false;
-dictionary Hardcoded;
+dictionary AllowedScreens;
 dictionary KeyScanCodes;
+uint tempId = 0;
 
 class HotKey
 {
-string scan;
+uint Id;
+bool IsHardcoded;
 string cmd;
-string[] ModifierOf;
-
-HotKey() {scan = ""; cmd="";}
+string type;
+string prefix;
+int[] params;
+uint modes;
 }
 
-HotKey[] HotKeys;
+HotKey@[][] HotKeys;
 
+bool IsScreenAllowed(string screen)
+{
+return AllowedScreens.exists(screen);
+}
 
+void LoadAllowedScreensDict()
+{
+AllowedScreens.set("5", "MAIN_SCREEN_GAME");
+AllowedScreens.set(""+CLIENT_MAIN_SCREEN_GLOBAL_MAP+"", "MAIN_SCREEN_GLOBAL_MAP");
+AllowedScreens.set("10", "INVENTORY");
+AllowedScreens.set("12", "MINIMAP");
+AllowedScreens.set("13", "CHARACTER");
+AllowedScreens.set("16", "PIP_BOY");
+AllowedScreens.set("17", "FIX_BOY");
+AllowedScreens.set("18", "MENU");
+AllowedScreens.set("30", "SKILLBOX");
+}
 
 void LoadScanCodes()
 {
@@ -186,14 +209,17 @@ bool InitHotKeys() // Export
 	HotKeys.resize(256);
 	string LastWord = "";
     LoadScreensDict();
+	LoadAllowedScreensDict();
 	LoadScanCodes();
 		// Parsing hardcoded keys
 		while(not f.isEndOfFile())
 		{
 			if((LastWord==HARDCODED_COMMAND_TOKEN)||(f.readWord()==HARDCODED_COMMAND_TOKEN))
 			{
-				string Command=f.readWord();
-				ReadLine(f, Command, LastWord, true);			
+			    HotKey key;
+				string CommandLine=f.readWord();
+				SetHotkey(key, CommandLine, true);
+				ReadLine(f, key, LastWord);			
 			}			           
 		}
 		f.setPos(0);
@@ -203,8 +229,10 @@ bool InitHotKeys() // Export
 		{
 			if((LastWord==COMMAND_TOKEN)||(f.readWord()==COMMAND_TOKEN))
 			{
-             	string Command=f.readWord();
-				ReadLine(f, Command, LastWord, false);
+			    HotKey key;
+             	string CommandLine=f.readWord();
+				SetHotkey(key, CommandLine, false);
+				ReadLine(f, key, LastWord);
 			}			           
 		}
     return true;
@@ -220,124 +248,145 @@ bool InitHotKeys() // Export
 }
 
 
+void SetHotkey(HotKey& key, string CommandLine, bool hc)
+{
+key.Id = tempId;
+tempId++;
+key.IsHardcoded = hc;
+string@[]@ fullCmd = split(CommandLine, DELIMITER);
+string command;
+uint8 typeExists;
+if(StrToInt(fullCmd[2], key.modes))
+   {
+    typeExists = 0;
+   }
+else
+    {
+    StrToInt(fullCmd[3], key.modes);
+	key.type = fullCmd[1];
+	typeExists = 1;
+	}
+key.prefix = fullCmd[0];
+command = fullCmd[1+typeExists];
+if(fullCmd.length()>3+typeExists)
+  if(findFirst(fullCmd[3+typeExists], "params:")!=-1)
+   {
+ 
+    string @[]@ params = split(fullCmd[3+typeExists], "params:");
+	params = split(params[1], ",");
+	key.params.resize(params.length());
+	for(uint i=0, j = 0; i<params.length(); ++i)
+	    {
+		StrToInt(params[i], j);
+		key.params[i] = j;
+		}
+   }
+key.cmd = command;
+
+}
 
 
-
-void ReadLine(file& f, string cmd, string& AfterKeyWord, bool hc) //Рекурксивная функция записи кнопок (на случай нескольких комбинаций)
+void ReadLine(file& f, HotKey hkey, string& AfterKeyWord) //Рекурксивная функция записи кнопок (на случай нескольких комбинаций)
 {
 string Key=f.readWord();
 AfterKeyWord = f.readWord();
 int ScanCode;
-HotKey hkey;
 
 	KeyScanCodes.get("DIK_"+Key, ScanCode);
-	if(hc)
-	  Hardcoded.set(cmd, ScanCode);
-	  
+
+	
+	  if(HotKeys[ScanCode].length()==0)
+	     HotKeys[ScanCode].resize(256);	
 	//Cheking for modifier
 	if(AfterKeyWord=="+")
       {
-	    
-		string ModKey=f.readWord();
+
+	    string ModKey=f.readWord();
 		int ModScanCode;
 			
 		KeyScanCodes.get("DIK_"+ModKey, ModScanCode);
-		 hkey = HotKeys[ModScanCode];
 		 
-		if((@hkey!=null)&&(hkey.ModifierOf.length()!=0)&&(hkey.ModifierOf[ScanCode]!=""))
-			Message("Error: key "+ModKey+" is already used as modifier of key "+Key+", please use another modifier");
+
+		 if(@HotKeys[ScanCode][ModScanCode]!=null)
+		    {
+			Message("Error: key "+ModKey+" is already used as modifier of key "+Key+", please use another modifier. The command is "+HotKeys[ScanCode][ModScanCode+1].cmd);
+			}
 		else	 
-		   {
 			//Выставляем вторую кнопку модификатором для первой
-			if((@hkey==null)||(hkey.ModifierOf.length()==0))
-				hkey.ModifierOf.resize(256);
-			hkey.ModifierOf[ScanCode]=cmd;	
-			HotKeys[ModScanCode] = hkey;
-           }
+			@HotKeys[ScanCode][ModScanCode] = hkey;
+
 	   AfterKeyWord=f.readWord();
  	  }
     //there is no modifiers
   else
 	  {
-	  hkey = HotKeys[ScanCode];
-        if((@hkey==null)||(hkey.scan==""))
-           {		
-     	    hkey.scan = Key;
-			hkey.cmd = cmd;
-			HotKeys[ScanCode] = hkey;
+        if(@HotKeys[ScanCode][ScanCode]!=null)
+		   {
+		   Message("Error: key "+Key+" is already binded, please rebind it");
 		   }
 		else
-		    Message("Error: key "+Key+" is already binded, please rebind it");
-	  }
-	  
+		   @HotKeys[ScanCode][ScanCode] = hkey; 
+	  }  
 	  
 if(AfterKeyWord==",")
-ReadLine(f, cmd, AfterKeyWord, hc);  
+ReadLine(f, hkey, AfterKeyWord);  
 }
 
 
-bool ProcessCommand(uint8 scanCode, uint8 prevKey, bool[] KeysPressed )  //Export
+bool ProcessCommand(uint8 curKey, uint8 prevKey, bool[] KeysPressed, uint8 mainScreen, uint8 curScreen )  //Export
 {
-if(HotKeys.length()==0)
-return false;
 
-string cmd="";
-if((KeysPressed[prevKey]==true)&&(prevKey!=scanCode))
+HotKey@ hkey;
+
+if(prevKey!=0 && KeysPressed[prevKey]==true)
 	{
+	if(HotKeys[curKey].length()>0 && @HotKeys[curKey][prevKey]!=null)
+        @hkey = HotKeys[curKey][prevKey];
 
-	 if(HotKeys[scanCode].ModifierOf.length()!=0)
-	    {
-	     if(HotKeys[scanCode].ModifierOf[prevKey]!="")
-	        cmd = HotKeys[scanCode].ModifierOf[prevKey];
-		}
-    else if(HotKeys[prevKey].ModifierOf.length()!=0)
-		{
-		 if(HotKeys[prevKey].ModifierOf[scanCode]!="")
-		    cmd = HotKeys[prevKey].ModifierOf[scanCode];
-		}
+    else if(HotKeys[prevKey].length()>0 && @HotKeys[prevKey][curKey]!=null)
+		@hkey = HotKeys[prevKey][curKey];
 	}
-else if (HotKeys[scanCode].cmd.length()>0)
-    cmd = HotKeys[scanCode].cmd;
+else if (HotKeys[curKey].length()>0 && @HotKeys[curKey][curKey]!=null)
+         @hkey = HotKeys[curKey][curKey];
 
-if(Hardcoded.exists(cmd))
+return (@hkey!=null) ? RunCommand(curKey, hkey, mainScreen, curScreen) : (__IsTextInput?false:true);
+}
+
+bool RunCommand(uint8 curKey, HotKey@ hkey, uint8 mainScreen, uint8 curScreen)
+{
+if(curKey==DIK_RETURN || curKey==DIK_NUMPADENTER)
+  __IsTextInput=!__IsTextInput;
+
+
+if(hkey.IsHardcoded)
    return false;
-else
-  {
-   if(cmd.length()!=0)
-   RunCommand(cmd);
-   return true;
-  }
-}
 
-void RunCommand(string command)
-{
+if (!FLAG(hkey.modes, KEY_TEXT) && __IsTextInput)
+	return false;
 
-string@[]@ fullCmd = split(command, DELIMITER);
+    if( not (FLAG(hkey.modes, KEY_TEXT) && not FLAG(hkey.modes, KEY_GLOBAL) && not FLAG(hkey.modes, KEY_MAIN))) //Если команда НЕ только для командной строки
+    if( (mainScreen == CLIENT_MAIN_SCREEN_GLOBAL_MAP && not FLAG(hkey.modes, KEY_GLOBAL)) || (mainScreen == CLIENT_MAIN_SCREEN_GAME && not FLAG(hkey.modes, KEY_MAIN)))
+      return true;
+	    
+    if(hkey.prefix == CLIENT_PREFIX)
+        return RunClientCommand(hkey.type, hkey.cmd, hkey.params);
+    else if(hkey.prefix == SERVER_PREFIX)
+        return RunServerCommand(hkey.type, hkey.cmd, hkey.params);
+    else
+        {
+         Message("Wrong prefix: "+hkey.prefix);
+		 return true;
+		}
 
-string prefix = fullCmd[0];
-string type = fullCmd.length()>2 ? fullCmd[1]:"";
-command = fullCmd.length()>2 ? fullCmd[2]:fullCmd[1]; 
-
-if(prefix == CLIENT_PREFIX)
-   RunClientCommand(type, command);
-else if(prefix == SERVER_PREFIX)
-   RunServerCommand(type, command);
-else
-    Message("Wrong prefix: "+prefix);
-}
-
-bool IsHotkeysUse() //Export
-{
-   return UseHotkeys;
 }
 
 void SetHotkeysUse(bool use) //Export
 {
-   if((use==true)&&(UseHotkeys==false))
-      UseHotkeys = InitHotKeys();
-   else if ((use==false)&&(UseHotkeys==true))
+   if((use==true)&&(__IsHotkeysUse==false))
+      __IsHotkeysUse = InitHotKeys();
+   else if ((use==false)&&(__IsHotkeysUse==true))
     {
-      UseHotkeys = false;
+      __IsHotkeysUse = false;
 	  if(HotKeys.length()>0)
 	     HotKeys.resize(0);
 	}

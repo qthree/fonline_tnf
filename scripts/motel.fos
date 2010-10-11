@@ -244,14 +244,15 @@ void SaleRoomAction(Critter& player, Critter& npc, int val) //all action to sale
     key.SetLexems("$keyNumberLex"+keyNumberLex);
     key.Update();
     CloseDoor(door);
-    CreateTimeEvent(__FullMinute + (val * 60),"e_RoomRentaOver", values, true);
+    CreateTimeEvent(__FullSecond + (val * 60 * 60),"e_RoomRentaOver", values, true);
   }
 }
 
 void CloseDoor(Item& door)
 {
-      Map @ map = GetMap(door.MapId);
-      map.CloseDoor(door);
+      //Map @ map = GetMap(door.MapId);
+      //map.CloseDoor(door);
+      door.LockerClose();
       door.Update();
 }
 
