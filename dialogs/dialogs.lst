@@ -45,6 +45,8 @@ $   90  speter
 $   91  replicator
 $   92  replicator_energy
 
+$	206	Bulletin_board
+
 $	10000	enc_klad_trader
 $	10001	enc_ocean_trader
 $	10002	enc_ocean_america
@@ -82,6 +84,8 @@ $	317	mod_girl
 $	318	mod_karl
 $	319	mod_brahmin_boy
 $	320	mod_farmer_q
+
+$	330	mod_enter_guard
 
 $	350 mod_comm_man
 $	351 mod_comm_woman

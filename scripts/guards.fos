@@ -37,6 +37,8 @@ import void sendWave(Map& map) from "raiders";
 import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
 
+import void addGuard(Critter& npc) from "gateway";
+
 //Найм охраны в город
 //params: location, number, level
 
@@ -47,7 +49,7 @@ void _InitGuard(Critter& cr, bool firstTime)
 	cr.StatBase[ST_PERCEPTION] = 9;
 	cr.ModeBase[MODE_UNLIMITED_AMMO] = 1;
 	cr.StatBase[ST_BAG_ID]=BAG_Empty;
-	cr.StatBase[ST_DIALOG_ID] = 352; //охранник Модока
+	if(cr.StatBase[ST_DIALOG_ID]!=330) cr.StatBase[ST_DIALOG_ID] = 352; //охранник Модока
 	cr.PerkBase[PE_SNIPER]=1;
 	cr.StatBase[ST_CRITICAL_CHANCE] = 60;
 	cr.StatBase[ST_NORMAL_ABSORB] = 10;
@@ -64,7 +66,9 @@ void _InitGuard(Critter& cr, bool firstTime)
 	//cr.SetEvent(CRITTER_EVENT_SMTH_DEAD , "_alarm");
 	cr.SetEvent(CRITTER_EVENT_ATTACKED, "_wrongMove");
 	cr.SetEvent(CRITTER_EVENT_RESPAWN, "_gimmeMyGun");
-	}
+
+	addGuard(cr);
+}
 
 void buyGuard(Critter& player, int param0, int param1, int param2)
 {

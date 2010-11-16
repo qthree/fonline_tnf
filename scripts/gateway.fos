@@ -1,0 +1,130 @@
+#include "_macros.fos"
+
+Critter@[] guards;
+
+import bool act_var_check(Critter& player) from "activation";
+
+import bool AddAttackPlane(Critter& npc, uint priority, Critter& target, int minHp) from "npc_planes";
+
+void t_firstEnterHex(Critter& cr, Scenery& trigger, bool entered, uint8 dir)
+{
+	if(cr.IsNpc()) return;
+
+	if(!act_var_check(cr))
+	{
+		AttackAndCatch(cr);		
+	}
+
+
+}
+
+void AttackAndCatch(Critter& cr)
+{
+	for(uint i=0; i<guards.length(); i++)
+	{
+		if(guards[i] is null) continue;
+		
+		AddAttackPlane(guards[i], 0, cr, -10);
+	}
+
+	cr.SetEvent (CRITTER_EVENT_KNOCKOUT, "_KoAndCatch");
+
+}
+
+void _KoAndCatch(Critter& cr, bool faceUp, uint lostAp, uint knockDist)
+{
+	if(!cr.IsDead () && !act_var_check(cr))
+	{
+		for(uint i=0; i<guards.length(); i++)
+		{
+			if((guards[i] is null)||(!guards[i].IsSee(cr))) continue;
+			
+			if(!catch(cr)) Log("Fail with catch!");
+
+			break;
+		}
+	}
+
+	cr.SetEvent (CRITTER_EVENT_KNOCKOUT, null);
+}
+
+bool catch(Critter& cr)
+{
+	
+	Map@ map = cr.GetMap();
+
+	if(map is null) return false;
+
+	uint16 hexX=0, hexY=0;
+
+	if(!map.GetEntireCoords (58, 0, hexX, hexY)) return false;
+
+	Item@ toCont = map.	GetItem(hexX, hexY, 188); //ищем шкаф с pid 188 на гексе #58
+
+	if(valid(toCont))
+	{
+		Item@[] items;
+		cr.GetItems(SLOT_INV,items);
+		cr.GetItems(SLOT_HAND1,items);
+		cr.GetItems(SLOT_HAND2,items);
+	
+		MoveItems(items,  toCont, cr.Id); //пр€чем вещички в шкаф с замком 300
+	}
+
+	uint last = map.GetData(55); // в какую клетку в последний раз пихали
+
+	bool ch=false;
+
+	for(uint i=0; i<3 && !ch; i++) //пробуем засунуть в одну из клеток по очереди
+	{
+		if(!map.GetEntireCoords(55+last, 0, hexX, hexY)) continue;
+	
+		ch = cr.TransitToHex(hexX, hexY, 2);
+	
+		last+=1; if(last>2) last=0;
+	}
+
+	map.SetData(55, last);
+
+	return ch;
+}
+
+void addGuard(Critter& npc)
+//void _InitGuard(Critter& npc, bool firstTime)
+{
+	uint len = guards.length();
+	guards.resize(len+1);
+	@guards[len]=npc;
+}
+
+
+void r_toHex(Critter& master, Critter@ slave, int val)
+{
+	Map@ map = master.GetMap();
+
+	if(map is null) return;
+
+	uint16 hexX=0, hexY=0;
+
+	if(!map.GetEntireCoords(val, 0, hexX, hexY)) return;
+
+	master.TransitToHex(hexX, hexY, 5);
+}
+
+bool d_isGoOut(Critter& master, Critter@ slave)
+{
+	Map@ map = master.GetMap();
+
+	if(map is null) return false;
+
+	uint16 hexX=0, hexY=0;
+
+	if(!map.GetEntireCoords (83, 0, hexX, hexY)) return false;
+
+	if(master.HexX==hexX && master.HexY== hexY) return true;
+
+	uint8 dir = GetDirection(master.HexX, master.HexY, hexX, hexY); 
+
+	return(dir>0 && dir<4);
+	
+}
