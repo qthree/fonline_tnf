@@ -14,7 +14,7 @@ import bool act_check_dead(Critter& player) from "activation";
 import bool dead(Critter& player) from "activation";
 
 
-const uint16[] ReplicatorsMapPids={MAP_Modoc}; //MAP_Modoc
+const uint16[] ReplicatorsMapPids={MAP_Modoc};
 uint ReplicatorPos=0;
 
 Map@ GetCurReplicatorMap()
@@ -51,8 +51,8 @@ void SetReplicationTime(Critter& cr) // Export
 {
 	if(cr.Param[ARCADE_MODE]==1)
 	{
-		int level=cr.Stat[ST_LEVEL];
-		cr.TimeoutBase[TO_REPLICATION]=__FullSecond+REAL_MINUTE(1)*level;
+		//int level=cr.Stat[ST_LEVEL];
+		cr.TimeoutBase[TO_REPLICATION]=__FullSecond+REAL_SECOND(10);//*level;
 		return;
 	}
 	int replTime=cr.Stat[ST_REPLICATION_TIME];
@@ -64,7 +64,7 @@ void SetReplicationTime(Critter& cr) // Export
 		{
 			/*if(act_var_check(cr)) replTime=max(abs(cr.Stat[ST_CURRENT_HP])-30, 0)*2+10;
 			else replTime=15;*/
-			if(cr.CondExt<=COND_DEAD_BURST) replTime=REAL_MINUTE(30); else replTime=REAL_MINUTE(3);
+			if(cr.Anim2Dead<=ANIM2_DEAD_BURST) replTime=REAL_MINUTE(30); else replTime=REAL_MINUTE(3);
 			//replTime*=REAL_SECOND(1);
 		}
 		else 
@@ -82,7 +82,7 @@ void SetReplicationTime(Critter& cr) // Export
 		}
 	}
 	else replTime*=REAL_MINUTE(1);
-	cr.TimeoutBase[TO_REPLICATION]=__FullSecond+400; //replTime
+	cr.TimeoutBase[TO_REPLICATION]=__FullSecond+replTime;
 }
 
 void ReplicateCritter(Critter& cr) // Export
@@ -90,7 +90,7 @@ void ReplicateCritter(Critter& cr) // Export
 	Map@ dieMap=cr.GetMap();
 	Map@ map=null;
 	uint16 hx=0,hy=0;
-	uint8 condition=cr.CondExt;
+	uint8 condition=cr.Anim2Dead;
 	if(cr.IsPlayer() && cr.Stat[ST_BODY_TYPE]==BT_ROBOT) return;
 	if(cr.IsPlayer())
 	{
@@ -157,7 +157,7 @@ void ReplicateCritter(Critter& cr) // Export
 			if(valid(dropMap))
 			{
 				Item@ skeleton;
-				if(condition<COND_DEAD_PULSE) @skeleton=dropMap.AddItem(dropX, dropY, PID_VAULT_DWELLER_BONES, 1);
+				if(condition<ANIM2_DEAD_PULSE) @skeleton=dropMap.AddItem(dropX, dropY, PID_VAULT_DWELLER_BONES, 1);
 				if(valid(skeleton))
 				{	
 					uint[] values = {dropMap.Id, skeleton.Id};
@@ -229,10 +229,25 @@ void ReplicateCritter(Critter& cr) // Export
 				Map@ dropMap=cr.GetMap();
 				Item@[] items;
 				cr.GetItems(-1,items);
-				// Disable drop of hidden items
-				for(uint i=0,j=items.length();i<j;i++) if(FLAG(items[i].Flags,ITEM_HIDDEN)) @items[i]=null;
-				if(valid(dropMap)) MoveItems(items,dropMap,cr.HexX,cr.HexY);
-				else DeleteItems(items);
+				// Disable drop of hidden items and delete gag items (sandbags)
+			        for(uint i=0,j=items.length();i<j;i++)
+			        {
+				        if(FLAG(items[i].Flags,ITEM_GAG))
+				        {
+					        DeleteItem(items[i]);
+					        @items[i]=null;
+				        }
+				        else if(FLAG(items[i].Flags,ITEM_HIDDEN))
+				        {
+					        @items[i]=null;
+				        }
+			        }
+        
+			        // Drop
+			        if(valid(dropMap))
+				        MoveItems(items,dropMap,cr.HexX,cr.HexY);
+			        else
+				        DeleteItems(items);
 			}
 	
 			if(not valid(dieMap))
@@ -274,8 +289,12 @@ void ReplicateCritter(Critter& cr) // Export
 				for(int y=-1;y<=1;y++)
 				{
 					if(x==0 && y==0) continue; // Skip direct position
+
+					if(__MapHexagonal)
+					{
 					if((hx%2)==1 && ((x==-1 && y==1) || (x==1 && y==1))) continue;
 					if((hx%2)==0 && ((x==-1 && y==-1) || (x==1 && y==-1))) continue;
+					}
 
 					if(map.IsHexPassed(hx+x,hy+y))
 					{

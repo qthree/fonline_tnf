@@ -112,7 +112,7 @@ class MedicPattern: CommonPattern
 					HealTeammate(medic, teammate);
 				}else{
 					// Иначе еще одна итерация приближения.
-					AddMiscPlane(teammate, AI_PLANE_WAIT_FOR_HEAL_PRIORITY, __FullMinute+1, null);
+					AddMiscPlane(teammate, AI_PLANE_WAIT_FOR_HEAL_PRIORITY, __FullSecond+60, null);
 					MoveForHealTeamMate(medic, teammate);
 				}
 			}
@@ -241,7 +241,7 @@ int _MedicPlaneEnd(Critter& medic, NpcPlane& plane, int reason, Critter@ someCr,
 void SetMedicStats(Critter & cr, uint8 lvl)
 {
 	lvl = CLAMP(lvl, 0, M_COUNT-1);
-
+	if(lvl<1) return;
 	cr.StatBase[ST_MAX_LIFE] = M_HP(lvl);
 	cr.StatBase[ST_CURRENT_HP] = cr.Stat[ST_MAX_LIFE];
 	cr.StatBase[ST_LEVEL] = 24;

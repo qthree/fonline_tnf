@@ -1,0 +1,579 @@
+// Author: cvet
+// Mapper main script
+// Compile using fo_mapper.dll
+
+//
+// API specification
+//
+
+/// Reserved functions
+// void start()
+// uint loop()
+// bool console_message(string& message)
+// void render_iface(uint layer)
+// void render_map()
+// bool mouse_down(int click)
+// bool mouse_up(int click)
+// void mouse_move(int x, int y)
+// bool key_down(uint8 key)
+// bool key_up(uint8 key)
+// void input_lost()
+
+/// User functions
+// string FuncName(string str)
+// Call in console using '#'
+
+/// Global functions
+// void    SetDefaultCritterParam(uint index, int param)
+//  Init state: 0 ST_DIALOG_ID, 1 ST_AI_ID, 2 ST_BAG_ID, 3 ST_TEAM_ID, 4 ST_NPC_ROLE, 5 ST_REPLICATION_TIME, 6..14 -1
+// MapperMap@+ LoadMap(string& fileName, int pathType)
+// void    UnloadMap(MapperMap@+ map)
+// bool    SaveMap(MapperMap@+ map, string& fileName, int pathType)
+// bool    ShowMap(MapperMap@+ map)
+// int     GetLoadedMaps(MapperMap@[]@+ maps) const
+// void    DeleteObject(MapperObject@+ obj)
+// void    DeleteObjects(MapperObject@[]& objects)
+// void    SelectObject(MapperObject@+ obj, bool set)
+// void    SelectObjects(MapperObject@[]& objects, bool set)
+// MapperObject@+ GetSelectedObject() const
+// uint    GetSelectedObjects(MapperObject@[]@+ objects) const
+// void    GetMousePosition(int& x, int& y) const
+// uint    GetMapFileNames(string@+ dir, string@[]@+ names)
+//
+// ProtoItem@+ GetProtoItem(uint16 protoId) const
+// bool    LoadDat(string& datName)
+// void    MoveScreen(uint16 hexX, uint16 hexY, uint speed)
+// int     GetKeybLang() const
+// string@ GetIfaceIniStr(string& key)
+//
+// void    Log(string& text) const
+// string@ GetLastError() const
+// int     Random(int minimum, int maximum) const
+// uint    GetTick() const
+// uint    GetAngelScriptProperty(int property) const
+// void    SetAngelScriptProperty(int property, uint value)
+//
+// void    GetHexCoord(uint16 fromHx, uint16 fromHy, uint16& toHx, uint16& toHy, float angle, uint dist) const
+// uint    GetPathLength(uint16 fromHx, uint16 fromHy, uint16 toHx, uint16 toHy, uint cut) const
+// bool    GetHexPos(uint16 hx, uint16 hy, int& x, int& y) const
+// bool    GetMonitorHex(int x, int y, uint16& hx, uint16& hy) const
+// void    MoveHexByDir(uint16& hexX, uint16& hexY, uint8 dir, uint steps)
+// uint    GetDistantion(uint16 hexX1, uint16 hexY1, uint16 hexX2, uint16 hexY2) const
+// uint8   GetDirection(uint16 fromX, uint16 fromY, uint16 toX, uint16 toY) const
+// uint8   GetOffsetDir(uint16 hx, uint16 hy, uint16 tx, uint16 ty, float offset) const
+//
+// void    Message(string& text)
+// void    Message(int textMsg, uint strNum)
+// void    MapMessage(string& text, uint16 hx, uint16 hy, uint timeMs, uint color, bool fade, int offsX, int offsY)
+// string@ GetMsgStr(int textMsg, uint strNum)
+// string@ GetMsgStr(int textMsg, uint strNum, uint skipCount)
+// uint    GetMsgStrNumUpper(int textMsg, uint strNum)
+// uint    GetMsgStrNumLower(int textMsg, uint strNum)
+// uint    GetMsgStrCount(int textMsg, uint strNum)
+// bool    IsMsgStr(int textMsg, uint strNum)
+// string@ ReplaceText(const string& text, const string& replace, const string& str)
+// string@ ReplaceText(const string& text, const string& replace, int i)
+//
+// uint    LoadSprite(string& name, int pathIndex)
+// uint    LoadSprite(uint16 sprNum, uint8 dir, int pathIndex)
+// int     GetSpriteWidth(uint sprId, int sprIndex)
+// int     GetSpriteHeight(uint sprId, int sprIndex)
+// uint    GetSpriteCount(uint sprId)
+// void    DrawSprite(uint sprId, int sprIndex, int x, int y, uint color)
+// void    DrawSprite(uint sprId, int sprIndex, int x, int y, int w, int h, bool scratch, bool center, uint color)
+// void    DrawText(string& text, int x, int y, int w, int h, uint color, int font, int flags)
+// void    DrawPrimitive(int primitiveType, int[]& data)
+// void    DrawMapSprite(uint16 hx, uint16 hy, uint16 effectPid, uint sprId, int sprIndex, int offsX, int offsY)
+// void    DrawCritter2d(uint crType, uint anim1, uint anim2, uint8 dir, int l, int t, int r, int b, bool scratch, bool center, uint color)
+// void    DrawCritter3d(uint instance, uint crType, uint anim1, uint anim2, int[]@+ layers, float[]@+ position, uint color)
+//
+// uint    TabGetTileDirs(int tab, string@[]@+ dirNames, bool[]@+ includeSubdirs)
+// uint    TabGetItemPids(int tab, string@+ subTab, uint16[]@+ itemPids)
+// uint    TabGetCritterPids(int tab, string@+ subTab, uint16[]@+ critterPids)
+// void    TabSetTileDirs(int tab, string@[]@+ dirNames, bool[]@+ includeSubdirs)
+// void    TabSetItemPids(int tab, string@+ subTab, uint16[]@+ itemPids)
+// void    TabSetCritterPids(int tab, string@+ subTab, uint16[]@+ critterPids)
+// void    TabDelete(int tab)
+// void    TabSelect(int tab, string@+ subTab)
+// void    TabSetName(int tab, string@+ subName)
+
+/// MapperObject
+// Shared parameters
+// const uint8  MapObjType
+// const uint16 ProtoId
+// const uint16 MapX
+// const uint16 MapY
+// uint8   Dir
+// const uint UID;
+// const uint ContainerUID;
+// const uint ParentUID;
+// const uint ParentChildIndex;
+// string  ScriptName
+// string  FuncName
+// uint    LightColor
+// uint8   LightDay
+// uint8   LightDirOff
+// uint8   LightRadius
+// int8    LightIntensity
+// int     UserData0..9
+//  Critter parameters
+// uint8   Critter_Cond
+// uint8   Critter_CondExt
+// int16   Critter_ParamIndex0..14
+// int     Critter_ParamValue0..14
+//  Item/Scenery shared parameters
+// int16   OffsetX
+// int16   OffsetY
+// uint8   AnimStayBegin
+// uint8   AnimStayEnd
+// uint16  AnimWait
+// string  PicMap
+// string  PicInv
+// uint8   InfoOffset
+//  Item parameters
+// uint    Item_Count
+// uint8   Item_BrokenFlags
+// uint8   Item_BrokenCount
+// uint16  Item_Deterioration
+// uint8   Item_ItemSlot
+// uint16  Item_AmmoPid
+// uint    Item_AmmoCount
+// uint    Item_LockerDoorId
+// uint16  Item_LockerCondition
+// uint16  Item_LockerComplexity
+// int16   Item_TrapValue
+// int     Item_Val0..9
+//  Scenery parameters
+// bool    Scenery_CanUse
+// bool    Scenery_CanTalk
+// uint    Scenery_TriggerNum
+// uint8   Scenery_ParamsCount
+// int     Scenery_Param0..4
+// uint    Scenery_ToMapPid
+// uint    Scenery_ToEntire
+// uint8   Scenery_ToDir
+// uint8   Scenery_SpriteCut
+//
+// void    Update() const
+// uint    GetChilds(MapperObject@[]@+ objects) const
+// void    MoveToHex(uint16 hexX, uint16 hexY)
+// void    MoveToHexOffset(int x, int y)
+// void    MoveToDir(uint8 dir)
+
+/// MapperMap
+// const uint16 Width
+// const uint16 Height
+// const int    WorkHexX
+// const int    WorkHexY
+// int    Time
+// bool   NoLogOut
+// string ScriptModule
+// string ScriptFunc
+
+// MapperObject@+ AddObject(uint16 hexX, uint16 hexY, int mapObjType, uint16 pid)
+// MapperObject@+ GetObject(uint16 hexX, uint16 hexY, int mapObjType, uint16 pid, uint skip) const
+// uint    GetObjects(uint16 hexX, uint16 hexY, uint radius, int mapObjType, uint16 pid, MapperObject@[]@+ objects) const
+// void    UpdateObjects() const
+// uint    GetTilesCount(uint16 hexX, uint16 hexY, bool roof) const
+// void    DeleteTile(uint16 hexX, uint16 hexY, bool roof, uint index)
+// uint    GetTile(uint16 hexX, uint16 hexY, bool roof, uint index) const
+// void    AddTile(uint16 hexX, uint16 hexY, int offsX, int offsY, int layer, bool roof, uint picHash)
+// string@ GetTileName(uint16 hexX, uint16 hexY, bool roof, uint index) const
+// void    AddTileName(uint16 hexX, uint16 hexY, int offsX, int offsY, int layer, bool roof, string@+ picName)
+// uint    GetDayTime(uint dayPart) const
+// void    SetDayTime(uint dayPart, uint time)
+// void    GetDayColor(uint dayPart, uint8& r, uint8& g, uint8& b) const
+// void    SetDayColor(uint dayPart, uint8 r, uint8 g, uint8 b)
+// void    Resize(uint16 width, uint16 height)
+
+#include "_mapper_defines.fos"
+#include "_macros.fos"
+#include "_itempid.fos"
+#include "_colors.fos"
+
+import void InitializeGame() from "config";
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Call on new mapper instance creating.
+// Return true to handle event and close new instance or
+// return false to allow creating of new mapper instance.
+bool new_instance(string commandLine)
+{
+	return false;
+}
+
+uint[] sand_hashes;
+string@[] sand_names;
+uint[] sand_nums;
+uint[] sand_colors;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Call on mapper loaded.
+void start()
+{
+	InitializeGame();
+	InitializeTabs();
+	
+	string dir="art/tiles/",
+	edg="edg",
+	frm=".frm";
+	
+	sand_names.resize(0);
+	sand_nums.resize(0);
+	uint i=0;
+	for(i=1000; i<=1003; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
+	for(i=2000; i<=2003; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
+	for(i=3000; i<=3001; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
+	for(i=4000; i<=4008; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
+	for(i=5000; i<=5008; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
+	for(i=6000; i<=6011; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
+	for(i=7000; i<=7003; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
+	for(i=0; i<=4; i++) {sand_names.insertLast("edgs00"+i); sand_nums.insertLast(i);}
+	
+	sand_hashes.resize(sand_names.length());
+	for(uint j=0; j<sand_names.length(); j++) sand_hashes[j]=GetStrHash(dir+sand_names[j]+frm);
+	
+	uint[] temp = {COLOR_WHITE, COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_BLACK, COLOR_LBLUE, COLOR_GREEN_RED, COLOR_LRED};
+	sand_colors = temp;
+}
+
+void InitializeTabs()
+{
+	// Fast item prototypes
+	TabDelete(TAB_FAST_ITEMS);
+	uint16[] pids;
+
+	// Special hexes
+	pids.resize(0);
+	pids.insertLast(3852); // Trigger
+	pids.insertLast(3853); // Entire
+	pids.insertLast(4012); // Scroll block
+	pids.insertLast(2141); // Light source
+	pids.insertLast(4592); // Light stopper
+	TabSetItemPids(TAB_FAST_ITEMS, "001 - special", pids);
+
+	// Blockers
+	pids.resize(0);
+	pids.insertLast(2067); // Secret Blocking Hex
+	pids.insertLast(2344); // Block Hex Auto Inviso
+	pids.insertLast(5621); // Wall blocker with light
+	pids.insertLast(5622); // Wall blocker without light
+	TabSetItemPids(TAB_FAST_ITEMS, "002 - blocker", pids);
+
+	// Wall corners
+	pids.resize(0);
+	for(uint i = 6800; i <= 6805; i++) pids.insertLast(i);
+	TabSetItemPids(TAB_FAST_ITEMS, "003 - wall corner", pids);
+
+	// Exit grids
+	pids.resize(0);
+	pids.insertLast(2049);
+	for(uint i = 4016; i <= 4023; i++) pids.insertLast(i);
+	for(uint i = 4031; i <= 4046; i++) pids.insertLast(i);
+	TabSetItemPids(TAB_FAST_ITEMS, "004 - exit grid", pids);
+
+	// Custom items
+	TabDelete(TAB_CUSTOM8);
+	TabSetName(TAB_CUSTOM8, "Cust");
+
+	// Cars
+	pids.resize(0);
+	pids.insertLast(PID_BUGGY);
+	pids.insertLast(PID_BUGGY_BAG);
+	pids.insertLast(PID_SCOUT);
+	pids.insertLast(PID_SCOUT_BAG);
+	pids.insertLast(PID_HUMMER);
+	pids.insertLast(PID_HUMMER_BAG);
+	pids.insertLast(PID_HIGHWAYMAN);
+	pids.insertLast(PID_HIGHWAYMAN_BAG);
+	pids.insertLast(PID_VERTIBIRD);
+	pids.insertLast(PID_VERTIBIRD_BAG);
+	pids.insertLast(PID_BOAT);
+	pids.insertLast(PID_BOAT_BAG);
+	TabSetItemPids(TAB_CUSTOM8, "001 - cars", pids);
+
+	// Dead bodies
+	pids.resize(0);
+	pids.insertLast(PID_ALIEN_SIDE);
+	pids.insertLast(PID_ALIEN_FORWARD);
+	pids.insertLast(PID_VAULT_DWELLER_BONES);
+	pids.insertLast(PID_HUMAN_BONES);
+	pids.insertLast(PID_DEAD_REDSHIRT_0);
+	pids.insertLast(PID_DEAD_REDSHIRT_1);
+	pids.insertLast(PID_DEAD_REDSHIRT_2);
+	TabSetItemPids(TAB_CUSTOM8, "002 - dead bodies", pids);
+
+	// Tactics tiles, tiles_0.bos
+	if(__GeometryType == GEOMETRY_TACTICS)
+	{
+		TabSetName(TAB_CUSTOM0, "TacT");
+		string@[] ftTiles = {"tiles/"};
+		bool[] includeSubdirs = {true};
+		TabSetTileDirs(TAB_CUSTOM0, ftTiles, includeSubdirs);
+	}
+
+	// Arcanum tiles, arcanum2.dat
+	if(__GeometryType == GEOMETRY_ARCANUM)
+	{
+		TabSetName(TAB_CUSTOM0, "ArcT");
+		string@[] arcanumTiles = {"art/tile/"};
+		bool[] includeSubdirs = {true};
+		TabSetTileDirs(TAB_CUSTOM0, arcanumTiles, includeSubdirs);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Main loop function. Returned time of next call in milliseconds.
+uint loop()
+{
+	return 60000;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Call on console message. Return true to disable engine processing.
+bool console_message(string& message)
+{
+	// Command prefixes
+	// ~ load map
+	// ^ save map
+	// @ critter animation
+	// # run script
+	// * other
+	return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Render interface function. You can use Draw* functions only there.
+// Layer specification:
+//    0
+// Game map
+//    1
+// Mapper interface
+//    2
+// Console, Messbox
+//    3
+// Mapper object interface
+//    4
+// Cursor
+//    5
+void render_iface(uint layer)
+{
+	if(layer!=1) return;
+	
+	MapperMap@ map = GetActiveMap();
+	if(map is null) return;	
+	
+	//Message("1");
+	
+	uint16 hexX0=0, hexY0=0, hexX=0, hexY=0;
+	if(!GetMonitorHex(10, 10, hexX0, hexY0)) return;
+	/*Message("2");
+	if(!GetMonitorHex(__ScreenWidth-10, __ScreenHeight-10, hexX, hexY)) return;
+	Message("3");*/
+	hexX=hexX0+20;
+	hexY=hexY0+20;
+	hexX0-=20;
+	hexY0-=20;
+	
+	hexX = MIN(hexX, map.Width);
+	hexY = MIN(hexY, map.Height);
+	//Message("x0: "+hexX0+" y0: "+hexY0+"x: "+hexX+" y: "+hexY);
+	
+	uint tlen=0, hash=0, hlen=sand_hashes.length();
+	int sx=0, sy=0;
+	
+	for(uint16 x=hexX0; x<hexX; x++)
+	{
+		for(uint16 y=hexY0; y<hexY; y++)
+		{
+			//Message("4");
+			tlen = map.GetTilesCount(x, y, false);
+			if(tlen<1) continue;
+			//Message("5");
+			hash = map.GetTile(x, y, false, tlen-1);
+			if(hash==0) continue;
+			//Message("6");
+			
+			if(!GetHexPos(x, y, sx, sy)) continue;
+			//Message("7");
+						
+			for(uint i=0; i<hlen; i++)
+			{
+				if(hash!=sand_hashes[i]) continue;
+				
+				uint color = sand_colors[sand_nums[i]/1000];				
+				
+				DrawText(sand_names[i], sx-50, sy, 120, 60, color, FONT_FALLOUT, FT_NOBREAK|FT_COLORIZE|FT_BORDERED);
+			}
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Render map function. You can use DrawMap* functions only there. This drawing before 1 iface layer.
+void render_map()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mouse behaviours. Click states look in _client_defines.fos, Mouse click states.
+// Return true to disable engine events.
+bool mouse_down(int click)
+{
+	return false;
+}
+
+bool mouse_up(int click)
+{
+	return false;
+}
+
+void mouse_move(int x, int y)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Keyboard behaviours. Key codes look in _mapper_defines.fos DirectInput keyboard scan codes.
+// Return true to disable engine events.
+bool key_down(uint8 key)
+{
+	return false;
+}
+
+bool key_up(uint8 key)
+{
+	return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Called on mouse/keyboard input lost (alt-tab, minimize, lost focus).
+void input_lost()
+{
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Some useful functions.
+// #ConvertMaps
+// #ClearTiles
+// #MapTime         value
+// #MapNoLogOut     value
+// #MapScriptModule moduleName
+// #MapScriptFunc   funcName
+
+MapperMap@ GetActiveMap()
+{
+	MapperMap@[] maps;
+	int cur = GetLoadedMaps(maps);
+	if(cur == -1) return null;
+	return maps[cur];
+}
+
+// Maps convertation to text format
+string ConvertMaps(string str)
+{
+	string@[] mapNames;
+	GetMapFileNames(null, mapNames);
+
+	uint success = 0;
+	uint fail = 0;
+	for(uint i = 0; i < mapNames.length(); i++)
+	{
+		MapperMap@ map = LoadMap(mapNames[i], PT_SERVER_MAPS);
+		if(not (map is null))
+		{
+			if(SaveMap(map, mapNames[i], PT_SERVER_MAPS))
+			{
+				success++;
+			}
+			else
+			{
+				Message("Fail to save " + mapNames[i]);
+				fail++;
+			}
+
+			UnloadMap(map);
+		}
+		else
+		{
+			Message("Fail to load " + mapNames[i]);
+			fail++;
+		}
+	}
+
+	return "Done, maps converted " + (success + fail) + ", success " + success + ", fail " + fail + ".";
+}
+
+// Keep only one tile per hex
+string ClearTiles(string str)
+{
+	MapperMap@ map = GetActiveMap();
+	if(map is null) return "Map not loaded.";
+
+	uint deleted = 0;
+	for(uint hx = 0; hx < map.Width; hx++)
+	{
+		for(uint hy = 0; hy < map.Height; hy++)
+		{
+			for(;map.GetTilesCount(hx, hy, false) > 1; deleted++)
+				map.DeleteTile(hx, hy, false, 0);
+			for(;map.GetTilesCount(hx, hy, true)  > 1; deleted++)
+				map.DeleteTile(hx, hy, true , 0);
+		}
+	}
+
+	return "Done. Deleted " + deleted + " tiles.";
+}
+
+// Map parameters
+string MapTime(string str)
+{
+	MapperMap@ map = GetActiveMap();
+	if(map is null) return "Map not loaded.";
+	int value = 0;
+	if(not StrToInt(str, value)) return "Wrong value.";
+
+	map.Time = value;
+	return "Done. Time setted to " + map.Time + ".";
+}
+
+string MapNoLogOut(string str)
+{
+	MapperMap@ map = GetActiveMap();
+	if(map is null) return "Map not loaded.";
+	int value = 0;
+	if(not StrToInt(str, value)) return "Wrong value.";
+
+	map.NoLogOut = value != 0 ? true : false;
+	return "Done. NoLogOut setted to " + map.NoLogOut + ".";
+}
+
+string MapScriptModule(string str)
+{
+	MapperMap@ map = GetActiveMap();
+	if(map is null) return "Map not loaded.";
+
+	map.ScriptModule = str;
+	return "Done. ScriptModule setted to " + map.ScriptModule + ".";
+}
+
+string MapScriptFunc(string str)
+{
+	MapperMap@ map = GetActiveMap();
+	if(map is null) return "Map not loaded.";
+
+	map.ScriptFunc = str;
+	return "Done. ScriptFunc setted to " + map.ScriptFunc + ".";
+}
+
+
+
+
+
+
+
+
+
+
+

@@ -17,13 +17,13 @@ void ApplyMutation(Critter& cr)
 if(!IsHuman(cr)) return;
 uint roll=Random(1,100)-cr.Stat[ST_LUCK];
 if(cr.Stat[ST_MUTATION]>2) return;
-	if(roll<50)
-	{
-	cr.AddTimeEvent("cte_mutation", 60*60, EVENT_MUT);
-	}
-	else if(roll==51)
+	if(roll==51)
 	{
 	cr.AddTimeEvent("cte_superman", 60*60, EVENT_MUT);
+	}
+	else if(roll<100)
+	{
+	cr.AddTimeEvent("cte_mutation", 60*60, EVENT_MUT);
 	}
 	else cr.AddTimeEvent("cte_deadman", 60*60, EVENT_MUT);
 }

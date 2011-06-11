@@ -1,0 +1,78 @@
+30 W MaxHexX
+32 W MaxHexY
+34	Map
+38	Fields?
+
+0D8	if null can't DrawMapObj
+
+110 Lock scrool to crit
+14C if 1 then need recalc light
+760 array of msgs
+6B60 chosen data
+
+
+
+critter+172A 	- if 0 than valid
+
+
+0x2710 = 10000
+if(DrawOrderType>13)
+{
+	DrawOrderPos = (99 999 999 + HexY*10000 + HexX)*5*4+DrawOrderType;
+}
+else
+{
+	DrawOrderPos = (((DrawOrderType*10000)+HexY)*10000)+HexX;
+}
+
+
+struct SpriteManager
+{
+	uint Id;
+	uint un1;
+	void* funcUn1;
+	void* funcCrSurf; //Create save/load draft surface fail.
+		
+}
+
+
+
+
+CPU Disasm
+Address   Hex dump          Command                                            Comments
+0041EE4A  |> \6A 00         PUSH 0                                             ; /Arg12 = 0
+0041EE4C  |.  6A 00         PUSH 0                                             ; |Arg11 = 0
+0041EE4E  |.  6A 00         PUSH 0                                             ; |Arg10 = 0
+0041EE50  |.  6A 00         PUSH 0                                             ; |Arg9 = 0
+0041EE52  |.  6A 00         PUSH 0                                             ; |Arg8 = 0
+0041EE54  |.  50            PUSH EAX                                           ; |Arg7, sprId
+0041EE55  |.  A1 2C086C00   MOV EAX,DWORD PTR DS:[6C082C]                      ; |_MapHexHeight
+0041EE5A  |.  99            CDQ                                                ; |
+0041EE5B  |.  2BC2          SUB EAX,EDX                                        ; |
+0041EE5D  |.  D1F8          SAR EAX,1                                          ; |
+0041EE5F  |.  0346 14       ADD EAX,DWORD PTR DS:[ESI+14]                      ; |Filed->ScrY
+0041EE62  |.  034424 4C     ADD EAX,DWORD PTR SS:[ARG.7]                       ; |int offsY
+0041EE66  |.  50            PUSH EAX                                           ; |Arg6, sprite->ScrY
+0041EE67  |.  A1 28086C00   MOV EAX,DWORD PTR DS:[6C0828]                      ; |_MapHexWidth
+0041EE6C  |.  99            CDQ                                                ; |
+0041EE6D  |.  2BC2          SUB EAX,EDX                                        ; |
+0041EE6F  |.  D1F8          SAR EAX,1                                          ; |
+0041EE71  |.  0346 10       ADD EAX,DWORD PTR DS:[ESI+10]                      ; |Filed->ScrX
+0041EE74  |.  034424 4C     ADD EAX,DWORD PTR SS:[ARG.6]                       ; |int offsX
+0041EE78  |.  50            PUSH EAX                                           ; |Arg5, sprite->ScrX
+0041EE79  |.  0FB74424 40   MOVZX EAX,WORD PTR SS:[ARG.2]                      ; |uint16 hy
+0041EE7E  |.  6A 00         PUSH 0                                             ; |Arg4 = 0
+0041EE80  |.  03C7          ADD EAX,EDI                                        ; |+proto->offsetHexY
+0041EE82  |.  50            PUSH EAX                                           ; |Arg3, hexY
+0041EE83  |.  0FB74424 44   MOVZX EAX,WORD PTR SS:[ARG.1]                      ; |uint16 hx
+0041EE88  |.  50            PUSH EAX                                           ; |Arg2, hexX
+0041EE89  |.  51            PUSH ECX                                           ; |Arg1, drawOrderType
+0041EE8A  |.  8BCD          MOV ECX,EBP                                        ; |SprVec
+0041EE8C  |.  E8 CF1A0C00   CALL SprVec::AddSprite                             ; \FOnline_SprVec.SprVec::AddSprite
+
+
+
+004D6A50
+004D6D60
+004E0960
+

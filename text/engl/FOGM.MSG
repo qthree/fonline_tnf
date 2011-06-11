@@ -351,7 +351,7 @@
 
 # Map 99, base 1000
 {1000}{}{Wanamingo carvern}
-{1005}{}{13carvrn.acm}
+{1005}{}{13carvrn}
 {1006}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
 
 # Map 100, base 1010
@@ -527,16 +527,16 @@
 {1725}{}{17 - Trinity.ogg}
 {1726}{}{gustwind:20, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
 # Map 172, base 1730
-{1730}{}{Knight Of The Wasteland base. Ground level}
+{1730}{}{База Рыцарей Пустоши. Наземный уровень}
 {1735}{}{07desert}
 # Map 173, base 1740
-{1740}{}{Knight Of The Wasteland base. First level}
+{1740}{}{База Рыцарей Пустоши. Первый уровень}
 {1745}{}{07desert}
 # Map 174, base 1750
-{1750}{}{Knight Of The Wasteland base. Second level}
+{1750}{}{База Рыцарей Пустоши. Второй уровень}
 {1755}{}{07desert}
 # Map 175, base 1760
-{1760}{}{Knight Of The Wasteland base. Third level}
+{1760}{}{База Рыцарей Пустоши. Третий уровень}
 {1765}{}{07desert}
 
 # Map 190, base 1910
@@ -751,7 +751,7 @@
 {2316}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
 # Map 231, base 2320
 {2320}{}{Hell Bunker}
-{2325}{}{14necro}
+{2325}{}{08vats}
 {2326}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
 # Map 232, base 2330
 {2330}{}{Hell Mines}
@@ -778,37 +778,30 @@
 {2410}{}{Warehouse}
 {2415}{}{06 - Cluster Decay.ogg}
 {2416}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-
 # Map 241, base 2420
 {2420}{}{Warehouse}
 {2425}{}{06 - Cluster Decay.ogg}
 {2426}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-
 # Map 242, base 2430
 {2430}{}{Warehouse}
 {2435}{}{06 - Cluster Decay.ogg}
 {2436}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-
 # Map 243, base 2440
 {2440}{}{Warehouse}
 {2445}{}{06 - Cluster Decay.ogg}
 {2446}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-
 # Map 244, base 2450
 {2450}{}{Warehouse}
 {2455}{}{06 - Cluster Decay.ogg}
 {2456}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-
 # Map 245, base 2460
 {2460}{}{Warehouse}
 {2465}{}{06 - Cluster Decay.ogg}
 {2466}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-
 # Map 246, base 2470
 {2470}{}{Warehouse}
 {2475}{}{06 - Cluster Decay.ogg}
 {2476}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-
 # Map 247, base 2480
 {2480}{}{Warehouse}
 {2485}{}{06 - Cluster Decay.ogg}
@@ -1072,6 +1065,11 @@
 {3605}{}{07desert}
 {3606}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
 
+# Map 360, base 3610
+{3610}{}{Cave Enconter 5 Exit}
+{3615}{}{07desert}
+{3616}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
+
 # Map 371 base 3720
 {3720}{}{Ocean Encounter 1}
 {3725}{}{07desert}
@@ -1198,7 +1196,7 @@
 {3936}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
 
 # Map 400, base 4010
-{4010}{}{Atom Church Ground}
+{4010}{}{Церковь Атома Поверхность}
 {4015}{}{10labone}
 {4015}{}{05 - Anesthetic.ogg}
 {4015}{}{07 - Echelon.ogg}
@@ -1207,20 +1205,20 @@
 {4015}{}{17 - Trinity.ogg}
 {4016}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
 # Map 401, base 4020
-{4020}{}{Atom Church Level 1}
+{4020}{}{Церковь Атома Уровень 1}
 {4025}{}{08vats}
 {4026}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
 # Map 402, base 4030
-{4030}{}{Atom Church Reactor}
+{4030}{}{Церковь Атома Реактор}
 {4035}{}{16follow}
 {4036}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
 
 # Map 405, base 4060
-{4060}{}{Церковь Брока и Зандера}
+{4060}{}{Church of Broc and Xander}
 {4065}{}{16follow}
 {4066}{}{gntlwind:20, gntlwin1:20, gustwind:20, blank:40}
 # Map 406, base 4070
-{4070}{}{Церковь Брока и Зандера Под землей}
+{4070}{}{Church of Broc and Xander Underground}
 {4075}{}{16follow}
 {4076}{}{blank:100}
 
@@ -1232,117 +1230,95 @@
 # Info, (pid + 100) * 1000 + 5
 # Location picture, (pid + 100) * 1000 + 20
 # Tab picture, (pid + 100) * 1000 + 30
-# Count entires, (pid + 100) * 1000 + 90
+# Count entries, (pid + 100) * 1000 + 90
 # Entire X name, (pid + 100) * 1000 + 100 + X*10 + 1
 # Entire X pic x, (pid + 100) * 1000 + 100 + X*10 + 2
 # Entire X pic y, (pid + 100) * 1000 + 100 + X*10 + 3
 
 # Den, pid 1, base 101000
-{101000}{}{Den}
-{101005}{}{The town of gangsters and slavers.}
+{101000}{}{Пирс}
+{101005}{}{Уцелевщий от набегов пирс.}
 {101020}{}{art\intrface\twnden.frm}
-{101030}{}{art\intrface\WM_DEN.FRM}
-{101090}{}{3}
-{101101}{}{West Side}
-{101102}{}{140}
-{101103}{}{278}
-{101111}{}{Carpark}
-{101112}{}{80}
-{101113}{}{260}
-{101121}{}{East Side}
-{101122}{}{280}
-{101123}{}{380}
+{101030}{}{art\intrface\WM_PORT.PNG}
+{101090}{}{0}
+
 
 # Klamath, pid 2, base 102000
-{102000}{}{Klamath}
-{102005}{}{This town is also known as "Town of trappers". Every hunter can find a job here since there are huge gecko herds around.}
+{102000}{}{Свалка}
+{102005}{}{Страноватого вида свалка. Похоже сдесь собираются разные отбросы.}
 {102020}{}{art\intrface\twnklama.frm}
-{102030}{}{art\intrface\WM_KLAM.FRM}
-{102090}{}{3}
-{102101}{}{Downtown}
-{102102}{}{309}
-{102103}{}{203}
-{102111}{}{Mall}
-{102112}{}{155}
-{102113}{}{264}
-{102121}{}{Trapping Caves}
-{102122}{}{292}
-{102123}{}{315}
+{102030}{}{art\intrface\WM_JUNKYARD2.PNG}
+{102090}{}{0}
+
 
 # Modoc, pid 3, base 103000
-{103000}{}{Modoc}
-{103005}{}{One of the last civilized place in the wasteland. Fortress-like town.}
+{103000}{}{Модок}
+{103005}{}{Один из последних клочков цивилизации в пустоши. Город-крепость, выживающий под натиском враждебного мира.}
 {103020}{}{art\intrface\twnmodoc.frm}
-{103030}{}{art\intrface\WM_MODOC.FRM}
-{103090}{}{2}
-{103101}{}{Town south}
-{103102}{}{350}
-{103103}{}{150}
-{103111}{}{Town north}
-{103112}{}{350}
-{103113}{}{100}
+{103030}{}{art\intrface\WM_MODOC.png}
+{103090}{}{0}
 
 # Vault City, pid 4, base 104000
-{104000}{}{Vault City}
-{104005}{}{The first city that was built with GECK.}
+{104000}{}{Город-Убежище}
+{104005}{}{Первый город, построенный с помощью ГЕКК.}
 {104020}{}{art\intrface\twnvcity.frm}
 {104030}{}{art\intrface\WM_VLTCT.FRM}
 {104090}{}{2}
-{104101}{}{Courtyard}
+{104101}{}{Двор}
 {104102}{}{350}
 {104103}{}{264}
-{104111}{}{Inner City}
+{104111}{}{Город}
 {104112}{}{147}
 {104113}{}{160}
-#{104121}{}{Vault}
+#{104121}{}{Убежище}
 #{104122}{}{292}
 #{104123}{}{315}
 
 # Gecko, pid 5, base 105000
-{105000}{}{Gecko}
-{105005}{}{A town of ghouls. An unique atomic power station is located here. The surroundings are highly radioactive.}
+{105000}{}{Гекко}
+{105005}{}{Город гулей. В нём расположена единственная Атомная электростанция. Вблизи радиактивно.}
 {105020}{}{art\intrface\twngecko.frm}
 {105030}{}{art\intrface\WM_GECKO.FRM}
 {105090}{}{3}
-{105101}{}{Settlement}
+{105101}{}{Поселение}
 {105102}{}{155}
 {105103}{}{246}
-{105111}{}{Reactor}
+{105111}{}{Реактор}
 {105112}{}{51}
 {105113}{}{169}
-{105121}{}{Landfill}
+{105121}{}{Свалка}
 {105122}{}{282}
 {105123}{}{173}
 
 # Broken Hills, pid 6, base 106000
-{106000}{}{Broken Hills}
-{106005}{}{A town uniting humans, ghouls and mutants. Serious racism issues are present.}
+{106000}{}{Брокен Хиллс}
+{106005}{}{Город, объединяющий в себе людей, гулей и супермутантов. Город, в котором остро стоит проблема расизма.}
 {106020}{}{art\intrface\twnbrokn.frm}
 {106030}{}{art\intrface\WM_HILLS.FRM}
 {106090}{}{1}
-{106101}{}{Downtown}
+{106101}{}{Город}
 {106102}{}{125}
 {106103}{}{276}
 
 # New Reno, pid 7, base 107000
-{107000}{}{New Reno}
-{107005}{}{The town of casino, drugs and harlotry.}
+{107000}{}{Нью Рено}
+{107005}{}{Город казино, наркотиков и разврата.}
 {107020}{}{art\intrface\twnreno.frm}
 {107030}{}{art\intrface\WM_RENO.FRM}
 {107090}{}{5}
-{107101}{}{South side}
+{107101}{}{Южная сторона}
 {107102}{}{230}
 {107103}{}{300}
-{107111}{}{Center of the city}
+{107111}{}{Центр города}
 {107112}{}{230}
 {107113}{}{210}
-{107121}{}{West side}
+{107121}{}{Западная сторона}
 {107122}{}{100}
 {107123}{}{210}
-{107131}{}{East side}
+{107131}{}{Восточная сторона}
 {107132}{}{360}
 {107133}{}{210}
-{107141}{}{GAS station}
+{107141}{}{Заправка}
 {107142}{}{360}
 {107143}{}{100}
 
@@ -1350,2113 +1326,2120 @@
 {108000}{}{Комплекс "Феникс"}
 {108005}{}{Военная лаборатория}
 {108020}{}{art\intrface\twnsad.frm}
-{108030}{}{art\intrface\WM_ARMY.FRM}
-{108090}{}{1}
-{108101}{}{Sierra}
-{108102}{}{130}
-{108103}{}{150}
+{108030}{}{art\intrface\WM_PHOENIX.PNG}
+{108090}{}{0}
+
 
 # Vault 15, pid 9, base 109000
-{109000}{}{Vault 15}
-{109005}{}{This vault must have been remaining closed during 50 years after beginning of Great War. Its habitats ideologies were completely opposed. This vault was opened at Spring, 2141.}
+{109000}{}{Убежище 15}
+{109005}{}{Это Убежище должно было оставаться закрытым в течение 50 лет после начала Великой Войны и вмещало в себе людей радикально противоположных идеологий. Весной 2141 года это Убежище открылось.}
 {109020}{}{art\intrface\twnv15.frm}
 {109030}{}{art\intrface\WM_VLT15.FRM}
 {109090}{}{1}
-{109101}{}{Enter}
+{109101}{}{Вход}
 {109102}{}{180}
 {109103}{}{273}
 
 # NCR, pid 10, base 110000
-{110000}{}{NCR}
-{110005}{}{This town belongs to the one of new states originated after US breakdown. Created by people from vaults 13 and 15. Full of aristocracy.}
+{110000}{}{Новокалифорнийская Республика}
+{110005}{}{Город одного из новых государств, возникших после развала США. Образован людьми из убежищ 13 и 15. Полон аристократии.}
 {110020}{}{art\intrface\twnncr.frm}
 {110030}{}{art\intrface\WM_NCR.FRM}
 {110090}{}{1}
-{110101}{}{Bazaar}
+{110101}{}{Базар}
 {110102}{}{240}
 {110103}{}{210}
 
 # Cathedral, pid 11, base 111000
-{111000}{}{Cathedral}
+{111000}{}{Собор}
 {111020}{}{art\intrface\twnmap11.frm}
 {111030}{}{art\intrface\wm_cathedral.frm}
 {111090}{}{1}
-{111101}{}{Enter}
+{111101}{}{Вход}
 {111102}{}{73}
 {111103}{}{341}
 
 # Military Base, pid 12, base 112000
-{112000}{}{Mariposa Military Base}
-{112005}{}{A US military base. The entrance is blocked. Supposedly it's the place where deadly FEV virus tests were running.}
-{112020}{}{art\intrface\twnmilbs.frm}
-{112030}{}{art\intrface\WM_MLTRY.FRM}
+{112000}{}{Военная база}
+{112005}{}{Военная база США. Вход завален. Предположительно там проходили испытания опаснейшего вируса FEV.}
+{112020}{}{twnmilbs.frm}
+{112030}{}{WM_MLTRY.FRM}
 {112090}{}{1}
-{112101}{}{Entrance}
+{112101}{}{Вход}
 {112102}{}{125}
 {112103}{}{58}
 
 # Redding, pid 13, base 113000
-{113000}{}{Redding}
-{113005}{}{A miners town.}
+{113000}{}{Реддинг}
+{113005}{}{Шахтёрский городок.}
 {113020}{}{art\intrface\twnredng.frm}
 {113030}{}{art\intrface\WM_RED.FRM}
-{113090}{}{3}
-{113101}{}{Downtown}
+{113090}{}{1}
+{113101}{}{Город}
 {113102}{}{200}
 {113103}{}{255}
-{113111}{}{Wanamingo mine}
-{113112}{}{160}
-{113113}{}{231}
-{113121}{}{Mine}
-{113122}{}{225}
-{113123}{}{200}
 
 # SF, pid 14, base 114000
-{114000}{}{San Francisco}
-{114005}{}{The biggest city of the USA. Center of trading and technologies. Own power station is present. People here invent new models of weapons and armor.}
+{114000}{}{Сан-Франциско}
+{114005}{}{Крупнейший город США. Это центр торговли и технологий. Имеет свою электростанцию и занимается разработкой новых видов вооружения и защиты.}
 {114020}{}{art\intrface\twnsanfr.frm}
 {114030}{}{art\intrface\WM_SANFN.FRM}
 {114090}{}{3}
-{114101}{}{Downtown}
+{114101}{}{Город}
 {114102}{}{300}
 {114103}{}{200}
-{114111}{}{Shi}
+{114111}{}{Ши}
 {114112}{}{350}
 {114113}{}{170}
-{114121}{}{Docks}
+{114121}{}{Доки}
 {114122}{}{300}
 {114123}{}{150}
 
 # Navarro, pid 15, base 115000
-{115000}{}{Navarro}
-{115005}{}{An Enclave military base. Enclave was a powerful organization that proclaimed itself the government of USA.}
+{115000}{}{Наварро}
+{115005}{}{Военная база Анклава. В прошлом сильнейшей организации объявившей себя правительством США.}
 {115020}{}{art\intrface\twnnavro.frm}
 {115030}{}{art\intrface\WM_NAVAR.FRM}
 {115090}{}{2}
-{115101}{}{GAS station}
+{115101}{}{Заправка}
 {115102}{}{51}
 {115103}{}{169}
-{115111}{}{Base}
+{115111}{}{База}
 {115112}{}{282}
 {115113}{}{173}
 
 # Arroyo, pid 16, base 116000
-{116000}{}{Arroyo}
-{116005}{}{A wonder village built with GECK. A real Garden of Eden.}
+{116000}{}{Арройо}
+{116005}{}{Чудо-поселение, построенное при помощи ГЕКК. Настоящий город-сад.}
 {116020}{}{art\intrface\twnarroy.frm}
 {116030}{}{art\intrface\WM_ARROY.FRM}
-{116090}{}{5}
-{116101}{}{Bridge}
+{116090}{}{4}
+{116101}{}{Мост}
 {116102}{}{350}
 {116103}{}{275}
-{116111}{}{Village}
+{116111}{}{Деревня}
 {116112}{}{280}
 {116113}{}{175}
-{116121}{}{Garden}
+{116121}{}{Округ}
 {116122}{}{100}
 {116123}{}{150}
-{116131}{}{Temple entrance}
+{116131}{}{Вход в Храм}
 {116132}{}{200}
 {116133}{}{90}
 
+
 # Primal Tribe, pid 17, base 117000
-{117000}{}{Primal Tribe}
-{117005}{}{Some primal tribe.}
+{117000}{}{Примитивное племя}
+{117005}{}{Перед вами небольшое поселение.}
 
 # Vault 13, pid 19, base 119000
-{119000}{}{Vault 13}
-{119005}{}{According to the legend, entrance to the Vault 13 is located here.}
+{119000}{}{Убежище 13}
+{119005}{}{По легенде, тут расположен вход в Убежище 13.}
 {119020}{}{art\intrface\twnv13.frm}
 {119030}{}{art\intrface\WM_VLT13.FRM}
 {119090}{}{2}
-{119101}{}{Outside}
+{119101}{}{Стоянка}
 {119102}{}{350}
 {119103}{}{275}
-{119111}{}{Entrance}
+{119111}{}{Вход}
 {119112}{}{280}
 {119113}{}{175}
 
 # Sacramento, pid 20, base 120000
-{120000}{}{Satter}
-{120005}{}{Fort Satter, build on the ruins of Sacramento city - once California capitol.}
+{120000}{}{Саттер}
+{120005}{}{Форт Саттер, построенный на руинах города Сакраменто - некогда столицы Калифорнии.}
+{120030}{}{art\intrface\WM_SATTER.PNG}
 
 # Quest bunker, pid 21, base 121000
-{121000}{}{Bunker}
-{121005}{}{Location of the old research facility.}
+{121000}{}{Саттер}
+{121005}{}{Форт Саттер, построенный на руинах города Сакраменто - некогда столицы Калифорнии.}
 
 # Barter-ground, pid 22, base 123000
-{122000}{}{Barter ground}
-{122005}{}{Small caravaners' transshipment point, turned into trading Mecca by dealers who settled here. You can safely trade here with caravans from all parts of the Wasteland - use of weapons is forbidden by local rules and any conflicts are to be left outside.}
+{122000}{}{Бартер-граунд}
+{122005}{}{Перевалочный пункт караванов, превращённый в торговую Мекку обоcновавшимися здесь перекупщиками. Здесь можно безопасно поторговать с караванами со всей Пустоши - использование оружия в Бартер-граунде запрещено, а все конфликты решаются за его пределами.}
 
 # Atoll, pid 23, base 123000
-{123000}{}{Atoll}
-{123005}{}{A weird construction on timber piles. Appears to be inhabited.}
+{123000}{}{Атолл}
+{123005}{}{Странная жестяная конструкция на сваях. Похоже, на ней кто-то живёт.}
 
 # Raiders, pid 24, base 124000
 {124000}{}{Рейдеры}
 {124005}{}{Когда-то тут располагалась база рейдеров, уничтоженных Избранным.}
 
 # Atom lost church, pid 25 base 125000
-{125000}{}{Atom Church}
-{125005}{}{You see an abandoned church.}
+{125000}{}{Церковь Атома}
+{125005}{}{Руины - все, что осталось от этого места.}
 
 # Church of Broc and Xander, pid 26 base 126000
-{126000}{}{Church of Broc and Xander}
-{126005}{}{This is the sanctuary of a welfaring and numerous religious confession.}
+{126000}{}{Церковь Брока и Зандера}
+{126005}{}{Это святилище процветающей и многочисленной  конфессии.}
+
+# Sacramento, pid 27, base 127000
+{127000}{}{Лапландия}
+{127005}{}{Маленькое снежное поселение деда Санты.}
 
 # Replication 1, pid 40, base 140000
-{140000}{}{Replication 1}
-{140005}{}{You see Station of Replication.}
+{140000}{}{Репликация №1}
+{140005}{}{Станция Репликации №1.}
 
 # Replication 2, pid 41, base 141000
-{141000}{}{Replication 2}
-{141005}{}{You see Station of Replication.}
+{141000}{}{Репликация №2}
+{141005}{}{Станция Репликации №2.}
 
 # Replication 3, pid 42, base 142000
-{142000}{}{Replication 3}
-{142005}{}{You see Station of Replication.}
+{142000}{}{Репликация №3}
+{142005}{}{Станция Репликации №3.}
 
 # Replication 4, pid 43, base 143000
-{143000}{}{Replication 4}
-{143005}{}{You see Station of Replication.}
+{143000}{}{Репликация №4}
+{143005}{}{Станция Репликации №4.}
 
 # Replication Hell, pid 44, base 144000
-{144000}{}{Special Station of Replication}
-{144005}{}{You see the replication station for debtors commonly known as Hell.}
+{144000}{}{Специальная Станция Репликации}
+{144005}{}{Станция Репликации для должников. В простонародье ее называют Адом.}
 
 # City, build by GECK, pid 45, base 145000
-{145000}{}{GECK City}
-{145005}{}{City, builded by GECK.}
+{145000}{}{Город ГЭКК}
+{145005}{}{Город, который построил ГЭКК.}
+
+# Sea pid 70, base 170000
+{170000}{}{Поселение у озера}
+{170005}{}{Небольшое рыбацкое поселение у озера "Трех Голов". Вдали от цивилизации, здесь идет своя, спокойная жизнь.}
 
 # Dead caravan, pid 203, base 303000
 {303000}{}{Остатки каравана Даппо}
 {303005}{}{Все караванщики мертвы.}
 
 # NCR siege camp, pid 205, base 305000
-{305000}{}{Raiders' camp}
+{305000}{}{Лагерь рейдеров}
+{305005}{}{Один из лагерей рейдеров, осадивших НКР.}
 
 # NCR siege camp, pid 206, base 306000
-{306000}{}{Raiders' camp}
+{306000}{}{Лагерь рейдеров}
+{306005}{}{Один из лагерей рейдеров, осадивших НКР.}
 
 # NCR siege camp, pid 207, base 307000
-{307000}{}{Raiders' camp}
+{307000}{}{Лагерь рейдеров}
 {307005}{}{Отсюда рейдеры производят нападения на караваны НКР и патрули Рейнджеров.}
 
 # NCR siege camp, pid 208, base 308000
-{308000}{}{Raiders' camp}
+{308000}{}{Лагерь рейдеров}
+{308005}{}{Один из лагерей рейдеров, осадивших НКР.}
 
 # NCR siege camp, pid 209, base 309000
-{309000}{}{Raiders' camp}
+{309000}{}{Лагерь рейдеров}
+{309005}{}{Один из лагерей рейдеров, осадивших НКР.}
 
-# Raiders' camp, pid 210, base 310000
-{310000}{}{Raiders' camp}
+# Raiders camp, pid 210, base 310000
+{310000}{}{Лагерь рейдеров}
 {310010}{}{По словам Минока, где-то тут располагается лагерь рейдеров.}
 
-# Raiders' camp, pid 211, base 311000
-{311000}{}{Raiders' camp}
+# Raiders camp, pid 211, base 311000
+{311000}{}{Лагерь рейдеров}
 {311005}{}{Тут в последний раз были замечены основные силы рейдеров.}
 
-# Raiders camp, pid 211, base 312000
+# Raiders camp, pid 212, base 312000
 {312000}{}{Палатка наркодилеров}
 {312005}{}{Вы нашли то место, о котором вам сообщила Нэнси по рации.}
 
 # Warehouse, pid 220, base 320000
-{320000}{}{Warehouse}
-{320005}{}{You see an abandoned warehouse.}
+{320000}{}{Склад}
+{320005}{}{Заброшенный склад.}
 
 # Warehouse, pid 221, base 321000
-{321000}{}{Warehouse}
-{321005}{}{You see an abandoned warehouse.}
+{321000}{}{Склад}
+{321005}{}{Заброшенный склад.}
 
 # Warehouse, pid 222, base 322000
-{322000}{}{Warehouse}
-{322005}{}{You see an abandoned warehouse.}
+{322000}{}{Склад}
+{322005}{}{Заброшенный склад.}
 
 # Warehouse, pid 223, base 323000
-{323000}{}{Warehouse}
-{323005}{}{You see an abandoned warehouse.}
+{323000}{}{Склад}
+{323005}{}{Заброшенный склад.}
 
 # Warehouse, pid 224, base 324000
-{324000}{}{Warehouse}
-{324005}{}{You see an abandoned warehouse.}
+{324000}{}{Склад}
+{324005}{}{Заброшенный склад.}
 
 # Warehouse, pid 225, base 325000
-{325000}{}{Warehouse}
-{325005}{}{You see an abandoned warehouse.}
+{325000}{}{Склад}
+{325005}{}{Заброшенный склад.}
 
 # Warehouse, pid 226, base 326000
-{326000}{}{Warehouse}
-{326005}{}{You see an abandoned warehouse.}
-
+{326000}{}{Склад}
+{326005}{}{Заброшенный склад.}
 
 #
 # Worldmap Encounter messages
 #
 
-{10000010}{}{You encounter: @lex who@.}
-{10000011}{}{You encounter: @lex who@ and @lex player@.}
-{10000012}{}{You encounter: @lex who@ and @lex player@ group.}
-{10000013}{}{You encounter: @lex player@.}
-{10000014}{}{You encounter: @lex player@ group.}
-{10000020}{}{Do you wish to encounter: @lex who@.}
-{10000021}{}{Do you wish to encounter: @lex who@ and @lex player@.}
-{10000022}{}{Do you wish to encounter: @lex who@ and @lex player@ group.}
-{10000023}{}{Do you wish to encounter: @lex player@.}
-{10000024}{}{Do you wish to encounter: @lex player@ group.}
+{10000010}{}{Вы наткнулись на @lex who@.}
+{10000011}{}{Вы наткнулись на @lex who@ и @lex player@.}
+{10000012}{}{Вы наткнулись на @lex who@ и банду @lex player@.}
+{10000013}{}{Вы наткнулись на @lex player@.}
+{10000014}{}{Вы наткнулись на банду @lex player@.}
+{10000020}{}{Вы хотите увидеть @lex who@?}
+{10000021}{}{Вы хотите увидеть @lex who@ и @lex player@?}
+{10000022}{}{Вы хотите увидеть @lex who@ и банду @lex player@?}
+{10000023}{}{Вы хотите увидеть @lex player@?}
+{10000024}{}{Вы хотите увидеть банду @lex player@?}
 
 # Encounter Table 0
-{10030000}{}{A party of raiders}
-{10030010}{}{Some radscorpions}
-{10030020}{}{Giant rats}
-{10030030}{}{A merchant party}
-{10030040}{}{<Special>}
+{10030000}{}{банду рейдеров}
+{10030010}{}{несколько рад-скорпионов}
+{10030020}{}{больших крысомутантов}
+{10030030}{}{группу торговцев}
+{10030040}{}{<Особое>}
 
 # Encounter Table 1
-{10030500}{}{A party of raiders}
-{10030510}{}{Some manti}
-{10030520}{}{A group of geckos}
-{10030530}{}{A group of mole rats}
-{10030540}{}{A group of radscorpions}
-{10030550}{}{A group of giant rats}
-{10030560}{}{A merchant party}
-{10030570}{}{<Special>}
+{10030500}{}{банду рейдеров}
+{10030510}{}{несколько мантисов}
+{10030520}{}{группу ящеров}
+{10030530}{}{кучку кротов-гризли}
+{10030540}{}{стайку рад-скорпионов}
+{10030550}{}{стаю гигантских крысомутантов}
+{10030560}{}{группу торговцев}
+{10030570}{}{<Особое>}
 
 # Encounter Table 2
-{10031000}{}{A party of raiders}
-{10031010}{}{A group of radscorpions}
-{10031020}{}{A group of giant rats}
-{10031030}{}{A merchant party}
-{10031040}{}{<Special>}
+{10031000}{}{банду рейдеров}
+{10031010}{}{стайку рад-скорпионов}
+{10031020}{}{стаю гигантских крысомутантов}
+{10031030}{}{группу торговцев}
+{10031040}{}{<Особое>}
 
 # Encounter Table 3
-{10031500}{}{A party of raiders}
+{10031500}{}{банду рейдеров}
 
 # Encounter Table 4
-{10032000}{}{A party of raiders}
+{10032000}{}{банду рейдеров}
 
 # Encounter Table 5
-{10032500}{}{A party of raiders}
+{10032500}{}{банду рейдеров}
 
 # Encounter Table 6
-{10033000}{}{A war party}
-{10033010}{}{A group of cannibals}
-{10033020}{}{A group of spore plants and some silver geckos}
-{10033030}{}{A group of silver geckos}
-{10033040}{}{Some bounty hunters}
-{10033050}{}{Some bounty hunters}
-{10033060}{}{Some bounty hunters}
-{10033070}{}{Some bounty hunters}
-{10033080}{}{Some bounty hunters}
-{10033090}{}{Some bounty hunters}
-{10033100}{}{Some bounty hunters}
-{10033110}{}{Some bounty hunters}
-{10033120}{}{A band of ruffians led by a Morton Brother}
-{10033130}{}{A group of scorpions}
-{10033140}{}{A group of spore plants}
-{10033150}{}{A group of pig rats}
-{10033160}{}{A group of rats}
-{10033170}{}{A hunting party fighting cannibals}
-{10033180}{}{A group of ants}
-{10033190}{}{A hunting party fighting some scorpions}
-{10033200}{}{A small group of pig rats}
-{10033210}{}{A small group of radscorpions}
-{10033220}{}{A small group of ants}
-{10033230}{}{A hunting party}
-{10033240}{}{A group of nomads}
-{10033250}{}{A man guarding a bridge}
-{10033260}{}{King Arthur's Knights fighting a rat}
+{10033000}{}{отряд солдат}
+{10033010}{}{стадо каннибалов}
+{10033020}{}{заросли хищных цветков и несколько серебряных ящеров}
+{10033030}{}{группу серебряных ящеров}
+{10033040}{}{охотников за бандитами}
+{10033050}{}{охотников за бандитами}
+{10033060}{}{охотников за бандитами}
+{10033070}{}{охотников за бандитами}
+{10033080}{}{охотников за бандитами}
+{10033090}{}{охотников за бандитами}
+{10033100}{}{охотников за бандитами}
+{10033110}{}{охотников за бандитами}
+{10033120}{}{толпу отщепенцев с братом Мортона во главе}
+{10033130}{}{несколько скорпионов}
+{10033140}{}{несколько хищных цветков}
+{10033150}{}{группу крысо-кабанов}
+{10033160}{}{стайку грызунов}
+{10033170}{}{отряд охотников, бьющийся с каннибалами}
+{10033180}{}{кучку муравьев}
+{10033190}{}{отряд охотников, сражающийся со скорпионами}
+{10033200}{}{небольшую стаю крысо-кабанов}
+{10033210}{}{маленькую группку рад-скорпионов}
+{10033220}{}{совсем немного муравьев}
+{10033230}{}{отряд охотников}
+{10033240}{}{становье кочевников}
+{10033250}{}{человека, охраняющего мост}
+{10033260}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 7
-{10033500}{}{Toxic waste dump}
-{10033510}{}{A lone surviving dog}
-{10033520}{}{A herd of brahmin}
-{10033530}{}{A war party}
-{10033540}{}{Some bounty hunters}
-{10033550}{}{Some bounty hunters}
-{10033560}{}{Some bounty hunters}
-{10033570}{}{Some bounty hunters}
-{10033580}{}{Some bounty hunters}
-{10033590}{}{Some bounty hunters}
-{10033600}{}{Some bounty hunters}
-{10033610}{}{Some bounty hunters}
-{10033620}{}{A band of ruffians led by a Morton Brother}
-{10033630}{}{A group of cannibals}
-{10033640}{}{A group of spore plants and some silver geckos}
-{10033650}{}{A group of silver geckos}
-{10033660}{}{A group of scorpions}
-{10033670}{}{A group of spore plants}
-{10033680}{}{A group of pig rats}
-{10033690}{}{A group of rats}
-{10033700}{}{A hunting party fighting cannibals}
-{10033710}{}{A group of ants}
-{10033720}{}{A hunting party fighting some scorpions}
-{10033730}{}{A small group of pig rats}
-{10033740}{}{A small group of radscorpions}
-{10033750}{}{A small group of ants}
-{10033760}{}{A hunting party}
-{10033770}{}{A group of nomads}
-{10033780}{}{The remains of a whale}
-{10033790}{}{A giant stone head}
-{10033800}{}{A crashed shuttle}
-{10033810}{}{A Guardian Portal}
-{10033820}{}{King Arthur's Knights}
-{10033830}{}{A tin woodsman}
-{10033840}{}{The Unwashed Villagers hunting a spammer}
+{10033500}{}{помойку ядовитых отбросов}
+{10033510}{}{странную одинокую собаку}
+{10033520}{}{стадо браминов}
+{10033530}{}{отряд солдат}
+{10033540}{}{охотников за бандитами}
+{10033550}{}{охотников за бандитами}
+{10033560}{}{охотников за бандитами}
+{10033570}{}{охотников за бандитами}
+{10033580}{}{охотников за бандитами}
+{10033590}{}{охотников за бандитами}
+{10033600}{}{охотников за бандитами}
+{10033610}{}{охотников за бандитами}
+{10033620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10033630}{}{группу каннибалов}
+{10033640}{}{заросли хищных цветков и несколько серебряных ящеров}
+{10033650}{}{группу серебряных ящеров}
+{10033660}{}{стайку скорпионов}
+{10033670}{}{несколько хищных цветков}
+{10033680}{}{группу крысо-кабанов}
+{10033690}{}{стаю грызунов}
+{10033700}{}{отряд охотников, бьющийся с каннибалами}
+{10033710}{}{кучку муравьев}
+{10033720}{}{отряд охотников, сражающийся со скорпионами}
+{10033730}{}{небольшую стаю крысо-кабанов}
+{10033740}{}{маленькую группку рад-скорпионов}
+{10033750}{}{совсем немного муравьев}
+{10033760}{}{отряд охотников}
+{10033770}{}{становье кочевников}
+{10033780}{}{останки белого кита}
+{10033790}{}{большую каменную голову}
+{10033800}{}{разбившийся шаттл}
+{10033810}{}{Портал Хранителя}
+{10033820}{}{рыцарей короля Артура}
+{10033830}{}{железного дровосека}
+{10033840}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 8
-{10034000}{}{A war party}
-{10034010}{}{A group of cannibals}
-{10034020}{}{A group of spore plants and some silver geckos}
-{10034030}{}{A group of silver geckos}
-{10034040}{}{Some bounty hunters}
-{10034050}{}{Some bounty hunters}
-{10034060}{}{Some bounty hunters}
-{10034070}{}{Some bounty hunters}
-{10034080}{}{Some bounty hunters}
-{10034090}{}{Some bounty hunters}
-{10034100}{}{Some bounty hunters}
-{10034110}{}{Some bounty hunters}
-{10034120}{}{A band of ruffians led by a Morton Brother}
-{10034130}{}{A group of scorpions}
-{10034140}{}{A group of spore plants}
-{10034150}{}{A group of pig rats}
-{10034160}{}{A group of rats}
-{10034170}{}{A hunting party fighting cannibals}
-{10034180}{}{A group of ants}
-{10034190}{}{A hunting party fighting some scorpions}
-{10034200}{}{A small group of pig rats}
-{10034210}{}{A small group of radscorpions}
-{10034220}{}{A small group of ants}
-{10034230}{}{A hunting party}
-{10034240}{}{A group of nomads}
+{10034000}{}{отряд солдат}
+{10034010}{}{группу каннибалов}
+{10034020}{}{заросли хищных цветков и несколько серебряных ящеров}
+{10034030}{}{группу серебряных ящеров}
+{10034040}{}{охотников за бандитами}
+{10034050}{}{охотников за бандитами}
+{10034060}{}{охотников за бандитами}
+{10034070}{}{охотников за бандитами}
+{10034080}{}{охотников за бандитами}
+{10034090}{}{охотников за бандитами}
+{10034100}{}{охотников за бандитами}
+{10034110}{}{охотников за бандитами}
+{10034120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10034130}{}{группу скорпионов}
+{10034140}{}{несколько хищных цветков}
+{10034150}{}{стаю крысо-кабанов}
+{10034160}{}{несколько грызунов}
+{10034170}{}{отряд охотников, бьющийся с каннибалами}
+{10034180}{}{несколько муравьев}
+{10034190}{}{отряд охотников, сражающийся со скорпионами}
+{10034200}{}{небольшую стаю крысо-кабанов}
+{10034210}{}{маленькую группку рад-скорпионов}
+{10034220}{}{совсем немного муравьев}
+{10034230}{}{отряд охотников}
+{10034240}{}{группу кочевников}
 
 # Encounter Table 9
-{10034500}{}{Toxic waste dump}
-{10034510}{}{A lone surviving dog}
-{10034520}{}{A herd of brahmin}
-{10034530}{}{A band of outcasts}
-{10034540}{}{Some bounty hunters}
-{10034550}{}{Some bounty hunters}
-{10034560}{}{Some bounty hunters}
-{10034570}{}{Some bounty hunters}
-{10034580}{}{Some bounty hunters}
-{10034590}{}{Some bounty hunters}
-{10034600}{}{Some bounty hunters}
-{10034610}{}{Some bounty hunters}
-{10034620}{}{A band of ruffians led by a Morton Brother}
-{10034630}{}{A group of holy people}
-{10034640}{}{Some geckos and some molerats}
-{10034650}{}{Some geckos}
-{10034660}{}{Some radscorpions hiding amongst spore plants}
-{10034670}{}{Some spore plants}
-{10034680}{}{A family of radscorpions}
-{10034690}{}{A group of Molerats}
-{10034700}{}{A group of holy people staving off a war party}
-{10034710}{}{A band of nomads}
-{10034720}{}{The remains of a whale}
-{10034730}{}{A giant stone head}
-{10034740}{}{A crashed shuttle}
-{10034750}{}{A Guardian Portal}
-{10034760}{}{King Arthur's Knights}
-{10034770}{}{A tin woodsman}
-{10034780}{}{The Unwashed Villagers hunting a spammer}
-{10034790}{}{Wasteland Children shelter}
+{10034500}{}{помойку ядовитых отбросов}
+{10034510}{}{странную одинокую собаку}
+{10034520}{}{стадо браминов}
+{10034530}{}{банду изгоев}
+{10034540}{}{охотников за бандитами}
+{10034550}{}{охотников за бандитами}
+{10034560}{}{охотников за бандитами}
+{10034570}{}{охотников за бандитами}
+{10034580}{}{охотников за бандитами}
+{10034590}{}{охотников за бандитами}
+{10034600}{}{охотников за бандитами}
+{10034610}{}{охотников за бандитами}
+{10034620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10034630}{}{несколько святых людей}
+{10034640}{}{стайку ящеров и кротов-гризли}
+{10034650}{}{немного ящеров}
+{10034660}{}{группу рад-скорпионов, прячущихся между хищных цветков}
+{10034670}{}{отдельные хищные цветки}
+{10034680}{}{семейку рад-скорпионов}
+{10034690}{}{группу кротов-гризли}
+{10034700}{}{группу святых людей, отбивающихся от воинской команды}
+{10034710}{}{отряд кочевников}
+{10034720}{}{останки белого кита}
+{10034730}{}{большую каменную голову}
+{10034740}{}{разбившийся шаттл}
+{10034750}{}{Портал Хранителя}
+{10034760}{}{рыцарей короля Артура}
+{10034770}{}{железного дровосека}
+{10034780}{}{немытых крестьян, гоняющихся за бродягой}
+{10034790}{}{Пристанище Детей Пустоши}
+{10034800}{}{заброшенный аванпост Рыцарей Пустоши}
 
 # Encounter Table 10
-{10035000}{}{A band of outcasts}
-{10035010}{}{A group of holy people}
-{10035020}{}{Some bounty hunters}
-{10035030}{}{Some bounty hunters}
-{10035040}{}{Some bounty hunters}
-{10035050}{}{Some bounty hunters}
-{10035060}{}{Some bounty hunters}
-{10035070}{}{Some bounty hunters}
-{10035080}{}{Some bounty hunters}
-{10035090}{}{Some bounty hunters}
-{10035100}{}{A band of ruffians led by a Morton Brother}
-{10035110}{}{Some silver geckos hiding amongst spore plants}
-{10035120}{}{Some geckos}
-{10035130}{}{Some radscorpions hiding amongst spore plants}
-{10035140}{}{Some spore plants}
-{10035150}{}{A family of radscorpions}
-{10035160}{}{A group of Molerats}
-{10035170}{}{A group of holy people staving off a war party}
-{10035180}{}{A band of nomads}
-{10035190}{}{A man guarding a bridge}
-{10035200}{}{King Arthur's Knights fighting a rat}
+{10035000}{}{нескольких изгоев}
+{10035010}{}{компанию святых людей}
+{10035020}{}{охотников за бандитами}
+{10035030}{}{охотников за бандитами}
+{10035040}{}{охотников за бандитами}
+{10035050}{}{охотников за бандитами}
+{10035060}{}{охотников за бандитами}
+{10035070}{}{охотников за бандитами}
+{10035080}{}{охотников за бандитами}
+{10035090}{}{охотников за бандитами}
+{10035100}{}{толпу отщепенцев с братом Мортона  во главе}
+{10035110}{}{заросли хищных цветков и несколько серебряных ящеров}
+{10035120}{}{несколько ящеров}
+{10035130}{}{группу рад-скорпионов, прячущихся между хищных цветков}
+{10035140}{}{хищные цветки}
+{10035150}{}{небольшой отряд рад-скорпионов}
+{10035160}{}{кучку кротов-гризли}
+{10035170}{}{группу святых людей, отбивающихся от воинской команды}
+{10035180}{}{банду кочевников}
+{10035190}{}{человека, охраняющего мост}
+{10035200}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 11
-{10035500}{}{Toxic waste dump}
-{10035510}{}{A lone surviving dog}
-{10035520}{}{A herd of brahmin}
-{10035530}{}{A pack of golden geckos and a family of radscorpions}
-{10035540}{}{Some bandits}
-{10035550}{}{A group of homeless people}
-{10035560}{}{A pack of golden geckos}
-{10035570}{}{Some bounty hunters}
-{10035580}{}{Some bounty hunters}
-{10035590}{}{Some bounty hunters}
-{10035600}{}{Some bounty hunters}
-{10035610}{}{Some bounty hunters}
-{10035620}{}{Some bounty hunters}
-{10035630}{}{Some bounty hunters}
-{10035640}{}{Some bounty hunters}
-{10035650}{}{A band of ruffians led by a Morton Brother}
-{10035660}{}{A family of radscorpions}
-{10035670}{}{Some spore plants}
-{10035680}{}{Some bandits attacked by some golden geckos}
-{10035690}{}{Some farmers defending against some geckos}
-{10035700}{}{Some farmers fending off some golden geckos}
-{10035710}{}{Some trappers battling some golden geckos}
-{10035720}{}{Some trappers fending off some bandits}
-{10035730}{}{A group of trappers subduing some geckos}
-{10035740}{}{Some bandits ambushing some homeless people}
-{10035750}{}{Some homeless people butchering some farmers}
-{10035760}{}{Some bandits attacking some farmers}
-{10035770}{}{Some farmers fending off some scorpions}
-{10035780}{}{Some trappers fighting some scorpions}
-{10035790}{}{Some trappers attacking some pig rats}
-{10035800}{}{Some farmers rooting out an infestation of pig rats}
-{10035810}{}{Some farmers}
-{10035820}{}{A group of trappers}
-{10035830}{}{The remains of a whale}
-{10035840}{}{A giant stone head}
-{10035850}{}{A crashed shuttle}
-{10035860}{}{A Guardian Portal}
-{10035870}{}{King Arthur's Knights}
-{10035880}{}{A tin woodsman}
-{10035890}{}{The Unwashed Villagers hunting a spammer}
+{10035500}{}{химические отбросы}
+{10035510}{}{странную одинокую собаку}
+{10035520}{}{стадо браминов}
+{10035530}{}{целую стаю золотых ящеров и большое семейство рад-скорпионов}
+{10035540}{}{группу бандитов}
+{10035550}{}{несколько бездомных бродяг}
+{10035560}{}{стаю золотых ящеров}
+{10035570}{}{охотников за бандитами}
+{10035580}{}{охотников за бандитами}
+{10035590}{}{охотников за бандитами}
+{10035600}{}{охотников за бандитами}
+{10035610}{}{охотников за бандитами}
+{10035620}{}{охотников за бандитами}
+{10035630}{}{охотников за бандитами}
+{10035640}{}{охотников за бандитами}
+{10035650}{}{толпу отщепенцев с братом Мортона  во главе}
+{10035660}{}{целое семейство рад-скорпионов}
+{10035670}{}{хищные цветки}
+{10035680}{}{отряд бандитов, атакованный стадом золотых ящеров}
+{10035690}{}{крестьян, обороняющихся от нападения злых ящеров}
+{10035700}{}{крестьян, схватившихся в бою с золотыми ящерами}
+{10035710}{}{группу трапперов, загнавших стаю золотых ящеров}
+{10035720}{}{трапперов, отбивающихся от местных бандитов}
+{10035730}{}{группу трапперов, окружающих стадо ящеров}
+{10035740}{}{бандитов, устроивших засаду на нескольких бездомных бродяг}
+{10035750}{}{вооруженных бродяг, пытающихся вырезать группу крестьян}
+{10035760}{}{местных бандитов, напавших на крестьян}
+{10035770}{}{крестьян, сражающихся с ужасными скорпионами}
+{10035780}{}{трапперов, пытающихся спастись от скорпионов}
+{10035790}{}{группу трапперов, атакующих стадо кротов-гризли}
+{10035800}{}{нескольких крестьян, разделывающих на мясо группу кротов-гризли}
+{10035810}{}{группу крестьян}
+{10035820}{}{отряд трапперов}
+{10035830}{}{останки белого кита}
+{10035840}{}{большую каменную голову}
+{10035850}{}{разбившийся шаттл}
+{10035860}{}{Портал Хранителя}
+{10035870}{}{рыцарей короля Артура}
+{10035880}{}{железного дровосека}
+{10035890}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 12
-{10036000}{}{A pack of golden geckos and a family of radscorpions}
-{10036010}{}{Some bandits}
-{10036020}{}{A group of homeless people}
-{10036030}{}{A pack of golden geckos}
-{10036040}{}{Some bounty hunters}
-{10036050}{}{Some bounty hunters}
-{10036060}{}{Some bounty hunters}
-{10036070}{}{Some bounty hunters}
-{10036080}{}{Some bounty hunters}
-{10036090}{}{Some bounty hunters}
-{10036100}{}{Some bounty hunters}
-{10036110}{}{Some bounty hunters}
-{10036120}{}{A band of ruffians led by a Morton Brother}
-{10036130}{}{A family of radscorpions}
-{10036140}{}{Some spore plants}
-{10036150}{}{Some bandits attacked by some golden geckos}
-{10036160}{}{Some farmers defending against some geckos}
-{10036170}{}{Some farmers fending off some golden geckos}
-{10036180}{}{Some trappers battling some golden geckos}
-{10036190}{}{Some trappers fending off some bandits}
-{10036200}{}{A group of trappers subduing some geckos}
-{10036210}{}{Some bandits ambushing some homeless people}
-{10036220}{}{Some homeless people butchering some farmers}
-{10036230}{}{Some bandits attacking some farmers}
-{10036240}{}{Some farmers fending off some scorpions}
-{10036250}{}{Some trappers fighting some scorpions}
-{10036260}{}{Some trappers attacking some pig rats}
-{10036270}{}{Some farmers rooting out an infestation of pig rats}
-{10036280}{}{Some farmers}
-{10036290}{}{A group of trappers}
-{10036300}{}{A man guarding a bridge}
-{10036310}{}{King Arthur's Knights fighting a rat}
+{10036000}{}{целую стаю золотых ящеров и большое семейство рад-скорпионов}
+{10036010}{}{отряд бандитов}
+{10036020}{}{большую группу бездомных людей}
+{10036030}{}{стайку золотых ящеров}
+{10036040}{}{охотников за бандитами}
+{10036050}{}{охотников за бандитами}
+{10036060}{}{охотников за бандитами}
+{10036070}{}{охотников за бандитами}
+{10036080}{}{охотников за бандитами}
+{10036090}{}{охотников за бандитами}
+{10036100}{}{охотников за бандитами}
+{10036110}{}{охотников за бандитами}
+{10036120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10036130}{}{крупное семейство рад-скорпионов}
+{10036140}{}{хищные цветки}
+{10036150}{}{отряд бандитов, атакованный стадом золотых ящеров}
+{10036160}{}{крестьян, обороняющихся от нападения злых ящеров}
+{10036170}{}{крестьян, схватившихся в бою с золотыми ящерами}
+{10036180}{}{группу трапперов, загнавших стаю золотых ящеров}
+{10036190}{}{трапперов, отбивающихся от местных бандитов}
+{10036200}{}{группу трапперов, окружающих стадо ящеров}
+{10036210}{}{бандитов, устроивших засаду на нескольких бездомных бродяг}
+{10036220}{}{вооруженных бродяг, пытающихся вырезать группу крестьян}
+{10036230}{}{местных бандитов, напавших на крестьян}
+{10036240}{}{крестьян, сражающихся с ужасными скорпионами}
+{10036250}{}{трапперов, пытающихся спастись от скорпионов}
+{10036260}{}{группу трапперов, атакующих стадо кротов-гризли}
+{10036270}{}{нескольких крестьян, разделывающих на мясо группу кротов-гризли}
+{10036280}{}{группу крестьян}
+{10036290}{}{отряд трапперов}
+{10036300}{}{человека, охраняющего мост}
+{10036310}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 13
-{10036500}{}{Toxic waste dump}
-{10036510}{}{A lone surviving dog}
-{10036520}{}{A herd of brahmin}
-{10036530}{}{A merchant and some guards}
-{10036540}{}{Some bounty hunters}
-{10036550}{}{Some bounty hunters}
-{10036560}{}{Some bounty hunters}
-{10036570}{}{Some bounty hunters}
-{10036580}{}{Some bounty hunters}
-{10036590}{}{Some bounty hunters}
-{10036600}{}{Some bounty hunters}
-{10036610}{}{Some bounty hunters}
-{10036620}{}{A band of ruffians led by a Morton Brother}
-{10036630}{}{Some trappers}
-{10036640}{}{Some bandits attacking a merchant party}
-{10036650}{}{Some bandits ambushing some trappers}
-{10036660}{}{A family of radscorpions attacking a merchant party}
-{10036670}{}{Some trappers trying to catch radscorpions}
-{10036680}{}{A group of radscorpions}
-{10036690}{}{A family of molerats}
-{10036700}{}{Some bandits}
-{10036710}{}{A band of trappers trying to catch some golden geckos}
-{10036720}{}{Some scorpions fighting some golden geckos}
-{10036730}{}{Some scorpions attacking some molerats and pig rats}
-{10036740}{}{Some trappers and a merchant party fending off bandits}
-{10036750}{}{Some golden geckos}
-{10036760}{}{Some trappers fighting some molerats and pig rats}
-{10036770}{}{A merchant party fending off some molerats and pig rats}
-{10036780}{}{The remains of a whale}
-{10036790}{}{A giant stone head}
-{10036800}{}{A crashed shuttle}
-{10036810}{}{A Guardian Portal}
-{10036820}{}{King Arthur's Knights}
-{10036830}{}{A tin woodsman}
-{10036840}{}{The Unwashed Villagers hunting a spammer}
+{10036500}{}{помойку химикатов}
+{10036510}{}{странную одинокую собаку}
+{10036520}{}{стадо браминов}
+{10036530}{}{торговца и его охранников}
+{10036540}{}{охотников за бандитами}
+{10036550}{}{охотников за бандитами}
+{10036560}{}{охотников за бандитами}
+{10036570}{}{охотников за бандитами}
+{10036580}{}{охотников за бандитами}
+{10036590}{}{охотников за бандитами}
+{10036600}{}{охотников за бандитами}
+{10036610}{}{охотников за бандитами}
+{10036620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10036630}{}{отряд трапперов}
+{10036640}{}{бандитов, напавших на охраняемый торговый караван}
+{10036650}{}{бандитов, из засады атаковавших группу трапперов}
+{10036660}{}{большое стадо рад-скорпионов, напавших на торговый караван}
+{10036670}{}{группу трапперов, пытающихся отловить рад-скорпионов}
+{10036680}{}{несколько рад-скорпионов}
+{10036690}{}{семейство кротов-гризли}
+{10036700}{}{группу бандитов}
+{10036710}{}{отряд трапперов, старающихся изловить и ободрать золотых ящеров}
+{10036720}{}{ужасных скорпионов, пытающихся сожрать золотых ящеров}
+{10036730}{}{скорпионов, обнаруживших поживу - крысо-кабанов и кротов-гризли}
+{10036740}{}{группу трапперов и торговцев из каравана, бьющихся с бандитами}
+{10036750}{}{золотых ящеров}
+{10036760}{}{нескольких трапперов, истребляющих крысо-кабанов и кротов-гризли}
+{10036770}{}{торговцев из каравана, отражающих нападение крысо-кабанов и кротов-гризли}
+{10036780}{}{останки белого кита}
+{10036790}{}{большую каменную голову}
+{10036800}{}{разбившийся шаттл}
+{10036810}{}{Портал Хранителя}
+{10036820}{}{рыцарей короля Артура}
+{10036830}{}{железного дровосека}
+{10036840}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 14
-{10037000}{}{Toxic waste dump}
-{10037010}{}{A lone surviving dog}
-{10037020}{}{A herd of brahmin}
-{10037030}{}{A band of highwaymen}
-{10037040}{}{Some bounty hunters}
-{10037050}{}{Some bounty hunters}
-{10037060}{}{Some bounty hunters}
-{10037070}{}{Some bounty hunters}
-{10037080}{}{Some bounty hunters}
-{10037090}{}{Some bounty hunters}
-{10037100}{}{Some bounty hunters}
-{10037110}{}{Some bounty hunters}
-{10037120}{}{A band of ruffians led by a Morton Brother}
-{10037130}{}{A band of robbers}
-{10037140}{}{A band of robbers and highwaymen}
-{10037150}{}{Some golden geckos and some radscorpions}
-{10037160}{}{A family of golden geckos}
-{10037170}{}{A family of molerats}
-{10037180}{}{A large group of radscorpions}
-{10037190}{}{A large infestation of spore plants}
-{10037200}{}{A band of robbers contesting a group of highwaymen}
-{10037210}{}{A merchant party fending off some highwaymen}
-{10037220}{}{A merchant party fending off some robbers}
-{10037230}{}{A merchant party fending off some radscorpions}
-{10037240}{}{A group of golden geckos battling some radscorpions}
-{10037250}{}{A merchant with some guards}
-{10037260}{}{The remains of a whale}
-{10037270}{}{A giant stone head}
-{10037280}{}{A crashed shuttle}
-{10037290}{}{A Guardian Portal}
-{10037300}{}{King Arthur's Knights}
-{10037310}{}{A tin woodsman}
-{10037320}{}{The Unwashed Villagers hunting a spammer}
+{10037000}{}{ядовитые отбросы}
+{10037010}{}{странную одинокую собаку}
+{10037020}{}{стадо браминов}
+{10037030}{}{банду разбойников}
+{10037040}{}{охотников за бандитами}
+{10037050}{}{охотников за бандитами}
+{10037060}{}{охотников за бандитами}
+{10037070}{}{охотников за бандитами}
+{10037080}{}{охотников за бандитами}
+{10037090}{}{охотников за бандитами}
+{10037100}{}{охотников за бандитами}
+{10037110}{}{охотников за бандитами}
+{10037120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10037130}{}{банду грабителей}
+{10037140}{}{большой отряд грабителей и разбойников}
+{10037150}{}{группу золотых ящеров и нескольких рад-скорпионов}
+{10037160}{}{семейство золотых ящеров}
+{10037170}{}{семейство кротов-гризли}
+{10037180}{}{большую группу рад-скорпионов}
+{10037190}{}{целые заросли отвратительных хищных цветков}
+{10037200}{}{банду грабителей, внезапно напавших на разбойничью шайку}
+{10037210}{}{торговый караван, отбивающийся от атак разбойников}
+{10037220}{}{группу торговцев, сражающихся с грабителями}
+{10037230}{}{торговый караван, отражающий нападение рад-скорпионов}
+{10037240}{}{стаю золотых ящеров, бьющихся с мерзкими рад-скорпионами}
+{10037250}{}{торговца и его охранников}
+{10037260}{}{останки белого кита}
+{10037270}{}{большую каменную голову}
+{10037280}{}{разбившийся шаттл}
+{10037290}{}{Портал Хранителя}
+{10037300}{}{рыцарей короля Артура}
+{10037310}{}{железного дровосека}
+{10037320}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 15
-{10037500}{}{A band of highwaymen}
-{10037510}{}{A band of robbers}
-{10037520}{}{A band of robbers and highwaymen}
-{10037530}{}{Some golden geckos and some radscorpions}
-{10037540}{}{Some bounty hunters}
-{10037550}{}{Some bounty hunters}
-{10037560}{}{Some bounty hunters}
-{10037570}{}{Some bounty hunters}
-{10037580}{}{Some bounty hunters}
-{10037590}{}{Some bounty hunters}
-{10037600}{}{Some bounty hunters}
-{10037610}{}{Some bounty hunters}
-{10037620}{}{A band of ruffians led by a Morton Brother}
-{10037630}{}{A family of golden geckos}
-{10037640}{}{A family of molerats}
-{10037650}{}{A large group of radscorpions}
-{10037660}{}{A large infestation of spore plants}
-{10037670}{}{A band of robbers contesting a group of highwaymen}
-{10037680}{}{A merchant party fending off some highwaymen}
-{10037690}{}{A merchant party fending off some robbers}
-{10037700}{}{A merchant party fending off some radscorpions}
-{10037710}{}{A group of golden geckos battling some radscorpions}
-{10037720}{}{A merchant with some guards}
-{10037730}{}{A man guarding a bridge}
-{10037740}{}{King Arthur's Knights fighting a rat}
+{10037500}{}{шайку разбойников}
+{10037510}{}{банду грабителей}
+{10037520}{}{смешанную толпу грабителей и разбойников}
+{10037530}{}{несколько золотых ящеров и группу рад-скорпионов}
+{10037540}{}{охотников за бандитами}
+{10037550}{}{охотников за бандитами}
+{10037560}{}{охотников за бандитами}
+{10037570}{}{охотников за бандитами}
+{10037580}{}{охотников за бандитами}
+{10037590}{}{охотников за бандитами}
+{10037600}{}{охотников за бандитами}
+{10037610}{}{охотников за бандитами}
+{10037620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10037630}{}{семейство золотых ящеров}
+{10037640}{}{семейство кротов-гризли}
+{10037650}{}{большую группу рад-скорпионов}
+{10037660}{}{целые заросли отвратительных хищных цветков}
+{10037670}{}{банду грабителей, внезапно напавших на разбойничью шайку}
+{10037680}{}{торговый караван, отбивающийся от атак разбойников}
+{10037690}{}{группу торговцев, сражающихся с грабителями}
+{10037700}{}{торговый караван, отражающий нападение рад-скорпионов}
+{10037710}{}{стаю золотых ящеров, бьющихся с мерзкими рад-скорпионами}
+{10037720}{}{торговца и его охранников}
+{10037730}{}{человека, охраняющего мост}
+{10037740}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 16
-{10038000}{}{Toxic waste dump}
-{10038010}{}{A lone surviving dog}
-{10038020}{}{A herd of brahmin}
-{10038030}{}{A group of slavers and slaves}
-{10038040}{}{Some bounty hunters}
-{10038050}{}{Some bounty hunters}
-{10038060}{}{Some bounty hunters}
-{10038070}{}{Some bounty hunters}
-{10038080}{}{Some bounty hunters}
-{10038090}{}{Some bounty hunters}
-{10038100}{}{Some bounty hunters}
-{10038110}{}{Some bounty hunters}
-{10038120}{}{A band of ruffians led by a Morton Brother}
-{10038130}{}{A group of highwaymen}
-{10038140}{}{A band of robbers}
-{10038150}{}{Some golden geckos hiding amongst a large number of spore plants}
-{10038160}{}{A pack of radscorpions and some molerats}
-{10038170}{}{A pack of radscorpions}
-{10038180}{}{A group of molerats}
-{10038190}{}{A band of robbers ambushing a group of highwaymen}
-{10038200}{}{A group of slavers attempting to enslave some people}
-{10038210}{}{A group of slavers and slaves fending off some robbers}
-{10038220}{}{Some slavers and slaves fending off some golden geckos}
-{10038230}{}{Some radscorpions raiding a Rave party}
-{10038240}{}{A Rave party}
-{10038250}{}{The remains of a whale}
-{10038260}{}{A giant stone head}
-{10038270}{}{A crashed shuttle}
-{10038280}{}{A Guardian Portal}
-{10038290}{}{King Arthur's Knights}
-{10038300}{}{A tin woodsman}
-{10038310}{}{The Unwashed Villagers hunting a spammer}
+{10038000}{}{свалку ядовитых отбросов}
+{10038010}{}{странную одинокую собаку}
+{10038020}{}{стадо браминов}
+{10038030}{}{группу рабов и работорговцев}
+{10038040}{}{охотников за бандитами}
+{10038050}{}{охотников за бандитами}
+{10038060}{}{охотников за бандитами}
+{10038070}{}{охотников за бандитами}
+{10038080}{}{охотников за бандитами}
+{10038090}{}{охотников за бандитами}
+{10038100}{}{охотников за бандитами}
+{10038110}{}{охотников за бандитами}
+{10038120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10038130}{}{разбойничью шайку}
+{10038140}{}{банду грабителей}
+{10038150}{}{хитрых золотых ящеров, укрывающихся среди зарослей хищных цветков}
+{10038160}{}{стаю рад-скорпионов и несколько кротов-гризли}
+{10038170}{}{стайку рад-скорпионов}
+{10038180}{}{группу кротов-гризли}
+{10038190}{}{банду грабителей, атаковавшую из засады разбойничью шайку}
+{10038200}{}{нескольких мерзавцев, пытающихся обратить людей в рабство}
+{10038210}{}{работорговцев с товаром, подвергшихся нападению разбойников}
+{10038220}{}{рабов и работорговцев, отбивающихся от голодных золотых ящеров}
+{10038230}{}{каких-то людей, бьющихся с рад-скорпионами}
+{10038240}{}{какой-то отряд}
+{10038250}{}{останки белого кита}
+{10038260}{}{большую каменную голову}
+{10038270}{}{разбившийся шаттл}
+{10038280}{}{Портал Хранителя}
+{10038290}{}{рыцарей короля Артура}
+{10038300}{}{железного дровосека}
+{10038310}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 17
-{10038500}{}{A group of slavers and slaves}
-{10038510}{}{A group of highwaymen}
-{10038520}{}{A band of robbers}
-{10038530}{}{Some golden geckos hiding amongst a large number of spore plants}
-{10038540}{}{Some bounty hunters}
-{10038550}{}{Some bounty hunters}
-{10038560}{}{Some bounty hunters}
-{10038570}{}{Some bounty hunters}
-{10038580}{}{Some bounty hunters}
-{10038590}{}{Some bounty hunters}
-{10038600}{}{Some bounty hunters}
-{10038610}{}{Some bounty hunters}
-{10038620}{}{A band of ruffians led by a Morton Brother}
-{10038630}{}{A pack of radscorpions and some molerats}
-{10038640}{}{A pack of radscorpions}
-{10038650}{}{A group of molerats}
-{10038660}{}{A band of robbers ambushing a group of highwaymen}
-{10038670}{}{A group of slavers attempting to enslave some people}
-{10038680}{}{A group of slavers and slaves fending off some robbers}
-{10038690}{}{Some slavers and slaves fending off some golden geckos}
-{10038700}{}{A man guarding a bridge}
-{10038710}{}{King Arthur's Knights fighting a rat}
+{10038500}{}{группу рабов и работорговцев}
+{10038510}{}{разбойничью шайку}
+{10038520}{}{банду грабителей}
+{10038530}{}{хитрых золотых ящеров, укрывающихся среди зарослей хищных цветков}
+{10038540}{}{охотников за бандитами}
+{10038550}{}{охотников за бандитами}
+{10038560}{}{охотников за бандитами}
+{10038570}{}{охотников за бандитами}
+{10038580}{}{охотников за бандитами}
+{10038590}{}{охотников за бандитами}
+{10038600}{}{охотников за бандитами}
+{10038610}{}{охотников за бандитами}
+{10038620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10038630}{}{стаю рад-скорпионов и несколько кротов-гризли}
+{10038640}{}{стайку рад-скорпионов}
+{10038650}{}{группу кротов-гризли}
+{10038660}{}{банду грабителей, атаковавшую из засады разбойничью шайку}
+{10038670}{}{нескольких мерзавцев, пытающихся обратить людей в рабство}
+{10038680}{}{работорговцев с товаром, подвергшихся нападению разбойников}
+{10038690}{}{рабов и работорговцев, отбивающихся от голодных золотых ящеров}
+{10038700}{}{человека, охраняющего мост}
+{10038710}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 18
-{10039000}{}{Some highwaymen and robbers}
-{10039010}{}{Some highwaymen}
-{10039020}{}{A large pack of golden geckos}
-{10039030}{}{Some scorpions hiding in the spore plants}
-{10039040}{}{Some bounty hunters}
-{10039050}{}{Some bounty hunters}
-{10039060}{}{Some bounty hunters}
-{10039070}{}{Some bounty hunters}
-{10039080}{}{Some bounty hunters}
-{10039090}{}{Some bounty hunters}
-{10039100}{}{Some bounty hunters}
-{10039110}{}{Some bounty hunters}
-{10039120}{}{A band of ruffians led by a Morton Brother}
-{10039130}{}{Some robbers fighting some scorpions}
-{10039140}{}{Some robbers}
-{10039150}{}{A merchant party attacked by highwaymen}
-{10039160}{}{A merchant party ambushed by robbers}
-{10039170}{}{Some highwaymen attacked by some spore plants}
-{10039180}{}{A merchant party}
-{10039190}{}{A man guarding a bridge}
-{10039200}{}{King Arthur's Knights fighting a rat}
+{10039000}{}{нескольких грабителей и разбойников}
+{10039010}{}{разбойничью шайку}
+{10039020}{}{огромное стадо золотых ящеров}
+{10039030}{}{несколько скорпионов, прячущихся среди хищных цветков}
+{10039040}{}{охотников за бандитами}
+{10039050}{}{охотников за бандитами}
+{10039060}{}{охотников за бандитами}
+{10039070}{}{охотников за бандитами}
+{10039080}{}{охотников за бандитами}
+{10039090}{}{охотников за бандитами}
+{10039100}{}{охотников за бандитами}
+{10039110}{}{охотников за бандитами}
+{10039120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10039130}{}{разбойников, сражающихся со скорпионами}
+{10039140}{}{отряд грабителей}
+{10039150}{}{атакованный разбойниками торговый караван}
+{10039160}{}{попавший в засаду бандитов торговый караван}
+{10039170}{}{разбойников, оказавшихся в зарослях хищных цветков}
+{10039180}{}{торговый караван}
+{10039190}{}{человека, охраняющего мост}
+{10039200}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 19
-{10039500}{}{Some highwaymen}
-{10039510}{}{Some robbers}
-{10039520}{}{Some homeless people}
-{10039530}{}{Some golden geckos and mantis}
-{10039540}{}{Some bounty hunters}
-{10039550}{}{Some bounty hunters}
-{10039560}{}{Some bounty hunters}
-{10039570}{}{Some bounty hunters}
-{10039580}{}{Some bounty hunters}
-{10039590}{}{Some bounty hunters}
-{10039600}{}{Some bounty hunters}
-{10039610}{}{Some bounty hunters}
-{10039620}{}{A band of ruffians led by a Morton Brother}
-{10039630}{}{Some wild brahmin}
-{10039640}{}{Some scorpions}
-{10039650}{}{Some moonshiners attacked by some highwaymen}
-{10039660}{}{Some highwaymen attacking some homeless people}
-{10039670}{}{Some moonshiners and farmers}
-{10039680}{}{Some mantis attacking some farmers}
-{10039690}{}{Some moonshiners battling some farmers}
-{10039700}{}{Some brahmin fending off some mantis}
-{10039710}{}{Some mantis attacking some molerats}
-{10039720}{}{Some moonshiners}
-{10039730}{}{Some farmers}
-{10039740}{}{A herd of brahmin}
-{10039750}{}{A man guarding a bridge}
-{10039760}{}{King Arthur's Knights fighting a rat}
+{10039500}{}{разбойничью шайку}
+{10039510}{}{отряд грабителей}
+{10039520}{}{группу бездомных бродяг}
+{10039530}{}{несколько мантисов и золотых ящеров}
+{10039540}{}{охотников за бандитами}
+{10039550}{}{охотников за бандитами}
+{10039560}{}{охотников за бандитами}
+{10039570}{}{охотников за бандитами}
+{10039580}{}{охотников за бандитами}
+{10039590}{}{охотников за бандитами}
+{10039600}{}{охотников за бандитами}
+{10039610}{}{охотников за бандитами}
+{10039620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10039630}{}{отбившихся от стада браминов}
+{10039640}{}{группу скорпионов}
+{10039650}{}{ватагу самогонщиков, сражающихся с разбойничьей шайкой}
+{10039660}{}{нескольких разбойников, напавших на бездомных бродяг}
+{10039670}{}{группу крестьян и самогонщиков}
+{10039680}{}{мантисов, пытающихся навредить крестьянам}
+{10039690}{}{самогонщиков, ввязавшихся в драку с крестьянами}
+{10039700}{}{браминов, пытающихся отбиться от мантисов}
+{10039710}{}{группу мантисов, атаковавших кротов-гризли}
+{10039720}{}{ватагу самогонщиков}
+{10039730}{}{нескольких крестьян}
+{10039740}{}{стадо браминов}
+{10039750}{}{человека, охраняющего мост}
+{10039760}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 20
-{10040000}{}{Some highwaymen tracking with wild dogs}
-{10040010}{}{Some robbers searching with wild dogs}
-{10040020}{}{A band of robbers}
-{10040030}{}{A band of highwaymen}
-{10040040}{}{Some bounty hunters}
-{10040050}{}{Some bounty hunters}
-{10040060}{}{Some bounty hunters}
-{10040070}{}{Some bounty hunters}
-{10040080}{}{Some bounty hunters}
-{10040090}{}{Some bounty hunters}
-{10040100}{}{Some bounty hunters}
-{10040110}{}{Some bounty hunters}
-{10040120}{}{A band of ruffians led by a Morton Brother}
-{10040130}{}{A swarm of mantis infesting some spore plants}
-{10040140}{}{A pack of wild dogs amongst some spore plants}
-{10040150}{}{A swarm of mantis}
-{10040160}{}{A pack of wild dogs}
-{10040170}{}{Some robbers fending off some wild dogs}
-{10040180}{}{A caravan attacked by wild dogs}
-{10040190}{}{A caravan ambushed by robbers}
-{10040200}{}{A caravan ambushed by highwaymen}
-{10040210}{}{A caravan}
-{10040220}{}{A man guarding a bridge}
-{10040230}{}{King Arthur's Knights fighting a rat}
+{10040000}{}{разбойников, идущих по чьему-то следу с собаками}
+{10040010}{}{банду грабителей с обученными собаками}
+{10040020}{}{отряд грабителей}
+{10040030}{}{разбойничью шайку}
+{10040040}{}{охотников за бандитами}
+{10040050}{}{охотников за бандитами}
+{10040060}{}{охотников за бандитами}
+{10040070}{}{охотников за бандитами}
+{10040080}{}{охотников за бандитами}
+{10040090}{}{охотников за бандитами}
+{10040100}{}{охотников за бандитами}
+{10040110}{}{охотников за бандитами}
+{10040120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10040130}{}{большую кучу мантисов, собравшуюся среди хищных цветков}
+{10040140}{}{стаю одичавших собак, бродящую в зарослях хищных цветков}
+{10040150}{}{целую тучу мантисов}
+{10040160}{}{большую стаю диких собак}
+{10040170}{}{грабителей, на которых напала собачья стая}
+{10040180}{}{караван, атакованный одичавшими собаками}
+{10040190}{}{караван, попавший в засаду грабителей}
+{10040200}{}{караван, попавший в засаду разбойников}
+{10040210}{}{караван}
+{10040220}{}{человека, охраняющего мост}
+{10040230}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 21
-{10040500}{}{Toxic waste dump}
-{10040510}{}{A lone surviving dog}
-{10040520}{}{A herd of brahmin}
-{10040530}{}{Some highwaymen tracking with wild dogs}
-{10040540}{}{Some bounty hunters}
-{10040550}{}{Some bounty hunters}
-{10040560}{}{Some bounty hunters}
-{10040570}{}{Some bounty hunters}
-{10040580}{}{Some bounty hunters}
-{10040590}{}{Some bounty hunters}
-{10040600}{}{Some bounty hunters}
-{10040610}{}{Some bounty hunters}
-{10040620}{}{A band of ruffians led by a Morton Brother}
-{10040630}{}{Some robbers searching with wild dogs}
-{10040640}{}{A band of robbers}
-{10040650}{}{A band of highwaymen}
-{10040660}{}{A swarm of mantis infesting some spore plants}
-{10040670}{}{A pack of wild dogs amongst some spore plants}
-{10040680}{}{A swarm of mantis}
-{10040690}{}{A pack of wild dogs}
-{10040700}{}{Some robbers fending off some wild dogs}
-{10040710}{}{A caravan attacked by wild dogs}
-{10040720}{}{A caravan ambushed by robbers}
-{10040730}{}{A caravan ambushed by highwaymen}
-{10040740}{}{A caravan}
-{10040750}{}{The remains of a whale}
-{10040760}{}{A giant stone head}
-{10040770}{}{A crashed shuttle}
-{10040780}{}{A Guardian Portal}
-{10040790}{}{King Arthur's Knights}
-{10040800}{}{A tin woodsman}
-{10040810}{}{The Unwashed Villagers hunting a spammer}
+{10040500}{}{свалку ядовитых отбросов}
+{10040510}{}{странную одинокую собаку}
+{10040520}{}{стадо браминов}
+{10040530}{}{разбойников, идущих по чьему-то следу с собаками}
+{10040540}{}{охотников за бандитами}
+{10040550}{}{охотников за бандитами}
+{10040560}{}{охотников за бандитами}
+{10040570}{}{охотников за бандитами}
+{10040580}{}{охотников за бандитами}
+{10040590}{}{охотников за бандитами}
+{10040600}{}{охотников за бандитами}
+{10040610}{}{охотников за бандитами}
+{10040620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10040630}{}{банду грабителей с обученными собаками}
+{10040640}{}{банду грабителей}
+{10040650}{}{разбойничью шайку}
+{10040660}{}{большую кучу мантисов, собравшуюся среди хищных цветков}
+{10040670}{}{стаю одичавших собак, бродящую в зарослях хищных цветков}
+{10040680}{}{целую тучу мантисов}
+{10040690}{}{большую стаю диких собак}
+{10040700}{}{грабителей, на которых напала собачья стая}
+{10040710}{}{караван, атакованный одичавшими собаками}
+{10040720}{}{караван, попавший в засаду грабителей}
+{10040730}{}{караван, попавший в засаду разбойников}
+{10040740}{}{караван}
+{10040750}{}{останки белого кита}
+{10040760}{}{большую каменную голову}
+{10040770}{}{разбившийся шаттл}
+{10040780}{}{Портал Хранителя}
+{10040790}{}{рыцарей короля Артура}
+{10040800}{}{железного дровосека}
+{10040810}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 22
-{10041000}{}{Some golden geckos}
-{10041010}{}{A swarm of mantis}
-{10041020}{}{Some radscorpions}
-{10041030}{}{Some wild brahmin}
-{10041040}{}{Some bounty hunters}
-{10041050}{}{Some bounty hunters}
-{10041060}{}{Some bounty hunters}
-{10041070}{}{Some bounty hunters}
-{10041080}{}{Some bounty hunters}
-{10041090}{}{Some bounty hunters}
-{10041100}{}{Some bounty hunters}
-{10041110}{}{Some bounty hunters}
-{10041120}{}{A band of ruffians led by a Morton Brother}
-{10041130}{}{A trader and guards fighting golden geckos}
-{10041140}{}{A swarm of mantis massacring a trading band}
-{10041150}{}{A swarm of mantis fighting wild brahmin}
-{10041160}{}{Some radscorpions feasting on mantis}
-{10041170}{}{Some radscorpions butchering some wild brahmin}
-{10041180}{}{A trader and guards}
-{10041190}{}{A man guarding a bridge}
-{10041200}{}{King Arthur's Knights fighting a rat}
+{10041000}{}{немного золотых ящеров}
+{10041010}{}{целую тучу мантисов}
+{10041020}{}{несколько рад-скорпионов}
+{10041030}{}{отбившихся от стада браминов}
+{10041040}{}{охотников за бандитами}
+{10041050}{}{охотников за бандитами}
+{10041060}{}{охотников за бандитами}
+{10041070}{}{охотников за бандитами}
+{10041080}{}{охотников за бандитами}
+{10041090}{}{охотников за бандитами}
+{10041100}{}{охотников за бандитами}
+{10041110}{}{охотников за бандитами}
+{10041120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10041130}{}{торговца и его охранников, бьющихся с золотыми ящерами}
+{10041140}{}{огромные тучи мантисов, окруживших торговый караван}
+{10041150}{}{отвратительных мантисов, напавших на диких браминов}
+{10041160}{}{рад-скорпионов, решивших поживиться мантисами}
+{10041170}{}{несколько рад-скорпионов, убивающих одичавших браминов}
+{10041180}{}{торговца и его охранников}
+{10041190}{}{человека, охраняющего мост}
+{10041200}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 23
-{10041500}{}{Toxic waste dump}
-{10041510}{}{A lone surviving dog}
-{10041520}{}{A herd of brahmin}
-{10041530}{}{Some golden geckos}
-{10041540}{}{Some bounty hunters}
-{10041550}{}{Some bounty hunters}
-{10041560}{}{Some bounty hunters}
-{10041570}{}{Some bounty hunters}
-{10041580}{}{Some bounty hunters}
-{10041590}{}{Some bounty hunters}
-{10041600}{}{Some bounty hunters}
-{10041610}{}{Some bounty hunters}
-{10041620}{}{A band of ruffians led by a Morton Brother}
-{10041630}{}{A swarm of mantis}
-{10041640}{}{Some radscorpions}
-{10041650}{}{Some wild brahmin}
-{10041660}{}{A trader and guards fighting golden geckos}
-{10041670}{}{A swarm of mantis massacring a trading band}
-{10041680}{}{A swarm of mantis fighting wild brahmin}
-{10041690}{}{Some radscorpions feasting on mantis}
-{10041700}{}{Some radscorpions butchering some wild brahmin}
-{10041710}{}{A trader and guards}
-{10041720}{}{The remains of a whale}
-{10041730}{}{A giant stone head}
-{10041740}{}{A crashed shuttle}
-{10041750}{}{A Guardian Portal}
-{10041760}{}{King Arthur's Knights}
-{10041770}{}{A tin woodsman}
-{10041780}{}{The Unwashed Villagers hunting a spammer}
+{10041500}{}{свалку ядовитых отбросов}
+{10041510}{}{странную одинокую собаку}
+{10041520}{}{стадо браминов}
+{10041530}{}{немного золотых ящеров}
+{10041540}{}{охотников за бандитами}
+{10041550}{}{охотников за бандитами}
+{10041560}{}{охотников за бандитами}
+{10041570}{}{охотников за бандитами}
+{10041580}{}{охотников за бандитами}
+{10041590}{}{охотников за бандитами}
+{10041600}{}{охотников за бандитами}
+{10041610}{}{охотников за бандитами}
+{10041620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10041630}{}{целую тучу мантисов}
+{10041640}{}{немного рад-скорпионов}
+{10041650}{}{одичавших браминов}
+{10041660}{}{торговца и его охранников, воюющих с золотыми ящерами}
+{10041670}{}{огромные тучи мантисов, окруживших торговый караван}
+{10041680}{}{отвратительных мантисов, напавших на диких браминов}
+{10041690}{}{рад-скорпионов, решивших поживиться мантисами}
+{10041700}{}{несколько рад-скорпионов, убивающих одичавших браминов}
+{10041710}{}{торговца и его охранников}
+{10041720}{}{останки белого кита}
+{10041730}{}{большую каменную голову}
+{10041740}{}{разбившийся шаттл}
+{10041750}{}{Портал Хранителя}
+{10041760}{}{рыцарей короля Артура}
+{10041770}{}{железного дровосека}
+{10041780}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 24
-{10042000}{}{Toxic waste dump}
-{10042010}{}{A lone surviving dog}
-{10042020}{}{A herd of brahmin}
-{10042030}{}{Some mutated molerats}
-{10042040}{}{Some bounty hunters}
-{10042050}{}{Some bounty hunters}
-{10042060}{}{Some bounty hunters}
-{10042070}{}{Some bounty hunters}
-{10042080}{}{Some bounty hunters}
-{10042090}{}{Some bounty hunters}
-{10042100}{}{Some bounty hunters}
-{10042110}{}{Some bounty hunters}
-{10042120}{}{A band of ruffians led by a Morton Brother}
-{10042130}{}{Some mutated pig rats}
-{10042140}{}{Some spore plants}
-{10042150}{}{A hermit and some dogs fighting mutated molerats}
-{10042160}{}{A hermit fending off some wild dogs}
-{10042170}{}{A hermit fending off some mutated pig rats}
-{10042180}{}{A hermit with some dogs fighting mutated molerats}
-{10042190}{}{Some mutated molerats fighting some mutated pig rats}
-{10042200}{}{Some mutated molerats fighting some spore plants}
-{10042210}{}{Some mutated pig rats fighting some wild dogs}
-{10042220}{}{A hermit}
-{10042230}{}{The remains of a whale}
-{10042240}{}{A giant stone head}
-{10042250}{}{A crashed shuttle}
-{10042260}{}{A Guardian Portal}
-{10042270}{}{King Arthur's Knights}
-{10042280}{}{A tin woodsman}
-{10042290}{}{The Unwashed Villagers hunting a spammer}
+{10042000}{}{свалку ядовитых отбросов}
+{10042010}{}{странную одинокую собаку}
+{10042020}{}{стадо браминов}
+{10042030}{}{мутировавших кротов-гризли}
+{10042040}{}{охотников за бандитами}
+{10042050}{}{охотников за бандитами}
+{10042060}{}{охотников за бандитами}
+{10042070}{}{охотников за бандитами}
+{10042080}{}{охотников за бандитами}
+{10042090}{}{охотников за бандитами}
+{10042100}{}{охотников за бандитами}
+{10042110}{}{охотников за бандитами}
+{10042120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10042130}{}{мутировавших крысо-кабанов}
+{10042140}{}{несколько хищных цветков}
+{10042150}{}{отшельника и его собак, бьющихся с мутировавшими кротами-гризли}
+{10042160}{}{отшельника, сражающегося с дикими собаками}
+{10042170}{}{отшельника, схватившегося с мутировавшими крысо-кабанами}
+{10042180}{}{отшельника и собак, бьющихся с мутировавшими кротами-гризли}
+{10042190}{}{мутировавших кротов-гризли, напавших на таких же крысо-кабанов}
+{10042200}{}{мутировавших кротов-гризли, воюющих с хищными цветками}
+{10042210}{}{мутировавших крысо-кабанов, отбивающихся от диких собак}
+{10042220}{}{отшельника}
+{10042230}{}{останки белого кита}
+{10042240}{}{большую каменную голову}
+{10042250}{}{разбившийся шаттл}
+{10042260}{}{Портал Хранителя}
+{10042270}{}{рыцарей короля Артура}
+{10042280}{}{железного дровосека}
+{10042290}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 25
-{10042500}{}{Some mutated molerats}
-{10042510}{}{Some mutated pig rats}
-{10042520}{}{Some spore plants}
-{10042530}{}{A hermit and some dogs fighting mutated molerats}
-{10042540}{}{Some bounty hunters}
-{10042550}{}{Some bounty hunters}
-{10042560}{}{Some bounty hunters}
-{10042570}{}{Some bounty hunters}
-{10042580}{}{Some bounty hunters}
-{10042590}{}{Some bounty hunters}
-{10042600}{}{Some bounty hunters}
-{10042610}{}{Some bounty hunters}
-{10042620}{}{A band of ruffians led by a Morton Brother}
-{10042630}{}{A hermit fending off some wild dogs}
-{10042640}{}{A hermit fending off some mutated pig rats}
-{10042650}{}{A hermit with some dogs fighting mutated molerats}
-{10042660}{}{Some mutated molerats fighting some mutated pig rats}
-{10042670}{}{Some mutated molerats fighting some spore plants}
-{10042680}{}{Some mutated pig rats fighting some wild dogs}
-{10042690}{}{A hermit}
-{10042700}{}{A man guarding a bridge}
-{10042710}{}{King Arthur's Knights fighting a rat}
+{10042500}{}{мутировавших кротов-гризли}
+{10042510}{}{мутировавших крысо-кабанов}
+{10042520}{}{несколько хищных цветков}
+{10042530}{}{отшельника и собак, бьющихся с мутировавшими кротами-гризли}
+{10042540}{}{охотников за бандитами}
+{10042550}{}{охотников за бандитами}
+{10042560}{}{охотников за бандитами}
+{10042570}{}{охотников за бандитами}
+{10042580}{}{охотников за бандитами}
+{10042590}{}{охотников за бандитами}
+{10042600}{}{охотников за бандитами}
+{10042610}{}{охотников за бандитами}
+{10042620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10042630}{}{отшельника, сражающегося с дикими собаками}
+{10042640}{}{отшельника, схватившегося с мутировавшими крысо-кабанами}
+{10042650}{}{отшельника и собак, бьющихся с мутировавшими кротами-гризли}
+{10042660}{}{мутировавших кротов-гризли, напавших на таких же крысо-кабанов}
+{10042670}{}{мутировавших кротов-гризли, воюющих с хищными цветками}
+{10042680}{}{мутировавших крысо-кабанов, отбивающихся от диких собак}
+{10042690}{}{отшельника}
+{10042700}{}{человека, охраняющего мост}
+{10042710}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 26
-{10043000}{}{A band of slavers and some dogs}
-{10043010}{}{A band of slavers}
-{10043020}{}{Some golden geckos}
-{10043030}{}{A pack of wild dogs}
-{10043040}{}{Some bounty hunters}
-{10043050}{}{Some bounty hunters}
-{10043060}{}{Some bounty hunters}
-{10043070}{}{Some bounty hunters}
-{10043080}{}{Some bounty hunters}
-{10043090}{}{Some bounty hunters}
-{10043100}{}{Some bounty hunters}
-{10043110}{}{Some bounty hunters}
-{10043120}{}{A band of ruffians led by a Morton Brother}
-{10043130}{}{A patrol unit and dogs subduing slavers}
-{10043140}{}{A band of slavers fending off some golden geckos}
-{10043150}{}{A patrol unit fighting some slavers}
-{10043160}{}{A patrol unit battling some golden geckos}
-{10043170}{}{A patrol unit fending off wild dogs}
-{10043180}{}{A patrol unit}
-{10043190}{}{A man guarding a bridge}
-{10043200}{}{King Arthur's Knights fighting a rat}
+{10043000}{}{команду работорговцев с собаками}
+{10043010}{}{банду работорговцев}
+{10043020}{}{несколько золотых ящеров}
+{10043030}{}{большую стаю диких собак}
+{10043040}{}{охотников за бандитами}
+{10043050}{}{охотников за бандитами}
+{10043060}{}{охотников за бандитами}
+{10043070}{}{охотников за бандитами}
+{10043080}{}{охотников за бандитами}
+{10043090}{}{охотников за бандитами}
+{10043100}{}{охотников за бандитами}
+{10043110}{}{охотников за бандитами}
+{10043120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10043130}{}{патрульный отряд с собаками, гоняющий работорговцев}
+{10043140}{}{банду работорговцев, отбивающихся от золотых ящеров}
+{10043150}{}{солдат патруля, сражающихся с работорговцами}
+{10043160}{}{патрульную команду, воюющую с золотыми ящерами}
+{10043170}{}{патруль, отражающий нападение диких собак}
+{10043180}{}{патрульный отряд}
+{10043190}{}{человека, охраняющего мост}
+{10043200}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 27
-{10043500}{}{Toxic waste dump}
-{10043510}{}{A lone surviving dog}
-{10043520}{}{A herd of brahmin}
-{10043530}{}{A band of slavers and some dogs}
-{10043540}{}{Some bounty hunters}
-{10043550}{}{Some bounty hunters}
-{10043560}{}{Some bounty hunters}
-{10043570}{}{Some bounty hunters}
-{10043580}{}{Some bounty hunters}
-{10043590}{}{Some bounty hunters}
-{10043600}{}{Some bounty hunters}
-{10043610}{}{Some bounty hunters}
-{10043620}{}{A band of ruffians led by a Morton Brother}
-{10043630}{}{A band of slavers}
-{10043640}{}{Some golden geckos}
-{10043650}{}{A pack of wild dogs}
-{10043660}{}{A patrol unit and dogs subduing slavers}
-{10043670}{}{A band of slavers fending off some golden geckos}
-{10043680}{}{A patrol unit fighting some slavers}
-{10043690}{}{A patrol unit battling some golden geckos}
-{10043700}{}{A patrol unit fending off wild dogs}
-{10043710}{}{A patrol unit}
-{10043720}{}{The remains of a whale}
-{10043730}{}{A giant stone head}
-{10043740}{}{A crashed shuttle}
-{10043750}{}{A Guardian Portal}
-{10043760}{}{King Arthur's Knights}
-{10043770}{}{A tin woodsman}
-{10043780}{}{The Unwashed Villagers hunting a spammer}
+{10043500}{}{свалку ядовитых отходов}
+{10043510}{}{странную одинокую собаку}
+{10043520}{}{стадо браминов}
+{10043530}{}{команду работорговцев с собаками}
+{10043540}{}{охотников за бандитами}
+{10043550}{}{охотников за бандитами}
+{10043560}{}{охотников за бандитами}
+{10043570}{}{охотников за бандитами}
+{10043580}{}{охотников за бандитами}
+{10043590}{}{охотников за бандитами}
+{10043600}{}{охотников за бандитами}
+{10043610}{}{охотников за бандитами}
+{10043620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10043630}{}{банду работорговцев}
+{10043640}{}{несколько золотых ящеров}
+{10043650}{}{большую стаю диких собак}
+{10043660}{}{патрульный отряд с собаками, гоняющий работорговцев}
+{10043670}{}{банду работорговцев, отбивающихся от золотых ящеров}
+{10043680}{}{солдат патруля, сражающихся с работорговцами}
+{10043690}{}{патрульную команду, воюющую с золотыми ящерами}
+{10043700}{}{патруль, отражающий нападение диких собак}
+{10043710}{}{патрульный отряд}
+{10043720}{}{останки белого кита}
+{10043730}{}{большую каменную голову}
+{10043740}{}{разбившийся шаттл}
+{10043750}{}{Портал Хранителя}
+{10043760}{}{рыцарей короля Артура}
+{10043770}{}{железного дровосека}
+{10043780}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 28
-{10044000}{}{A slew of scavengers}
-{10044010}{}{Some ghoul scavengers}
-{10044020}{}{A bunch of crazies}
-{10044030}{}{Some ghoul crazies}
-{10044040}{}{Some bounty hunters}
-{10044050}{}{Some bounty hunters}
-{10044060}{}{Some bounty hunters}
-{10044070}{}{Some bounty hunters}
-{10044080}{}{Some bounty hunters}
-{10044090}{}{Some bounty hunters}
-{10044100}{}{Some bounty hunters}
-{10044110}{}{Some bounty hunters}
-{10044120}{}{A band of ruffians led by a Morton Brother}
-{10044130}{}{Some geckos}
-{10044140}{}{A pack of wild dogs}
-{10044150}{}{A family of radscorpions}
-{10044160}{}{A bunch of mutated pig rats}
-{10044170}{}{A pack of mutated rats}
-{10044180}{}{Some scavengers battling a bunch of crazies}
-{10044190}{}{Some ghoul scavengers fending off some crazies}
-{10044200}{}{Some geckos fighting some crazies}
-{10044210}{}{Some mutated rats infesting some ghoul scavengers}
-{10044220}{}{A man guarding a bridge}
-{10044230}{}{King Arthur's Knights fighting a rat}
+{10044000}{}{кучку жалких побирушек}
+{10044010}{}{несколько призраков-побирушек}
+{10044020}{}{большую толпу бесноватых}
+{10044030}{}{немного бесноватых призраков}
+{10044040}{}{охотников за бандитами}
+{10044050}{}{охотников за бандитами}
+{10044060}{}{охотников за бандитами}
+{10044070}{}{охотников за бандитами}
+{10044080}{}{охотников за бандитами}
+{10044090}{}{охотников за бандитами}
+{10044100}{}{охотников за бандитами}
+{10044110}{}{охотников за бандитами}
+{10044120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10044130}{}{кучку ящеров}
+{10044140}{}{стаю одичавших собак}
+{10044150}{}{большое семейство рад-скорпионов}
+{10044160}{}{стадо мутировавших крысо-кабанов}
+{10044170}{}{стадо мутировавших грызунов}
+{10044180}{}{группу ничтожных побирушек, дерущуюся с бесноватыми}
+{10044190}{}{несколько призраков-побирушек, бьющихся с бесноватыми}
+{10044200}{}{группу ящеров, пытающихся пообедать бесноватыми}
+{10044210}{}{мутировавших грызунов, мешающих существовать призракам}
+{10044220}{}{человека, охраняющего мост}
+{10044230}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 29
-{10044500}{}{Toxic waste dump}
-{10044510}{}{A lone surviving dog}
-{10044520}{}{A herd of brahmin}
-{10044530}{}{A slew of scavengers}
-{10044540}{}{Some bounty hunters}
-{10044550}{}{Some bounty hunters}
-{10044560}{}{Some bounty hunters}
-{10044570}{}{Some bounty hunters}
-{10044580}{}{Some bounty hunters}
-{10044590}{}{Some bounty hunters}
-{10044600}{}{Some bounty hunters}
-{10044610}{}{Some bounty hunters}
-{10044620}{}{A band of ruffians led by a Morton Brother}
-{10044630}{}{Some ghoul scavengers}
-{10044640}{}{A bunch of crazies}
-{10044650}{}{Some ghoul crazies}
-{10044660}{}{Some geckos}
-{10044670}{}{A pack of wild dogs}
-{10044680}{}{A family of radscorpions}
-{10044690}{}{A bunch of mutated pig rats}
-{10044700}{}{A pack of mutated rats}
-{10044710}{}{Some scavengers battling a bunch of crazies}
-{10044720}{}{Some ghoul scavengers fending off some crazies}
-{10044730}{}{Some geckos fighting some crazies}
-{10044740}{}{Some mutated rats infesting some ghoul scavengers}
-{10044750}{}{The remains of a whale}
-{10044760}{}{A giant stone head}
-{10044770}{}{A crashed shuttle}
-{10044780}{}{A Guardian Portal}
-{10044790}{}{King Arthur's Knights}
-{10044800}{}{A tin woodsman}
-{10044810}{}{The Unwashed Villagers hunting a spammer}
+{10044500}{}{свалку токсичных отходов}
+{10044510}{}{странную одинокую собаку}
+{10044520}{}{стадо браминов}
+{10044530}{}{кучку жалких побирушек}
+{10044540}{}{охотников за бандитами}
+{10044550}{}{охотников за бандитами}
+{10044560}{}{охотников за бандитами}
+{10044570}{}{охотников за бандитами}
+{10044580}{}{охотников за бандитами}
+{10044590}{}{охотников за бандитами}
+{10044600}{}{охотников за бандитами}
+{10044610}{}{охотников за бандитами}
+{10044620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10044630}{}{несколько призраков-побирушек}
+{10044640}{}{большую толпу бесноватых}
+{10044650}{}{немного бесноватых призраков}
+{10044660}{}{несколько ящеров}
+{10044670}{}{большую стаю диких собак}
+{10044680}{}{крупное семейство рад-скорпионов}
+{10044690}{}{целую стаю мутировавших крысо-кабанов}
+{10044700}{}{стадо мутировавших грызунов}
+{10044710}{}{группу ничтожных побирушек, дерущуюся с бесноватыми}
+{10044720}{}{несколько призраков-побирушек, бьющихся с бесноватыми}
+{10044730}{}{группу ящеров, пытающихся пообедать бесноватыми}
+{10044740}{}{мутировавших грызунов, мешающих существовать призракам}
+{10044750}{}{останки белого кита}
+{10044760}{}{большую каменную голову}
+{10044770}{}{разбившийся шаттл}
+{10044780}{}{Портал Хранителя}
+{10044790}{}{рыцарей короля Артура}
+{10044800}{}{железного дровосека}
+{10044810}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 30
-{10045000}{}{Some cannibals}
-{10045010}{}{Some wilders}
-{10045020}{}{A war party}
-{10045030}{}{some outcasts}
-{10045040}{}{Some bounty hunters}
-{10045050}{}{Some bounty hunters}
-{10045060}{}{Some bounty hunters}
-{10045070}{}{Some bounty hunters}
-{10045080}{}{Some bounty hunters}
-{10045090}{}{Some bounty hunters}
-{10045100}{}{Some bounty hunters}
-{10045110}{}{Some bounty hunters}
-{10045120}{}{A band of ruffians led by a Morton Brother}
-{10045130}{}{A family of radscorpions}
-{10045140}{}{Some molerats}
-{10045150}{}{Some fishermen fending off some cannibals}
-{10045160}{}{Some cannibals battling some wilders}
-{10045170}{}{Some radscorpions attacking some wilders}
-{10045180}{}{Some fishermen}
+{10045000}{}{несколько каннибалов}
+{10045010}{}{немного дикарей}
+{10045020}{}{группу воинов}
+{10045030}{}{небольшую кучку изгоев}
+{10045040}{}{охотников за бандитами}
+{10045050}{}{охотников за бандитами}
+{10045060}{}{охотников за бандитами}
+{10045070}{}{охотников за бандитами}
+{10045080}{}{охотников за бандитами}
+{10045090}{}{охотников за бандитами}
+{10045100}{}{охотников за бандитами}
+{10045110}{}{охотников за бандитами}
+{10045120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10045130}{}{крупное семейство рад-скорпионов}
+{10045140}{}{несколько кротов-гризли}
+{10045150}{}{группу рыбаков, пытающихся отогнать каннибалов}
+{10045160}{}{нескольких каннибалов, сражающихся с дикарями}
+{10045170}{}{стайку рад-скорпионов, жаждущих мяса дикарей}
+{10045180}{}{местных рыбаков}
 
 # Encounter Table 31
-{10045500}{}{Toxic waste dump}
-{10045510}{}{A lone surviving dog}
-{10045520}{}{A herd of brahmin}
-{10045530}{}{Some cannibals}
-{10045540}{}{Some bounty hunters}
-{10045550}{}{Some bounty hunters}
-{10045560}{}{Some bounty hunters}
-{10045570}{}{Some bounty hunters}
-{10045580}{}{Some bounty hunters}
-{10045590}{}{Some bounty hunters}
-{10045600}{}{Some bounty hunters}
-{10045610}{}{Some bounty hunters}
-{10045620}{}{A band of ruffians led by a Morton Brother}
-{10045630}{}{Some outcasts}
-{10045640}{}{Some wilders}
-{10045650}{}{A war party}
-{10045660}{}{Some geckos hiding in some spore plants}
-{10045670}{}{Some geckos and some radscorpions}
-{10045680}{}{Some geckos}
-{10045690}{}{Some radscorpions hiding in some spore plants}
-{10045700}{}{Some scorpions}
-{10045710}{}{Some geckos attacking some outcasts}
-{10045720}{}{Some geckos fighting some wilders}
-{10045730}{}{Some radscorpions fighting some cannibals}
-{10045740}{}{Some radscorpions attacking a hermit}
-{10045750}{}{A hermit}
-{10045760}{}{The remains of a whale}
-{10045770}{}{A giant stone head}
-{10045780}{}{A crashed shuttle}
-{10045790}{}{A Guardian Portal}
-{10045800}{}{King Arthur's Knights}
-{10045810}{}{A tin woodsman}
-{10045820}{}{The Unwashed Villagers hunting a spammer}
+{10045500}{}{свалку ядовитых отходов}
+{10045510}{}{странную одинокую собаку}
+{10045520}{}{стадо браминов}
+{10045530}{}{несколько каннибалов}
+{10045540}{}{охотников за бандитами}
+{10045550}{}{охотников за бандитами}
+{10045560}{}{охотников за бандитами}
+{10045570}{}{охотников за бандитами}
+{10045580}{}{охотников за бандитами}
+{10045590}{}{охотников за бандитами}
+{10045600}{}{охотников за бандитами}
+{10045610}{}{охотников за бандитами}
+{10045620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10045630}{}{отбросы общества}
+{10045640}{}{группу дикарей}
+{10045650}{}{отряд воинов}
+{10045660}{}{кучку ящеров, прячущихся среди хищных цветков}
+{10045670}{}{каких-то ящеров и несколько рад-скорпионов}
+{10045680}{}{стайку ящеров}
+{10045690}{}{рад-скорпионов, скрывающихся от правосудия среди хищных цветков}
+{10045700}{}{группу скорпионов}
+{10045710}{}{ящеров, напавших на оборванных бродяг}
+{10045720}{}{дикарей, сражающихся со злобными ящерами}
+{10045730}{}{каннибалов, пытающихся отведать мясца рад-скорпионов}
+{10045740}{}{рад-скорпионов, напавших на местного отшельника}
+{10045750}{}{отшельника}
+{10045760}{}{останки белого кита}
+{10045770}{}{большую каменную голову}
+{10045780}{}{разбившийся шаттл}
+{10045790}{}{Портал Хранителя}
+{10045800}{}{рыцарей короля Артура}
+{10045810}{}{железного дровосека}
+{10045820}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 32
-{10046000}{}{Some cannibals}
-{10046010}{}{Some outcasts}
-{10046020}{}{Some wilders}
-{10046030}{}{A war party}
-{10046040}{}{Some bounty hunters}
-{10046050}{}{Some bounty hunters}
-{10046060}{}{Some bounty hunters}
-{10046070}{}{Some bounty hunters}
-{10046080}{}{Some bounty hunters}
-{10046090}{}{Some bounty hunters}
-{10046100}{}{Some bounty hunters}
-{10046110}{}{Some bounty hunters}
-{10046120}{}{A band of ruffians led by a Morton Brother}
-{10046130}{}{Some geckos hiding in some spore plants}
-{10046140}{}{Some geckos and some radscorpions}
-{10046150}{}{Some geckos}
-{10046160}{}{Some radscorpions hiding in some spore plants}
-{10046170}{}{Some scorpions}
-{10046180}{}{Some geckos attacking some outcasts}
-{10046190}{}{Some geckos fighting some wilders}
-{10046200}{}{Some radscorpions fighting some cannibals}
-{10046210}{}{Some radscorpions attacking a hermit}
-{10046220}{}{A hermit}
-{10046230}{}{A man guarding a bridge}
-{10046240}{}{King Arthur's Knights fighting a rat}
+{10046000}{}{группу каннибалов}
+{10046010}{}{несколько изгоев}
+{10046020}{}{отряд дикарей}
+{10046030}{}{местных воителей}
+{10046040}{}{охотников за бандитами}
+{10046050}{}{охотников за бандитами}
+{10046060}{}{охотников за бандитами}
+{10046070}{}{охотников за бандитами}
+{10046080}{}{охотников за бандитами}
+{10046090}{}{охотников за бандитами}
+{10046100}{}{охотников за бандитами}
+{10046110}{}{охотников за бандитами}
+{10046120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10046130}{}{кучку ящеров, прячущихся среди хищных цветков}
+{10046140}{}{каких-то ящеров и несколько рад-скорпионов}
+{10046150}{}{стайку ящеров}
+{10046160}{}{рад-скорпионов, скрывающихся от правосудия среди хищных цветков}
+{10046170}{}{группу скорпионов}
+{10046180}{}{ящеров, напавших на оборванных бродяг}
+{10046190}{}{дикарей, сражающихся со злобными ящерами}
+{10046200}{}{каннибалов, пытающихся отведать мясца рад-скорпионов}
+{10046210}{}{рад-скорпионов, напавших на местного отшельника}
+{10046220}{}{отшельника}
+{10046230}{}{человека, охраняющего мост}
+{10046240}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 33
-{10046500}{}{Toxic waste dump}
-{10046510}{}{A lone surviving dog}
-{10046520}{}{A herd of brahmin}
-{10046530}{}{A Den caravan}
-{10046540}{}{Some bounty hunters}
-{10046550}{}{Some bounty hunters}
-{10046560}{}{Some bounty hunters}
-{10046570}{}{Some bounty hunters}
-{10046580}{}{Some bounty hunters}
-{10046590}{}{Some bounty hunters}
-{10046600}{}{Some bounty hunters}
-{10046610}{}{Some bounty hunters}
-{10046620}{}{A band of ruffians led by a Morton Brother}
-{10046630}{}{Some highwaymen and robbers}
-{10046640}{}{Some highwaymen}
-{10046650}{}{Some robbers}
-{10046660}{}{A Redding caravan fending off highwaymen}
-{10046670}{}{A New Reno caravan fending off robbers}
-{10046680}{}{A Den caravan fending off highwaymen}
-{10046690}{}{Some robbers ambushing a caravan}
-{10046700}{}{A Den caravan attacking a Vault City caravan}
-{10046710}{}{Some highwaymen fighting some robbers}
-{10046720}{}{A Vault City caravan}
-{10046730}{}{A Den caravan}
-{10046740}{}{The remains of a whale}
-{10046750}{}{A giant stone head}
-{10046760}{}{A crashed shuttle}
-{10046770}{}{A Guardian Portal}
-{10046780}{}{King Arthur's Knights}
-{10046790}{}{A tin woodsman}
-{10046800}{}{The Unwashed Villagers hunting a spammer}
+{10046500}{}{свалку ядовитых отходов}
+{10046510}{}{странную одинокую собаку}
+{10046520}{}{стадо браминов}
+{10046530}{}{караван из Ямы}
+{10046540}{}{охотников за бандитами}
+{10046550}{}{охотников за бандитами}
+{10046560}{}{охотников за бандитами}
+{10046570}{}{охотников за бандитами}
+{10046580}{}{охотников за бандитами}
+{10046590}{}{охотников за бандитами}
+{10046600}{}{охотников за бандитами}
+{10046610}{}{охотников за бандитами}
+{10046620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10046630}{}{большой отряд грабителей и бандитов}
+{10046640}{}{несколько грабителей}
+{10046650}{}{группу бандитов}
+{10046660}{}{караван из Реддинга, отбивающийся от атаки бандитов}
+{10046670}{}{караван из Нью-Рено, обороняющийся от грабителей}
+{10046680}{}{караван из Ямы, попавший в бандитскую засаду}
+{10046690}{}{разбойничий налет на какой-то караван}
+{10046700}{}{торговцев из Ямы, желающих поживиться за счет Города}
+{10046710}{}{междоусобную разборку бандитов и грабителей}
+{10046720}{}{торговый караван из Города}
+{10046730}{}{торговцев из Ямы}
+{10046740}{}{останки белого кита}
+{10046750}{}{большую каменную голову}
+{10046760}{}{разбившийся шаттл}
+{10046770}{}{Портал Хранителя}
+{10046780}{}{рыцарей короля Артура}
+{10046790}{}{железного дровосека}
+{10046800}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 34
-{10047000}{}{A Den caravan}
-{10047010}{}{Some highwaymen and robbers}
-{10047020}{}{Some highwaymen}
-{10047030}{}{Some robbers}
-{10047040}{}{Some bounty hunters}
-{10047050}{}{Some bounty hunters}
-{10047060}{}{Some bounty hunters}
-{10047070}{}{Some bounty hunters}
-{10047080}{}{Some bounty hunters}
-{10047090}{}{Some bounty hunters}
-{10047100}{}{Some bounty hunters}
-{10047110}{}{Some bounty hunters}
-{10047120}{}{A band of ruffians led by a Morton Brother}
-{10047130}{}{A Redding caravan fending off highwaymen}
-{10047140}{}{A New Reno caravan fending off robbers}
-{10047150}{}{A Den caravan fending off highwaymen}
-{10047160}{}{Some robbers ambushing a caravan}
-{10047170}{}{A Den caravan attacking a Vault City caravan}
-{10047180}{}{Some highwaymen fighting some robbers}
-{10047190}{}{A Vault City caravan}
-{10047200}{}{A Den caravan}
-{10047210}{}{A man guarding a bridge}
-{10047220}{}{King Arthur's Knights fighting a rat}
+{10047000}{}{торговцев из Ямы}
+{10047010}{}{целую кучу грабителей и бандитов}
+{10047020}{}{разбойничью шайку}
+{10047030}{}{бандитскую группу}
+{10047040}{}{охотников за бандитами}
+{10047050}{}{охотников за бандитами}
+{10047060}{}{охотников за бандитами}
+{10047070}{}{охотников за бандитами}
+{10047080}{}{охотников за бандитами}
+{10047090}{}{охотников за бандитами}
+{10047100}{}{охотников за бандитами}
+{10047110}{}{охотников за бандитами}
+{10047120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10047130}{}{караван из Реддинга, отбивающийся от атаки бандитов}
+{10047140}{}{караван из Нью-Рено, обороняющийся от грабителей}
+{10047150}{}{караван из Ямы, попавший в бандитскую засаду}
+{10047160}{}{разбойничий налет на какой-то караван}
+{10047170}{}{торговцев из Ямы, желающих поживиться за счет Города}
+{10047180}{}{междоусобную разборку бандитов и грабителей}
+{10047190}{}{торговый караван из Города}
+{10047200}{}{торговцев из Ямы}
+{10047210}{}{человека, охраняющего мост}
+{10047220}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 35
-{10047500}{}{Toxic waste dump}
-{10047510}{}{A lone surviving dog}
-{10047520}{}{A herd of brahmin}
-{10047530}{}{Some geckos and some wolves}
-{10047540}{}{Some bounty hunters}
-{10047550}{}{Some bounty hunters}
-{10047560}{}{Some bounty hunters}
-{10047570}{}{Some bounty hunters}
-{10047580}{}{Some bounty hunters}
-{10047590}{}{Some bounty hunters}
-{10047600}{}{Some bounty hunters}
-{10047610}{}{Some bounty hunters}
-{10047620}{}{A band of ruffians led by a Morton Brother}
-{10047630}{}{Some claim jumpers}
-{10047640}{}{Some wolves}
-{10047650}{}{Some geckos}
-{10047660}{}{Some prospectors fighting some claim jumpers}
-{10047670}{}{Some trappers fighting some geckos}
-{10047680}{}{Some bootleggers fighting some wolves}
-{10047690}{}{Some homesteaders fighting some claim jumpers}
-{10047700}{}{Some homesteaders fending off some wolves}
-{10047710}{}{Some bootleggers}
-{10047720}{}{Some trappers}
-{10047730}{}{Some prospectors}
-{10047740}{}{The remains of a whale}
-{10047750}{}{A giant stone head}
-{10047760}{}{A crashed shuttle}
-{10047770}{}{A Guardian Portal}
-{10047780}{}{King Arthur's Knights}
-{10047790}{}{A tin woodsman}
-{10047800}{}{The Unwashed Villagers hunting a spammer}
+{10047500}{}{свалку ядовитых отходов}
+{10047510}{}{странную одинокую собаку}
+{10047520}{}{стадо браминов}
+{10047530}{}{кучку ящеров и некоторое количество волков}
+{10047540}{}{охотников за бандитами}
+{10047550}{}{охотников за бандитами}
+{10047560}{}{охотников за бандитами}
+{10047570}{}{охотников за бандитами}
+{10047580}{}{охотников за бандитами}
+{10047590}{}{охотников за бандитами}
+{10047600}{}{охотников за бандитами}
+{10047610}{}{охотников за бандитами}
+{10047620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10047630}{}{сообщество мародеров}
+{10047640}{}{опасную волчью стаю}
+{10047650}{}{мерзостных ящеров}
+{10047660}{}{артель рудокопов, не поделивших территорию с мародерами}
+{10047670}{}{трапперов, решивших ободрать парочку ящеров}
+{10047680}{}{напавшую на спиртоносов стаю голодных волков}
+{10047690}{}{поселенцев, охраняющих свои земли от шайки мародеров}
+{10047700}{}{местных жителей, вставших на пути волчьей стаи}
+{10047710}{}{несколько спиртоносов}
+{10047720}{}{отряд трапперов}
+{10047730}{}{артель рудокопов}
+{10047740}{}{останки белого кита}
+{10047750}{}{большую каменную голову}
+{10047760}{}{разбившийся шаттл}
+{10047770}{}{Портал Хранителя}
+{10047780}{}{рыцарей короля Артура}
+{10047790}{}{железного дровосека}
+{10047800}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 36
-{10048000}{}{Some geckos and some wolves}
-{10048010}{}{Some claim jumpers}
-{10048020}{}{Some wolves}
-{10048030}{}{Some geckos}
-{10048040}{}{Some bounty hunters}
-{10048050}{}{Some bounty hunters}
-{10048060}{}{Some bounty hunters}
-{10048070}{}{Some bounty hunters}
-{10048080}{}{Some bounty hunters}
-{10048090}{}{Some bounty hunters}
-{10048100}{}{Some bounty hunters}
-{10048110}{}{Some bounty hunters}
-{10048120}{}{A band of ruffians led by a Morton Brother}
-{10048130}{}{Some prospectors fighting some claim jumpers}
-{10048140}{}{Some trappers fighting some geckos}
-{10048150}{}{Some bootleggers fighting some wolves}
-{10048160}{}{Some homesteaders fighting some claim jumpers}
-{10048170}{}{Some homesteaders fending off some wolves}
-{10048180}{}{Some bootleggers}
-{10048190}{}{Some trappers}
-{10048200}{}{Some prospectors}
-{10048210}{}{A man guarding a bridge}
-{10048220}{}{King Arthur's Knights fighting a rat}
+{10048000}{}{кучку ящеров и некоторое количество волков}
+{10048010}{}{сообщество мародеров}
+{10048020}{}{опасную волчью стаю}
+{10048030}{}{несколько ящеров}
+{10048040}{}{охотников за бандитами}
+{10048050}{}{охотников за бандитами}
+{10048060}{}{охотников за бандитами}
+{10048070}{}{охотников за бандитами}
+{10048080}{}{охотников за бандитами}
+{10048090}{}{охотников за бандитами}
+{10048100}{}{охотников за бандитами}
+{10048110}{}{охотников за бандитами}
+{10048120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10048130}{}{артель рудокопов, не поделивших территорию с мародерами}
+{10048140}{}{трапперов, решивших ободрать парочку ящеров}
+{10048150}{}{напавшую на спиртоносов стаю голодных волков}
+{10048160}{}{поселенцев, охраняющих свои земли от шайки мародеров}
+{10048170}{}{местных жителей, вставших на пути волчьей стаи}
+{10048180}{}{группу спиртоносов}
+{10048190}{}{несколько трапперов}
+{10048200}{}{артель старателей}
+{10048210}{}{человека, охраняющего мост}
+{10048220}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 37
-{10048500}{}{A pack of wolves and some molerats}
-{10048510}{}{Some radscorpions and some wolves}
-{10048520}{}{Some mutated molerats and some radscorpions}
-{10048530}{}{A pack of geckos}
-{10048540}{}{Some bounty hunters}
-{10048550}{}{Some bounty hunters}
-{10048560}{}{Some bounty hunters}
-{10048570}{}{Some bounty hunters}
-{10048580}{}{Some bounty hunters}
-{10048590}{}{Some bounty hunters}
-{10048600}{}{Some bounty hunters}
-{10048610}{}{Some bounty hunters}
-{10048620}{}{A band of ruffians led by a Morton Brother}
-{10048630}{}{A pack of wolves}
-{10048640}{}{A pack of mutated molerats}
-{10048650}{}{A pack of radscorpions}
-{10048660}{}{A pack of wolves and some geckos}
-{10048670}{}{Some mutated molerats fighting some geckos}
-{10048680}{}{Some molerats fighting some radscorpions}
-{10048690}{}{A man guarding a bridge}
-{10048700}{}{King Arthur's Knights fighting a rat}
+{10048500}{}{волчью стаю, усиленную голодными кротами-гризли}
+{10048510}{}{несколько рад-скорпионов и кучку волков}
+{10048520}{}{мутировавших кротов-гризли и беснующихся рад-скорпионов}
+{10048530}{}{стайку каких-то ящеров}
+{10048540}{}{охотников за бандитами}
+{10048550}{}{охотников за бандитами}
+{10048560}{}{охотников за бандитами}
+{10048570}{}{охотников за бандитами}
+{10048580}{}{охотников за бандитами}
+{10048590}{}{охотников за бандитами}
+{10048600}{}{охотников за бандитами}
+{10048610}{}{охотников за бандитами}
+{10048620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10048630}{}{опасную волчью стаю}
+{10048640}{}{мутировавших и отощавших кротов-гризли}
+{10048650}{}{большую кучу рад-скорпионов}
+{10048660}{}{охотящихся на кого-то волков и ящеров}
+{10048670}{}{мутировавших кротов-гризли, дерущихся с ящерами}
+{10048680}{}{рад-скорпионов, пытающихся сожрать кротов-гризли}
+{10048690}{}{человека, охраняющего мост}
+{10048700}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 38
-{10049000}{}{A band of raiders}
-{10049010}{}{Some wolves}
-{10049020}{}{A caravan fending off some raiders}
-{10049030}{}{A caravan fending off some raiders}
-{10049040}{}{Some bounty hunters}
-{10049050}{}{Some bounty hunters}
-{10049060}{}{Some bounty hunters}
-{10049070}{}{Some bounty hunters}
-{10049080}{}{Some bounty hunters}
-{10049090}{}{Some bounty hunters}
-{10049100}{}{Some bounty hunters}
-{10049110}{}{Some bounty hunters}
-{10049120}{}{A band of ruffians led by a Morton Brother}
-{10049130}{}{A caravan fending off some raiders}
-{10049140}{}{A caravan fending off some raiders}
-{10049150}{}{A caravan}
-{10049160}{}{A caravan}
-{10049170}{}{A caravan}
-{10049180}{}{A caravan}
-{10049190}{}{A man guarding a bridge}
-{10049200}{}{King Arthur's Knights fighting a rat}
+{10049000}{}{разбойничью шайку}
+{10049010}{}{волчью стаю}
+{10049020}{}{караван, наткнувшийся на банду грабителей}
+{10049030}{}{караван, наткнувшийся на банду грабителей}
+{10049040}{}{охотников за бандитами}
+{10049050}{}{охотников за бандитами}
+{10049060}{}{охотников за бандитами}
+{10049070}{}{охотников за бандитами}
+{10049080}{}{охотников за бандитами}
+{10049090}{}{охотников за бандитами}
+{10049100}{}{охотников за бандитами}
+{10049110}{}{охотников за бандитами}
+{10049120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10049130}{}{караван, наткнувшийся на банду грабителей}
+{10049140}{}{караван, наткнувшийся на банду грабителей}
+{10049150}{}{караван}
+{10049160}{}{караван}
+{10049170}{}{караван}
+{10049180}{}{караван}
+{10049190}{}{человека, охраняющего мост}
+{10049200}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 39
-{10049500}{}{Toxic waste dump}
-{10049510}{}{A lone surviving dog}
-{10049520}{}{A herd of brahmin}
-{10049530}{}{A band of raiders}
-{10049540}{}{Some bounty hunters}
-{10049550}{}{Some bounty hunters}
-{10049560}{}{Some bounty hunters}
-{10049570}{}{Some bounty hunters}
-{10049580}{}{Some bounty hunters}
-{10049590}{}{Some bounty hunters}
-{10049600}{}{Some bounty hunters}
-{10049610}{}{Some bounty hunters}
-{10049620}{}{A band of ruffians led by a Morton Brother}
-{10049630}{}{Some wolves}
-{10049640}{}{A caravan fending off some raiders}
-{10049650}{}{A caravan fending off some raiders}
-{10049660}{}{A caravan fending off some raiders}
-{10049670}{}{A caravan fending off some raiders}
-{10049680}{}{A caravan}
-{10049690}{}{A caravan}
-{10049700}{}{A caravan}
-{10049710}{}{A caravan}
-{10049720}{}{The remains of a whale}
-{10049730}{}{A giant stone head}
-{10049740}{}{A crashed shuttle}
-{10049750}{}{A Guardian Portal}
-{10049760}{}{King Arthur's Knights}
-{10049770}{}{A tin woodsman}
-{10049780}{}{The Unwashed Villagers hunting a spammer}
+{10049500}{}{свалку ядовитых отбросов}
+{10049510}{}{странную одинокую собаку}
+{10049520}{}{стадо браминов}
+{10049530}{}{разбойничью шайку}
+{10049540}{}{охотников за бандитами}
+{10049550}{}{охотников за бандитами}
+{10049560}{}{охотников за бандитами}
+{10049570}{}{охотников за бандитами}
+{10049580}{}{охотников за бандитами}
+{10049590}{}{охотников за бандитами}
+{10049600}{}{охотников за бандитами}
+{10049610}{}{охотников за бандитами}
+{10049620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10049630}{}{волчью стаю}
+{10049640}{}{караван, наткнувшийся на банду грабителей}
+{10049650}{}{караван, наткнувшийся на банду грабителей}
+{10049660}{}{караван, наткнувшийся на банду грабителей}
+{10049670}{}{караван, наткнувшийся на банду грабителей}
+{10049680}{}{караван}
+{10049690}{}{караван}
+{10049700}{}{караван}
+{10049710}{}{караван}
+{10049720}{}{останки белого кита}
+{10049730}{}{большую каменную голову}
+{10049740}{}{разбившийся шаттл}
+{10049750}{}{Портал Хранителя}
+{10049760}{}{рыцарей короля Артура}
+{10049770}{}{железного дровосека}
+{10049780}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 40
-{10050000}{}{A band of raiders leading some wolves}
-{10050010}{}{Some spore plants and some wolves}
-{10050020}{}{A band of raiders}
-{10050030}{}{A pack of wolves}
-{10050040}{}{Some bounty hunters}
-{10050050}{}{Some bounty hunters}
-{10050060}{}{Some bounty hunters}
-{10050070}{}{Some bounty hunters}
-{10050080}{}{Some bounty hunters}
-{10050090}{}{Some bounty hunters}
-{10050100}{}{Some bounty hunters}
-{10050110}{}{Some bounty hunters}
-{10050120}{}{A band of ruffians led by a Morton Brother}
-{10050130}{}{A pack of radscorpions}
-{10050140}{}{A pack of wolves fighting some raiders}
-{10050150}{}{A man guarding a bridge}
-{10050160}{}{King Arthur's Knights fighting a rat}
+{10050000}{}{банду грабителей, идущих по следу с собаками}
+{10050010}{}{заросли хищных цветков и группу волков}
+{10050020}{}{разбойничью шайку}
+{10050030}{}{опасную волчью стаю}
+{10050040}{}{охотников за бандитами}
+{10050050}{}{охотников за бандитами}
+{10050060}{}{охотников за бандитами}
+{10050070}{}{охотников за бандитами}
+{10050080}{}{охотников за бандитами}
+{10050090}{}{охотников за бандитами}
+{10050100}{}{охотников за бандитами}
+{10050110}{}{охотников за бандитами}
+{10050120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10050130}{}{большую группу рад-скорпионов}
+{10050140}{}{разбойников, встретившихся с тощими и злыми волками}
+{10050150}{}{человека, охраняющего мост}
+{10050160}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 41
-{10050500}{}{Toxic waste dump}
-{10050510}{}{A lone surviving dog}
-{10050520}{}{A herd of brahmin}
-{10050530}{}{A band of raiders leading some wolves}
-{10050540}{}{Some bounty hunters}
-{10050550}{}{Some bounty hunters}
-{10050560}{}{Some bounty hunters}
-{10050570}{}{Some bounty hunters}
-{10050580}{}{Some bounty hunters}
-{10050590}{}{Some bounty hunters}
-{10050600}{}{Some bounty hunters}
-{10050610}{}{Some bounty hunters}
-{10050620}{}{A band of ruffians led by a Morton Brother}
-{10050630}{}{Some spore plants and some wolves}
-{10050640}{}{A band of raiders}
-{10050650}{}{A pack of wolves}
-{10050660}{}{A pack of radscorpions}
-{10050670}{}{A pack of wolves fighting some raiders}
-{10050680}{}{The remains of a whale}
-{10050690}{}{A giant stone head}
-{10050700}{}{A crashed shuttle}
-{10050710}{}{A Guardian Portal}
-{10050720}{}{King Arthur's Knights}
-{10050730}{}{A tin woodsman}
-{10050740}{}{The Unwashed Villagers hunting a spammer}
+{10050500}{}{свалку ядовитых отходов}
+{10050510}{}{странную одинокую собаку}
+{10050520}{}{стадо браминов}
+{10050530}{}{банду грабителей, идущих по следу с собаками}
+{10050540}{}{охотников за бандитами}
+{10050550}{}{охотников за бандитами}
+{10050560}{}{охотников за бандитами}
+{10050570}{}{охотников за бандитами}
+{10050580}{}{охотников за бандитами}
+{10050590}{}{охотников за бандитами}
+{10050600}{}{охотников за бандитами}
+{10050610}{}{охотников за бандитами}
+{10050620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10050630}{}{заросли хищных цветков и группу волков}
+{10050640}{}{разбойничью шайку}
+{10050650}{}{опасную волчью стаю}
+{10050660}{}{немалое количество рад-скорпионов}
+{10050670}{}{разбойников, встретившихся с тощими и злыми волками}
+{10050680}{}{останки белого кита}
+{10050690}{}{большую каменную голову}
+{10050700}{}{разбившийся шаттл}
+{10050710}{}{Портал Хранителя}
+{10050720}{}{рыцарей короля Артура}
+{10050730}{}{железного дровосека}
+{10050740}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 42
-{10051000}{}{Toxic waste dump}
-{10051010}{}{A lone surviving dog}
-{10051020}{}{A herd of brahmin}
-{10051030}{}{An Enclave Patrol}
-{10051040}{}{Some bounty hunters}
-{10051050}{}{Some bounty hunters}
-{10051060}{}{Some bounty hunters}
-{10051070}{}{Some bounty hunters}
-{10051080}{}{Some bounty hunters}
-{10051090}{}{Some bounty hunters}
-{10051100}{}{Some bounty hunters}
-{10051110}{}{Some bounty hunters}
-{10051120}{}{A band of ruffians led by a Morton Brother}
-{10051130}{}{The remains of a whale}
-{10051140}{}{A giant stone head}
-{10051150}{}{A crashed shuttle}
-{10051160}{}{A Guardian Portal}
-{10051170}{}{King Arthur's Knights}
-{10051180}{}{A tin woodsman}
-{10051190}{}{The Unwashed Villagers hunting a spammer}
-{10051200}{}{The Cafe of Broken Dreams}
+{10051000}{}{свалку ядовитых отходов}
+{10051010}{}{странную одинокую собаку}
+{10051020}{}{стадо браминов}
+{10051030}{}{вооруженный патруль АНКЛАВА}
+{10051040}{}{охотников за бандитами}
+{10051050}{}{охотников за бандитами}
+{10051060}{}{охотников за бандитами}
+{10051070}{}{охотников за бандитами}
+{10051080}{}{охотников за бандитами}
+{10051090}{}{охотников за бандитами}
+{10051100}{}{охотников за бандитами}
+{10051110}{}{охотников за бандитами}
+{10051120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10051130}{}{останки белого кита}
+{10051140}{}{большую каменную голову}
+{10051150}{}{разбившийся шаттл}
+{10051160}{}{Портал Хранителя}
+{10051170}{}{рыцарей короля Артура}
+{10051180}{}{железного дровосека}
+{10051190}{}{немытых крестьян, гоняющихся за бродягой}
+{10051200}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 43
-{10051500}{}{An Enclave Patrol}
-{10051510}{}{Some bounty hunters}
-{10051520}{}{Some bounty hunters}
-{10051530}{}{Some bounty hunters}
-{10051540}{}{Some bounty hunters}
-{10051550}{}{Some bounty hunters}
-{10051560}{}{Some bounty hunters}
-{10051570}{}{Some bounty hunters}
-{10051580}{}{Some bounty hunters}
-{10051590}{}{A band of ruffians led by a Morton Brother}
-{10051600}{}{A man guarding a bridge}
-{10051610}{}{King Arthur's Knights fighting a rat}
+{10051500}{}{вооруженный патруль АНКЛАВА}
+{10051510}{}{охотников за бандитами}
+{10051520}{}{охотников за бандитами}
+{10051530}{}{охотников за бандитами}
+{10051540}{}{охотников за бандитами}
+{10051550}{}{охотников за бандитами}
+{10051560}{}{охотников за бандитами}
+{10051570}{}{охотников за бандитами}
+{10051580}{}{охотников за бандитами}
+{10051590}{}{толпу отщепенцев с братом Мортона  во главе}
+{10051600}{}{человека, охраняющего мост}
+{10051610}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 44
-{10052000}{}{An Enclave Patrol}
-{10052010}{}{Some bounty hunters}
-{10052020}{}{Some bounty hunters}
-{10052030}{}{Some bounty hunters}
-{10052040}{}{Some bounty hunters}
-{10052080}{}{Some bounty hunters}
-{10052090}{}{Some bounty hunters}
-{10052100}{}{Some bounty hunters}
-{10052110}{}{Some bounty hunters}
-{10052120}{}{A band of ruffians led by a Morton Brother}
+{10052000}{}{вооруженный патруль АНКЛАВА}
+{10052010}{}{охотников за бандитами}
+{10052020}{}{охотников за бандитами}
+{10052030}{}{охотников за бандитами}
+{10052040}{}{охотников за бандитами}
+{10052080}{}{охотников за бандитами}
+{10052090}{}{охотников за бандитами}
+{10052100}{}{охотников за бандитами}
+{10052110}{}{охотников за бандитами}
+{10052120}{}{толпу отщепенцев с братом Мортона  во главе}
 
 # Encounter Table 45
-{10052500}{}{Toxic waste dump}
-{10052510}{}{A lone surviving dog}
-{10052520}{}{A herd of brahmin}
-{10052530}{}{Some aliens and deathclaws}
-{10052540}{}{Some bounty hunters}
-{10052550}{}{Some bounty hunters}
-{10052560}{}{Some bounty hunters}
-{10052570}{}{Some bounty hunters}
-{10052580}{}{Some bounty hunters}
-{10052590}{}{Some bounty hunters}
-{10052600}{}{Some bounty hunters}
-{10052610}{}{Some bounty hunters}
-{10052620}{}{A band of ruffians led by a Morton Brother}
-{10052630}{}{An army of floaters and centaurs}
-{10052640}{}{Some fire geckos}
-{10052650}{}{A large pack of aliens}
-{10052660}{}{Some deathclaws}
-{10052670}{}{Some fire geckos}
-{10052680}{}{Some aliens}
-{10052690}{}{A pack of centaurs}
-{10052700}{}{A swarm of floaters}
-{10052710}{}{The remains of a whale}
-{10052720}{}{A giant stone head}
-{10052730}{}{A crashed shuttle}
-{10052740}{}{A Guardian Portal}
-{10052750}{}{King Arthur's Knights}
-{10052760}{}{A tin woodsman}
-{10052770}{}{The Unwashed Villagers hunting a spammer}
-{10052780}{}{The Cafe of Broken Dreams}
+{10052500}{}{свалку ядовитых отходов}
+{10052510}{}{странную одинокую собаку}
+{10052520}{}{стадо браминов}
+{10052530}{}{кучку инопланетян и смертекогтов}
+{10052540}{}{охотников за бандитами}
+{10052550}{}{охотников за бандитами}
+{10052560}{}{охотников за бандитами}
+{10052570}{}{охотников за бандитами}
+{10052580}{}{охотников за бандитами}
+{10052590}{}{охотников за бандитами}
+{10052600}{}{охотников за бандитами}
+{10052610}{}{охотников за бандитами}
+{10052620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10052630}{}{целую армию летателей и псевдо-кентавров}
+{10052640}{}{огнедышащих ящеров}
+{10052650}{}{большую толпу инопланетных туристов}
+{10052660}{}{несколько смертекогтов}
+{10052670}{}{кучку огнедышащих ящеров}
+{10052680}{}{группу инопланетян}
+{10052690}{}{табун псевдо-кентавров}
+{10052700}{}{крупный выводок летателей}
+{10052710}{}{останки белого кита}
+{10052720}{}{большую каменную голову}
+{10052730}{}{разбившийся шаттл}
+{10052740}{}{Портал Хранителя}
+{10052750}{}{рыцарей короля Артура}
+{10052760}{}{железного дровосека}
+{10052770}{}{немытых крестьян, гоняющихся за бродягой}
+{10052780}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 46
-{10053000}{}{Some aliens and deathclaws}
-{10053010}{}{An army of floaters and centaurs}
-{10053020}{}{Some fire geckos}
-{10053030}{}{A large pack of aliens}
-{10053040}{}{Some bounty hunters}
-{10053050}{}{Some bounty hunters}
-{10053060}{}{Some bounty hunters}
-{10053070}{}{Some bounty hunters}
-{10053080}{}{Some bounty hunters}
-{10053090}{}{Some bounty hunters}
-{10053100}{}{Some bounty hunters}
-{10053110}{}{Some bounty hunters}
-{10053120}{}{A band of ruffians led by a Morton Brother}
-{10053130}{}{Some deathclaws}
-{10053140}{}{Some fire geckos}
-{10053150}{}{Some aliens}
-{10053160}{}{A pack of centaurs}
-{10053170}{}{A swarm of floaters}
-{10053180}{}{A man guarding a bridge}
-{10053190}{}{King Arthur's Knights fighting a rat}
+{10053000}{}{кучку инопланетян и смертекогтов}
+{10053010}{}{целую армию летателей и псевдо-кентавров}
+{10053020}{}{несколько огнедышащих ящеров}
+{10053030}{}{большую толпу инопланетных туристов}
+{10053040}{}{охотников за бандитами}
+{10053050}{}{охотников за бандитами}
+{10053060}{}{охотников за бандитами}
+{10053070}{}{охотников за бандитами}
+{10053080}{}{охотников за бандитами}
+{10053090}{}{охотников за бандитами}
+{10053100}{}{охотников за бандитами}
+{10053110}{}{охотников за бандитами}
+{10053120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10053130}{}{группу смертекогтов}
+{10053140}{}{несколько огнедышащих ящеров}
+{10053150}{}{кучку инопланетян}
+{10053160}{}{табун псевдо-кентавров}
+{10053170}{}{крупный выводок летателей}
+{10053180}{}{человека, охраняющего мост}
+{10053190}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 47
-{10053500}{}{Some aliens and deathclaws}
-{10053510}{}{An army of floaters and centaurs}
-{10053520}{}{Some fire geckos}
-{10053530}{}{A large pack of aliens}
-{10053540}{}{Some bounty hunters}
-{10053550}{}{Some bounty hunters}
-{10053560}{}{Some bounty hunters}
-{10053570}{}{Some bounty hunters}
-{10053580}{}{Some bounty hunters}
-{10053590}{}{Some bounty hunters}
-{10053600}{}{Some bounty hunters}
-{10053610}{}{Some bounty hunters}
-{10053620}{}{A band of ruffians led by a Morton Brother}
-{10053630}{}{Some deathclaws}
-{10053640}{}{Some fire geckos}
-{10053650}{}{Some aliens}
-{10053660}{}{A pack of centaurs}
-{10053670}{}{A swarm of floaters}
+{10053500}{}{кучку инопланетян и смертекогтов}
+{10053510}{}{целую армию летателей и псевдо-кентавров}
+{10053520}{}{несколько огнедышащих ящеров}
+{10053530}{}{большую толпу инопланетных туристов}
+{10053540}{}{охотников за бандитами}
+{10053550}{}{охотников за бандитами}
+{10053560}{}{охотников за бандитами}
+{10053570}{}{охотников за бандитами}
+{10053580}{}{охотников за бандитами}
+{10053590}{}{охотников за бандитами}
+{10053600}{}{охотников за бандитами}
+{10053610}{}{охотников за бандитами}
+{10053620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10053630}{}{несколько смертекогтов}
+{10053640}{}{стайку огнедышащих ящеров}
+{10053650}{}{кучку инопланетян}
+{10053660}{}{табун псевдо-кентавров}
+{10053670}{}{крупный выводок летателей}
 
 # Encounter Table 48
-{10054000}{}{Toxic waste dump}
-{10054010}{}{A lone surviving dog}
-{10054020}{}{A herd of brahmin}
-{10054030}{}{A pack of fire geckos}
-{10054040}{}{Some bounty hunters}
-{10054050}{}{Some bounty hunters}
-{10054060}{}{Some bounty hunters}
-{10054070}{}{Some bounty hunters}
-{10054080}{}{Some bounty hunters}
-{10054090}{}{Some bounty hunters}
-{10054100}{}{Some bounty hunters}
-{10054110}{}{Some bounty hunters}
-{10054120}{}{A band of ruffians led by a Morton Brother}
-{10054130}{}{A pack of fire geckos}
-{10054140}{}{A large pack of golden geckos}
-{10054150}{}{The remains of a whale}
-{10054160}{}{A giant stone head}
-{10054170}{}{A crashed shuttle}
-{10054180}{}{A Guardian Portal}
-{10054190}{}{King Arthur's Knights}
-{10054200}{}{A tin woodsman}
-{10054210}{}{The Unwashed Villagers hunting a spammer}
-{10054220}{}{The Cafe of Broken Dreams}
-{10054230}{}{The Mad scientist's lab}
+{10054000}{}{свалку ядовитых отходов}
+{10054010}{}{странную одинокую собаку}
+{10054020}{}{стадо браминов}
+{10054030}{}{большую кучу огнедышащих ящеров}
+{10054040}{}{охотников за бандитами}
+{10054050}{}{охотников за бандитами}
+{10054060}{}{охотников за бандитами}
+{10054070}{}{охотников за бандитами}
+{10054080}{}{охотников за бандитами}
+{10054090}{}{охотников за бандитами}
+{10054100}{}{охотников за бандитами}
+{10054110}{}{охотников за бандитами}
+{10054120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10054130}{}{стаю нелепых огнедышащих ящеров}
+{10054140}{}{невероятное множество золотых ящеров}
+{10054150}{}{останки белого кита}
+{10054160}{}{большую каменную голову}
+{10054170}{}{разбившийся шаттл}
+{10054180}{}{Портал Хранителя}
+{10054190}{}{рыцарей короля Артура}
+{10054200}{}{железного дровосека}
+{10054210}{}{немытых крестьян, гоняющихся за бродягой}
+{10054220}{}{кафе Разбитых Мечтаний}
+{10054230}{}{заброшенную лабораторию безумного ученого}
 
 # Encounter Table 49
-{10054500}{}{A pack of fire geckos}
-{10054510}{}{A pack of fire geckos}
-{10054520}{}{A large pack of golden geckos}
-{10054530}{}{Some bounty hunters}
-{10054540}{}{Some bounty hunters}
-{10054550}{}{Some bounty hunters}
-{10054560}{}{Some bounty hunters}
-{10054570}{}{Some bounty hunters}
-{10054580}{}{Some bounty hunters}
-{10054590}{}{Some bounty hunters}
-{10054600}{}{Some bounty hunters}
-{10054610}{}{A band of ruffians led by a Morton Brother}
-{10054620}{}{A man guarding a bridge}
-{10054630}{}{King Arthur's Knights fighting a rat}
+{10054500}{}{стаю нелепых огнедышащих ящеров}
+{10054510}{}{большую кучу огнедышащих ящеров}
+{10054520}{}{невероятное множество золотых ящеров}
+{10054530}{}{охотников за бандитами}
+{10054540}{}{охотников за бандитами}
+{10054550}{}{охотников за бандитами}
+{10054560}{}{охотников за бандитами}
+{10054570}{}{охотников за бандитами}
+{10054580}{}{охотников за бандитами}
+{10054590}{}{охотников за бандитами}
+{10054600}{}{охотников за бандитами}
+{10054610}{}{толпу отщепенцев с братом Мортона  во главе}
+{10054620}{}{человека, охраняющего мост}
+{10054630}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 50
-{10055000}{}{A pack of fire geckos}
-{10055010}{}{A pack of fire geckos}
-{10055020}{}{A large pack of golden geckos}
-{10055030}{}{Some bounty hunters}
-{10055040}{}{Some bounty hunters}
-{10055050}{}{Some bounty hunters}
-{10055060}{}{Some bounty hunters}
-{10055070}{}{Some bounty hunters}
-{10055080}{}{Some bounty hunters}
-{10055090}{}{Some bounty hunters}
-{10055100}{}{Some bounty hunters}
-{10055110}{}{A band of ruffians led by a Morton Brother}
+{10055000}{}{небольшую кучку огнедышащих ящеров}
+{10055010}{}{крупную стаю огнедышащих ящеров}
+{10055020}{}{невероятное множество золотых ящеров}
+{10055030}{}{охотников за бандитами}
+{10055040}{}{охотников за бандитами}
+{10055050}{}{охотников за бандитами}
+{10055060}{}{охотников за бандитами}
+{10055070}{}{охотников за бандитами}
+{10055080}{}{охотников за бандитами}
+{10055090}{}{охотников за бандитами}
+{10055100}{}{охотников за бандитами}
+{10055110}{}{толпу отщепенцев с братом Мортона  во главе}
 
 # Encounter Table 51
-{10055500}{}{Toxic waste dump}
-{10055510}{}{A lone surviving dog}
-{10055520}{}{A herd of brahmin}
-{10055530}{}{A pack of deathclaws}
-{10055540}{}{Some bounty hunters}
-{10055550}{}{Some bounty hunters}
-{10055560}{}{Some bounty hunters}
-{10055570}{}{Some bounty hunters}
-{10055580}{}{Some bounty hunters}
-{10055590}{}{Some bounty hunters}
-{10055600}{}{Some bounty hunters}
-{10055610}{}{Some bounty hunters}
-{10055620}{}{A band of ruffians led by a Morton Brother}
-{10055630}{}{A pack of fire geckos}
-{10055640}{}{A caravan fending off deathclaws}
-{10055650}{}{A caravan fending off deathclaws}
-{10055660}{}{A caravan fending off fire geckos}
-{10055670}{}{A caravan fending off fire geckos}
-{10055680}{}{A caravan}
-{10055690}{}{A caravan}
-{10055700}{}{A caravan}
-{10055710}{}{A caravan}
-{10055720}{}{The remains of a whale}
-{10055730}{}{A giant stone head}
-{10055740}{}{A crashed shuttle}
-{10055750}{}{A Guardian Portal}
-{10055760}{}{King Arthur's Knights}
-{10055770}{}{A tin woodsman}
-{10055780}{}{The Unwashed Villagers hunting a spammer}
+{10055500}{}{свалку ядовитых отходов}
+{10055510}{}{странную одинокую собаку}
+{10055520}{}{стадо браминов}
+{10055530}{}{большую кучу смертекогтов}
+{10055540}{}{охотников за бандитами}
+{10055550}{}{охотников за бандитами}
+{10055560}{}{охотников за бандитами}
+{10055570}{}{охотников за бандитами}
+{10055580}{}{охотников за бандитами}
+{10055590}{}{охотников за бандитами}
+{10055600}{}{охотников за бандитами}
+{10055610}{}{охотников за бандитами}
+{10055620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10055630}{}{крупную стаю огнедышащих ящеров}
+{10055640}{}{торговцев из каравана, бьющихся со когтями смерти}
+{10055650}{}{торговцев из каравана, бьющихся со когтями смерти}
+{10055660}{}{напавших на караван огнедышащих ящеров}
+{10055670}{}{напавших на караван огнедышащих ящеров}
+{10055680}{}{караван}
+{10055690}{}{караван}
+{10055700}{}{караван}
+{10055710}{}{караван}
+{10055720}{}{останки белого кита}
+{10055730}{}{большую каменную голову}
+{10055740}{}{разбившийся шаттл}
+{10055750}{}{Портал Хранителя}
+{10055760}{}{рыцарей короля Артура}
+{10055770}{}{железного дровосека}
+{10055780}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 52
-{10056000}{}{A pack of deathclaws}
-{10056010}{}{A pack of fire geckos}
-{10056020}{}{A caravan fending off deathclaws}
-{10056030}{}{A caravan fending off deathclaws}
-{10056040}{}{Some bounty hunters}
-{10056050}{}{Some bounty hunters}
-{10056060}{}{Some bounty hunters}
-{10056070}{}{Some bounty hunters}
-{10056080}{}{Some bounty hunters}
-{10056090}{}{Some bounty hunters}
-{10056100}{}{Some bounty hunters}
-{10056110}{}{Some bounty hunters}
-{10056120}{}{A band of ruffians led by a Morton Brother}
-{10056130}{}{A caravan fending off fire geckos}
-{10056140}{}{A caravan fending off fire geckos}
-{10056150}{}{A caravan}
-{10056160}{}{A caravan}
-{10056170}{}{A caravan}
-{10056180}{}{A caravan}
-{10056190}{}{A man guarding a bridge}
-{10056200}{}{King Arthur's Knights fighting a rat}
+{10056000}{}{большую группу смертекогтов}
+{10056010}{}{стайку огнедышащих ящеров}
+{10056020}{}{торговцев из каравана, бьющихся со когтями смерти}
+{10056030}{}{торговцев из каравана, бьющихся со когтями смерти}
+{10056040}{}{охотников за бандитами}
+{10056050}{}{охотников за бандитами}
+{10056060}{}{охотников за бандитами}
+{10056070}{}{охотников за бандитами}
+{10056080}{}{охотников за бандитами}
+{10056090}{}{охотников за бандитами}
+{10056100}{}{охотников за бандитами}
+{10056110}{}{охотников за бандитами}
+{10056120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10056130}{}{напавших на караван огнедышащих ящеров}
+{10056140}{}{напавших на караван огнедышащих ящеров}
+{10056150}{}{караван}
+{10056160}{}{караван}
+{10056170}{}{караван}
+{10056180}{}{караван}
+{10056190}{}{человека, охраняющего мост}
+{10056200}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 53
-{10056500}{}{Toxic waste dump}
-{10056510}{}{A lone surviving dog}
-{10056520}{}{A herd of brahmin}
-{10056530}{}{Some yakuza}
-{10056540}{}{Some bounty hunters}
-{10056550}{}{Some bounty hunters}
-{10056560}{}{Some bounty hunters}
-{10056570}{}{Some bounty hunters}
-{10056580}{}{Some bounty hunters}
-{10056590}{}{Some bounty hunters}
-{10056600}{}{Some bounty hunters}
-{10056610}{}{Some bounty hunters}
-{10056620}{}{A band of ruffians led by a Morton Brother}
-{10056630}{}{A gang}
-{10056640}{}{A pack of wolves}
-{10056650}{}{Some mobsters fighting some yakuza}
-{10056660}{}{Some mobsters fighting a gang}
-{10056670}{}{Some mobsters}
-{10056680}{}{A traveler}
-{10056690}{}{The remains of a whale}
-{10056700}{}{A giant stone head}
-{10056710}{}{A crashed shuttle}
-{10056720}{}{A Guardian Portal}
-{10056730}{}{King Arthur's Knights}
-{10056740}{}{A tin woodsman}
-{10056750}{}{The Unwashed Villagers hunting a spammer}
-{10056760}{}{The Cafe of Broken Dreams}
+{10056500}{}{свалку ядовитых отходов}
+{10056510}{}{странную одинокую собаку}
+{10056520}{}{стадо браминов}
+{10056530}{}{несколько якудза}
+{10056540}{}{охотников за бандитами}
+{10056550}{}{охотников за бандитами}
+{10056560}{}{охотников за бандитами}
+{10056570}{}{охотников за бандитами}
+{10056580}{}{охотников за бандитами}
+{10056590}{}{охотников за бандитами}
+{10056600}{}{охотников за бандитами}
+{10056610}{}{охотников за бандитами}
+{10056620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10056630}{}{банду}
+{10056640}{}{опасную стаю волков}
+{10056650}{}{большую толпу мафиози, напавших на якудза}
+{10056660}{}{местных мафиози, разбирающихся с конкурентами}
+{10056670}{}{группу мафиози}
+{10056680}{}{пешехода}
+{10056690}{}{останки белого кита}
+{10056700}{}{большую каменную голову}
+{10056710}{}{разбившийся шаттл}
+{10056720}{}{Портал Хранителя}
+{10056730}{}{рыцарей короля Артура}
+{10056740}{}{железного дровосека}
+{10056750}{}{немытых крестьян, гоняющихся за бродягой}
+{10056760}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 54
-{10057000}{}{Some yakuza}
-{10057010}{}{A gang}
-{10057020}{}{A pack of wolves}
-{10057030}{}{Some mobsters fighting some yakuza}
-{10057040}{}{Some bounty hunters}
-{10057050}{}{Some bounty hunters}
-{10057060}{}{Some bounty hunters}
-{10057070}{}{Some bounty hunters}
-{10057080}{}{Some bounty hunters}
-{10057090}{}{Some bounty hunters}
-{10057100}{}{Some bounty hunters}
-{10057110}{}{Some bounty hunters}
-{10057120}{}{A band of ruffians led by a Morton Brother}
-{10057130}{}{Some mobsters fighting a gang}
-{10057140}{}{Some mobsters}
-{10057150}{}{A traveler}
-{10057160}{}{A man guarding a bridge}
-{10057170}{}{King Arthur's Knights fighting a rat}
+{10057000}{}{несколько якудза}
+{10057010}{}{банду}
+{10057020}{}{опасную волчью стаю}
+{10057030}{}{большую толпу мафиози, напавших на якудза}
+{10057040}{}{охотников за бандитами}
+{10057050}{}{охотников за бандитами}
+{10057060}{}{охотников за бандитами}
+{10057070}{}{охотников за бандитами}
+{10057080}{}{охотников за бандитами}
+{10057090}{}{охотников за бандитами}
+{10057100}{}{охотников за бандитами}
+{10057110}{}{охотников за бандитами}
+{10057120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10057130}{}{местных мафиози, разбирающихся с конкурентами}
+{10057140}{}{группу мафиози}
+{10057150}{}{пешехода}
+{10057160}{}{человека, охраняющего мост}
+{10057170}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 55
-{10057500}{}{Some yakuza}
-{10057510}{}{A gang}
-{10057520}{}{A pack of wolves}
-{10057530}{}{Some mobsters fighting some yakuza}
-{10057540}{}{Some bounty hunters}
-{10057550}{}{Some bounty hunters}
-{10057560}{}{Some bounty hunters}
-{10057570}{}{Some bounty hunters}
-{10057580}{}{Some bounty hunters}
-{10057590}{}{Some bounty hunters}
-{10057600}{}{Some bounty hunters}
-{10057610}{}{Some bounty hunters}
-{10057620}{}{A band of ruffians led by a Morton Brother}
-{10057630}{}{Some mobsters fighting a gang}
-{10057640}{}{Some mobsters}
-{10057650}{}{A traveler}
+{10057500}{}{несколько якудза}
+{10057510}{}{банду}
+{10057520}{}{стаю голодных волков}
+{10057530}{}{большую толпу мафиози, напавших на якудза}
+{10057540}{}{охотников за бандитами}
+{10057550}{}{охотников за бандитами}
+{10057560}{}{охотников за бандитами}
+{10057570}{}{охотников за бандитами}
+{10057580}{}{охотников за бандитами}
+{10057590}{}{охотников за бандитами}
+{10057600}{}{охотников за бандитами}
+{10057610}{}{охотников за бандитами}
+{10057620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10057630}{}{местных мафиози, разбирающихся с конкурентами}
+{10057640}{}{кучку мафиози}
+{10057650}{}{пешехода}
 
 # Encounter Table 56
-{10058000}{}{Toxic waste dump}
-{10058010}{}{A lone surviving dog}
-{10058020}{}{A herd of brahmin}
-{10058030}{}{A band of rogues and some wolves}
-{10058040}{}{Some bounty hunters}
-{10058050}{}{Some bounty hunters}
-{10058060}{}{Some bounty hunters}
-{10058070}{}{Some bounty hunters}
-{10058080}{}{Some bounty hunters}
-{10058090}{}{Some bounty hunters}
-{10058100}{}{Some bounty hunters}
-{10058110}{}{Some bounty hunters}
-{10058120}{}{A band of ruffians led by a Morton Brother}
-{10058130}{}{A band of rogues}
-{10058140}{}{A pack of wolves}
-{10058150}{}{A pack of radscorpions}
-{10058160}{}{A forest of spore plants}
-{10058170}{}{A Unity patrol fighting some rogues}
-{10058180}{}{A Unity patrol fighting some wolves}
-{10058190}{}{A Unity patrol}
-{10058200}{}{The remains of a whale}
-{10058210}{}{A giant stone head}
-{10058220}{}{A crashed shuttle}
-{10058230}{}{A Guardian Portal}
-{10058240}{}{King Arthur's Knights}
-{10058250}{}{A tin woodsman}
-{10058260}{}{The Unwashed Villagers hunting a spammer}
+{10058000}{}{свалку ядовитых отходов}
+{10058010}{}{странную одинокую собаку}
+{10058020}{}{стадо браминов}
+{10058030}{}{бандитскую шайку и небольшую волчью стаю}
+{10058040}{}{охотников за бандитами}
+{10058050}{}{охотников за бандитами}
+{10058060}{}{охотников за бандитами}
+{10058070}{}{охотников за бандитами}
+{10058080}{}{охотников за бандитами}
+{10058090}{}{охотников за бандитами}
+{10058100}{}{охотников за бандитами}
+{10058110}{}{охотников за бандитами}
+{10058120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10058130}{}{бандитскую группировку}
+{10058140}{}{стаю голодных волков}
+{10058150}{}{большое стадо рад-скорпионов}
+{10058160}{}{огромный лес хищных цветков}
+{10058170}{}{патруль Единства, бьющийся с какими-то ворами}
+{10058180}{}{патруль Единства, беспощадно истребляющий волков}
+{10058190}{}{патруль Единства}
+{10058200}{}{останки белого кита}
+{10058210}{}{большую каменную голову}
+{10058220}{}{разбившийся шаттл}
+{10058230}{}{Портал Хранителя}
+{10058240}{}{рыцарей короля Артура}
+{10058250}{}{железного дровосека}
+{10058260}{}{немытых крестьян, гоняющихся за бродягой}
 
 # Encounter Table 57
-{10058500}{}{A band of rogues and some wolves}
-{10058510}{}{A band of rogues}
-{10058520}{}{A pack of wolves}
-{10058530}{}{A pack of radscorpions}
-{10058540}{}{Some bounty hunters}
-{10058550}{}{Some bounty hunters}
-{10058560}{}{Some bounty hunters}
-{10058570}{}{Some bounty hunters}
-{10058580}{}{Some bounty hunters}
-{10058590}{}{Some bounty hunters}
-{10058600}{}{Some bounty hunters}
-{10058610}{}{Some bounty hunters}
-{10058620}{}{A band of ruffians led by a Morton Brother}
-{10058630}{}{A forest of spore plants}
-{10058640}{}{A Unity patrol fighting some rogues}
-{10058650}{}{A Unity patrol fighting some wolves}
-{10058660}{}{A Unity patrol}
-{10058670}{}{A man guarding a bridge}
-{10058680}{}{King Arthur's Knights fighting a rat}
+{10058500}{}{бандитскую шайку и небольшую волчью стаю}
+{10058510}{}{небольшое сборище воров}
+{10058520}{}{опасную волчью стаю}
+{10058530}{}{крупное стадо рад-скорпионов}
+{10058540}{}{охотников за бандитами}
+{10058550}{}{охотников за бандитами}
+{10058560}{}{охотников за бандитами}
+{10058570}{}{охотников за бандитами}
+{10058580}{}{охотников за бандитами}
+{10058590}{}{охотников за бандитами}
+{10058600}{}{охотников за бандитами}
+{10058610}{}{охотников за бандитами}
+{10058620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10058630}{}{огромный лес хищных цветков}
+{10058640}{}{патруль Единства, бьющийся с какими-то ворами}
+{10058650}{}{патруль Единства, беспощадно истребляющий волков}
+{10058660}{}{патруль Единства}
+{10058670}{}{человека, охраняющего мост}
+{10058680}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 58
-{10059000}{}{A band of mercenaries}
-{10059010}{}{A press gang}
-{10059020}{}{A herd of deathclaws}
-{10059030}{}{A batch of fire geckos}
-{10059040}{}{Some bounty hunters}
-{10059050}{}{Some bounty hunters}
-{10059060}{}{Some bounty hunters}
-{10059070}{}{Some bounty hunters}
-{10059080}{}{Some bounty hunters}
-{10059090}{}{Some bounty hunters}
-{10059100}{}{Some bounty hunters}
-{10059110}{}{Some bounty hunters}
-{10059120}{}{A band of ruffians led by a Morton Brother}
-{10059130}{}{A slew of aliens}
-{10059140}{}{Hubologists fighting mercenaries}
-{10059150}{}{Hubologists fending off a press gang}
-{10059160}{}{Hubologists}
-{10059170}{}{насекомых-мутантов}
+{10059000}{}{подразделение наемников}
+{10059010}{}{банду саботажников}
+{10059020}{}{крупное стадо смертекогтов}
+{10059030}{}{большое скопление огнедышащих ящеров}
+{10059040}{}{охотников за бандитами}
+{10059050}{}{охотников за бандитами}
+{10059060}{}{охотников за бандитами}
+{10059070}{}{охотников за бандитами}
+{10059080}{}{охотников за бандитами}
+{10059090}{}{охотников за бандитами}
+{10059100}{}{охотников за бандитами}
+{10059110}{}{охотников за бандитами}
+{10059120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10059130}{}{ревущую толпу инопланетян}
+{10059140}{}{мирных хаббологистов, воюющих с наемниками}
+{10059150}{}{сумасшедших хаббологистов, бьющихся с врагами}
+{10059160}{}{хаббологистов}
+{10059170}{}{группу насекомых-мутантов}
 {10059180}{}{палатку наркодилеров, о которой говорила Нэнси по радио}
 
 # Encounter Table 59
-{10059500}{}{A band of mercenaries}
-{10059510}{}{A press gang}
-{10059520}{}{A herd of deathclaws}
-{10059530}{}{A batch of fire geckos}
-{10059540}{}{Some bounty hunters}
-{10059550}{}{Some bounty hunters}
-{10059560}{}{Some bounty hunters}
-{10059570}{}{Some bounty hunters}
-{10059580}{}{Some bounty hunters}
-{10059590}{}{Some bounty hunters}
-{10059600}{}{Some bounty hunters}
-{10059610}{}{Some bounty hunters}
-{10059620}{}{A band of ruffians led by a Morton Brother}
-{10059630}{}{A slew of aliens}
-{10059640}{}{Hubologists fighting mercenaries}
-{10059650}{}{Hubologists fending off a press gang}
-{10059660}{}{Hubologists}
-{10059670}{}{A man guarding a bridge}
-{10059680}{}{King Arthur's Knights fighting a rat}
+{10059500}{}{подразделение наемников}
+{10059510}{}{банду саботажников}
+{10059520}{}{крупное стадо смертекогтов}
+{10059530}{}{большое скопление огнедышащих ящеров}
+{10059540}{}{охотников за бандитами}
+{10059550}{}{охотников за бандитами}
+{10059560}{}{охотников за бандитами}
+{10059570}{}{охотников за бандитами}
+{10059580}{}{охотников за бандитами}
+{10059590}{}{охотников за бандитами}
+{10059600}{}{охотников за бандитами}
+{10059610}{}{охотников за бандитами}
+{10059620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10059630}{}{ревущую толпу инопланетян}
+{10059640}{}{мирных хаббологистов, воюющих с наемниками}
+{10059650}{}{сумасшедших хаббологистов, бьющихся с врагами}
+{10059660}{}{хаббологистов}
+{10059670}{}{человека, охраняющего мост}
+{10059680}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 60
-{10060000}{}{A band of mercenaries}
-{10060010}{}{A press gang}
-{10060020}{}{A herd of deathclaws}
-{10060030}{}{A batch of fire geckos}
-{10060040}{}{Some bounty hunters}
-{10060050}{}{Some bounty hunters}
-{10060060}{}{Some bounty hunters}
-{10060070}{}{Some bounty hunters}
-{10060080}{}{Some bounty hunters}
-{10060090}{}{Some bounty hunters}
-{10060100}{}{Some bounty hunters}
-{10060110}{}{Some bounty hunters}
-{10060120}{}{A band of ruffians led by a Morton Brother}
-{10060130}{}{A slew of aliens}
-{10060140}{}{Hubologists fighting mercenaries}
-{10060150}{}{Hubologists fending off a press gang}
-{10060160}{}{Hubologists}
+{10060000}{}{подразделение наемников}
+{10060010}{}{банду саботажников}
+{10060020}{}{крупное стадо смертекогтов}
+{10060030}{}{большое скопление огнедышащих ящеров}
+{10060040}{}{охотников за бандитами}
+{10060050}{}{охотников за бандитами}
+{10060060}{}{охотников за бандитами}
+{10060070}{}{охотников за бандитами}
+{10060080}{}{охотников за бандитами}
+{10060090}{}{охотников за бандитами}
+{10060100}{}{охотников за бандитами}
+{10060110}{}{охотников за бандитами}
+{10060120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10060130}{}{ревущую толпу инопланетян}
+{10060140}{}{мирных хаббологистов, воюющих с наемниками}
+{10060150}{}{сумасшедших хаббологистов, бьющихся с врагами}
+{10060160}{}{хаббологистов}
 
 # Encounter Table 61
-{10060500}{}{Toxic waste dump}
-{10060510}{}{A lone surviving dog}
-{10060520}{}{A herd of brahmin}
-{10060530}{}{A band of mercenaries}
-{10060540}{}{Some bounty hunters}
-{10060550}{}{Some bounty hunters}
-{10060560}{}{Some bounty hunters}
-{10060570}{}{Some bounty hunters}
-{10060580}{}{Some bounty hunters}
-{10060590}{}{Some bounty hunters}
-{10060600}{}{Some bounty hunters}
-{10060610}{}{Some bounty hunters}
-{10060620}{}{A band of ruffians led by a Morton Brother}
-{10060630}{}{A press gang}
-{10060640}{}{A herd of deathclaws}
-{10060650}{}{A batch of fire geckos}
-{10060660}{}{A slew of aliens}
-{10060670}{}{Hubologists fighting mercenaries}
-{10060680}{}{Hubologists fending off a press gang}
-{10060690}{}{Hubologists}
-{10060700}{}{The remains of a whale}
-{10060710}{}{A giant stone head}
-{10060720}{}{A crashed shuttle}
-{10060730}{}{A Guardian Portal}
-{10060740}{}{King Arthur's Knights}
-{10060750}{}{A tin woodsman}
-{10060760}{}{The Unwashed Villagers hunting a spammer}
-{10060770}{}{The Cafe of Broken Dreams}
+{10060500}{}{свалку ядовитых отходов}
+{10060510}{}{странную одинокую собаку}
+{10060520}{}{большое стадо браминов}
+{10060530}{}{подразделение наемников}
+{10060540}{}{охотников за бандитами}
+{10060550}{}{охотников за бандитами}
+{10060560}{}{охотников за бандитами}
+{10060570}{}{охотников за бандитами}
+{10060580}{}{охотников за бандитами}
+{10060590}{}{охотников за бандитами}
+{10060600}{}{охотников за бандитами}
+{10060610}{}{охотников за бандитами}
+{10060620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10060630}{}{банду саботажников}
+{10060640}{}{крупное стадо смертекогтов}
+{10060650}{}{большое скопление огнедышащих ящеров}
+{10060660}{}{ревущую толпу инопланетян}
+{10060670}{}{мирных хаббологистов, воюющих с наемниками}
+{10060680}{}{сумасшедших хаббологистов, бьющихся с врагами}
+{10060690}{}{хаббологистов}
+{10060700}{}{останки белого кита}
+{10060710}{}{большую каменную голову}
+{10060720}{}{разбившийся шаттл}
+{10060730}{}{Портал Хранителя}
+{10060740}{}{рыцарей короля Артура}
+{10060750}{}{железного дровосека}
+{10060760}{}{немытых крестьян, гоняющихся за бродягой}
+{10060770}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 62
-{10061000}{}{Toxic waste dump}
-{10061010}{}{A lone surviving dog}
-{10061020}{}{A herd of brahmin}
-{10061030}{}{A band of mercenaries}
-{10061040}{}{Some bounty hunters}
-{10061050}{}{Some bounty hunters}
-{10061060}{}{Some bounty hunters}
-{10061070}{}{Some bounty hunters}
-{10061080}{}{Some bounty hunters}
-{10061090}{}{Some bounty hunters}
-{10061100}{}{Some bounty hunters}
-{10061110}{}{Some bounty hunters}
-{10061120}{}{A band of ruffians led by a Morton Brother}
-{10061130}{}{A pack of deathclaws}
-{10061140}{}{A pack of fire geckos}
-{10061150}{}{A slew of aliens}
-{10061160}{}{A caravan fending off mercenaries}
-{10061170}{}{A caravan fending off mercenaries}
-{10061180}{}{A caravan fending off fire geckos}
-{10061190}{}{A caravan fending off aliens}
-{10061200}{}{A caravan}
-{10061210}{}{A caravan}
-{10061220}{}{The remains of a whale}
-{10061230}{}{A giant stone head}
-{10061240}{}{A crashed shuttle}
-{10061250}{}{A Guardian Portal}
-{10061260}{}{King Arthur's Knights}
-{10061270}{}{A tin woodsman}
-{10061280}{}{The Unwashed Villagers hunting a spammer}
-{10061290}{}{The Cafe of Broken Dreams}
+{10061000}{}{свалку ядовитых отходов}
+{10061010}{}{странную одинокую собаку}
+{10061020}{}{большое стадо браминов}
+{10061030}{}{подразделение наемников}
+{10061040}{}{охотников за бандитами}
+{10061050}{}{охотников за бандитами}
+{10061060}{}{охотников за бандитами}
+{10061070}{}{охотников за бандитами}
+{10061080}{}{охотников за бандитами}
+{10061090}{}{охотников за бандитами}
+{10061100}{}{охотников за бандитами}
+{10061110}{}{охотников за бандитами}
+{10061120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10061130}{}{небольшую стаю смертекогтов}
+{10061140}{}{малое количество огнедышащих ящеров}
+{10061150}{}{ревущую толпу инопланетян}
+{10061160}{}{торговый караван, отбивающий атаку наемников}
+{10061170}{}{торговый караван, отбивающий атаку наемников}
+{10061180}{}{торговцев, сражающихся с огнедышащими ящерами}
+{10061190}{}{нападающих на караван инопланетян}
+{10061200}{}{караван}
+{10061210}{}{караван}
+{10061220}{}{останки белого кита}
+{10061230}{}{большую каменную голову}
+{10061240}{}{разбившийся шаттл}
+{10061250}{}{Портал Хранителя}
+{10061260}{}{рыцарей короля Артура}
+{10061270}{}{железного дровосека}
+{10061280}{}{немытых крестьян, гоняющихся за бродягой}
+{10061290}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 63
-{10061500}{}{A band of mercenaries}
-{10061510}{}{A pack of deathclaws}
-{10061520}{}{A pack of fire geckos}
-{10061530}{}{A slew of aliens}
-{10061540}{}{Some bounty hunters}
-{10061550}{}{Some bounty hunters}
-{10061560}{}{Some bounty hunters}
-{10061570}{}{Some bounty hunters}
-{10061580}{}{Some bounty hunters}
-{10061590}{}{Some bounty hunters}
-{10061600}{}{Some bounty hunters}
-{10061610}{}{Some bounty hunters}
-{10061620}{}{A band of ruffians led by a Morton Brother}
-{10061630}{}{A caravan fending off mercenaries}
-{10061640}{}{A caravan fending off mercenaries}
-{10061650}{}{A caravan fending off fire geckos}
-{10061660}{}{A caravan fending off aliens}
-{10061670}{}{A caravan}
-{10061680}{}{A caravan}
+{10061500}{}{подразделение наемников}
+{10061510}{}{небольшую стаю смертекогтов}
+{10061520}{}{малое количество огнедышащих ящеров}
+{10061530}{}{ревущую толпу инопланетян}
+{10061540}{}{охотников за бандитами}
+{10061550}{}{охотников за бандитами}
+{10061560}{}{охотников за бандитами}
+{10061570}{}{охотников за бандитами}
+{10061580}{}{охотников за бандитами}
+{10061590}{}{охотников за бандитами}
+{10061600}{}{охотников за бандитами}
+{10061610}{}{охотников за бандитами}
+{10061620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10061630}{}{торговый караван, отбивающий атаку наемников}
+{10061640}{}{торговый караван, отбивающий атаку наемников}
+{10061650}{}{торговцев, сражающихся с огнедышащими ящерами}
+{10061660}{}{нападающих на караван инопланетян}
+{10061670}{}{караван}
+{10061680}{}{караван}
 
 # Encounter Table 64
-{10062000}{}{Toxic waste dump}
-{10062010}{}{A lone surviving dog}
-{10062020}{}{A herd of brahmin}
-{10062030}{}{An Enclave patrol}
-{10062040}{}{Some bounty hunters}
-{10062050}{}{Some bounty hunters}
-{10062060}{}{Some bounty hunters}
-{10062070}{}{Some bounty hunters}
-{10062080}{}{Some bounty hunters}
-{10062090}{}{Some bounty hunters}
-{10062100}{}{Some bounty hunters}
-{10062110}{}{Some bounty hunters}
-{10062120}{}{A band of ruffians led by a Morton Brother}
-{10062130}{}{Remnants of the Master's army}
-{10062140}{}{A pack of Deathclaws}
-{10062150}{}{A swarm of mantis}
-{10062160}{}{The remains of a whale}
-{10062170}{}{A giant stone head}
-{10062180}{}{A crashed shuttle}
-{10062190}{}{A Guardian Portal}
-{10062200}{}{King Arthur's Knights}
-{10062210}{}{A tin woodsman}
-{10062220}{}{The Unwashed Villagers hunting a spammer}
-{10062230}{}{The Cafe of Broken Dreams}
+{10062000}{}{свалку ядовитых отбросов}
+{10062010}{}{странную одинокую собаку}
+{10062020}{}{крупное стадо браминов}
+{10062030}{}{вооруженный патруль АНКЛАВА}
+{10062040}{}{охотников за бандитами}
+{10062050}{}{охотников за бандитами}
+{10062060}{}{охотников за бандитами}
+{10062070}{}{охотников за бандитами}
+{10062080}{}{охотников за бандитами}
+{10062090}{}{охотников за бандитами}
+{10062100}{}{охотников за бандитами}
+{10062110}{}{охотников за бандитами}
+{10062120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10062130}{}{выживших солдат из армии Повелителя}
+{10062140}{}{небольшую группу смертекогтов}
+{10062150}{}{целую тучу мантисов}
+{10062160}{}{останки белого кита}
+{10062170}{}{большую каменную голову}
+{10062180}{}{разбившийся шаттл}
+{10062190}{}{Портал Хранителя}
+{10062200}{}{рыцарей короля Артура}
+{10062210}{}{железного дровосека}
+{10062220}{}{немытых крестьян, гоняющихся за бродягой}
+{10062230}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 65
-{10062500}{}{An Enclave patrol}
-{10062510}{}{Remnants of the Master's army}
-{10062520}{}{A pack of Deathclaws}
-{10062530}{}{A swarm of mantis}
-{10062540}{}{Some bounty hunters}
-{10062550}{}{Some bounty hunters}
-{10062560}{}{Some bounty hunters}
-{10062570}{}{Some bounty hunters}
-{10062580}{}{Some bounty hunters}
-{10062590}{}{Some bounty hunters}
-{10062600}{}{Some bounty hunters}
-{10062610}{}{Some bounty hunters}
-{10062620}{}{A band of ruffians led by a Morton Brother}
-{10062630}{}{A man guarding a bridge}
-{10062640}{}{King Arthur's Knights fighting a rat}
+{10062500}{}{вооруженный патруль АНКЛАВА}
+{10062510}{}{ничтожные остатки войск Повелителя}
+{10062520}{}{небольшую группу смертекогтов}
+{10062530}{}{целую тучу мантисов}
+{10062540}{}{охотников за бандитами}
+{10062550}{}{охотников за бандитами}
+{10062560}{}{охотников за бандитами}
+{10062570}{}{охотников за бандитами}
+{10062580}{}{охотников за бандитами}
+{10062590}{}{охотников за бандитами}
+{10062600}{}{охотников за бандитами}
+{10062610}{}{охотников за бандитами}
+{10062620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10062630}{}{человека, охраняющего мост}
+{10062640}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 66
-{10063000}{}{Toxic waste dump}
-{10063010}{}{A lone surviving dog}
-{10063020}{}{A herd of brahmin}
-{10063030}{}{A caravan fending off remnants of the Master's army}
-{10063040}{}{Some bounty hunters}
-{10063050}{}{Some bounty hunters}
-{10063060}{}{Some bounty hunters}
-{10063070}{}{Some bounty hunters}
-{10063080}{}{Some bounty hunters}
-{10063090}{}{Some bounty hunters}
-{10063100}{}{Some bounty hunters}
-{10063110}{}{Some bounty hunters}
-{10063120}{}{A band of ruffians led by a Morton Brother}
-{10063130}{}{A caravan fending off remnants of the Master's army}
-{10063140}{}{A caravan fending off some deathclaws}
-{10063150}{}{A caravan}
-{10063160}{}{A caravan}
-{10063170}{}{A caravan}
-{10063180}{}{The remains of a whale}
-{10063190}{}{A giant stone head}
-{10063200}{}{A crashed shuttle}
-{10063210}{}{A Guardian Portal}
-{10063220}{}{King Arthur's Knights}
-{10063230}{}{A tin woodsman}
-{10063240}{}{The Unwashed Villagers hunting a spammer}
-{10063250}{}{The Cafe of Broken Dreams}
+{10063000}{}{свалку ядовитых отбросов}
+{10063010}{}{странную одинокую собаку}
+{10063020}{}{крупное стадо браминов}
+{10063030}{}{караван, подвергшийся нападению дезертиров из армии Повелителя}
+{10063040}{}{охотников за бандитами}
+{10063050}{}{охотников за бандитами}
+{10063060}{}{охотников за бандитами}
+{10063070}{}{охотников за бандитами}
+{10063080}{}{охотников за бандитами}
+{10063090}{}{охотников за бандитами}
+{10063100}{}{охотников за бандитами}
+{10063110}{}{охотников за бандитами}
+{10063120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10063130}{}{караван, подвергшийся нападению дезертиров из армии Повелителя}
+{10063140}{}{зловещих смертекогтов, атакующих торговый караван}
+{10063150}{}{караван}
+{10063160}{}{караван}
+{10063170}{}{караван}
+{10063180}{}{останки белого кита}
+{10063190}{}{большую каменную голову}
+{10063200}{}{разбившийся шаттл}
+{10063210}{}{Портал Хранителя}
+{10063220}{}{рыцарей короля Артура}
+{10063230}{}{железного дровосека}
+{10063240}{}{немытых крестьян, гоняющихся за бродягой}
+{10063250}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 67
-{10063500}{}{A caravan fending off remnants of the Master's army}
-{10063510}{}{A caravan fending off remnants of the Master's army}
-{10063520}{}{A caravan fending off some deathclaws}
-{10063530}{}{A caravan}
-{10063540}{}{Some bounty hunters}
-{10063550}{}{Some bounty hunters}
-{10063560}{}{Some bounty hunters}
-{10063570}{}{Some bounty hunters}
-{10063580}{}{Some bounty hunters}
-{10063590}{}{Some bounty hunters}
-{10063600}{}{Some bounty hunters}
-{10063610}{}{Some bounty hunters}
-{10063620}{}{A band of ruffians led by a Morton Brother}
-{10063630}{}{A caravan}
-{10063640}{}{A caravan}
-{10063650}{}{A man guarding a bridge}
-{10063660}{}{King Arthur's Knights fighting a rat}
+{10063500}{}{караван, подвергшийся нападению дезертиров из армии Повелителя}
+{10063510}{}{караван, подвергшийся нападению дезертиров из армии Повелителя}
+{10063520}{}{зловещих смертекогтов, атакующих торговый караван}
+{10063530}{}{караван}
+{10063540}{}{охотников за бандитами}
+{10063550}{}{охотников за бандитами}
+{10063560}{}{охотников за бандитами}
+{10063570}{}{охотников за бандитами}
+{10063580}{}{охотников за бандитами}
+{10063590}{}{охотников за бандитами}
+{10063600}{}{охотников за бандитами}
+{10063610}{}{охотников за бандитами}
+{10063620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10063630}{}{караван}
+{10063640}{}{караван}
+{10063650}{}{человека, охраняющего мост}
+{10063660}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 68
-{10064000}{}{A pack of wolves}
-{10064010}{}{A swarm of mantis}
-{10064020}{}{A family of radscorpions}
-{10064030}{}{Some bounty hunters}
-{10064040}{}{Some bounty hunters}
-{10064050}{}{Some bounty hunters}
-{10064060}{}{Some bounty hunters}
-{10064070}{}{Some bounty hunters}
-{10064080}{}{Some bounty hunters}
-{10064090}{}{Some bounty hunters}
-{10064100}{}{Some bounty hunters}
-{10064110}{}{A band of ruffians led by a Morton Brother}
-{10064120}{}{A man guarding a bridge}
-{10064130}{}{King Arthur's Knights fighting a rat}
+{10064000}{}{опасную волчью стаю}
+{10064010}{}{целую тучу мантисов}
+{10064020}{}{крупное семейство рад-скорпионов}
+{10064030}{}{охотников за бандитами}
+{10064040}{}{охотников за бандитами}
+{10064050}{}{охотников за бандитами}
+{10064060}{}{охотников за бандитами}
+{10064070}{}{охотников за бандитами}
+{10064080}{}{охотников за бандитами}
+{10064090}{}{охотников за бандитами}
+{10064100}{}{охотников за бандитами}
+{10064110}{}{толпу отщепенцев с братом Мортона  во главе}
+{10064120}{}{человека, охраняющего мост}
+{10064130}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 69
-{10064500}{}{Toxic waste dump}
-{10064510}{}{A lone surviving dog}
-{10064520}{}{A herd of brahmin}
-{10064530}{}{A pack of wolves}
-{10064540}{}{Some bounty hunters}
-{10064550}{}{Some bounty hunters}
-{10064560}{}{Some bounty hunters}
-{10064570}{}{Some bounty hunters}
-{10064580}{}{Some bounty hunters}
-{10064590}{}{Some bounty hunters}
-{10064600}{}{Some bounty hunters}
-{10064610}{}{Some bounty hunters}
-{10064620}{}{A band of ruffians led by a Morton Brother}
-{10064630}{}{A swarm of mantis}
-{10064640}{}{A family of radscorpions}
-{10064650}{}{The remains of a whale}
-{10064660}{}{A giant stone head}
-{10064670}{}{A crashed shuttle}
-{10064680}{}{A Guardian Portal}
-{10064690}{}{King Arthur's Knights}
-{10064700}{}{A tin woodsman}
-{10064710}{}{The Unwashed Villagers hunting a spammer}
-{10064720}{}{The Cafe of Broken Dreams}
+{10064500}{}{свалку ядовитых отходов}
+{10064510}{}{странную одинокую собаку}
+{10064520}{}{большое стадо браминов}
+{10064530}{}{значительное скопление волков}
+{10064540}{}{охотников за бандитами}
+{10064550}{}{охотников за бандитами}
+{10064560}{}{охотников за бандитами}
+{10064570}{}{охотников за бандитами}
+{10064580}{}{охотников за бандитами}
+{10064590}{}{охотников за бандитами}
+{10064600}{}{охотников за бандитами}
+{10064610}{}{охотников за бандитами}
+{10064620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10064630}{}{целую тучу мантисов}
+{10064640}{}{крупное семейство рад-скорпионов}
+{10064650}{}{останки белого кита}
+{10064660}{}{большую каменную голову}
+{10064670}{}{разбившийся шаттл}
+{10064680}{}{Портал Хранителя}
+{10064690}{}{рыцарей короля Артура}
+{10064700}{}{железного дровосека}
+{10064710}{}{немытых крестьян, гоняющихся за бродягой}
+{10064720}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 70
-{10065000}{}{Toxic waste dump}
-{10065010}{}{A lone surviving dog}
-{10065020}{}{A herd of brahmin}
-{10065030}{}{A band of marauders}
-{10065040}{}{Some bounty hunters}
-{10065050}{}{Some bounty hunters}
-{10065060}{}{Some bounty hunters}
-{10065070}{}{Some bounty hunters}
-{10065080}{}{Some bounty hunters}
-{10065090}{}{Some bounty hunters}
-{10065100}{}{Some bounty hunters}
-{10065110}{}{Some bounty hunters}
-{10065120}{}{A band of ruffians led by a Morton Brother}
-{10065130}{}{A pack of wolves}
-{10065140}{}{A pack of radscorpions}
-{10065150}{}{A caravan fending off marauders}
-{10065160}{}{A caravan fending off marauders}
-{10065170}{}{A caravan fending off wolves}
-{10065180}{}{A caravan fending off radscorpions}
-{10065190}{}{A caravan}
-{10065200}{}{A caravan}
-{10065210}{}{A caravan}
-{10065220}{}{A caravan}
-{10065230}{}{A traveler}
-{10065240}{}{The remains of a whale}
-{10065250}{}{A giant stone head}
-{10065260}{}{A crashed shuttle}
-{10065270}{}{A Guardian Portal}
-{10065280}{}{King Arthur's Knights}
-{10065290}{}{A tin woodsman}
-{10065300}{}{The Unwashed Villagers hunting a spammer}
-{10065310}{}{The Cafe of Broken Dreams}
+{10065000}{}{свалку ядовитых отходов}
+{10065010}{}{странную одинокую собаку}
+{10065020}{}{крупное стадо браминов}
+{10065030}{}{собрание воров в законе}
+{10065040}{}{охотников за бандитами}
+{10065050}{}{охотников за бандитами}
+{10065060}{}{охотников за бандитами}
+{10065070}{}{охотников за бандитами}
+{10065080}{}{охотников за бандитами}
+{10065090}{}{охотников за бандитами}
+{10065100}{}{охотников за бандитами}
+{10065110}{}{охотников за бандитами}
+{10065120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10065130}{}{крупную волчью стаю}
+{10065140}{}{скопище гнусных рад-скорпионов}
+{10065150}{}{местных воров, пытающихся обчистить караван}
+{10065160}{}{местных воров, пытающихся обчистить караван}
+{10065170}{}{волков, желающих поживиться торговцами}
+{10065180}{}{рад-скорпионов, решивших сожрать караван}
+{10065190}{}{караван}
+{10065200}{}{караван}
+{10065210}{}{караван}
+{10065220}{}{караван}
+{10065230}{}{пешехода}
+{10065240}{}{останки белого кита}
+{10065250}{}{большую каменную голову}
+{10065260}{}{разбившийся шаттл}
+{10065270}{}{Портал Хранителя}
+{10065280}{}{рыцарей короля Артура}
+{10065290}{}{железного дровосека}
+{10065300}{}{немытых крестьян, гоняющихся за бродягой}
+{10065310}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 71
-{10065500}{}{A band of marauders}
-{10065510}{}{A pack of wolves}
-{10065520}{}{A pack of radscorpions}
-{10065530}{}{A caravan fending off marauders}
-{10065540}{}{Some bounty hunters}
-{10065550}{}{Some bounty hunters}
-{10065560}{}{Some bounty hunters}
-{10065570}{}{Some bounty hunters}
-{10065580}{}{Some bounty hunters}
-{10065590}{}{Some bounty hunters}
-{10065600}{}{Some bounty hunters}
-{10065610}{}{Some bounty hunters}
-{10065620}{}{A band of ruffians led by a Morton Brother}
-{10065630}{}{A caravan fending off marauders}
-{10065640}{}{A caravan fending off wolves}
-{10065650}{}{A caravan fending off radscorpions}
-{10065660}{}{A caravan}
-{10065670}{}{A caravan}
-{10065680}{}{A caravan}
-{10065690}{}{A caravan}
-{10065700}{}{A traveler}
-{10065710}{}{A man guarding a bridge}
-{10065720}{}{King Arthur's Knights fighting a rat}
+{10065500}{}{собрание воров в законе}
+{10065510}{}{большую стаю голодных волков}
+{10065520}{}{стадо мерзких рад-скорпионов}
+{10065530}{}{местных воров, пытающихся обчистить караван}
+{10065540}{}{охотников за бандитами}
+{10065550}{}{охотников за бандитами}
+{10065560}{}{охотников за бандитами}
+{10065570}{}{охотников за бандитами}
+{10065580}{}{охотников за бандитами}
+{10065590}{}{охотников за бандитами}
+{10065600}{}{охотников за бандитами}
+{10065610}{}{охотников за бандитами}
+{10065620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10065630}{}{местных воров, пытающихся обчистить караван}
+{10065640}{}{волков, желающих поживиться торговцами}
+{10065650}{}{рад-скорпионов, решивших сожрать караван}
+{10065660}{}{караван}
+{10065670}{}{караван}
+{10065680}{}{караван}
+{10065690}{}{караван}
+{10065700}{}{пешехода}
+{10065710}{}{человека, охраняющего мост}
+{10065720}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 72
-{10066000}{}{A deteachment of the Master's armies}
-{10066010}{}{A band of marauders}
-{10066020}{}{Some Rangers fending off a squad of the Master's armies}
-{10066030}{}{Some Rangers fighting some marauders}
-{10066040}{}{Some bounty hunters}
-{10066050}{}{Some bounty hunters}
-{10066060}{}{Some bounty hunters}
-{10066070}{}{Some bounty hunters}
-{10066080}{}{Some bounty hunters}
-{10066090}{}{Some bounty hunters}
-{10066100}{}{Some bounty hunters}
-{10066110}{}{Some bounty hunters}
-{10066120}{}{A band of ruffians led by a Morton Brother}
-{10066130}{}{Some farmers fending off parts of the Master's armies}
-{10066140}{}{Some farmers fending off marauders}
-{10066150}{}{A detachment of NCR Rangers}
-{10066160}{}{Some farmers}
-{10066170}{}{A man guarding a bridge}
-{10066180}{}{King Arthur's Knights fighting a rat}
+{10066000}{}{войсковое подразделение армии Повелителя}
+{10066010}{}{собрание воров в законе}
+{10066020}{}{группу Рейнджеров, отражающих атаку взвода армии Повелителя}
+{10066030}{}{отряд Рейнджеров, бьющийся с ворами в законе}
+{10066040}{}{охотников за бандитами}
+{10066050}{}{охотников за бандитами}
+{10066060}{}{охотников за бандитами}
+{10066070}{}{охотников за бандитами}
+{10066080}{}{охотников за бандитами}
+{10066090}{}{охотников за бандитами}
+{10066100}{}{охотников за бандитами}
+{10066110}{}{охотников за бандитами}
+{10066120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10066130}{}{крестьян, пытающихся обороняться от мародеров из армии Повелителя}
+{10066140}{}{крестьян, устраивающих самосуд над ворами}
+{10066150}{}{подразделение Рейнджеров Калифорнии}
+{10066160}{}{группу крестьян}
+{10066170}{}{человека, охраняющего мост}
+{10066180}{}{рыцарей короля Артура, воюющих с грызуном}
 {10066190}{}{разномастную шайку бандитов}
 {10066200}{}{несколько мятежных рейнджеров Уильяма Коди}
 
+
 # Encounter Table 73
-{10066500}{}{Toxic waste dump}
-{10066510}{}{A lone surviving dog}
-{10066520}{}{A herd of brahmin}
-{10066530}{}{A detachment of the Master's armies}
-{10066540}{}{Some bounty hunters}
-{10066550}{}{Some bounty hunters}
-{10066560}{}{Some bounty hunters}
-{10066570}{}{Some bounty hunters}
-{10066580}{}{Some bounty hunters}
-{10066590}{}{Some bounty hunters}
-{10066600}{}{Some bounty hunters}
-{10066610}{}{Some bounty hunters}
-{10066620}{}{A band of ruffians led by a Morton Brother}
-{10066630}{}{A band of marauders}
-{10066640}{}{Some Rangers fending off a squad of the Master's armies}
-{10066650}{}{Some Rangers fighting some marauders}
-{10066660}{}{Some farmers fending off parts of the Master's armies}
-{10066670}{}{Some farmers fending off marauders}
-{10066680}{}{A detachment of NCR Rangers}
-{10066690}{}{Some farmers}
-{10066700}{}{The remains of a whale}
-{10066710}{}{A giant stone head}
-{10066720}{}{A crashed shuttle}
-{10066730}{}{A Guardian Portal}
-{10066740}{}{King Arthur's Knights}
-{10066750}{}{A tin woodsman}
-{10066760}{}{The Unwashed Villagers hunting a spammer}
-{10066770}{}{The Cafe of Broken Dreams}
+{10066500}{}{свалку ядовитых отбросов}
+{10066510}{}{странную одинокую собаку}
+{10066520}{}{крупное стадо браминов}
+{10066530}{}{войсковое подразделение армии Повелителя}
+{10066540}{}{охотников за бандитами}
+{10066550}{}{охотников за бандитами}
+{10066560}{}{охотников за бандитами}
+{10066570}{}{охотников за бандитами}
+{10066580}{}{охотников за бандитами}
+{10066590}{}{охотников за бандитами}
+{10066600}{}{охотников за бандитами}
+{10066610}{}{охотников за бандитами}
+{10066620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10066630}{}{собрание воров в законе}
+{10066640}{}{группу Рейнджеров, отражающую атаку взвода армии Повелителя}
+{10066650}{}{отряд Рейнджеров, бьющийся с ворами в законе}
+{10066660}{}{крестьян, пытающихся обороняться от мародеров из армии Повелителя}
+{10066670}{}{крестьян, устраивающих самосуд над ворами}
+{10066680}{}{подразделение Рейнджеров Калифорнии}
+{10066690}{}{местных крестьян}
+{10066700}{}{останки белого кита}
+{10066710}{}{большую каменную голову}
+{10066720}{}{разбившийся шаттл}
+{10066730}{}{Портал Хранителя}
+{10066740}{}{рыцарей короля Артура}
+{10066750}{}{железного дровосека}
+{10066760}{}{немытых крестьян, гоняющихся за бродягой}
+{10066770}{}{кафе Разбитых Мечтаний}
 
 # Encounter Table 74
-{10067000}{}{Remnants of the Master's army fighting mutated molerats}
-{10067010}{}{Remnants of the Master's armies}
-{10067020}{}{A swarm of mantis}
-{10067030}{}{A pack of mutated molerats}
-{10067040}{}{Some bounty hunters}
-{10067050}{}{Some bounty hunters}
-{10067060}{}{Some bounty hunters}
-{10067070}{}{Some bounty hunters}
-{10067080}{}{Some bounty hunters}
-{10067090}{}{Some bounty hunters}
-{10067100}{}{Some bounty hunters}
-{10067110}{}{Some bounty hunters}
-{10067120}{}{A band of ruffians led by a Morton Brother}
-{10067130}{}{A pack of radscorpions}
-{10067140}{}{A man guarding a bridge}
-{10067150}{}{King Arthur's Knights fighting a rat}
+{10067000}{}{выживших солдат из армии Повелителя, борющихся с кротами-гризли}
+{10067010}{}{жалкие остатки мощных когда-то армий Повелителя}
+{10067020}{}{целую тучу мантисов}
+{10067030}{}{крупную стаю мутировавших кротов-гризли}
+{10067040}{}{охотников за бандитами}
+{10067050}{}{охотников за бандитами}
+{10067060}{}{охотников за бандитами}
+{10067070}{}{охотников за бандитами}
+{10067080}{}{охотников за бандитами}
+{10067090}{}{охотников за бандитами}
+{10067100}{}{охотников за бандитами}
+{10067110}{}{охотников за бандитами}
+{10067120}{}{толпу отщепенцев с братом Мортона  во главе}
+{10067130}{}{небольшую стайку рад-скорпионов}
+{10067140}{}{человека, охраняющего мост}
+{10067150}{}{рыцарей короля Артура, воюющих с грызуном}
 
 # Encounter Table 75
-{10067500}{}{Toxic waste dump}
-{10067510}{}{A lone surviving dog}
-{10067520}{}{A herd of brahmin}
-{10067530}{}{Remnants of the Master's army fighting mutated molerats}
-{10067540}{}{Some bounty hunters}
-{10067550}{}{Some bounty hunters}
-{10067560}{}{Some bounty hunters}
-{10067570}{}{Some bounty hunters}
-{10067580}{}{Some bounty hunters}
-{10067590}{}{Some bounty hunters}
-{10067600}{}{Some bounty hunters}
-{10067610}{}{Some bounty hunters}
-{10067620}{}{A band of ruffians led by a Morton Brother}
-{10067630}{}{Remnants of the Master's armies}
-{10067640}{}{A swarm of mantis}
-{10067650}{}{A pack of mutated molerats}
-{10067660}{}{A pack of radscorpions}
-{10067670}{}{The remains of a whale}
-{10067680}{}{A giant stone head}
-{10067690}{}{A crashed shuttle}
-{10067700}{}{A Guardian Portal}
-{10067710}{}{King Arthur's Knights}
-{10067720}{}{A tin woodsman}
-{10067730}{}{The Unwashed Villagers hunting a spammer}
-{10067740}{}{The Cafe of Broken Dreams}
-{10067750}{}{остатки каравана Даппо.}
+{10067500}{}{свалку ядовитых отбросов}
+{10067510}{}{странную одинокую собаку}
+{10067520}{}{крупное стадо браминов}
+{10067530}{}{выживших солдат из армии Повелителя, борющихся с кротами-гризли}
+{10067540}{}{охотников за бандитами}
+{10067550}{}{охотников за бандитами}
+{10067560}{}{охотников за бандитами}
+{10067570}{}{охотников за бандитами}
+{10067580}{}{охотников за бандитами}
+{10067590}{}{охотников за бандитами}
+{10067600}{}{охотников за бандитами}
+{10067610}{}{охотников за бандитами}
+{10067620}{}{толпу отщепенцев с братом Мортона  во главе}
+{10067630}{}{жалкие остатки могучей армии Повелителя}
+{10067640}{}{целую тучу мантисов}
+{10067650}{}{крупное сообщество мутировавших кротов-гризли}
+{10067660}{}{стайку гнусных рад-скорпионов}
+{10067670}{}{останки белого кита}
+{10067680}{}{большую каменную голову}
+{10067690}{}{разбившийся шаттл}
+{10067700}{}{Портал Хранителя}
+{10067710}{}{рыцарей короля Артура}
+{10067720}{}{железного дровосека}
+{10067730}{}{немытых крестьян, гоняющихся за бродягой}
+{10067740}{}{кафе Разбитых Мечтаний}
+{10067750}{}{остатки каравана Даппо}
 
 # Encounter Tables Roleplay
 {10068100}{}{одинокого болотника}

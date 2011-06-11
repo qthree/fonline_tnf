@@ -50,6 +50,28 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 		}
 		else if(locker.GetType()==ITEM_CONTAINER)
 		{
+			if(FLAG(locker.Flags,ITEM_CAN_PICKUP))
+			{
+				//cr.Say(SAY_NETMSG, "pick cont up");
+				int freeWeight=cr.Stat[ST_CARRY_WEIGHT]-cr.ItemsWeight(),
+				contWeight = 0;
+				Item@[] items;
+				uint len = locker.GetItems(-1, items);
+				for(uint i=0; i<len; i++)
+				{
+					if(items[i] is null) continue;
+					
+					contWeight+=int(items[i].Proto.Weight*items[i].GetCount());
+				}
+				
+				if(freeWeight>=(contWeight+int(locker.Proto.Weight)))
+				{
+					MoveItem(locker,0,cr);
+					//cr.StatBase[ST_CARRY_WEIGHT_EXT]-=contWeight;
+					return true;
+				}
+				//else cr.Say(SAY_NETMSG, "heavy");
+			}
 			// NoOpen
 			if(FLAG(locker.LockerCondition,LOCKER_NOOPEN))
 			{
@@ -66,54 +88,90 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 			}
 
 			// Is changeble
-			if(locker.Proto.Container_IsChangeble)
+			if(locker.Proto.Container_Changeble)
 			{
 				// Change state
 				if(FLAG(locker.LockerCondition,LOCKER_ISOPEN)) locker.LockerClose();
 				else
 				{
 					locker.LockerOpen();
-					cr.ShowContainer(null,locker,locker.Proto.Container_IsGroundLevel()?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+					cr.ParamBase[ST_LAST_CONT_ID]=locker.Id;
+					cr.ShowContainer(null,locker,locker.Proto.GroundLevel?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
 				}
 			}
 			// No changeble
 			else
 			{
-				cr.ShowContainer(null,locker,locker.Proto.Container_IsGroundLevel()?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+				cr.ParamBase[ST_LAST_CONT_ID]=locker.Id;
+				cr.ShowContainer(null,locker,locker.Proto.GroundLevel?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
 			}
 		}
 	}
 	else if(skill==SK_STEAL)
 	{
-		if(locker.GetType()==ITEM_CONTAINER && FLAG(locker.LockerCondition,LOCKER_ISOPEN)) cr.ShowContainer(null,locker,locker.Proto.Container_IsGroundLevel()?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
-		else cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_USE_NOTHING);
+		if(locker.GetType()==ITEM_CONTAINER &&
+		(	(!locker.Proto.Container_Changeble && FLAG(locker.Flags,ITEM_CAN_PICKUP) && locker.Accessory==ACCESSORY_HEX) ||
+		FLAG(locker.LockerCondition,LOCKER_ISOPEN)	)	)
+		{
+			cr.ParamBase[ST_LAST_CONT_ID]=locker.Id;
+			cr.ShowContainer(null,locker,locker.Proto.GroundLevel?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+		}
+		else
+			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_USE_NOTHING);
 	}
 	else if(skill==SK_LOCKPICK)
 	{
+		// NoOpen
+		if(FLAG(locker.LockerCondition,LOCKER_NOOPEN))
+		{
+			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_USE_NOTHING);
+			return true;
+		}
+
 		if(cr.Timeout[TO_SK_LOCKPICK]>0)
 		{
 			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_SKILL_WEARINESS);
 			return true;
 		}
 
-		if(locker.LockerId==0 || FLAG(locker.LockerCondition,LOCKER_ISOPEN))
+		if((locker.LockerId==0 || FLAG(locker.LockerCondition,LOCKER_ISOPEN)) && !FLAG(locker.LockerCondition,LOCKER_ELECTRO))
 		{
 			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_USE_NOTHING);
 			return true;
 		}
 
 		int base=cr.Skill[SK_LOCKPICK]-locker.LockerComplexity;
-		uint16 activePid=cr.GetSlotProto(SLOT_HAND1).GetProtoId();
+		uint8 mode=0;
+		uint16 activePid=cr.GetSlotProto(SLOT_HAND1,mode).ProtoId;
 		
-		Log("Lockpick, lockerCompl = " +locker.LockerComplexity);
+		//Log("Lockpick, lockerCompl = " +locker.LockerComplexity);
 		//Sargonius
 		//Грубое решение
+		/*
 		if(activePid!=PID_LOCKPICKS && activePid!=PID_EXP_LOCKPICK_SET)
 		{
 			cr.Say(SAY_NETMSG, "Без отмычек ваши шансы на взлом замка стремятся к нулю.");
 			base=0; //-100 оказалось мало
 		}
-		
+		*/
+		bool validLockPick = (activePid == PID_LOCKPICKS || activePid == PID_EXP_LOCKPICK_SET);
+		switch(locker.Val0)
+		{
+		  case 2: if(validLockPick) {break;} else {cr.Say(SAY_NETMSG, "need lockpick"); return false;}
+		  case 3: if(activePid == PID_EXP_LOCKPICK_SET) {break;} else {cr.Say(SAY_NETMSG, "need exp lockpicks"); return false;}
+		  case 4: if(activePid == PID_ELECTRONIC_LOCKPICKS) {break;} else {cr.Say(SAY_NETMSG, "need electro lockpicks"); return false;}
+		}
+		  /*
+		if(locker.Val0 > 1)	//only lockpick unlock
+		 {
+		  if((activePid == PID_LOCKPICKS || activePid == PID_EXP_LOCKPICK_SET) && locker.Val0 == 2)
+		  {
+		    cr.Say(SAY_NORM, "work");
+		  }
+		  else if(activePid == PID_EXP_LOCKPICK_SET && locker.Val0 == 3) cr.Say(SAY_NORM, "work");
+		 }
+		 else return true;
+		*/
 		if(activePid==PID_LOCKPICKS)
 		{
 			base+=25;
@@ -124,8 +182,12 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 			base+=50;
 			if(Random(0,30)==0) cr.DeleteItem(PID_EXP_LOCKPICK_SET,1);
 		}
-
-		// Todo: PID_ELECTRONIC_LOCKPICKS, PID_ELEC_LOCKPICK_MKII
+		else if(activePid==PID_ELECTRONIC_LOCKPICKS) //base += 25 //pm added
+		{
+			base+=50;
+			if(Random(0,80)==0) cr.DeleteItem(PID_ELECTRONIC_LOCKPICKS,1);
+		}
+		// Todo: PID_ELECTRONIC_LOCKPICKS +, PID_ELEC_LOCKPICK_MKII
 
 		if(cr.GetAccess()!=ACCESS_ADMIN) base=CLAMP(base,0,95);
 		
@@ -133,10 +195,37 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 		else if(base>=Random(1,100))
 		{
 			locker.LockerOpen();
-			if(locker.GetType()==ITEM_CONTAINER) cr.ShowContainer(null,locker,locker.Proto.Container_IsGroundLevel()?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
-			locker.LockerComplexity = 0;
-			locker.LockerId = 0;
-			locker.LockerCondition = LOCKER_ISOPEN;
+			if(locker.GetType()==ITEM_CONTAINER) cr.ShowContainer(null,locker,locker.Proto.GroundLevel?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+			if(/*locker.LockerCondition == LOCKER_ELECTRO*/ locker.Val0 == 4) //pm added if block
+			{
+				uint16 complex = locker.LockerComplexity;
+				uint16 exp = complex * 2;
+				
+				cr.Say(SAY_NETMSG, "Код двери : "+locker.Val4);
+				
+				if(complex / 2 <= cr.Skill[SK_SCIENCE])
+				{
+					exp += complex;
+					cr.RunClientScript("client_screen_codedoor@ShowScreen", locker.Id, 0, 1, "", null);
+				}
+				
+				cr.StatBase[ST_EXPERIENCE]+=exp;
+				return true;
+				
+				
+			}
+			if(activePid == PID_EXP_LOCKPICK_SET) //break door if dont heve lockpicks
+			{
+			  cr.Say(SAY_NETMSG, "Вы успешно вскрыли замок. Осторожно, дверь может захлонуться.");
+			  cr.AddScore(SCORE_CRACKER,1);
+			}
+			else
+			{
+			  locker.LockerComplexity = 0;
+			  locker.LockerId = 0;
+			  locker.LockerCondition = LOCKER_ISOPEN;
+			  locker.Val0 = 0;
+			}	
 			locker.Update();
 			//cr.StatBase[ST_EXPERIENCE]+=(ABS(locker.LockerComplexity - cr.SkillBase[SK_LOCKPICK]) + Random(0, 50)) * 2;
 			cr.StatBase[ST_EXPERIENCE]+=(ABS(locker.LockerComplexity + 10) + Random(0, 50)); //занижено значительно, т.к. идёт abuse и прокачка с помощью ключей.

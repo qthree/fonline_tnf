@@ -1,14 +1,14 @@
 # Created: 08.11.2007 03:40 Cvet
 # Updated: 29.10.2008 23:18 Cvet
 
-{1}{}{Holodisk has been read successfully.}
-{2}{}{Error reading holodisk.}
-{3}{}{Data is already stored in your Pip-Boy.}
-{4}{}{Not enough memory, please clear up some space.}
-{5}{}{Delete successful.}
-{6}{}{Failed to delete record.}
-{7}{}{Holodisk rewrited.}
-{8}{}{Unable to rewrite holodisk.}
+{1}{}{Холодиск успешно прочитан.}
+{2}{}{Не удалось прочитать холодиск.}
+{3}{}{Холодиск уже записан в Пиб-Бое.}
+{4}{}{Память переполнена, сотрите не нужные записи.}
+{5}{}{Запись удалена успешно.}
+{6}{}{Не удалось удалить запись.}
+{7}{}{Холодиск перезаписан.}
+{8}{}{Не удалось перезаписать холодиск.}
 
 #
 # Format:
@@ -16,842 +16,794 @@
 # Text - Number * 10 + 1
 
 #
-# Fallout 1 Holodisks
+# Холодиски Fallout 1
 #
 
 # 1
 #
-{10}{}{FEV Experiment Disk}
-{11}{}{Log Date March 21, 2075
-Major Barnett has ordered experiments with batch 10-011 of panimmunity virion, which has been renamed FEV, for Forced Evolutionary Virus. His main concern is with the side effects of the quad-helix structure rather than its main effect of replicative stability. He believes the new structure is the next logical step for mammalian nuclei. Experiments with single-celled organisms is a great success. While their basal metabolism appears unchanged, their immunity to infection and radiation is exceeding all earlier expectations. Addendum: choroplasts seem unaffected by the virion. Further experiments on plant cells have been canceled by order of Major Barnett. 
+{10}{}{Эксперимент ФЭВ}
+{11}{}{21 марта, 2075
+Майор Барнэт приступил к экспериментам с образцом 10-011, который был назван ФЭВ. Основной урон наносят побочные эффекты выделения токсических веществ во время размножения клеток вируса. Майор имеет основания предполагать, что новая структура является следующим шагом в эволюции млекопитающих. Эксперименты над одноклеточными организмами – это большой успех. В то время как их основной метаболизм является неизменным, сопротивление инфекции и радиации достигло предполагаемых значений. Приложение: кажется, на хлоропласт вирус не действует. Дальнейшие эксперименты с клетками были прекращены по приказу майора Барнэта.
 
-Log Date May 9, 2075
-We infected several species of flatworm with FEV. Within hours the worms had increased in size by 28%, and 39 separate viral contagions were resisted by the population. Each sample was allowed to continue for several generations, and the new DNA structure was successfully passed on to worm's progeny, although only asexual reproduction was noticed in the samples. Experiments with insects have had less success. Major Barnett has postponed these experiments until further notice. 
+9 мая, 2075 
+Мы заразили несколько видов плоских червей ФЭВ. В течение нескольких часов черви выросли на 20%, и было зафиксировано тридцать девять случаев повторного заражения популяции. Каждому экземпляру было позволено развиваться в течение нескольких поколений, и новая структура ДНК червей была успешно изучена учёными. Были отмечены случаи неполового размножения. После этого эксперименты были продолжены на насекомых, однако были менее успешны. Майор Барнэт отложил эксперимент на неопределённый срок.
 
-Log Date June 30, 2075
-Several lab strains of white mice have been infected successfully with FEV. Again, an increase in size was noted within hours, and after 9 days all mice had stabilized at 31% larger than the control group. Dissection revealed the most increase in size in striated muscle tissue and certain internal organs, such as the liver, heart, and kidneys. In a surprising finding, the infected mice were found to run mazes in less than half of the time of the control group. More testing will be needed to confirm this finding as significant. 
+30 июня, 2075
+Несколько лабораторных белых мышей были заражены ФЭВ. Как и в прошлый раз, было отмечено увеличение размеров в течение нескольких часов, и после девяти дней размеры мышей стабилизировались. В конечном итоге размер превышал на 31% данные контрольной группы. Дальнейший анализ выявил сильное увеличение основных мышц и некоторых внутренних органов, таких, как печень, сердце и лёгкие. Некоторым сюрпризом стало то, что инфицированные мыши оказались способны выбираться из лабиринта меньше, чем за половину времени контрольной группы. Необходимы дальнейшие исследования.
 
-Log Date November 9, 2075
-We have infected 218 rabbits with FEV. Half of the subjects were implanted with electrodes to monitor EEG activity before and after the infection. Increased electrical activity in the brain was noted in 3.2 seconds (on average) after injection. Again, the typical size increase was noted. However, increased aggression and posturing (especially among males) was noted as well. Sacrifice and profusion yielded brain tissue that showed increased dendritic connection, especially in the limbic system and frontal cortex. 
+9 ноября, 2075
+Мы заразили двести восемнадцать кроликов ФЭВ. Половине исследуемых объектов имплантированы электроды для измерений умственной деятельности до, после заражения. Увеличившаяся электрическая активность мозга, была отмечена в течение 3,2 секунд (в среднем) после заражения. Как и в прошлый раз, наблюдалось среднее увеличение роста. Тем не менее, увеличение агрессивности (особенно у самцов) также имело место. В результате анатомических исследований выяснилось увеличение и развитие лимфатической системы, а также лобных долей мозга. 
 
-Log Date January 12, 2076
-With batch 11-011, we have improved the mitotic cycle efficiency by 43%. We have infected 53 raccoons with the new strain. In addition to the now expected size increase, behavioral tests confirmed an increase in intelligence and manual dexterity by 19 points on the Schuler-Kapp index. Unfortunately, several subjects escaped confinement and had to be hunted down and dispatched. Major Barneet ordered the remaining subjects terminated.Two pairs were unaccounted for. 
+12 января, 2076
+Мы увеличили эффективность цикла испытаний на 43% с образцом 11-011. Нами были инфицированы пятьдесят три енота нового вида. В дополнение к уже ожидаемому увеличению размера, тесты на поведение выявили возросшие на девятнадцать пунктов индекса Шулер-Каппа по сравнению с прошлым разом. К сожалению несколько особей избежали уничтожения и теперь должны быть срочно обнаружены. Майор Барнэт приказал уничтожить всех оставшихся особей. Не досчитались двух пар.
 
-Log Date May 13, 2076
-We have spliced several new gene sequences, supplied by Major Barnett's advisory team, into FEV. With batch 11-101a, we infected 23 dogs of both pure and mixed breed, and all experienced nearly immediate growth. The larger size was accompanied with increased aggressiveness, while no significant intelligence increase was noted. We plan to attempt crossover of 92 allele pairs with batch 11-011. All subjects were terminated after 14 weeks of study. 
+13 мая, 2076
+Мы смешали несколько новых последовательностей генов, предоставленных Майором Барнэтом, в ФЭВ. Используя образец 11-011а, мы инфицировали двадцать три собаки чистых и смешанных пород, и почти сразу заметили ускоренный рост. Увеличение размеров сопровождалось увеличенной агрессивностью, хотя никакого значительного повышения интеллекта не было отмечено. Мы планируем попытку смешения девяноста двух пар образцом 11-011. Все подопытные уничтожены после четырнадцати недель изучения.
 
-Log Date October 4, 2076
-The crossover has been completed and 15 chimpanzees were infected with batch 11-111. Growth and immunity levels are unprecedented. Attempts to induce cancers in the subjects through radiological and chemical agents were not successful. Increased aggressiveness have led to isolating the subjects. Two subjects suffered violent epileptic seizures and died. All remaining subjects terminated. 
+4 октября, 2076
+Смешение было успешно завершено, и пятнадцать шимпанзе были инфицированы образцом 11-111. Уровни роста и иммунитета беспрецедентны. Попытки спровоцировать рак у подопытных экземпляров с помощью химического и радиационного воздействия провалились. Возросшая агрессивность привела к изоляции субъектов. Два субъекта испытали тяжелейшие приступы эпилепсии и скончались. Все оставшиеся особи были уничтожены.
 
-Log Date January 7, 2077
-Major Barnett has ordered transfer of all FEV research to the Mariposa Military Base. He plans to continue the project experiments on volunteer subjects. I am against this, and would like it noted here that research on human subjects is not recommended by myself or my staff.}
+7 января, 2077
+Майор Барнэт приказал перевести всех, связанных с исследованием ФЭВ на военную базу Марипоса. Он планирует продолжить эксперименты на добровольцах. Я выступаю против этого, и хотел бы, чтобы это было зафиксировано: ни я, ни мои люди не поддерживают этой идеи.}
 
 # 2
 #
-{20}{}{Security Tape}
-{21}{}{Security override Gamma Omicron Delta.}
+{20}{}{Секретная запись}
+{21}{}{Аннулирование безопасности Гамма Омикрон Дельта.}
 
 # 3
 #
-{30}{}{Ancient Brotherhood Disk}
-{31}{}{Capt. Maxson was right. This place is death. I'm writing this so that if we don't make it back, someone, some day, might find out what happened to us. 
-We made it to West Tek Research Facility after 20 days of hell. But that was the easy part. The radiation levels began to shoot up as soon as we could see the giant crater. We checked our supplies and figured with our armor and our anti-rad supplies we'd be fine for a least a day of exploring. We felt it was a calculated risk, but the technology we had the potential of recovering was worth it. 
-We climbed down the crater to the first level and everything seemed to be according to plan. The power was off, so we didn't need to circumvent the security. Or so we thought. There wasn't much of value on this level, so we pushed on. 
-The second level was more of the same. 
-When Jensen dropped to the third level, all hell broke loose. The security sensors had been burned out on the first two levels, but not on the third. Jensen was cut to ribbons before he knew what had happened. We'd never seen weapons cut through power armor like that. Men started dropping right and left, and the ones who were still alive lost it. I tried to regroup, but only Soto and Camarillo made it back up here to the first level with me. 
-The fact that I can smell Soto's burning flesh where his arm was taken off means that my power armor is no longer air tight, so I'm sucking up a lot more rads than I had planned on. I'm leaking hydraulics at an alarming rate. We need to get far enough away from this place before my armor dies. 
-Camarillo seemed fine physically, but he wandered off about an hour ago, mumbling something about Gehenna. That bastard has all the anti-rad. 
-That leaves Soto and myself. We can't make it far enough away from here without the anti-rads, so I've got to try to find Camarillo before it's too late. 
+{30}{}{Запись Древнего Братства}
+{31}{}{Капитан Максон был прав. Это гибельное место. Я пишу это на случай, чтобы, если не вернёмся, кто-нибудь когда-нибудь смог выяснить, что же всё-таки с нами случилось.
+Мы добрались до Исследовательского Центра Западных Технологий в течении двадцати адских дней. Но это были лишь цветочки. Уровень радиации начал повышаться, как только мы приблизились к гигантскому кратеру. Мы проверили наше снаряжение и пришли к выводу, что оно позволит нам выдержать, по крайней мере, день исследования. Мы догадывались о риске, однако, текущее развитие медицинских технологий давала надежду на излечение.
+Мы спустились в кратер до первого уровня и всё, как нам казалось, шло по плану. Энергия была отключена, так что нам не нужно было уничтожать охрану. Мы так думали. На этом уровне не было ничего интересного, так что мы пошли дальше.
+Второй уровень был подобен первому.
+Когда Дженсен оказался на третьем уровне, всё покатилось к чертям собачим. Сторожевые сенсоры не подавали признаков жизни на первых уровнях, но не на третьем. Дженс был порезан на мелкие кусочки прежде, чем сообразил, что случилось. Мы ещё не видели оружия, пробивающего броню так легко. Люди бросились бежать, и те, кто всё-таки выжил, потерялись.
+Я попытался собрать людей, но только Сото и Камарилло вернулись со мной на первый уровень. То, что я чувствую запах горелой плоти Сото, там, где его броня пробита, значит, что моя силовая броня больше не герметична, и я вдыхаю намного больше заражённого радиацией воздуха, чем планировал. Течь в гидравлике растёт слишком быстро. Нам нужно уйти как можно дальше отсюда, прежде чем моя броня накроется.
+У Камарилло нормальное физическое состояние, но он ушёл около часа назад, бормоча что-то про Гвен. У этого козла всё ещё действует защита от радиации.
+Теперь остались Сото и я. Мы не сможем отойти достаточно далеко отсюда без защиты от радиации, так что мне придётся найти Камарилло до того, как станет слишком поздно.
 
-Sgt. D. Allen, United States Armed Forces.}
+Сержант Д. Ален. Вооружённые Силы США.}
 
 # 4
 #
-{40}{}{Alpha Experiment Disk}
-{41}{}{Prototype Panimmunity Virion Project
+{40}{}{Экспериментальный диск Альфа}
+{41}{}{Проект Прототипа Вируса Абсолютного Иммунитета
 
-In the hopes of countering the current bacteriological and viral agents employed by the Chinese government, we have manufactured a virus fragment consisting of ribonucleic acid (RNA) encased in a protein-lipid sheath. This virion contains a specially arranged sequence of radiated amino acids (RAA) that are capable of attaching to non-specific binding sites on deoxyribonucleic acid (DNA) and force a non-replicating mitosis to occur. The resulting host cell is left with a quadruple-helix DNA structure. 
+В надежде подсчитать число действующих бактериологических и вирусных агентов используемых китайским правительством, мы изготовили фрагмент вируса, состоящий из рибонуклеиновой кислоты (РНК), заключенной в протеино-липидную оболочку. Этот вирус содержит специально подобранные последовательности облучённых аминокислот (ОАК), которые способны встраиваться в произвольное место цепочки дезоксирибонуклеиновой кислоты (ДНК) и провоцировать удвоение определенного участка. В результате клетка остаётся с пространственно искажённой структурой.
 
-Early tests are promising. The virion easily penetrates the cell membrane and attaches directly to the host DNA in the nucleus. Mitosis of the structure begins almost immediately. Cytokinesis is prevented by controlling the disposition of the kinetochore fibers during anaphase. The entire mitotic cycle lasts approximately 2 hours, although phenotypical expression of the new structure may take days or weeks to become apparent. 
+Первые тесты весьма многообещающие. Вирус способен легко проникать через мембрану клетки и закрепляться в основной цепочке ДНК. Удвоение структуры начинается почти немедленно. Цитогенезис клетки предотвращается путём контролирования расположения кинетохореи фибр в момент протекания анафазы. Весь этот цикл длится приблизительно 2 часа, хотя фенотипическое выражение новой структуры может стать главенствующим спустя несколько дней или недель.
 
-In addition to an effective immunity to bacterial and viral agents, the quad-helix structure is almost entirely immune to errors introduced in base pairing during replication due to multiplicity of the base sequence. Radiation-exposed tissue showed no mutation in the base sequence and protein synthesis mechanisms in the ribosomes were unimpaired. 
+В дополнение к сопротивляемости бактериальным и вирусным агентам, квадр-спиральная структура является почти полностью невосприимчивой к ошибкам появляющимся во время основного удвоения базовой последовательности. Облученные гамма лучами образцы не показали склонности к мутации, и механизм протеинового синтеза в рибосомах не был искажен.
 
-Over 80% of the samples tissue contained quad-helix DNA. Most affected was muscle and bone tissue, as well as secretory cells, as these cells seem most receptive to virion. Sensory cells are the least affected. Surprisingly, even normally non-replicating nerve cells and nonsomatic cell were induced to begin mitosis. Further experiments will be necessary to determine the results on these cells.}
+Около 80% всех образцов содержали квадр-спиральную ДНК. Наиболее подвержены оказались мускулы и кости, как и секреторные клетки, так как они наиболее восприимчивы к вирусу. Сенсорные клетки являются наименее восприимчивыми. К нашему удивлению, обычно неизменные нервные и несоматические клетки начали мутировать. Для более точных результатов воздействия, потребуются дальнейшие исследования.}
 
 # 5
 #
-{50}{}{Delta Experiment Disk}
-{51}{}{The Military has deemed it necessary for us to research further in depth the effects of wave technology upon living organisms. We have taken light and sound as the basis of our studies. By manipulating the amplitude of the light waves and magnifying the frequency, we have been able to get lasers which will cut through a few feet of steel. Unfortunately, the power to do such a task has not been fully developed. We have other scientists looking into this.}
+{50}{}{Экспериментальный диск Дельта}
+{51}{}{Военные пришли к выводу, что необходимо продолжать изучение эффекта воздействия волновой технологии на живые организмы. Мы выбрали реакции на свет и звук в качестве основных параметров изучения. Путём манипулирования амплитудой световых волн и частотой, мы получили лазеры, настолько мощные, что они способны пробить сталь несколько футов толщиной. К сожалению, нужные источники энергии еще не разработаны. Над этим также работают другие учёные.}
 
 # 6
 #
-{60}{}{Vree's Experiment Disk}
-{61}{}{Initial Observations
+{60}{}{Эксперимент Ври}
+{61}{}{Начальный Обзор
 
-This is truly amazing. Some of the Knights on a patrolling expedition came across an unusual creature. This creature appears to be humanoid, and quite possibly was once of a human state. However, there are many differences in the structure of this creature than that of normal humans. 
-In the initial investigation of this creature, it is discovered to have a cellular structure akin to that of humans. Before any possible decomposition can take place, I am taking down the statistics of this subject. 
-
-
-Statistics of Subject A
-
-Height: 3.2 meters 
-Mass: 363.21 kg 
-Gender: Indeterminate 
-Skin Colour: Predominantly gray with tints of green under the current lighting system. 
-Uncertain if this is due to decay or exposure in the wastelands. 
-Note: The skin is extremely tough with respect to scalpels. 
-
-Mass Breakdown: 
-Muscle Mass: 77.41% 
-Bone Mass: 10.23% 
-Fat Mass: 3.02% 
-Tissue Mass: 9.34% 
-
-Cellular Structure: Cells undergo cellular division at an increased rate. Mitosis occurs at a rate 15% quicker than that of normal humans. Cellular structure appears to be highly similar to humans.
-Genetic structure shows a strong correlation between the subject and Homo Sapiens. Possible a mutation from the nuclear and biochemical agents remnant from the war. DNA strands appear to be very complete. All recessive genes for ailments appear to have been eradicated from the system. The RNA strands also appear to have been manipulated to allow for a greater transmission of signals.
+Это действительно изумляет. Несколько Рыцарей из патрульной экспедиции наткнулись на необычное существо. Это существо, видимо, является гуманоидом и, возможно, когда-то было человеком. Тем не менее, оно очень сильно отличается от обычного вида.
+В первую очередь выяснилось, что существо имеет клеточную структуру построения, аналогичную нашей. Перед началом любого детального исследования, я собираю любые данные по предмету.
 
 
-Initial Hypothesis
+Статистика по Субъекту А:
 
-Based on the increased size of the neural transmitters and synaptic receivers, I would hypothesize the subject had acute reflexes and heightened senses. Based on the reports the Knights gave of the area in which the subject was discovered, barren, high radiation, extremely high concentrations of chemical agents, it is a wonder the subject survived as long as it did. Performing tests to determine possible cause of death.
+• рост: 3.2 метра 
+• вес: 363.21 кг 
+• пол: не определён
+• цвет кожи: в основном серый с зелёными пятнами в данных световых условиях. Не известно, является ли это результатом разложения или иного воздействия
+• комментарий: кожа твёрдая, скальпелю поддаётся с трудом
 
+Распределение массы
+• мускулы: 77.41%
+• кости: 10.23%
+• жир: 3.02%
+• ткань: 9.34%
 
-Results from tests conducted upon Subject A
-
-Visual Inspection: Black powder burns near the area suggest possible bullet. 1.2 cm lacerations upon the calf of the right leg appear to have been made by teeth. Will conduct test for possible Rabies. Skin dried out and flaking. Possible exposure. 
-
-Test Results: 
-Radiation Count: 12 rads. 
-Rabies test: Clean. 
-Hydrochloric Gas: Clean 
-Chlorine Level: .07% 
-Sulfuric Content: .02% 
-Phase Shifting Virus: Clean 
-Gamma Cyclotronic Virus: Clean 
-Forced Evolutionary Virus II: Severe overdose 
-
-
-Hypothesis
-
-Based on my observations, I would hypothesize that the test subject has been killed in a severe fight of at least two people and three animals the size of dogs. What is truly astonishing is the extent of viral infection in the subject. I had read once that some pre-war scientists were conducting experiments with such a virus, but all of the research notes were destroyed. 
-Research into this virus has lead to many interesting discoveries. The test subject has gained many of its mutations from the overdose of the virus. This would account for the enhanced muscle and bone structure. Additionally, the recessive genes which are commonly found in humans have been manipulated in such a way as to bring about the best possible combination. While the process by which this happens is uncertain, it does have some severe side effects. Chief among them is sterility. The test subject would have been unable to reproduce with any creature, whether clean or mutated.Other side effects include an alteration of pigment of the epidermis. The life expectancy is increased by 10%. Intellect is decreased by this strain by 30%. 
+Клеточная структура
+Клеточное деление происходит с увеличенной скоростью. Метаболизм происходит на 15% быстрее, чем у обычного человека. Клеточная структура кажется очень похожей на человеческую. 
+Генетическая структура
+Генетическая структура сильно коррелированна между субъектом и Homo Sapiens. Возможно, это является мутацией вследствие радиационного и биохимического воздействия после войны. Цепочки ДНК кажутся совершенными. Все рецессивные гены были удалены из системы. Кажется, что цепочка РНК тоже подверглись воздействию для улучшения прохождения электрических сигналов.
 
 
-Conclusions
+Начальная гипотеза
 
-Based on this information, I would extrapolate that we could simply outlive these mutants. However, based on the fact that these mutants have a super high concentration of the virus, it stands to reason that there could be some place which is creating them. As to where they could be, I cannot hazard a guess.}
+Основываясь на увеличении нервных окончаний, я бы могла предположить, что у субъекта исследования улучшились рефлекса и утончились чувства. Внимательно изучив доклады Рыцарей о районе, где они обнаружили субъекта (заражённая высоким уровнем радиации и загрязненная химикатами местность), можно только удивляться, как он там выжил. Сейчас идут опыты по выяснению возможной причины смерти.
+
+
+Результаты опытов, проведенных над субъектом А.
+
+Визуальное обследование
+Чёрные ожоги предполагают вероятность поражения пулей. 1.2 см следы на лодыжке правой ноги, возможно, были нанесены зубами. Будем выяснять подробности. Кожа сухая и крошащаяся. Возможно обезвоживание.
+
+Результаты тестов:
+• облучение: 12 рад
+• тест на бешенство: результат отрицательный
+• хлористоводородный газ: результат отрицательный
+• уровень хлора: 7%
+• содержание серы: 2%
+• фазопеременный вирус: результат отрицательный
+• ФЭВ 2: малая передозировка
+
+
+Гипотеза 
+
+Основываясь на наблюдениях, я могу предположить, что объект исследования был убит в жестокой драке с участием, как минимум, двух человек и трёх животных. Но что действительно ошеломляет, так это степень вирусной инфицированности объекта. Я читала, что некоторые довоенные учёные проводили эксперименты с этими вирусами, но все материалы исследований были уничтожены.
+Исследования этого вируса привели ко многим интересным открытиям. Объект исследования получил большинство мутаций из-за передозировки вируса. Это дало толчок к увеличению мускульной и костной структур. И, на конец, с рецессивными генами, которые всегда присутствуют у обычных людей, были проведены некоторые манипуляции для получения наилучших комбинаций. Когда процесс, с помощью которого это происходит, не изучен, возникают сильные побочные эффекты. Основной – стерильность. Объект исследований не был способен воспроизвести ни мутанта, ни человека. Другим побочным эффектом является изменение цвета эпидермиса. Длительность жизни возросла на 10%. Интеллект понизился на 30%.
+
+
+Выводы
+
+Основываясь на полученной информации, я могу предположить, что мы легко переживём этих мутантов. Тем не менее, учитывая то, что они имеют очень высокую степень концентрации вируса, логично будет предположить, что существует некое место, откуда они появляются. А где оно может быть, я не знаю.}
 
 # 7
 #
-{70}{}{Brotherhood Code}
-{71}{}{Maxson's History 
+{70}{}{Кодекс Чести Братства Стали (история Максона)}
+{71}{}{Мой отец был обычным охранником на секретной военной базе в пустыне южной Калифорнии. Мне особенно запомнилась та сила, которая переполняла его. Я всегда уважал его убеждения. Так было и во время революции, когда он остался позади, что бы помочь тем, кто не был в состоянии передвигаться сам из-за ран, даже учёным. Отец отдал нас с матерью в руки своих лучших друзей и отправил в пустыню вместе со всеми остальными повстанцами. 
 
-My father was a security guard at a secret military base in the desert of southern California. A typical MP, I remember mostly his strength. When it came time for the revolution, I respected his convictions. He stayed behind, to help those who were disabled and wounded, even the scis. He put the well being of myself and my mother into the hands of his best friend, and ordered us into the desert with the other rebels. 
+Нас было совсем немного. Единственное о чём я мог всё это время думать, так это о том, что никогда больше не увижу своего отца. А ведь он знал, что, оставшись позади, обрекает себя на верную гибель. Тем не менее, он остался. Он уважал тот флаг, которому служил, и с решимостью нёс то бремя, которое возложила ему на плечи судьба. 
 
-We, very few, marched into the wastes. The only thought on my mind was that I would never see my father again. He knew that to stay behind was death. And still, he stayed. He respected the flag, the CIC and the badge that he wore. 
+Дурак... 
 
-What an idiot. 
+Он собрался умереть за грехи других. Этого никогда не повторится с нами. Мы станем самостоятельными. Мы станем хранителями мудрости и знаний. Мы переживём крах цивилизации. Мы будем нести ответственность за наши действия и заставим поступать так каждого. 
 
-He died for the sins of others. That will never happen again to us. We will become self-sufficient. We will become keepers of knowledge and lore. We will survive the end of civilization. We will take responsibility for our actions, and we will hold accountable the actions of others. 
+Это твой обет, Максон, сын мой. Братство Стали не зря так названо. В отличие от моего отца, мы будем биться бок о бок до конца с теми, кто будет разделять наши убеждения и принципы. Мы - сталь. Мы крепки. Мы закалены от рукояти до кончика лезвия. 
 
-This I pledge to you, Maxson, my son. The Brotherhood of Steel is justly named. We are a Brotherhood. Unlike my father, we will stand back to back with those that share our convictions and beliefs. We are Steel. We are hard. We have been sharpened to an edge. 
-
-Always remember the fires that we were forged in. Never forget. The motto from a previous time, and our motto now.}
+Всегда помни тот огонь, в котором мы были выкованы. Никогда не забывай. Это было нашим девизом раньше, будет и впредь.}
 
 # 8
 #
-{80}{}{Mutant Transmissions}
-{81}{}{Message sent: Base, this is Scavenger Team two come in. Over. 
+{80}{}{Передача мутантов}
+{81}{}{Посланное сообщение: База, это команда Мусорщика. Приём.
 
-Message received: We're reading you loud an clear, go ahead. Over. 
+Принятое сообщение: Слышим вас хорошо, продолжайте. Приём.
 
-Message sent: We've collected four males, two females, and their supplies from the caravan. They're not too badly contaminated. Tell the Lieutenant that we're sending them ahead, they might be able to survive the process. We're going to wait here for a few more days to try and intercept another caravan. Over. 
+Посланное сообщение: Мы захватили четырёх мужчин, двух женщин и их снаряжение с каравана. Они не очень сильно пострадали. Передайте Лейтенанту, что мы посылаем их вперёд, они, может быть, переживут процесс. Мы собираемся подождать здесь ещё несколько дней. Приём.
 
-Message received: Roger that. Were any casulties accrued during the acquisition? Over. 
+Полученное сообщение: Понял вас. Понесли ли вы какие-нибудь потери во время захвата? Приём.
 
-Message sent: Negative. Another clean sweep. Base, also tell Scavenger Team one that we've run across the same problem they had. One of our scouts did not return from his perimeter patrol. A few of our other scouts reported that there was something big and fast seen near our camp last night. I'll be checking it out personally at 0600 hours tomorrow morning. Over. 
-
-Message received: Copy. We'll be awaiting your report. If possible, try to capture it. The Master would be very pleased. Over.}
+Посланное сообщение: Нет. Ещё одна чистая операция. Также скажите, что мы столкнулись с одной проблемой. Один из наших разведчиков не вернулся с патрулирования. Несколько других разведчиков доложили, что они видели нечто большое и быстрое около лагеря прошлой ночью. Я лично разберусь завтра утром. Приём.}
 
 # 9
 #
-{90}{}{Sophia Tape}
-{91}{}{The Exodus from the accursed base was a trying time for the men and their families. While there was no radioactive fallout to contend with, they were frequently beset by the fallout of humanity. Roving bands of psychotic marauders attempted several attacks on that noble group. 
-The company itself was in no danger, for they wore the Armor of Power. Members of their families were not so lucky. Once the vermin found out they were easily repelled, they began to fire on the unarmed civilians from a distance. 
-They took a great many casualties, yet for every member of the Exodus that was struck down in this way, our noble brethren took two lives from the wasteland. 
-Finally, the forefathers came to the safety of the bunker. Capt. Maxson, the great deliverer, decreed this to be our new home, and all was well. 
-In the fullness of time the bunker became our home, our temple and our salvation from the terrors of the outside world. We began to build and shape our fortress into something glorious, the beauty of which the technologically bereft world had never seen before. 
-Yet there were those who sought still more. These restless souls demanded we look to the southeast for the advanced technology that was supposedly housed there. 
-Capt. Maxson warned these impetuous youths that the research facility was doubtlessly destroyed when we were spared, but they would not hear his words. They took their sanctified armor and headed off to find their Holy Grail, but not before they spoke the Deliverer's name in vain, questioning his very bravery! 
-These men were never heard from again.}
+{90}{}{Запись Софии}
+{91}{}{Исход с проклятой базы стал испытанием для всех. Пока ещё не выпали радиоактивные осадки, но, тем не менее, это никак не повлияло на чувство гуманизм людей. Бродячие банды сумасшедших мародёров несколько раз пытались атаковать нашу группу.
+Сами военные были в безопасности, так как были одеты в силовые брони. Членам их семей повезло не так сильно. Когда рейдеры поняли, что им нечего опасаться, то начали обстреливать безоружных людей издали.
+Мы понесли большие потери. Почти каждый участник этого похода пострадал во время пути, но наши доблестные защитники тоже не оставались в долгу.
+В конце концов, наши предки достигли безопасного убежища. Капитан Максон, великий Избавитель, объявил его нашим новым домом, и всем сразу полегчало.
+С течением времени бункер стал нашим новым домом, нашим храмом, и нашим спасением от ужасов внешнего мира. Мы начали перестраивать нашу крепость в нечто величественное. Мы создали такую красоту, какой технологически отсталый мир ещё не видел.
+Однако нашлись недовольные, которым не сиделось на месте. Они требовали отправиться на юго-восток в поисках развитой технологии, предположительно существующей там.
+Капитан Максон предупредил этих безумцев, что исследовательский центр был наверняка уничтожен во время нашего ухода, но они не слушали его. Они взяли свои побитые брони и отправились на поиски своего Святого Грааля, проклиная Избавителя и его “храбрость”.
+До сих пор о них ничего не было слышно.}
 
 # 10
 #
-{100}{}{Maxson Log}
-{101}{}{By my orders, as active commanding officer following the untimely death of Colonel Robert Spindel during this time of crisis, the full base security team has been deployed to the security bunker at Lost Hills. 
-This directive also includes the families of the officers and enlisted men. 
-Unless otherwise directed, from a proper representative of the War Department, this order will stand as written.
+{100}{}{Записки Максона}
+{101}{}{Следуя моим приказаниям, как старшего офицера после безвременной кончины полковника Роберта Спинделаво, весь охранный персонал базы будет перемещен в Лост Хилз. Эти указания также касаются семей офицеров и перечисленных ниже людей. Как полномочный представитель Военного Ведомства, приказываю следовать следующим указаниям:
 
-Operative 1
-All military personnel, and their families, are to vacate the base by 0800, 25 Oct 2077. All personnel, travelling under command, will make their way to Lost Hill base. No leave has been granted. 
+Приказ 1: всему военному персоналу и их семьям приказываю эвакуироваться с базы к 08:00 25 октября 2077 года. Весь персонал, под моим командованием, отступает к базе Лост Хилз. Ничего не оставлять. 
 
-Operative 2
-All civilian personnel are directed to remain at base, pending orders from their legal command structure. 
+Приказ 2: всему гражданскому персоналу предписывается оставаться на базе, повинуясь приказам своего командования. 
 
-Operative 3
-Equipment deemed necessary to the survival of base military personnel is to be immediately drawn from stores. Proper authorization will follow, time permitting. 
+Приказ 3: всё оборудование, необходимое для обеспечения выживания военного персонала, следует немедленно привести в порядок. Ждать последующих указаний от непосредственного начальства.
 
-Operative 4
-All codes of military justice will be harsly enforced, on military personnel and civilian personnel in joint military operations. 
+Приказ 4: устанавливается ответственность в соответствии с законами военного времени для всего персонала на всё время операции.
 
-Operative 5
-Until such time as consistant and authorized communication can be established with the War Department, these orders will have precendence over any previously established orders. 
-
-Captain Maxson 24 Oct 2077}
+Приказ 5: до тех пор, пока не будет установлена связь с командным пунктом Военного Ведомства, эти приказы являются основными, имеющими преимущество перед отданными ранее.}
 
 # 11
 #
-{110}{}{Richard Grey Audio Diary}
-{111}{}{0000 - 0004
-I'm dying. I need to get this down before the pain overwhelms me. 
+{110}{}{Аудио-дневник Ричарда Грэя}
+{111}{}{00:00 - 00:04
+Я умираю. Мне надо записать это, пока боль не парализовала меня.
 
-0005 - 0020
-I can't believe that I was finally able to drag myself out of that vat. The slime did not affect me, but I nearly drowned. I don't know what happened to Harold - he was standing right next to me when the crane knocked me into the vat. He must have been killed or he would have tried to help me. Francine is dead, killed by one of those robots. 
+00:05 - 00:20
+Я все еще не верю, что мне удалось выбраться из этой цистерны. Слизь не подействовала на меня, но я чуть не утонул. Не знаю, что случилось с Гарольдом, он стоял рядом, когда кран столкнул меня вниз. Наверное, он умер, ведь иначе он попытался бы помочь мне. Францин мертв. Его убил один из этих роботов.
 
-0021 - 0027
-I have no idea how much time has passed. I was able to hack the computer to turn off the robots and record this, but now my mind is slipping away.There is much pain... 
+00:21 - 00:27
+Я не имею не малейшего понятия о том, сколько прошло времени. Я смог взломать компьютер, чтобы отключить роботов и записать это, но больше я не могу. Слишком больно...
 
-0028 - 0043
-The green slime that I was immersed in is the source of all the mutations we traced to here. My skin is starting to fester and peel. In other areas it is bubbling and starting expelling a green mucus-like substance. Some days the pain is almost tolerable. 
+00:28 - 00:43
+Зеленая слизь, в которую я упал, является источником всех мутаций, что мы видели здесь. Моя кожа почернела и начала крошиться. В других местах она пузырится и начинает превращается в желеобразную субстанцию. Некоторые дни были просто невыносимы.
 
-0044 - 0057
-I can actually walk a few steps again... It seems inconceivable that I dragged myself all the way up here from the vat room. Strangely, I'm actually feeling stronger, though I'm still in a lot of pain. Everything seems to be getting smaller. 
+00:44 - 00:57
+Я снова могу пройти несколько шагов... Кажется, невероятным, что я смог выползти из этой рубки. Странно, я чувствую себя сильнее, хотя я все еще испытываю сильную боль. Кажется, она угасает.
 
-0058 - 0096
-I think I consumed one of the mutated things scurrying around here today. Before I knew what was happening, some sort of tendril had sprang from my stomach and covered the poor creature. As soon as it had sucked the rodent into my gut I could actually feel its mind. I think. There is the very real possibility that I'm going slowly insane and can no longer differentiate between what is real and what is a hallucination. Maybe I'm still slowly dying in the vat and I've imagined all this. 
+00:58 - 00:96
+Я думаю, что проглотил одно из этих мутировавших созданий сегодня. Прежде, чем я понял, что происходит, нечто вроде уса высунулось из моего живота и схватило бедное животное. В то время, как оно всасывалось в мой живот, я чувствовал его мысли. Я думаю. Очень возможно, что я медленно схожу с ума и не могу больше различать реальность и галлюцинации. Может быть, я сейчас умираю в той цистерне, а всё это лишь предсмертный бред.
 
-0097 - 0111
-Things are becoming more clear to me every day. This toxin has actually improved my mind. I feel that I can understand even the most complex philosophical questions simply and directly. It's as if all the layers of artifice have been stripped away. I wonder what would happen if I submerged an animal in the vats for a prolonged period of time? Would it gain awareness? 
+00:97 - 01:11
+Самое странное происходит с животными. Они действительно становятся умнее и больше опасаются окружающих. Я бросил вниз собаку и крысу в одно время сегодня, и они слились воедино. Это уже не два существа, но в то же время они и не едины. Может быть, это технология будущего - слияние воедино разных существ для получения чего-то совершенного. Я больше не поглощаю всяких животных, которых создаю просто для пропитания, я инструмент, с помощью которого будет достигнута цель. Теперь я являюсь больше человеком, чем когда-либо.
 
-0112 - 0134
-The strangest thing is happening to the animals. They actually become smarter and more aware of their surroundings. I dipped a dog and a rat at the same time today, and they were fused together. It's not quite two creatures anymore, but it's more than one. Perhaps this is the future - a coming together of different creatures in some sort of harmonious unity. I no longer consume the different animals I create simply for sustenance - I have become the instrument through which unity will be achieved. I am so much more than a human being now. 
+01:35 - 01:39
+Пришло время вовлечь остальных в Единство.
 
-0135 - 0139
-It is time to bring others into the glory that is the Unity. 
+01:40 - 01:53
+Заблудшая душа наконец-то попала в мою обитель. Я удивлен, что поглотил его, не подвергнув мутации, и никогда не повторю этой ошибки. Его разум слишком примитивен, для переработки моим организмом.
 
-0140 - 0153
-A lost soul has finally strayed into my home. I was so surprised I consumed him before dipping, a mistake I shall not make again. His mind was so primitive as to be repulsive to my refined cognitive abilities. 
+01:54 - 01:72
+Впрыскивая небольшие дозы вируса, я начал модифицировать себя, чтобы быть достойным Единства. Слизь в цистернах - это созданный человеком вирус, названный ФЭВ. Эту информацию я извлёк моим только что выросшим невролинком из компьютерной базы данных.
 
-0154 - 0172
-I've begun to modify myself to be more pleasing to the Unity by injecting small doses of the virus into my body. The slime in the vats is a man-made virus called the Forced Evolutionary Virus. This information was acquired from my newly grown neurolink with the base computer. 
+01:73 - 01:98
+Несколько бродяг, пришедших сюда, стали для меня полным разочарованием. Кажется, они не способны правильно мутировать. Лучшее, что мне удалось создать, это большие и тупые мутанты. Большинство не помнит ничего о том, что было до того, как я вовлёк их в Единство. Теперь я их просто откармливаю для собственного пропитания. Их разум совершенно не интересует меня.
 
-0173 - 0198
-The few wanderers that have found their way here have been a disappointment to me. They can't seem to mutate correctly. The best I've been able to create are some big and dumb mutants. Most can recall nothing from before I initiated them into the wondrous Unity. I only feed on them for fuel, now. Their minds are nothing to me. 
+01:99 - 02:36
+О всемогущий создатель! Я достиг успеха в совершённом единении с другой душой! В отличие от других, доза облучения его организма была невелика. Я думаю, что это именно тот фактор, который я упускал из вида всё время. Мне кажется, что успех превращения напрямую зависит от степени облучения человека. Я никогда еще не испытывал такого восторга, как при слиянии разумов.
 
-0199 - 0236
-Oh glorious creator!! I have succeeded in spreading the complete joy of unification to another soul! Unlike the others, his total radiation count was low. I believe this is the factor we have been overlooking all this time, as it seems the conversion is more successful in the cases with less radiation damage. I have never known such glory as I felt when taking his mind into our own. 
+02:37 - 02:81
+Мы начинаем создание армии, целью которой станет унифицирование чудесного разнообразия жизни. Мы обучили их продолжать нашу работу здесь, пока мы не найдем более населённые районы для продолжения работы. Мы начинаем чувствовать ограничения телесной оболочки. Нам надо найти постоянное обиталище со стабильным обеспечением биомассой.
 
-0237 - 0281
-We are beginning to create an army dedicated to unifying the wonderful diversity of life. We have trained them to continue our work here while we search out more populated areas to take into ourselves. We are beginning to feel the limitations of a body that is mobile. We must find a permanent home, with a greater store of knowledge, and a steady supply of bio-mass. 
-
-0282 - 0303
-We have stopped increasing ourself until we can find this new unification center. When we have arrived we will continue to grow and feed until we have brought peace and unity to the entire world.}
+02:82 - 03:03
+Мы прекратили увеличиваться до тех пор, пока не сможем найти новый центр для продолжения превращений. Мы появились, и продолжим расти и питаться, пока не принесём всему миру Единство.}
 
 # 12
 #
-{120}{}{Captain Maxson's Diary}
-{121}{}{Oct 10, 2077
-I, Roger Maxson, Captain, serial number 072389 have started this log because it doesn't look good for any of us, and I'd like for people to know what really happened here. 
-All hell broke loose when we finally discovered what those scientist bastards were up to. The Colonel has locked himself in his office and seems to be having some sort of breakdown. The men are screaming for blood. They're looking to me for answers, and I'm not sure what to do. Someone has to do something, though, before this place sinks into an anarchistic bloodbath. 
+{120}{}{Дневник капитана Максона}
+{121}{}{10 Октября, 2077 
+Я, капитан Роджер Максон, серийный номер 072389, начал эту запись по причине того, что всё происходящие не приведёт нас ни к чему хорошему, и я хотел бы, что бы люди знали правду о том, что здесь происходило на самом деле. Такое ощущение, что нам на голову обрушилось сама преисподняя со всеми чертями, когда мы узнали что эти ублюдки-учёные действительно делали. Полковник заперся в собственном кабинете. Такое ощущение, что у него очередной упадок сил. Люди требуют крови. Они ждут от меня ответов, и я не совсем уверен, что именно должен делать. Всё же, следует срочно что-нибудь предпринять, иначе вскоре это место превратится в настоящую кровавую баню. 
 
-Oct. 12 2077
-Every time we get a report from higher up things get worse here. The war is going in a very bad direction and this place is about to go into full mutiny, with all the chaos that entails. I stopped one of the men from executing a scientist today, and demanded that we interrogate them to find out what their orders were. 
+12 Октября, 2077
+Каждый раз, когда нам докладывают сверху, всё только ухудшается. Война развивается совсем не так, как нам бы того хотелось. Скоро это место захлебнётся от мятежей вследствие этого невообразимого хаоса. Сегодня я остановил одного человека, который хотел убить учёного. Нам следует их допросить, что бы узнать, каковы были их приказания. 
 
-Oct.13 2077
-I killed a man today. I was interrogating Chief Scientist Anderson and he was giving me the full details of their inhuman experiments. He said his orders came from the Gov't., but I didn't buy it. He started screaming about how he was following orders, how he was a military man, and I just shot him. I tell myself it was to keep him from causing a full mutiny among the men, but I'm not so sure. 
+13 Октября, 2077 
+Я убил человека сегодня. Я допрашивал главного среди учёных - Андерсона. Он в деталях описал те отвратительные эксперименты, которые они проводили. Он сказал, что приказы шли от правительства... но я не поверил. Он пытался убедить меня, что всего лишь следовал приказам, и даже вспомнил своё военное прошлое. А я просто застрелил его. Я сделал так, потому что не хотел, что бы Андерсон посеял ещё большее смятение среди людей. Но всё же я не уверен, что причина такого решения заключалась именно в этом... 
 
-Oct.15 2077
-I tried again to speak to the colonel through the door, but he seems to have completely lost touch with reality. I broke down the door with several of the men just in time to watch him blow his head off. Right before he pulled the trigger he said he was sorry. 
+15 Октября, 2077 
+Я опять попытался заговорить с полковником через дверь, но он, похоже, окончательно потерял связь с реальностью. Я с несколькими людьми вышиб дверь только для того, что бы стать свидетелем его самоубийства. Полковник вышиб себе мозги. Перед тем, как нажать на курок, он сказал, что ему жаль... 
 
-Oct. 18 2077
-By killing the egghead, I seem to have confirmed my position as leader of the men. They follow me without question now. The interrogations invariably end up being executions. Shellman held out the longest, but the end result was the same. Her arguments about her orders were a bit too specific to be completely made up. I'm getting a real bad feeling in my gut about how this is all going to end up. I don't even lie to myself anymore about my reasons for executing the scientists. 
+18 Октября, 2077 
+Убийство ученого, похоже, окончательно утвердило меня как лидера людей. Теперь они следуют моим приказам безоговорочно. Все допросы неизменно переходят в экзекуции. Шэлман держалась дольше всех, но, в конце концов, результат был тот же. Всё, что она рассказала перед смертью, было похоже на… правду. Слишком много деталей, слишком много... У меня появилось плохие предчувствия насчёт того, чем всё это может закончиться. Мне даже больше не нужно обманывать себя. Я знаю, почему я убил того учёного... 
 
-Oct.20 2077
-I finally replied to the outside world over our radio. I don't know why they never sent anyone here to see what was happening when we stopped responding to their transmissions. It doesn't make any sense. Well, they'll come now. I declared ourselves seceeded from the union. They remember Jefferson Davis. What will history say about me? 
+20 Октября, 2077 
+Я наконец-то ответил внешнему миру по радио. Я не могу понять, почему они так и не прислали никого на проверку, когда мы перестали отвечать на их радиопередачи. Очень странно. Что ж, теперь то они уж точно кого-нибудь пришлют. Я объявил, что мы выходим из союза. Они ведь помнят Джеферсона Дэвиса. Что скажут обо мне потомки? 
 
-Oct.22 2077
-What the hell is going on? We declare ourselves to be in full desertion from the army and no longer under the Government's command and what happens? Nothing. Something bad is coming down. 
+22 Октября, 2077 
+Что, чёрт возьми, творится? Мы объявили себя дезертирами и отказались подчиняться приказам правительства. И что? Никаких последствий. Всё это начинает меня пугать... 
 
-Oct. 23 2077
-I can't believe those bastards finally did it. Damn them all to hell. They finally let the A-Bombs fly. We were right in the middle of trying to pry the real story out of von Felden when we completely lost contact. I have a feeling the research center was hit hard. I don't know why, just call it a gut feeling. It seems inconceivable that we were not targeted. I'm sure China will make up for that oversight real soon. Luckily, we had moved our families from outside into the facility the day before yesterday. We do not yet know if the fallout has reached this area. 
+23 Октября, 2077 
+Я не верю своим ушам. Эти ублюдки всё-таки сделали это. Они должны гореть в аду за это. Атомные бомбы. Они запустили их. Контакт был утерян, когда нам почти удалось выведать всю правду у вон Фэльден. Я почти уверен в том, что исследовательский центр сильно пострадал во время первых атак. Называйте это как угодно, но я буквально чувствую это своим нутром. Всё же, очень странно, что ни одна бомба так и не попала в нашу базу. Думаю, что Китай скоро уладит это недоразумение. Слава богу, что нам удалось отправить наши семьи на безопасный объект ещё позавчера. Нам не известно, достигли ли радиационные осадки этой местности. 
 
-Oct. 25 2077
-Sgt. Platner volunteered to go outside today to take specific readings on the atmosphere. It seems the radiation has not spread this far. Since he was wearing his power armor, there was no threat to him from radiation, but if he had been exposed he would have had to be exiled. We don't have adequate decontamination facilities here. 
+25 Октября, 2077 
+Нам был нужен человек, который согласился бы отправиться на поверхность и осуществить замеры состояния атмосферы. Сержант Платнер вызвался добровольцем. К счастью, он был одет в силовую броню, иначе бы существовала опасность заражения. В таком случае нам бы пришлось изгнать его, так как наша база не оборудована специализированным обеззараживающей аппаратурой. Похоже, радиация ещё не успела сильно распространиться. 
 
-Oct. 26 2077
-I convinced the men that we should bury the scientists. I don't know why... perhaps it was to ease my conscience. I finally started to believe their stories when the last one was dying. 
-My God, what have I become? 
+26 Октября, 2077 
+Я убедил людей в том, что мы должны похоронить учёных. Я не знаю, зачем я это сделал... может для того, что бы хоть как-то успокоить свою совесть. К сожалению, я смог осознать всю правду лишь тогда, когда умирал последний из них. Бог мой, кем же я стал? 
 
-Oct. 27 2077
-We're leaving this godforsaken place today. I'm leading the exodus to the old government bunker at Lost Hills. I'm leaving this log behind to be buried when this place goes in the next exchange. Who knows, maybe someone will find it someday.....}
+27 Октября, 2077 
+Мы покидаем сегодня это богом забытое место. Я руковожу исходом. Мы направляемся к старому правительственному бункеру, что находится в районе Лост Хилз. Эта запись останется похороненной здесь после того, как очередные бомбы отправятся в воздух. Кто знает, может кто-нибудь когда-нибудь прочитает это...}
 
 # 13
 #
-{130}{}{FEV Research}
-{131}{}{2073
-As China became increasingly aggressive with their use of biological weapons, the United States government felt that a countermeasure was needed. The Pan-Immunity Virion Project (PVP) was officially formed September 15, 2073. 
+{130}{}{Исследования ФЭВ}
+{131}{}{2073 год.
+В то время как Китай начинает интенсивно увеличивать использование биологического оружия, правительство США принимает ответные меры. Проект Пан – Иммунного Вируса (ПВП) был официально начат 15 сентября 2073 года.
 
-2075
-It became clear that the best way to combat the newly created biological weapons was to alter uninfected DNA so that it was no longer susceptible to standard viral infection. 
+2075 год.
+Уже очевидно, что лучшим оружием против новых разработок биологического оружия будет изменение незаражённой ДНК так, чтобы она стала более недоступной для обычной вирусной инфекции. 
 
-2076
-Unforseen side effects began surfacing in early 2076 with the PVP. Animal test subjects began showing an abnormal growth rate accompanied by increased brain activity. The U.S. government took notice of these discoveries, and in the interests of national security, moved a team on-site to secure and oversee the project, which was now dubbed the FEV (Forced Evolutionary Virus) project. 
+2076 год.
+Непредвиденные побочные эффекты впервые обнаружились в начале 2076. Испытуемые животные начали показывать ненормально высокую скорость роста и ускорившуюся мозговую активность. Правительство США отметило это и в интересах национальной безопасности, перевела команду учёных на секретную военную базу для наблюдения за ходом разработки проекта ФЭВ. 
 
-2077
-FEV nears completion. Test on lab animals are at a near 100% success rate. Size and muscle density increase approximately 60%, and the protential intelligence increase by 200%. Effects upon human subjects remain unknown; although they are theoretically promising. The military, wishing to continue further testing, builds a large facility at the Mariposa military installation in central California. At this new facility, testing of the FEV virus continues on volunteer subjects from the military.}
+2077 год.
+ФЭВ близиться к завершению. Тесты на лабораторных животных увенчались абсолютным успехом. Размер и плотность мускулов увеличилась примерно на 60%, а интеллектуальный потенциал на все 200%. Эффект воздействия на человека не известен; хотя теоретически он весьма многообещающ. Военные, желая продолжать опыты, построили большой исследовательский центр на военной базе Марипоса в южной Калифорнии. В этом новом центре велись исследования ФЭВ на добровольцах из армии.}
 
 # 14
 #
-{140}{}{Power Armor Specs}
-{141}{}{The T-51b Powered Infantry Armor is designed with the latest passive defense features for both civilian and military disturbances. The back-mounted TX-28 MicroFusion Pack generates 60,000 Watts to power the HiFlo hydraulic systems built into the frame of the suit. Made of the latest poly-laminate composite, the T-51b shell is lightweight and capable of absorbing over 2500 Joules of kinetic impact. The 10 micron silver ablative coating can reflect laser and radiation emissions without damage to the composite subsurface.}
+{140}{}{Техническая характеристика брони Т-516}
+{141}{}{Пехотная броня модели Т-516 с силовой установкой спроектирована с учётом новейших достижений в области защитных технологий, как для военного, так и для гражданского использования. Микро реактор ТХ-28 вырабатывает 60,000 ватт для встроенной гидравлической системы. Сконструированная из современных полиламинатных композитов, броня Т-516 легка и выдерживает до 2500 джоулей кинетического удара. Посеребрённое покрытие толщиной 10 микрон способно отражать лазер и защищать от радиации без вреда для композитных материалов.}
 
 # 15
 #
-{150}{}{West Tech Records}
-{151}{}{Robert Anderson
-Research Assistant Security
-Clearance: Blue
-Stationed: Mariposa Military Base 
+{150}{}{Рабочий персонал Исследовательского Центра Западных Технологий}
+{151}{}{Роберт Андерсон
+Помощник Исследователя
+Уровень допуска: Синий
+Место: Военная база Марипоса
 
-Nick Davis
-Director of NBC Division of West Tech Research Security
-Clearance: Blue
-Stationed: West Tech Research Facility 
+Ник Дэвис
+Директор отделения НБС Исследовательского Центра Западных Технологий 
+Уровень допуска: Синий
+Место: Исследовательский Центр Западных Технологий
 
-John Isaac
-Research Assistant Security
-Clearance: Red
-Stationed: West Tech Research Facility 
+Джон Исаак
+Помощник Исследователя
+Уровень допуска: Красный
+Место: Исследовательский Центр Западных Технологий
 
-Steve Remco
-Research Assistant Security
-Clearance: Blue
-Stationed: Mariposa Military Base 
+Стив Ремко
+Помощник Исследователя
+Уровень допуска: Синий
+Место: Военная база Марипоса
 
-Charles Ringhold
-Research Head of Laser Development Security
-Clearance: Blue
-Stationed: West Tech Research Facility 
+Чарльз Рейнольд
+Глава Бюро Разработки Лазерных Технологий
+Уровень допуска: синий
+Место: Исследовательский Центр Западных Технологий
 
-Michele Santose
-Lab Technician Security
-Clearance: Red
-Stationed: West Tech Research Facility 
+Мишель Сантос
+Техник-лаборант
+Уровень допуска: красный
+Место: Исследовательский Центр Западных Технологий
 
-Erin Shellman
-Lab Technician Security
-Clearance: Blue
-Stationed: Mariposa Military Base 
+Эрин Шэлман
+Техник-лаборант
+Уровень допуска: синий
+Место: Военная база Марипоса
 
-Leon VonFelden
-Research Head of FEV Security
-Clearance: Blue
-Stationed: Mariposa Military Base}
+Леон вон Фэльден
+Глава Бюро Исследования ФЭВ
+Уровень допуска: Синий
+Место: Военная база Марипоса}
 
 # 16
 #
-{160}{}{Vault Locations v34.129}
-{161}{}{Hello, and welcome to the latest edition of the Western United States Vault Location Pamphlet. We hope you enjoy the pamphlet, and remember Vaults are not just for the upwardly mobile, but for everyone. 
+{160}{}{Расположение убежищ v34.129}
+{161}{}{Здравствуйте! Добро пожаловать в новейшее издание Путеводителя по Убежищам запада США. Мы надеемся, что вам понравится наш путеводитель… и помните, убежища не только для военных - они для всех!
 
-Vault 12
-Under the sprawling metropolis of Bakersfield, lies the technological magnificence of Vault 12. Built with every amenity in mind for the prospective Vault Dweller, Vault 12 was given the "Pressed Vault Suit" award for attention to preparedness. Buried far underground, the protection that Vault Dwellers will receive will be unprecedented. Much like all other Vaults, Vault 12 has been fitted with the newest in Vault Water Purification Systems. Able to take even the waste located in the sewers of Bakersfield, this system is able to deliver over 15,000 gallons of pure, refreshing drinking water every day.
+Убежище 12
+Под величественным мегаполисом Бэйкерсфилд лежит технологическое великолепие Убежища 12. Построенное для удовлетворения всех нужд своих жителей, Убежищу 12 была дана награда "Самое лучшее место под землёй" за тщательность постройки. Глубоко зарытое, оно предоставляет беспрецедентный уровень защиты. Как и многие другие убежища, Убежище 12 оснащено новейшей установкой Очистки Воды для убежищ. Способная принимать даже отбросы из промышленных районов Бэйкерсфилда, она поставляет больше 15,000 галлонов чистой, освежающей воды каждый день. 
 
-Vault 13
-Located in a scenic mountainous region northwest of Vault 12, this Vault offers an endless supply of pure water to the inhabitants. The rumors that the water table in the area could easily be contaminated in the event of a Nuclear War have been found by the Department of Water and Power to be completely unfounded. In the event that the water in the area were to become tainted, remote even though it may be, Vault 13 has been fitted with the government approved Vault Water Purification System. Rated to work without significant loss of output for over 250,000 hours, prospective Vault Dwellers should have nothing to fear. 
+Убежище 13
+Расположенное в живописном районе к юго-западу от Убежища 12, это убежище предлагает бесконечный запас чистой воды для обитателей. Слухи о том, что вода в скважине может быть легко заражена в случае ядерной войны, были сочтены Департаментом Воды и Электроэнергии заслуживающими внимания. Так как вода в районе наверняка будет заражена, не смотря на удалённость, Убежище 13 было оснащено одобренной Правительством Водоочистительной Системой. Созданная, чтобы проработать больше 250,000 часов без значительной потери эффективности, эта система даёт надежду ничего не бояться жителям Убежища 13. 
 
-Vault 15
-Due east from Vault 13, construction on this Vault has gone extremely smoothly. Much work was done to reinforce the walls of the third level of this Vault, to make all the future Vault Dwellers more secure in the knowledge that in the event of even a major earthquake, the regulatory computers of the Vault would continue to function. Recent tours of the newly constructed Vault, have had many a potential Vault Dweller walking away with a new found awe of the improvements done to this already impressive Vault.}
+Убежище 15
+Расположено к востоку от Убежища 13. Его сооружение прошло чрезвычайно гладко. Много было сделано для укрепления стен на третьем уровне этого убежища, чтобы будущие его обитатели были уверены, что даже после серьёзного землетрясения регулирующие компьютеры будут продолжать работать. Новые экскурсии по свежевыстроенному убежищу преследуют цель заставить задуматься потенциального обывателя о своём будущем и помочь сделать ему осознанный и правильный выбор.}
 
 # 17
 #
-{170}{}{Regulator Transmission}
-{171}{}{Regulator's radio transmission log 
+{170}{}{Передача Регуляторов}
+{171}{}{Посланное сообщение: Патруль Регуляторов базе. Отвечайте. Как слышно? Приём.
 
-Message sent: Regulator patrol to Regulator base come in. Do you copy? Over. 
+Полученное сообщение: Это база Регуляторов, главный Регулятор Калеб отвечает. Докладывайте. Приём.
 
-Message received: This is Regulator base, Principle Regulator Caleb responding. Report? Over. 
+Посланное сообщение: Да, Сэр! Докладывает Регулятор второго ранга Кравотта. Мы установили, что мальчик Циммермана снова пытался проникнуть через периметр, Сэр. Приказы? Приём.
 
-Message sent: Sir, yes sir! Regulator Second Class Cravotta reporting. We've apprehended the Zimmerman boy trying to infiltrate our perimeter again, sir. Orders? Over. 
+Полученное сообщение: Дерьмо! Снова! Ну, это будет в последний раз! Устраните его, и сделайте это так, как будто Лезвия убили его. Понял? Приём.
 
-Message received: Shit! Again! Well that's the last time that's going to happen. Eliminate him and make it look like the Blades did it. Understand? Over. 
+Посланное сообщение: Сэр? Э…э я понял вас правильно? Убить его? Приём.
 
-Message sent: Sir? Uh... did I copy correctly, sir? Kill him? Over. 
+Полученное сообщение: Совершенно верно, Регулятор. Я хочу, что бы всё было наверняка. Подстрелите его на сторожевом посту и вырежьте ему язык, что бы он не заговорил, когда мы попытаемся "спасти" его жалкую задницу. Приём?
 
-Message received: That's affirmative, Regulator. And I want it messy. Impale him on the guard posts out front- oh, and cut out his tongue so he can't talk while we "attempt" to save his sorry ass. Over? 
-
-Message sent: It shall be done, sir, Over. 
-
-End transmission.}
+Посланное сообщение: Будет сделано, Сэр, приём. Конец передачи.}
 
 #
-# Fallout 2 Holodisks
+# Холодиски Fallout 2
 #
 
 # 18
 #
-{180}{}{Vault 13 Holodisk}
-{181}{}{VAULT 13 HOLO by Ziggy
+{180}{}{Холодиск Убежища 13}
+{181}{}{Холодиск Убежища 13 от Зигги
 
-This holodisk gives the location of Vault13. The location has been marked on your map.}
+Здесь содержится информация о местонахождении убежища 13. Эта точка отмечена на вашей карте.}
 
 # 19
 #
-{190}{}{Military Base Outside}
-{191}{}{To: CHQ
-Our team of scientists has finished testing the sample obtained from the base. It has been confirmed as 99% pure. You can expect the sample to arrive shortly. As expected the worker population has mutated rapidly once exposed to the pure source. Heavy, but acceptable losses are reported. I've ordered the evacuation of the base. As soon as the last person is out, we'll blow the entrance to the base and seal the bastards in.
+{190}{}{Снаружи Военной Базы}
+{191}{}{Штабу.
+Наши ученые завершили проверку найденных на базе образцов. Хотя полной уверенности нет, мы полагаем, что они на 99% чисты. Скоро мы отправим их вам. Как мы и думали, население сильно мутировало после контакта с источником вируса. Согласно докладам, были очень тяжелые, но допустимые потери. Я начинаю эвакуацию. После того, как люди покинут комплекс, мы подорвем вход и замуруем этих ублюдков внутри.
 
-Colonel Sanders}
+Полковник Сандерс}
 
 # 20
 #
-{200}{}{Military Base Level 1}
-{201}{}{This is Captain Pickard reporting at checkpoint 1. Contact with checkpoints 2 & 3 has been cut off. We can only assume the worst. The monsters are swarming up the mineshafts.  All efforts to delay them have failed. We'll try to hold them at this position as long as we can.}
+{200}{}{Военная База Уровень 1}
+{201}{}{Капитан Пикард докладывает с поста номер 1. Связь со 2-м и 3-м постами была прервана. У нас есть только наихудшие догадки. Монстры пытаются прорваться наверх по заваленным переходам. Мы сдерживаем их, забрасывая плазменными гранатами. Мы будем держаться до последнего.}
 
 # 21
 #
-{210}{}{Military Base Level 2}
-{211}{}{Checkpoint 3 is under attack. We have shut down the mine elevators as a precaution, but I can hear them coming up the mineshaft. Holy shit! Huge, ugly, green, creatures are climbing out of the lower levels! This must be what the brass is after.  Some kind of super soldier. As fast as we shoot them two more climb out of the mineshaft and the ones we shoot get up and keep coming at us! We need reinforc_}
+{210}{}{Военная База Уровень 2}
+{211}{}{3-й пост подвергся атаке каких-то существ с нижних уровней базы. На всякий случай мы отключили лифты, но тем не менее мы слышим подозрительный шум. Черт возьми! Огромные зеленые чудовища пробрались сюда! Это, наверное, те самые супер-мутанты, за которыми нас сюда отправили. Мы подстрелили двоих, но за ними еще два, а потом орава бешеных крыс. Мы отходим, чтобы сохранить за собой последний из...}
 
 # 22
 #
-{220}{}{Military Base Level 3}
-{221}{}{Sergeant Bracks reporting at checkpoint 3. Everything
-is normal, just like yesterday and the day before that.
-I don't know why the brass has us guarding these
-wretched miners. They are so scrawny and weak, they
-can barely lift a pickaxe. Anyway, the pencil necks
-passed by a while ago with some kind of sample. They
-seemed pretty excited by it. Do you know if they found
-what they were looking for? Maybe we can finally get
-out of this forsaken place. It gives me the creeps.
-Hold on a second, another load is coming up the
-mineshaft. My god! What are they? They're swarming
-our position! Send help! Repeat, this is check point 3
-send he_}
+{220}{}{Военная База Уровень 3}
+{221}{}{Говорит сержант Бракс с 3-го поста. Все в порядке, как вчера и позавчера. Нарушений нет, работа в норме. Я не понимаю, зачем мы охраняем этих злосчастных рудокопов. Они настолько ослабели, что едва могут поднять кирку. Не так давно мимо нас прошла группа парней из нашего взвода. Они обнаружили внизу нечто интересное и торопились сообщить об этом. Неужели нашлось то, за чем нас сюда прислали? Хорошо бы уйти из этого места и никогда больше не возвращаться. Подождите-ка, лифт заработал, кто-то поднимается сюда. О боже мой! Что это? Они атаковали часовых! Тревога! Боевая тревога! 3-му посту срочно требуется подмога! Быст...}
 
 # 23
 #
-{230}{}{Military Base Level 4}
-{231}{}{The excavation is going according to schedule. Judging by the old base blueprints, we should be reaching the vat area shortly. Increased levels of the FEV virus are present in both the air and soil samples we've taken. Luckily our suits filter out the virus. Tell the members of the Enclave they should have a pure sample of the mutagen soon.
+{230}{}{Военная База Уровень 4}
+{231}{}{
+Раскопки идут согласно намеченному плану. Судя по всему, мы подходим к месту, где стояли баки с вирусом ФЕВ. Среди изученных нами материалов есть грунт с повышенной концентрацией частиц вируса. К счастью, доспехи полностью защищают от воздействия мутагена. Скоро в руках АНКЛАВа будет чистый образец искомого вещества.
 
-Also, I've begun to notice some changes in the miners. They seem to be showing signs of increased strength, stamina and a slight change in skin tone; obvious signs of mutations by the FEV. The men are getting nervous, as they too have noticed the change. Although I've increased the number of guards, I fear if the workers completely mutate, we'll be vastly outnumbered. It is my hope, that since we are using the local inhabitants as a work force, full mutation won't occur unless they are directly exposed (dipped) in a pure source or prolonged exposure to the virus occurs. As you recall, minute amounts of the virus have been detected throughout this region. Tests on subjects living in this area have shown that they have built up a tolerance to the FEV virus. However, I advise caution since exposure to this level of the FEV virus was never entered into the calculations. I advise that you rig the entrance to the base to collapse as soon as a pure sample is obtained. This will seal the exposed miners into the base and prevent unfriendlies from obtaining the virus once we are gone.}
+Кроме того, я замечаю изменения в физиологии работающих у нас шахтеров. Несмотря на урезанные пайки, они день ото дня становятся все сильнее, а их кожа приобретает зеленоватый оттенок. Видимо, это результат действия ФЕВ. Мои люди видят, что дело нечисто, и я приказал увеличить численность патрулей. Если перерождение людей завершится, у нас будут неприятности. Я надеюсь, что доза облучения у местных жителей была достаточно велика, чтобы помешать мутации, если только они не окунутся в чистый раствор вируса или как-то еще не попадут под его воздействие. Мне известно, что источники мутаций были обнаружены по всему району. Однако проверка доказала, что местные существа обладают определенным иммунитетом к вирусу. Но все же я предлагаю обработать имеющуюся информацию на предмет изменений в организме, появляющихся после долгого воздействия ФЕВ. После окончания раскопок надо будет закрыть вход, вывести наших людей, а затем, не выпуская наружу рабочих, ликвидировать их и уничтожить базу, обеспечив секретность проекта.}
 
 # 24
 #
-{240}{}{Sierra Depot Exp. Log}
-{241}{}{Sierra Army Depot - R & D
-Attending Physician - Dr. H. Lector
-Personal Log
+{240}{}{Склад СЬЕРРА - Эксперимент}
+{241}{}{Склад СЬЕРРА. Материалы для отчета.
+Руководитель проекта - доктор Г. Лектор
+Личный дневник
 
-June 28, 2077
-Today the boys in bio storage played a great joke on me. One of the little pranksters altered the settings on my Vault-Tec automated organ extractor. Boy, was I surprised when Private Callow came out of the operating room without a colon. Good thing he was dead already or I'd be in trouble. I hardwired the machine to extract only brains so this wouldn't happen again.  I'll get them back for this.
+28 июля 2077 года.
+Сегодня ребята с био-склада сыграли со мной злую шутку. Один из них сильно изменил установки моего компьютера и авто-экстрактора органов ВаултТек. Я очень удивился, когда рядовой Каллоу вышел оттуда без ноги. Хорошо, что в зале в тот момент никого не было, а не то у меня возникли бы неприятности. Мы извлекаем из трупов только мозги, нам совершенно ни к чему чьи-то ноги или руки. Я им еще покажу!
 
-June 29, 2077
-I removed Private Callow's liver and cooked it. I then had it sent down to the boys in bio storage with fava beans and a nice Chianti. They think it was a special thank you from the general for a job well done. I love my job.
+29 июля 2077 года.
+Я извлек печень рядового Каллоу и поджарил ее. Затем я отправил ее этим двум придуркам со склада вместе с фасолью и бутылкой вина. Они подумали, это подарок от нашего генерала за хорошую работу и слопали ее как ни в чем не бывало.
 
-June 30, 2077
-I tried a new drug cocktail of Buffout and Psychos on one of my patients and mixed with some special enhancers I've been toying with. The results were promising, if not messy.  The subject became very violent and managed to break out of his room. Luckily, the new security robots were in place and managed to subdue him.  I'll have maintenance come down and replace that door.
+30 июля 2077 года.
+Недавно я приступил к изготовлению наркосмесей и начал поить одного пациента коктейлем из Психо и Баффоута, смешанного с другими химикалиями. Результаты у меня были, хотя и не совсем приятные. Объект пришел в бешенство, выбежал из комнаты и начал метаться с криком "Что это за дрянь!". К счастью, охранники быстро его скрутили. Я буду осторожнее и повторения ошибок не допущу.
 
-July 1, 2077
-My favorite experiment died.  I've been feeding him a steady diet of Mentats mixed with my special enhancers.  He went from an IQ of 39 to an IQ of 200 in just a few weeks.  I am saddened since he was one of the few people I could really talk to.  He will be sorely missed.
+31 июля 2077 года.
+Один из подопытных скончался, причем комичной и нелепой смертью. Он перетужился во время запора, вызванного подмешиваемым ему Ментатом. Его К.И. поднялся от 39 до 200 в течение месяца. Как жаль потерять одного из своих постоянных собеседников. Он был умнее многих из персонала базы. Увы!
 
-July 5, 2077
-We think the new cybernetic brain is finally ready.  We have to run some more tests, but it looks promising.
+5 августа 2077 года.
+Насколько мне известно, новый кибернетический мозг почти готов к установке. Достаточно завершить тесты и смонтировать его на роботе.
 
-July 6, 2077
-Robotics isn't happy that their precious computer is being modified to run the base's security for the evacuation.  I can't say I'm happy either, since Skynet has been invaluable in the development of the new cybernetic brain.
+6 августа 2077 года.
+Отдел робототехники крайне недоволен распоряжением модифицировать все компьютеры базы и подготовить их к эвакуации. Не могу сказать, что я чересчур этому рад, ведь разработка СкайНЕТ очень нужна для работы над новым кибернетическим мозгом.
 
-July 9, 2077
-The evacuation has been moved up. What rotten timing. We were just about to start on the installation of the new cybernetic brain. They say the evacuation is temporary, so I'll get to continue my research when I come back.  This will probably be my last log for some time, since I will be busy gathering up as much of my research as possible.}
+9 августа 2077 года.
+Работы по эвакуации проходят нормально. Чертовски неприятно бросать здесь все дела, но ничего не попишешь. Когда кибермозг надо лишь установить, начались проблемы. Говорят, исследования прекратили на время, и мы продолжим наши эксперименты в районе новой дислокации. До той поры я буду обходиться без дневника, так как мне самому надо собирать научные материалы и личные вещи.}
 
 # 25
 #
-{250}{}{Sierra Depot Medical Log}
-{251}{}{July 5, 2077
-Sierra Army Depot - Infirmary
-Attending Physician - Dr. Solomon
-Subject - Corporal Dixon
-Accident Report # 8332-523D
+{250}{}{Склад СЬЕРРА - Больница}
+{251}{}{5 августа 2077 года.
+Армейский склад СЬЕРРА - Госпиталь
+Лечащий врач - доктор Б. Саломон
+Пациент - капрал Диксон
+Отчет о происшествии номер 8332-523Д
 
-Subject was attempting to arm an attack mine in storage bay as part of Sierra Army Depot's evacuation defenses.  Mine detonated prematurely severely injuring Corporal Dixon and General Clifton.  Corporal Dixon suffered severe lacerations to hands, chest and facial area. The entire right hand was completely severed and we were unable to locate the missing appendage. Severe puncture wounds to the chest and face area required extensive surgery to repair. 32 mine fragments were removed in all. Right eye was damaged beyond repair.  Surgery was performed to remove Corporal Dixon's right eye. It is our hope that by placing the damaged, but living eye in a new experimental Biomed gel, the eye might be able to regenerate itself. Hopefully we will be able to reattach the eye at a later date. This experimental Biomed gel shows great promise in stimulating growth in living cells. It is however unfortunate to test this new gel under such circumstances.}
+Капрал Ричард Диксон ставил мины в компьютерном отсеке, выполняя инструкцию по эвакуации министра обороны (февраль прошлого года). Из-за неаккуратного обращения с детонатором заряд взорвался, сильно ранив самого Диксона и бригадного генерала Клифтона. Они получили травмы разной степени тяжести в области лица и груди. Пациент Клифтон был доставлен сюда в бессознательном состоянии, с оторванной кистью правой руки. При лечении нужно было хирургическое вмешательство для извлечения в общей сложности 32 осколков из тел обоих пострадавших. Их глаза ранены особенно сильно, а потому извлечены и помещены на хранение в сосуды с биомед-гелем с целью дальнейшего их использования. Мы надеемся, что наш эксперимент пройдет хорошо, и нам удастся целиком восстановить зрение пострадавших. Остальные участники инцидента отделались легкими ранениями. Капралу Диксону был сделан строгий выговор с занесением в личное дело. После своего выздоровления он скорее всего будет отдан под трибунал по обвинению в преступной халатности. Генерал же после оказания первой мед. помощи был отправлен в стационар.}
 
 # 26
 #
-{260}{}{Sierra Depot Evac. Notice}
-{261}{}{June 9, 2077
-Priority Release
-General Posting
+{260}{}{Склад СЬЕРРА - Памятка}
+{261}{}{9 июня 2077 года.
+Совершенно секретно.
+Всему персоналу СЬЕРРЫ.
 
-Notice to all personnel. Evacuation of Sierra Army Depot has been advanced 1 week. Installation of security and defense measures must be completed by then. All personnel must check in with section chiefs for revised orders. During this time, security will be be strictly enforced; ID badges must be worn at all times.
+Вниманию сотрудников. Эвакуация СЬЕРРЫ должна быть проведена в максимально сжатые сроки. В течение следующих двух месяцев возможна высадка противника на Западном побережье. Руководителей отделов осведомят дополнительно. Помните - не более чем через неделю после начала войны склад СЬЕРРА будет эвакуирован. Каждому будет выдана карточка для идентификации.
 
-By order of General Clifton}
+Подписано: Бригадный генерал Клифтон}
 
 # 27
 # Sierra Base Mission Statement
-{270}{}{Sierra Depot GNN Transcript}
-{271}{}{Sierra Army Depot
-Mission Statement 1942 - 1991
-Store and maintain a defensive supply of military ordnance. In the event of an invasion Sierra Army Depot is to lend support to neighboring military bases ensuring they are properly supplied and equipped.
+{270}{}{Задачи СЬЕРРЫ}
+{271}{}{Армейский склад СЬЕРРА
+Описание задачи на 1942 - 1991 годы.
+Поддерживать в рабочем состоянии припасы и технику. В случае вторжения на материк своевременно выдавать расположенным в штате Калифорния армейским частям снаряжение, обмундирование и все необходимое.
 
-Sierra Army Depot
-Mission Statement 1992 - 2050
-Responsible for the demilitarization of stores of surplus ammunition that have been deemed unfit or obsolete for military purposes. This mission is to be overseen by the Industrial Operations Command (IOC) in cooperation with the Environmental Protection Agency (EPA), providing a greener cleaner way to dispose of military ordnance.
+Армейский склад СЬЕРРА
+Описание задачи на 1992 - 2050 годы.
+В соответствии с моб. планами США законсервировать ненужное сейчас военное оборудование, обеспечивая его безопасность для окружающей среды. Наблюдение возложено на Командование Пром. Операций (КПО) и Агентство по Охране Природы (АОП). Впоследствии склад будет демонтирован и передан властям штата.
 
-Sierra Army Depot
-Mission Statement 2050 - 2076
-CLASSIFIED
-Level 5 Clearance Required
-Base is to be refurbished with the latest in technology and is to be used as a secret research installation for developing and testing robotic, biological and conventional weapons.
+Армейский склад СЬЕРРА
+Описание задачи на 2050 - 2076 годы.
+СЕКРЕТНО
+Требуется допуск пятого уровня.
+После оснащения новой техникой и изменения общей военно-политической обстановки проводить работы по созданию новых образцов роботов, биологического, химического и другого оружия.
 
-Sierra Army Depot
-Mission Statement 2077
-Due to trained personnel shortage, Sierra Army Depot is to be modified into an automated defense base. All personnel to be relocated to neighboring installations or sent to the front line.}
+Армейский склад СЬЕРРА
+Описание задачи на 2077 год.
+Потери в живой силе и технике вынудили министерство обороны перевести объект СЬЕРРА в режим авто-защиты, а личный состав после переформирования отправить на южный фронт в составе маршевого пополнения.}
 
 # 28
 # Sierra Base GNN Transscript
-{280}{}{Sierra Mission Statement}
-{281}{}{Galaxy News Network
-Transcript of Broadcast January 11, 2073
-Today's top story on GNN. In a financial coup, the US managed to be the first to tap the world's last remaining supply of oil. Until recently this reserve of oil was thought to be unattainable due to the deposit being located thousands of feet beneath the surface of the Pacific Ocean.
-With the world's supply of oil nearing depletion, a race to be the first to create a method to extract this deposit ensued. We at the GNN are proud to announce that US is the first to do so and thus claim the oil as property of the United States. Way to go US!
+{280}{}{Склад СЬЕРРА - Новости}
+{281}{}{Последние новости от ГНН
+Выдержка из передачи от 11 января 2073 года.
+Сегодня мировые рынки были потрясены известиями о том, что США выиграли большой тендер на разработку нефти в Тихом Океане, на едва ли не последних оставшихся на Земле месторождениях. Скорее всего, из-за технологических затруднений работы начнутся не ранее лета следующего года, но уже сейчас ведется предварительное бурение. Запасы углеводородов в мире истощаются, и скоро начнется борьба за право делить оставшееся топливо. Мы, ГНН, с гордостью заявляем о своей поддержке любых действий правительства США, нацеленных на обладание общечеловеческими ценностями. Да здравствуют идеалы демократии и гуманизма!
 
-China cries foul as news of the success circulates around the globe. According to President Xin of China, their drilling platform project was scheduled for completion months before the US project, however the Chinese platform had a string of unfortunate accidents delaying their project significantly.
-President Xin is also quoted in saying that he has definitive proof that the US was behind the sabotage of their oil platform and formally requests that an international panel be appointed to investigate.
+Китайская Народная Республика заявила о своем стремлении добиться ревизии сделок по нефтедобыче. Председатель ЦК КПК Тай Ши-цай утверждает, что якобы США выступили с империалистических позиций, и предлагает изменить состав участников проекта в пользу всех стран Азиатско-Тихоокеанского региона. Недавно в поддержку КНР выступили также Вьетнам и Корея, и представитель последней заявил, что имеет данные о совершении диверсий на нефтяных платформах Китая спецслужбами неназванной им третьей стороны.
 
-In other news, riots rock the nation as gasoline prices skyrocket to all time highs. Records were broken as the price of gas surpassed the current rate of gold bullion.
+Вчера было объявлено о повышении стоимости бензина и других нефтепродуктов. Индекс цен на них достиг немыслимого уровня, но аналитики предполагают, что рост будет продолжаться и дальше.
 
-Here at home, the winter temperature is a chilly 100-110F with lows reaching a freezing 90F along the coast. Dress warmly today!
+Коротко о погоде. На востоке зима уже вступила в свои права. Температура упала до 100-110 градусов, а вдоль побережья - и до 90 градусов.
 
-Galaxy News Network
-Transcript of Broadcast June 24, 2074
-Negotiations between the US and other world powers has come to a dramatic end, with the President walking out of oil talks with the other world powers. After a much heated debate, the President stormed out of the meeting and declared that the last known supply of petroleum will be used exclusively by the US and the US will not sell or trade any oil to outside parties. Threats of UN sanctions fall on deaf ears.
+Последние новости от ГНН
+Выдержка из передачи от 24 июня 2074 года.
+Переговоры между США и другими государствами - членами Совета Безопасности ООН были прерваны после стычки между президентом и требовавшими пересмотра соглашений по нефтедобыче послами коммунистических государств. На очередном заседании президент сказал, что никогда не пойдет на уступки обнаглевшим красным и добавил, что США обладают достаточными силами, чтобы вогнать их в неолит. Ожидается решение ООН.
 
-Industry screeches to a halt across the globe as oil reserves are depleted. The cries of the desperate, however, do not fall upon deaf ears as exports from the US increase twentyfold despite UN sanctions. The US economy is seeing it's greatest growth since the Reagan Era.
+Промышленность по всей планете медленно рушится под влиянием топливного кризиса. Отчаявшиеся и нищие страны вроде России более чем в 20 раз увеличили импорт из США, несмотря на запрет и санкции ООН. Мы вполне можем заверить слушателей ГНН в том, что наша экономика только выиграла от кризиса.
 
-Galaxy News Network
-Transcript of Broadcast February 14, 2075
-History was made today as Canada, by popular demand of its citizens, agreed to be annexed by the US. The President is quoted as saying, "Canada is one of the world's greatest sources of hockey players" and will be a welcome addition to the U.S. In return, sources say Canada will receive a full 10% of the world's remaining supply of oil, controlled exclusively by the US, as well as a 50% reduction in taxes since they now fall under US tax laws.
+Последние новости от ГНН
+Выдержка из передачи от 14 февраля 2075 года.
+Настал тот исторический момент, когда вся территория к северу от Рио-Гранде будет наслаждаться плодами демократии и прогресса. По просьбе своего населения доминион Канада разорвал все связи с Великобританией и после деления на штаты был включен в состав США. По словам президента, "один из важнейших источников хоккеистов не должен остаться вне наших интересов". Канадцы уже получили 10 процентов нефти, их налоги были снижены на 50 процентов.
 
-In sports today, the Little Rock Saints and the Anaheim Jets battled it out at Super Bowl CXII. It was a real nail-biter, but J. Montana IV managed to save the day by running the ball all the way from the 5 yard line to score the winning touch down during the final seconds of the game. The final score 95 - 90. The Anaheim Jets win Super Bowl CXII.
+А теперь о спорте. Последние сообщения с чемпионата по регби потрясли всех любителей этих соревнований. Анахейм Джетс выиграли Супер-Боул 62 после долгого поединка с Литтл Рок Сэйнтс. Исход матча был решен буквально в последние минуты благодаря действиям Дж. Монтаны. Счет матча 95 - 90 будет неприятным сюрпризом для владельцев Л.Р. Сэйнтс!
 
-Galaxy News Network
-Transcript of Broadcast February 15, 2075
-In a stunning display of solidarity, the House of Representatives and Congress both voted unanimously to impeach the President for jaywalking. Both houses stated that the President is not above the law and should have known better than to jaywalk. Both sides deny this had anything to do with the recent annexation of Canada.
+Последние новости от ГНН
+Выдержка из передачи от 15 февраля 2075 года.
+Показав невероятный уровень солидарности, Палата Представителей и Конгресс проголосовали сегодня за импичмент президента, обвинив его в переходе дороги в неположенном месте. Никто не имеет права ставить себя над законом и совершать такие правонарушения. Обе стороны отрицают, что дело связано с Канадой.
 
-Galaxy News Network
-Transcript of Broadcast March 30, 2076
-Today the President ordered the Pacific Fleet to the Poseidon deep sea oil derrick located at a secret location out in the Pacific. He cited concerns over that military exercises staged by the Chinese fleet are "unacceptably close to our strategic oil reserves." The Chinese government denied any hostile intentions.
+Последние новости от ГНН
+Выдержка из передачи от 30 марта 2076 года.
+Сегодня президент приказал третьему флоту, который находится близ нашей станции глубоководного бурения Посейдон, занять боевые позиции. Гос.деп. выразил недоумение по поводу маневров эскадры китайских ВМС проходящих "слишком близко к нефтяным залежам США." МИД КНР отрицает какие-либо враждебные намерения.
 
-A recent poll suggests that 54% of GNN viewers think that the President is using this as a diversionary tactic to take the public's eye off the President's recent admission to having multiple extramarital affairs with campaign staffers. Our poll also suggests that 70% don't care about these affairs and are happy with the way the President is running the country. A whopping 60% also think he should keep having these affairs if that is what it takes to keep the country running smoothly.
+Опрос общественного мнения ГНН показал, что более 54% избирателей уверены в том, что таким способом наш президент отвлекает внимание публики от своего признания связей интимного характера с участниками его избирательной кампании. Более того, около 70% опрошенных уверены в том, что это вполне безобидные дела, не мешающие ему управлять страной, в отличие от перехода дороги в неположенном месте. Далее, 60% готовы простить лидеру его сексуальные похождения.
 
-Galaxy News Network
-Transcript of Broadcast October, 10 2077
-WAR! A state of war is declared as China invades the United States by way of Alaska! Protests by the US fall on deaf ears as the UN council chooses to gnore this blatant act of aggression. The President of the United States is calling on YOU to help defend our country against those that would do harm to her. YOU are urged to go down to your local recruiting office and join the armed forces. Uncle Sam needs YOU! For Justice, for Freedom and Mom's Apple Pie.
+Последние новости от ГНН
+Выдержка из передачи от 10 октября 2077 года
+ВОЙНА! Сегодня наш президент в своем выступлении объявил о начале всеобщей мобилизации. В эту ночь части НОАК и их союзников-коммунистов высадились на Аляске и в республике Чили. Китайцы игнорировали протесты ООН. Президент Соединенных Штатов Америки просит граждан выполнить свой долг и защитить честь страны. В час тяжелых испытаний, перед лицом наглой, ничем не спровоцированной агрессии МЫ ДОЛЖНЫ спасти идеалы свободы, демократии и либерализма.
 
-Galaxy News Network
-Transcript of Broadcast October, 22, 2077
-Thanks to the brave souls of the armed forces and our newly developed power armored combat suits, US forces have pushed back the Chinese invaders. Crippled by lack of fuel, US forces have pushed the invaders back to their home capital of Beijing.}
+Последние новости от ГНН
+Выдержка из передачи от 22 октября 2077 года
+Благодаря героизму наших вооруженных сил и недавно поступившим в войска энерго доспехам, наша армия добилась победы. Противник частью сброшен в море или же пленен. Нехватка топлива удерживает нас от ответного удара и захвата Пекина.}
 
 # 29
 # Elron Bible
-{290}{}{Hubologist Teachings}
-{291}{}{Welcome!
-Welcome to the Hubology Holodisc! Within these electronic pages, you'll find a quick description of our beliefs, including the formerly-repressed teachings of the Hub. This holodisc isn't meant to represent the final word on Hubology - think of it as a primer, and us as your spiritual guardians.
+{290}{}{Учение Хабба}
+{291}{}{Привет!
+Добро пожаловать в Хаббологию. На этих электронных страницах вы найдете краткое описание самой модной религии нашего времени, а именно ранее запретного Учения Хабба. Это только введение в мир Хаббологии, и заинтересованный читатель должен обратиться в наш ближайший приход.
 
-MAIN MENU
-History
-Philosophy
-Small Glossary of Terms
-Bibliography of The Hub
+ГЛАВНОЕ МЕНЮ
+История
+Философия
+Небольшой словарь терминов
+Библиография Хабба
 
-HISTORY
-We were founded back before the Great Deluge by an author and visionary of great promise, a man named Dick Hubbell. He saw the failure of the medicine of that time, and of the failure of religion, and of the failure of government. He knew that the world needed something new...the world needed Hubology. Inspired by music of the time and hs own personal experience with extraterrestrial beings, he set out to show us wheels in the sky, to keep them burning, and to understand the Great Wheel of Life.
+ИСТОРИЯ
+Наша церковь была основана задолго до Великой Войны известным писателем и визионером, искателем истины Диком Хаббеллом. Он видел ошибки тогдашней медицины, недальновидность господствовавших религий, глупость правительств. Он знал, что мир нуждается в слове утешения и предложил всем страждущим ХАББОЛОГИЮ!!!
+Вдохновленный своими личными контактами с существами из космоса, он решил показать людям небесные круги, их вращение, а также сущность Великого Колеса Жизни.
 
-We call him the Hub, for it is through him that we understand our place in the Wheel - he is our center, and we are his spokes. It is around his teachings that we revolve.
+Мы называем его Хаббом, в знак признания его заслуг перед человечеством, ибо с его помощью мы поняли свое положение на Колесе. По своей скромности он просил называть его сокращенным именем.
 
-With the publication of countless books and journals, the Hub began spreading the word of Hubology - and immediately became a target for his detractors. They called his work "pseudo-science" and "dangerous dribble that can only hurt its adherents." Despite the collected sightings of Extra-Terrestrial Vehicles across the globe, they insisted on quashing the Hub's word. We know that they were simply stupid and misguided, but they were powerful; they included governments and corporations and other such entities, keeping the greatest news of all time from the people of the earth.
+Публикуя книги и журналы, Хаббелл начал отдавать человечеству великое учение, перевернувшее весь мир и поставившее его с ног на голову. Как учил Дик, в этом положении каждый постигает свое колесо судьбы. Враги преследовали Хабба, поносили его и глумились над его величием. Несмотря на появления инопланетян по всему миру, так называемые ученые предпочитали закрывать глаза, но не видеть правоты Дика Хаббелла. Зависть ослепляла их, но ярчайший свет подлинного учения проникал в крупные фирмы и даже правительство, вынуждая гонителей остепениться и одуматься.
 
-Hubology was driven underground for a time, marshalling its forces against the attacks of those who envied its simplicity and ease of use for the common man. When at last the Hubologists of that time struck back,  they did it in such a way that few could stand against them - they infiltrated the  organizations that sought to destroy them and created "television" shows that sought to expose the lies the government had fed the people.
+Хаббология находилась в глубоком подполье, собирая силы для удара по ненавистникам, скептикам и прочим шарлатанам псевдо-науки того времени. Простота Хабба привлекала людей, и когда его ученики приступили к разгрому невежественных фанатиков, они сделали это решительно и быстро. Через организации, узревшие истинную веру, и с помощью телевидения они раскрыли ложь правительства, отравлявшего сознание людей.
 
-This caused a subtle backlash against our religion. The common man found reason to doubt Hubology because of the distorted teachings of the media, and we had to wage a long campaign against those who would call us crackpots. During this time, sadly, the great Hub passed away.
+Началась эра духовной сумятицы, и нам тоже пришлось несладко. Обыватели сомневались в Хаббологии, так как не верили Дику и ничего не понимали из передач СМИ. Шла жестокая борьба между нами и злыми врачами, мечтавшими пересажать нас в психиатрические клиники.
 
-Bolstered by the knowledge that The Hub had achieved unity with the Star Father, helping to turn the cosmic wheel in our direction, attaining another level of consciousness, we remained confident in ourselves that ours was the true way. Along the way, we gained adherents, many of whom who simply wanted to believe that there was a place out there that is better than this world. We offer proof of life on other planets, and a philosophy that allows us to understand the way of the universe. People have come to us over the ages, impressed by the rightness of our minds. And the fact that we have survived the Great Deluge unscathed teaches us that the Great Wheel turns toward our teachings!
+В схватках с противниками Хабб изнемог душою, ослаб и скоро отошел к Отцу Звезд, помогая ему крутить в нашу пользу колесо Галактики. Будучи уверены в себе, мы продолжали доносить до масс населения знание истинного пути. К нам шли все новые и новые прозелиты, привлеченные рассказом о жизни в других мирах и верой в существование где-то во Вселенной лучшего общества. Мы имеем фильмы об инопланетянах, снятые нашими операторами, и другие улики, а также философию мироздания. Люди приходят к нам, влекомые силой нашего коллективного разума. И тот факт, что мы нетронутыми пережили ядерную войну красноречивее слов убеждает в том, что Великое Колесо вертится в нашу пользу!
 
-PHILOSOPHY
-Hubology contains a simple philosophy, culled from the finest religious and philosophical minds of pre-Deluge Earth  -  we believe that life, the universe, and everything can best be symbolized by a turning wheel. The outer rim of wheel contains those who do not understand our teachings and who do not understand the truth. We call them "rim meat", for the Wheel turns over them and grinds them, and they do not appreciate its workings.
+ФИЛОСОФИЯ
+Хаббология предлагает вам простую и понятную систему взглядов на мир, учитывающую последние достижения науки и философии Земли. По Хаббу, жизнь, вселенную и прочее можно выразить через образ вращающегося колеса. Его внешний обод составляют не подчиняющиеся нашему учению, и люди, отрицающие пророчества Дика. Мы называем их простаками, ибо Колесо раздавит их, а они по простоте или недомыслию даже не пытаются избегнуть этой участи.
 
-Those who practice Hubology are the Spokes of the Wheel. We understand the motion of the Wheel and do our best to facilitate its turning. Those who control a portion of the wheel are called Hubs - and as far as we know, there have been only a few Hubs, enlightened individuals who seek to better the lots of their fellow earthlings. We refer to the founder of Hubology as THE Hub, for he is the one with the most correct teaching.
+Люди, регулярно занимающиеся Хаббологией, и их вещи зовутся Спицами Колеса. Мы знаем о вращении и делаем все, чтобы его усиливать и ускорять. Правящие части Колеса получают название Хаббов, как нам известно, есть лишь немного Хаббов, просвещенных индивидов по отношению к Дику Хаббеллу. Основатель религии именуется Центром Колеса, так как он один познал все до конца и его писания наиболее правильны.
 
-In the practice of our religion, we simply apply scientific techniques developed by the Hub and perfected by his inheritors to align the flawed neurodynes that create disharmony and an asymmetrical wheel. This allows us to purify ourselves and prepare us for self-examination. It is only through self-examination that we are able to succeed, and only through self-examination that we understand our place in the cosmos and on the Great Wheel. It is only through self-examination that we discover ourselves to be worthy of boarding the fiery rings when they meet us on the planet Quetzel.
+Практикуя нашу религию, мы используем методы науки, открытые Хаббом и доведенные до совершенства его наследниками. Мы уравниваем и очищаем нейродины, создающие дисгармонию внутреннего колеса. Обычно для этого мы регулярно устраиваем самопознание. Только познавая самих себя мы приходим к полному успеху, и повторяющееся еженощно познание самих себя дает нам ощущение прочности своего места в космосе. Благодаря самопознанию мы открываем в себе новые и новые глубины благочестия, ибо оно позволяет нам воздерживаться от общения с существами другого пола.
 
-We think of ourselves as a religion combined with the best scientific technique - scientific spirituality is what we call it...and what we hope you'll be calling it before too long!
+На планете Кветцель нас ждут наши братья по разуму, огненные шары Отца Звезд. Хаббология - не слабоумный бред одиночки, напротив того, соединение научно-технических достижений с величием духа!
 
-This is our creation story:
-Aeons ago, all lived peacefully and in harmony with one another. Body, mind, and spirit were joined in all creatures, and the technology that existed boggled the imaginations. It was a time of peace, creativity, and alignment - and then the Dark Days came. Thrakazog the Pot Hole began to teach mind-body dualism and the sundering of the spirit, and war arose. The Great War destroyed souls and bodies and scattered their remnants across the universe. The Great Wheel came close to separating from the axle of existence, its spokes broken in the rut Thrakazog had created. A new life had to arise.
+Се, откуду есть пошла вера наша.
+Много лет назад, в далекой-далекой галактике, где не ступала еще нога человека, жили разумные существа, единые, с одним телом, разумом и душой. Открытые ими чудеса превосходили всякое воображение. Царили мир и покой. И тогда, в одной норе, где жил да был Траказог, появилась на свет его идея о дуализме тела и мысли, и об отделении от них духа. Началась Великая Война. Миллиарды высоко разумных существ погибли, их останки рассеялись по космосу. Великое Колесо отделилось от бытия, спицы поломались, обод расселся и Траказог торжествовал победу. Но рано...
 
-And arise it did, on the planet Terra, as on other planets across the universe. (We focus mainly on the life that arose on Terra, for while we blieve that we will once again heal the sundered spokes of the Wheel with our starry brothers, we must first concentrate on making ourselves useful spokes.) This new life was polluted by the soul-pieces of the dead. This led to hate and misunderstanding, and wars raged across Terra's surface until one day a visionary realized that the only way to create peace, understanding, and enlightenment was to cleanse these soul-pieces from the spirits of humanity. That visionary was The Hub. His cleansing continues today.
+На Терре, прозябавшей в захолустье Вселенной, как и на других планетах, зародилась жизнь. Наш рассказ пойдет о Терре, ибо мы веруем в конечное исцеление спиц Колеса, и починку обода, и укрепление его на бытии. После встречи с братьями по разуму среди звезд мы допишем наше учение. В древности разум был загрязнен осколками мертвых душ. Это вело к озлоблению, и на поверхности Терры бушевали жестокие войны, пока пророк Дик Хаббелл не сообразил, что нет спасения от тьмы, кроме как в Великом Колесе. Оттуда грядет новое просвещение, и души людей очистятся от прошлого. Истинно, его слова не пропали даром...
 
-SMALL GLOSSARY
-AHS/Aligned Hub Seeker: The levels of enlightenment are measured by the cleansing of your neurodynes, cleaning out the base negative energy of your meat and converting it to positive mental energy. When you have achieved a strong enough level of zetan energy, you can travel to Quetzel, or you can wait and hope that the Uplifting will come during your lifetime.
+СЛОВАРЬ ТЕРМИНОВ
+АХС - Активный Хаббо-Строитель. Уровень очищения зависит от нейродинов, количества самопознаний, совершаемых ежедневно, и конвертацией негативной энергии в ментальную через соединение с другими. При накоплении сильной зета-энергии вы можете уйти на Кветцель, или подождать, в надежде, что Подъем туда совершится в течение вашей жизни на Терре.
 
-Alignment : When a neurodyne is polluted and keeps a seeker's Zeta levels down, we "align" the levels to the universal Wheel by  running a Zeta Scan on the affected neurodyne, cleansing it of taint. Too much alignment too quickly is harmful for the spirit, however.
+Соединение. Когда нейродины загрязняются и снижают зета-уровень АХС, особые жрецы и жрицы сканируют их, во время соединения молясь Великому Колесу. Зета-скан быстро и эффективно очищает нейродины, но частое его повторение чревато истощением сил.
 
-Enlightenment: Enlightenment is the state achieved past AHS-9 - when the seeker has gained so much knowledge he becomes an integral part of the Great Wheel and leaves this earthly existence behind. Some of the Enlightened remain on Terra to guide the rest of us to a state of grace, to show us how to get behind the Wheel of our own lives.
+Освящение. Состояние, возникающее после подъема до АХС-9, когда полученные знания и великое благочестие делают человека частью Великого Колеса. После этого многие покидают наш мир, хотя кое-кто, желая творить добро, остаются на Терре, чтобы вести остальных к полному блаженству спасения и показать нам, как превзойти колесо нашей жизни.
 
-Great Wheel: This refers to the cyclical nature of the universe, space, and time. Everything is a part of the Great Wheel. There are some who can take control of the Wheel - or perhaps they simply understand the direction in which it travels - and we call them gods, prophets, and visionaries. Those who master the Great Wheel are truly enlightened.
+Великое Колесо. Символизирует циклическую природу времени, пространства и всего остального. Нет того, что не крутилось бы в Великом Колесе. Есть люди, понимающие Колесо или научившиеся им управлять, и мы зовем их божествами, пророками и визионерами. Освоившие движение Великого Колеса поистине могучие существа, неподвластные судьбе.
 
-Neurodyne: Neurodynes are the stations of the spirit. Ancient religions called them "shakras". They can be polluted by soul-pieces and negative energy emanating from oppressives.
+Нейродины. Особые точки на теле, через которые идет эманация духа. Религии Терры именовали их чакрами. Они могут заражаться частями душ погибших в Великой Войне и негативной энергией.
 
-Oppressives: Oppressives are those individuals who are so full of negative energy and polluted soul-pieces that they drag down those who seek enlightenment by their very presence. They are to be avoided - many of them are so polluted they do not recognize the value to be found in a good cleansing, and they do their best to divert the course of the Great Wheel.
+Угнетатели. Все существа, сначала кажущиеся живыми, а в действительности представляющие собой сгустки негативной энергии, облаченные в шкуру людей или животных. Встреч с ними следует избегать - многие из них глумятся над актами самопознания и готовы на хитрости, чтобы отвратить тем самым неизбежный подъем людей на планету Кветцель, поближе к Хаббу.
 
-Quetzel: The planet to which the Star Father will bring us when we have become Optimized, where we will meet with our starry brethren and join them on their flaming wheels in the sky.
+Кветцель. Место обитания всех АХС, куда Отец Звезд перенесет нас во время Подъема. Там нас дожидаются звездные братья, чтобы мы радостно приветствовали их с пылающих в небе шаров.
 
-Rim Meat: A basic person, one who has not yet been aligned to purify his neurodynes.
+Простак. Обыватели, не проникшиеся величием Хабба и не прошедшие еще через зета-сканирование.
 
-Star Father: Some would call the Star Father "god". We prefer to think of the Star Father as the universal force from which we draw our energy, and to which we feed our energy in turn - again, a cyclical relationship.
+Отец Звезд. Отдельные слуги церкви именуют его также Звездным Отцом. Это универсальная категория космоса, из которой проистекает наша энергия. В свою очередь, она идет на усердные и тщательные акты самопознания.
 
-Uplifting: The time when the Star Father calls us home to Quetzel, where we meet our extra-terrestrial brethren and move closer to the hub of the Great Wheel. Those who have made an effort to understand and embrace the words of the Hub, no matter their AHS levels, will be invited to join the Star Father in the heavens on planet Quetzel.
+Подъем. Период времени, когда Звездный отец призовет нас домой, на планету Кветцель, где ждут нас братья по разуму, опередившие нас у Центра Великого Колеса. Люди Хаббологии, независимо от того, какое положение они занимали на Терре, будут приглашены в небесное чистилище самим Диком Хаббеллом и шарами Отца Звезд, чтобы начать там беспрерывное самопознание.
 
-Zeta Scan: Another word for "alignment", the Zeta Scan helps to purify your neurodynes and clear your spirit. It consists of a machine that runs massive doses of electricity through your skin - this electricity has been carefully formulated, to the exact volt, to the amount of energy needed to drive the negative energy from a neurodyne. By accepting a Zeta Scan, your course is slightly corrected to be more in line with the movement of the Wheel.
+Зета-сканирование. Другое название для соединения, проверка нейродинов, очищающая тело и душу людей. После подключения к машине, посылающей разряды электротока через тело сканируемого, чтобы вызвать подходящее моменту состояние, человек соединяется с особыми жрецами или жрицами. Негативная энергия расходуется и нейродины очищаются. Согласившись на зета-сканирование вы слегка изменяете свой курс, приводя его в соответствие с Великим Колесом.
 
-BIBLIOGRAPHY
-Books by The Hub
-(There are hundreds and hundreds of books listed here, including such titles as: Scientific Spirituality, Battleground Quetzel, Star Father Above, Collected Shopping Lists, Notes and Musings, How to Sue Your Enemies Effectively, How to Create a Cult, and Future Books to be Written When I'm Dead.)}
+БИБЛИОГРАФИЯ
+Книги Дика Хаббелла
+Тут указаны сотни и тысячи книг под самыми разными названиями, включая такие, как Душа Хаббологии, Поле битвы - Кветцель, Звездный Отец, Собрание писем, Дорога в Хаббологию, Исповедь Хаббологиста, Хождение в Кветцель, Как создать культ, а также Книги, Которые Надо Написать После Моей Смерти.}
 
 # 30
 #
-{300}{}{Vault City Desginer Notes}
-{301}{}{VAULT CITY DESIGNER NOTES
+{300}{}{Записки дизайнера}
+{301}{}{ЗАПИСКИ ДИЗАЙНЕРА ГОРОДА
 
-Vault City went trough many incarnations. It was designed by Leonard Boyarsky, Jason Anderson, Feargus Urquhart, and Chris Avellone. Scott Everts built the maps, and the brave men who scripted this architectural Frankenstein were Rob Hertenstein III and Dan Spitzley. And finally, Eric Pribish nearly gave his life testing the monstrosity that is Vault City.
-
-Chris would like to thank the following people who helped during the production of Fallout 2: Rob, Scotty, and Dan (of course), Eileen Suh, Sarah Smart, Emily Yance, Thuy Dang (who I never thank for anything), Chris Wright, and Tim Winkle.
-
-Scotty would like to thank the following people: Don & Aileen Everts and Avis Andre. And thanks to Bill Bridges for all the cool Fading Suns books!
-
-Dan would like to thank the following people: Split Enz for the great tunes, James Cameron for True Lies, Joe Viskocil for his kick-ass explosions, Chong's at Triangle Square for keeping me fed, Carlos Kotkin for finally taking the plunge (you'll be seeing the premiere of his first feature film any day now), Jon Land for the entertainingly unlikely Blaine McCracken novels, Red Dwarf for laughs, and finally, as always, Mom and Dad for bein' cool.
-
-Rob Hertenstein would like to thank the following people: Becky Warner (still trying to keep me out of trouble), Billie Ryder (for keeping me sane throughout this project), Little Ryder (who is supposed to arrive at the same time this game does), and Nicole Roman (for being there).
-
-Eric Pribish would like to thank the following people: Tommy Hood, Jr., Joe Isip and Julio Mata for not disowning me when I had to ditch out on D&D. To my old friends Brad and Dave Carnes for keeping in touch (all these years). Lastly, but most important, I would like to thank my loving girlfriend Rhonda Lauffer for understanding all the long nights and weekends when work took me away and for always being there for me when I came home.
-
-As a reward for defeating the Enclave, Chris, Scotty, Rob, Dan, and Eric would like to take this opportunity to tell you to go to the computer terminal in the upper left corner of this level and use it.
-
-Congratulations on saving the world. And thanks again for playing Fallout 2.}
+Над созданием Города работали многие люди, в их числе Леонард Бойарски, Джейсон Андерсон, Фергус Уркухар и Крис Эвеллон. Скотт Эвертс делал карты, а смельчаки вроде Роба Хертенштейна и Дэна Спитцли оформляли это чудо архитектуры. Кроме того, некто по имени Эрик Прибиш едва не помер, тестируя этого невероятно огромного монстра архитектуры.}
 
 # 31
 #
-{310}{}{Vault City Travel Log}
-{311}{}{VAULT CITY NORTHERN CALIFORNIA TRAVEL LOG
+{310}{}{Справочник Города}
+{311}{}{СПРАВОЧНИК ГОРОДА ПО СЕВЕРНОЙ КАЛИФОРНИИ
 
-WARNING: If Vault Citizens find it necessary to travel outside of Vault City, they should keep the following list of items on their person:
+ВНИМАНИЕ: если некоторые граждане Города желают отправиться наружу, то им следует иметь при себе следующие необходимые вещи -
 
-1. A supply of pre-packaged Vault City-issue rations. Never eat any food offered by an Outsider, as you introduce bacteria or radioactive particles into your system!
+1. Запас стандартных упакованных пищевых рационов Города. Никогда не ешьте ничего, что предлагают вам люди из внешнего мира, или опасные бактерии и радиация настигнут вас!
 
-2. A geiger counter. Always be certain to monitor ambient radiation levels wherever you travel!
+2. Счетчик Гейгера. Постоянно следите за уровнем радиоактивного излучения в окружающей среде!
 
-3. At least two stim-packs at all times. The slightest cut or nick could introduce harmful bacteria into your system!
+3. Не менее двух стимпаков, причем желательно новых. Мельчайшее ранение или порез могут стать причиной смертельного заражения!
 
-REDDING: Small mining community located west of Vault City. Redding trades gold ore for medical supplies from Vault City. All Vault Citizens are encouraged to exercise extreme caution when travelling inside Redding, as the provincial miners are not strongly governed.
-POPULATION: A census is unavailable, but Redding is believed to have hundreds of residents.
-GOVERNMENT: Mayor and town council.
-BACKGROUND RADIATION COUNT: Current readings are unavailable.
-MUTATION RATE: Unknown, believed low.
+РЕДДИНГ: Маленький шахтерский городок к западу от Города. Жители оплачивают золотом наши поставки медикаментов. Все граждане, находясь в Реддинге, обязаны помнить о том, что они представляют в нем наш вечный Город и должны вести себя соответствующим образом.
+НАСЕЛЕНИЕ: Точная цифра неизвестна, примерная около пяти-шести сотен обывателей и рабочих.
+ПРАВИТЕЛЬСТВО: Мэр и городской совет.
+УРОВЕНЬ ФОНОВОЙ РАДИАЦИИ: Каких-либо сведений не имеется.
+МУТАЦИИ: По всей видимости, немного.
 
-NEW RENO: City southwest of Vault City. Trades gold ore for medical supplies from Vault City. Reno suffered little structural damage during the war (though looting and property damage have taken their toll), so many streets and buildings remain intact. Warning! There is no central government and no law enforcement. Gambling, prostitution, and drug use are rampant. Vault Citizens are warned to avoid New Reno at ALL costs!
-POPULATION: No current census, but believed to be several thousand..."people."
-GOVERNMENT: New Reno presently exists in a state of near-anarchy. According to reports, several "crime families" have divided the city amongst themselves.
-BACKGROUND RADIATION COUNT: Current readings are unavailable.
-MUTATION RATE: Unknown, believed low.
+НЬЮ-РЕНО: Большое поселение к юго-западу от Города. Оплачивает золотом наши поставки медикаментов. Во время войны практически не пострадало, после нее неоднократно подвергалось набегам грабителей, пока они не обосновались в стенах этого городка. Помните! Центральное правительство, законы и полиция не функционируют. Существуют проституция, азартные игры и наркомания. Граждане Города должны всячески избегать Нью-Рено!
+НАСЕЛЕНИЕ: Полные данные недоступны, но вероятно, около трех тысяч... "жителей".
+ПРАВИТЕЛЬСТВО: В настоящее время пребывает в анархии. Согласно рассказам путешественников, боссы мафии разделили Нью-Рено на сферы влияния.
+УРОВЕНЬ ФОНОВОЙ РАДИАЦИИ: Какая-либо информация недоступна.
+МУТАЦИИ: Точных сведений не имеется.
 
-NEW CALIFORNIA REPUBLIC: The territories of NCR are located far to the south of Vault City. Trades mechanical equipment, gold, and various surplus products in exchange for Vault City medical technology. NCR has recently stepped up efforts to absorb Vault City as a border territory, so Vault Citizens should exercise extreme caution when traveling to NCR.
-POPULATION: Though a census has been conducted, we do not have access to the figures. NCR is believed to have many tens of thousands of people.
-GOVERNMENT: President and a Congress.
-BACKGROUND RADIATION COUNT: Current readings are unavailable.
-MUTATION RATE: Varies amongst territories.
+НАРОДНАЯ РЕСПУБЛИКА КАЛИФОРНИЯ: Территория страны находится далеко к югу от нашего Города. Торгует различным оборудованием и снаряжением, а также поставляет еду в обмен на наши медикаменты. Недавно возникли определенные притязания на отдельные наши земли, исконно принадлежащие Городу. Поэтому всем при визите в НРК рекомендуется быть настороже.
+НАСЕЛЕНИЕ: Несмотря на наши просьбы, правительство республики отказалось сообщить нам кол-во населения. Вероятно, не менее 30 тысяч человек.
+ПРАВИТЕЛЬСТВО: Президент и Конгресс.
+УРОВЕНЬ ФОНОВОЙ РАДИАЦИИ: Какие-либо сведения нам недоступны.
+МУТАЦИИ: Кое-где встречаются отдельные образцы.
 
-BROKEN HILLS: A mining community to the south of Vault City that mines uranium ore. The ore is traded to Vault City in exchange for medical supplies, mostly RadX and RadAway. Humans are believed to be forced to live with mutants and ghouls within the town. Due to the nature of the inhabitants and the high probability of contamination, Vault Citizens should avoid Broken Hills at ALL costs!
-POPULATION: No current census, bu believed to be in the hundreds of residents.
-GOVERNMENT: Rumor has it a MUTANT serves as the First Citizen of this community. This is extremely unlikely, as most mutants are incapable of higher reasoning. If this rumor IS true, it is another reason to avoid Broken Hills altogether.
-BACKGROUND RADIATION COUNT: Current readings are unavailable. Believed high.
-MUTATION RATE: Believed high. Broken Hills most likely has a high rate of degenerative mutations.
+БРОКЕНХИЛЛ: Поселок рудокопов к югу от Города. Местные промыслы - добыча урановой руды. Очищенный материал поставляется к нам в обмен на лекарства, по большей части РадХ и РадЭвэй. Насколько известно, люди живут под властью мутантов и призраков. Потому, а также из-за угрозы лучевой болезни гражданам нашего Города следует во что бы то ни стало обходить Брокенхилл стороной!
+НАСЕЛЕНИЕ: По непроверенной информации, там более восьмисот обитателей.
+ПРАВИТЕЛЬСТВО: По слухам, Первым Гражданином этого сообщества является МУТАНТ. Это явная несуразица, так как большая часть мутантов неспособна логически мыслить. Если слух верен, то это еще одна причина, чтобы избегать Брокенхилл.
+УРОВЕНЬ ФОНОВОЙ РАДИАЦИИ: Предположительно, очень высокий, близкий к смертельному.
+МУТАЦИИ: Распространены повсеместно. Скорее всего, господствует вырождение и деградация людей.
 
-VAULT CITY: This utopia is free from crimes and other sociological ills that inflict the other communities in Northern California. It has existed independent since its emergence from Vault 8, and maintains a thriving economy based on exporting medical technology to Outsider communities in Northern California. All Citizens are encouraged to remain in Vault City whenever possible.
-POPULATION: Current Census 103 Citizens.
-GOVERNMENT: First Citizen and Council.
-BACKGROUND RADIATION COUNT: Files have been deleted, missing the following strings: [-$Gecko-/-$Groundwater Contamination-]
-MUTATION RATE: Files have been deleted, missing the following strings: [-$Birthrate %-]}
+ГОРОД: Наше замечательное государство абсолютно свободно от болезней, голода и многих других зол, распространенных в Северной Калифорнии. С момента выхода из Убежища 8 и по нынешний день мы существуем независимо от кого-либо и поддерживаем экономику в цветущем состоянии, экспортируя медикаменты во все государственные образования региона. Советуем вам не покидать Город!
+НАСЕЛЕНИЕ: В настоящий момент 103 гражданина.
+ПРАВИТЕЛЬСТВО: Первый Гражданин и Совет.
+УРОВЕНЬ ФОНОВОЙ РАДИАЦИИ: Файлы были удалены с целью подробного рассмотрения вопроса о заражении сточными водами Геско.
+МУТАЦИИ: Файлы были удалены до решения проблемы с очередным циклом зачатия детей.}
 
 # 32
 #
-{320}{}{NCR Spy Holodisk}
-{321}{}{NEW CALIFORNIA REPUBLIC INFORMATION DISK 5
+{320}{}{Холодиск шпиона}
+{321}{}{АГЕНТУРНЫЕ ДОНЕСЕНИЯ ИЗ НРК ЧАСТЬ 5
 
-This disk is seems to filled with reports about NCR - monthly production totals, caravan schedules, security rosters, minutes of Congressional hearings, secret council reports, diplomatic correspondence from New Reno, Redding, and Vault City, even several weeks worth of President Tandi's appointment schedule. There's nothing here about Vault 13 or a GECK, though. All the reports are addressed to Darion and are signed "F-".}
+На этом диске хранится секретный материал о Народной республике Калифорнии - по большей части, отчеты о работе мастерских, расписания караванов, сведения о мерах безопасности, конспекты заседаний Конгресса, дипломатическая переписка с Нью-Рено, Реддингом и Городом, и даже расписание приемов президента Танди. К сожалению, тут ничего не сказано об Убежище 13 или ГЕКК. Все эти донесения адресованы Дариону и подписаны буквой Ф.}
 
 # 33
 #
-{330}{}{NCR History Holodisk}
-{331}{}{NEW CALIFORNIA REPUBLIC INFORMATION DISK 1
+{330}{}{История НРК}
+{331}{}{НАРОДНАЯ РЕСПУБЛИКА КАЛИФОРНИЯ ДИСК 1
 
-We're Here! Why not join us?
+Присоединяйтесь к нам! Почему бы нет?
 
-There's a wonderful future ahead - and it could be yours with the New California Republic!
+Перед нами открывается путь к построению светлого будущего, и оно может прийти и к вам!
 
-But what is it, you want to know?
+Но знаете ли вы, что это такое?
 
-HOW BIG IS NCR?
-Founded eighty years ago, the NCR is now comprised of the states of Shady, Los Angeles, Maxson, Hub, and Dayglow.  Approximately 700,000 citizens are pleased to call NCR home.
+ТЕРРИТОРИЯ НРК.
+Страна, основанная восемьдесят лет назад, сегодня включает в себя бывший Лос-Анжелес, Хаб, Макссон, Шэйди Сэндс и Дэйглоу. Более семисот тысяч жителей связали свою судьбу с нашей страной.
 
-WHAT DOES NCR STAND FOR?
-The New California Republic is dedicated to bringing peace, security and justice to the people of the great west.  NCR's fine police forces constantly patrol and arrest any raiders, cannibals, slaverd, and lawless mutants within the country, and the NCR army valiantly protects the borders against outside marauders. To ensure justice and liberty, all citizens have access to NCR's courts and the right to vote for a representative of their choice to sit in the Hall of Congress. In the words of President Tandi, "A safe people is a strong people."
+ЧЕГО ДОБИВАЕТСЯ НРК?
+Народная республика Калифорния стремится к миру во всем мире, установлению новой демократии повсюду, где до сих пор царит зло и насилие. Части особого назначения НРК патрулируют страну и занимаются поимкой и ликвидацией работорговцев, каннибалов, рейдеров и прочих преступников. Армия НРК защищает рубежи нашего государства от вражеской агрессии. Суть народного представительства заключается в праве каждого гражданина участвовать в выборах и отдать голос за своего единственного кандидата в Конгресс и за бессменного президента республики Танди.
 
-WHO'S IN CHARGE HERE?
-NCR may be a bit different from what you're used to. There are no chieftains, town bosses, kings, or dictators here. Our leaders are elected by the people! That's right -- every state has the right to send representatives to the Hall of Congress. These representatives select the President and Vice-President to head the council and it is their advice which guides the President's decisions. For ten terms now, President Tandi has been the unanimous choice of the council, who respect her wisdom and foresight.
+КТО НАМИ ПРАВИТ?
+НРК сильно отличается от общепринятых в стране типов власти. У нас нет королей, помещиков, боссов мафии, диктаторов и их сатрапов. Весь народ избирает своих руководителей. Каждое поселение может направить делегатов для участия в заседаниях Конгресса. Они в свою очередь выбирают президента, вице-президента республики и вручают им власть над страной на определенный период времени. Иногда созывается внеочередной съезд Конгресса. Вот уже более 7 раз на восьмилетний срок на пост президента единогласно избиралась Танди.
 
-SOUNDS GREAT! HOW DO I JOIN THE NCR?
-All law-abiding and peaceful people, human or mutant, are eligible to become citizens of NCR. To become a citizen all you have to do is move to NCR and present your claim for immigration. After citizenship training and processing your application, you will be notified of your new status as a PC (Provisional Citizen). From there, it's only a short step to full citizenship!
+ЗДОРОВО! КАК МНЕ ВСТУПИТЬ В НРК?
+Все законопослушные и миролюбивые существа, будь то люди или мутанты, могут стать гражданами НРК. Чтобы оформить гражданство, вам следует переселиться в страну и предоставить просьбу в отдел иммиграции. После подробного рассмотрения ваши документы будут переданы для проверки в Особый Отдел. Тем временем вам будет предоставлен статус временного гражданина.
 
-Of course, NCR is not for everybody - slavers, unreformed mutants, known raiders, and other undesirables need not apply!
+Конечно, НРК не приветствует на своей земле всех подряд. Работорговцы, известные рейдеры, мутанты Повелителя и другие могут даже не пытаться!
 
-BUT I WHAT IF MY ENTIRE TOWN WANTS TO JOIN?
-Depending on where your town is located, NCR does accept petitions by villages, towns, bases, city-states, even minor kingdoms for annexation by NCR. Once the petition is accepted, NCR will grant your town territorial status. Once the needed police and army presence is established and any banditry or other lawlessness has been dealt with, your village can apply for full statehood in the NCR. It's that simple!
+НО ЧТО ЕСЛИ ВЕСЬ МОЙ ГОРОД ЖЕЛАЕТ ВСТУПИТЬ?
+В зависимости от их географического положения, НРК принимает просьбы от деревень, баз, городов, мелких владений и больших государств. Исключительно по пожеланию тамошнего законного правительства, туда отправляются войска республики, чтобы обеспечить мирный переход власти, уничтожение бандитизма и других проявлений беззакония. После этого ваше поселение может считаться неотъемлемой частью НРК. Все очень просто!
 
-So remember - WE'RE HERE. WHY NOT JOIN US?
+Итак - БУДУЩЕЕ В ВАШИХ РУКАХ! ОБЪЕДИНЯЙТЕСЬ!
 
-Prepared by the New California Relations Advisory Panel
+Подготовлено МИД Народной Республики Калифорния.
 
-NCRAP Pub. #A7-7893b
-This page was intentionally left blank.}
+ГОСТ А7-7893б
+Свободное место для заметок читателей.}
 
 # 34
 #
-{340}{}{Westin Holodisk}
-{341}{}{First Citizen Lynette;
+{340}{}{Холодиск Вестина}
+{341}{}{Первый Гражданин Линетта.
 
-The courier has delivered the disk you sent. You were correct, of course. The information should prove most useful at the next council debate. With what you have sent me I'm certain I can hinder, if not thwart, any further attempts at an NCR/New Reno Alliance.
+Ваше послание было успешно доставлено ко мне. Вы правы, мне следует проявить большую активность на заседаниях конгресса, и ваша информация поможет нам определиться. Отныне у меня есть доказательство невозможности любой попытки альянса НРК и Нью-Рено.
 
-I can only assure you that if given my way as I expect, there will be no more interference or provocation by the NCR in any of Vault City's affairs. I, for one, respect your sovereignty, and do not agree with the troublemakers who wish to deprive our innocent neighbors of their freedoms.
+Уверяю вас, что в моей воле прекратить, или, по крайней мере, ограничить вмешательство НРК в дела Города и провокации против его южных границ. Вам прекрасно известно, что я всегда был сторонником принципа нерушимости послевоенных рубежей, в отличие от горячих голов в военном министерстве.
 
-Your friend and ally, Roger Westin}
+Ваш друг и союзник,
+Роджер Вестин}
 
 # 35
 # State of the Nation
-{350}{}{State of the Nation}
-{351}{}{Memo: State of the Nation
-From: President Dick Richardson
-To: The People of this Great Nation
-Subject: The State of the Union Address
+{350}{}{О государстве}
+{351}{}{Состояние государства.
+Речь президента Дика Ричардсона к Великому Американскому Народу по поводу Послевоенной Ситуации.
 
-Fellow Americans, I have been honored to be the steward that will take the American people back to the mainland to reclaim the United States for its own citizens. We will be the first generation free of the mutant threat in over one hundred years.
+Дорогие граждане, на мою долю выпала честь привести к завершению одну из ужаснейших войн в истории человечества и освободить США от врагов и мутантов. Мы станем первыми истинными людьми на нашей земле более чем за сто пятьдесят лет.
 
-It's been a long wait, and the work that has made this possible has been difficult. At times it seemed impossible, however through the brave and tireless efforts of our own head of the Chemical Corps, Dr. Charles Curling, the hour of our salvation is now at hand.
+Мы долго ждали этого, и предстоявшая нам работа часто казалась сложной и даже невыполнимой. Иногда даже в сердцах наших смелых и неутомимых ученых Химического Корпуса во главе с доктором Чарльзом Керлингом поселялось сомнение. Однако час нашего спасения близок.
 
-Brave, steadfast, blah, blah, blah. Jeez, does anyone really listen to this stuff?
+Отважные, упорные, хммм. ххммммм. М-да, интересно, кто-нибудь будет меня слушать или нет?
 
---Notes to self--
-1)  Go on like this for a bit to cover Curling's project.
-2)  Tell everyone how steadfast, etc., they are Yadda, yadda, yadda.
+Примечания.
+1. Не забыть упомянуть о больших заслугах Керлинга.
+2. Рассказать о преодолеваемых нами трудностях. И так далее, и так далее...
 
-Be sure to make a plug for reelection.
+Обязательно вставить намек о переизбрании.
 
-Remember NOT to hug my intern on the way down from the podium.
+НИ В КОЕМ СЛУЧАЕ нельзя обнять вместо жены свою секретаршу.
 
-Important: Finish writing this soon. We'll be able to gas those damn mutants any week now if Curling's report is correct.}
+Надо срочно дописать свою речь к следующему месяцу. Если Керлинг не приврал, то до полного истребления мутантов - две недели.}
 
 # 36
 # Word List
-{360}{}{Word List}
-{361}{}{Memo: Word List
-From: Vice-President Daniel Bird
-To: Me
-Subject: My Word List
+{360}{}{Список слов}
+{361}{}{Записка: трудные слова.
+От вице-президента Дэниела Бирда.
+Дику.
+Мой словарный запас.
 
-Difficult Words:
+Как надо писать
 --------------------
-Potato
-Tomato
-Psycho
-California
-To be prepared
-Verbosity
-Inarticulate
-Subtle
+Картошка
+Помидор
+Еще
+Калифорния
+Быть готовым
+Подробность
+Непроизносимый
+Тихий
 
-Words to Change:
+Изменить слова
 ----------------------
-Potatoe
-Tomatoe
-Sycho
-Kalifornia
-To be prepared
-Suttell
-Jackelope-make this the new national mascot (is this an American creature?)}
+Кортошка
+Помедор
+Исчо
+Колифорния
+Быть готовым
+Стихий
+Вомбат - сделать этих зверьков новыми героями нации (кстати, живут ли они в Америке?)}
 
 # 37
 # The Project
-{370}{}{The Project}
-{371}{}{Memo: The Projects, Quarterly Status Brief
-From: Lt. Col., Dr Charles Curling, U.S. Chemical Corps.
-To: Cabinet
-Subject: Project near reaching full operational status.
+{370}{}{Великий Проект}
+{371}{}{Записка: Великий Проект, квартальный отчет.
+От подполковника, доктора наук Чарльза Керлинга.
+Госдепартаменту.
+Вкратце: Работа идет в норме, скоро будет готова.
 
-It is my honor, and happy privilege, to report the near completion of The Project. After years of work, we've managed to isolate the most toxic elements of the F.E.V. virus. Some of the only recently decoded information that we retrieved from the abandoned military base on the mainland has been instrumental in advancing our research.
+С чувством глубокого удовлетворения я могу отметить огромные успехи, достигнутые нашим отделом в Великом Проекте. Нам удалось изолировать наиболее токсичные элементы вируса ФЕВ. Поступившая с материка, с одной из брошенных военных баз ценная информация позволила нам ускорить процесс исследования и добиться успеха.
 
-We've discovered that the F.E.V. virus was not originally designed to be used as an agent for the creation of super-soldiers. Initially, it appears, the F.E.V. was designed as a virulent toxin. Only later was the F.E.V. virus manipulated in an attempt to create super-soldiers.
+Мы установили, что вирус ФЕВ не предназначался для создания универсальных суперсолдат, наоборот, раньше это была одна из разновидностей биологического оружия, обычный смертоносный токсин. Только потом структура вируса подверглась серьезным изменениям.
 
-By backtracking somewhat in our research, and with the help of the additional information from the military base's records, we've been able to turn our version of the F.E.V. (F.E.V. Curling-13) into a far more toxic agent.
+Подняв все архивы нашего исследовательского центра и обследовав материалы, доставленные с заброшенной военной базы, мы смогли превратить нашу версию ФЕВ Керлинг-13 в куда более разрушительное и ядовитое вещество.
 
-Final tests conducted on the vault-descendant subjects, from the village "Arroyo," have shown a survival rate of zero-percent, with most deaths occurring within one-hour of exposure to a .0001% aerosol solution. By contrast, the subjects extracted from Vault 13 tend to suffer subdural hemorrhaging and convulsions within one-hour of exposure, with death not occurring, on average, for another 14.5-hours.
+Последняя проверка на людях, недавно попавших под воздействие радиации, из деревни Арройо, показала уровень выживания в ноль процентов, причем большая часть смертей произошла через час при концентрации в 0.0001 процента. В свою очередь, доставленные из Убежища 13 субъекты сначала впадали в конвульсии, сопровождающиеся обильным кровотечением, и умирали не менее чем через 14 с половиной часов.
 
-In either case, the F.E.V.'s toxicity levels are now sufficient to insure a "clean-sweep" of all infested (i.e. non-Enclave) locales. Current releasable levels of F.E.V. Curling-13 show a 95% probability of .00007% average saturation. While the consensus of the Chemical Corps is that this would be a sufficient level to insure the success of the Project, we believe that it is worth waiting until we can accumulate enough F.E.V. toxin to reach our .0001% saturation and 99.5% extermination level goal.
+Короче говоря, уровень токсичности ФЕВ отныне сильно повысился, и мы можем попытаться обеспечить полную чистку пораженной радиацией местности вне АНКЛАВА. Наличествующий на складах запас ФЕВ Керлинг-13 дает 95процентную вероятность поражения вплоть до 0.0007 процентов выживания. По мнению Химического Корпуса, нам следует увеличить выработку токсина ФЕВ, чтобы обеспечить удачное завершение Великого Проекта. Мы можем добиться 99.5 процентов поражения и 0.0001 процентов выживания.
 
-Current F.E.V. Curling-13, production levels show that we'll reach our release goal, of 250,000 gallons, within six weeks.
+Наш уровень производства ФЕВ Керлинг-13 позволяет утверждать, что через 6 недель мы получим более 250 тысяч галлонов вируса.
 
-Congratulations, ladies and gentlemen, our long years of work are nearly at an end.
-God bless America.}
+Поздравляю, леди и джентльмены, долгие годы тяжелой работы подходят к концу.
+Боже, благослови Америку.}
 
 # 38
 # Power Plant Operations
-{380}{}{Power Plant Operations}
-{381}{}{Memo: A.E.C., Status Brief
-From: Tom Murray, Chairman, Atomic Energy Commission
-To: Cabinet
-Subject: Danger of overdependence  upon central computer for all reactor control.
+{380}{}{Об электростанции}
+{381}{}{Работа атомной электростанции
+Начальник комиссии по ядерной энергии Мюррей.
+Госдепартаменту.
+Об опасной зависимости системы управления реактором от центрального компьютера.
 
-NOTE to the CABINET: I hate to be a nag by bringing this up all the time, but I cannot overemphasize the importance of diversifying our Atomic Powerplant's control systems. Here's my official report. I think that once you read it, you'll understand why we need to have a backup system.
---Tom
+Прошу извинить мою настойчивость, господа министры, но я не могу оставить без внимания такой вопрос, как необходимость диверсификации систем управления нашей электростанции. Предоставляю вам официальный доклад. Думаю, когда вы его прочитаете, вы поймете, зачем нужна запасная система.
+Томас Мюррей.
 
-Atomic Energy Reactor Regulator
+Контроль над получением атомной энергии
 ------------------------------------------
-Vault-Tec's new Uranium Nuclear Reactor has been working to top efficiency so far. With the state of the art computer systems that were made specifically for the task of regulating the coolant temperature as well as many other key functions, we are able to allow the reactor to run with minimal supervision.
+Работающий на урановом топливе реактор фирмы Ваулт-Тек функционирует нормально. Новейшие компьютеры, специально подогнанные для решения таких задач, как регулирование температуры охлаждающей жидкости и других ключевых проблем позволили нам обеспечить стабильность и минимальное наблюдение за реактором.
 
-The new Synchronic multi-processors that we had built into the tri-processor motherboard are able to multitask the coolant temperature, the intake of cool sea water, the outtake of expended coolant and waste from the reactions, and the regulation of the neutron bombardment upon the uranium. Without the computer systems, the reactor would go out of balance almost immediately, causing a chain-reaction bombardment of the uranium isotopes. Within two hours, or less, this would result in a nuclear explosion equivalent in the 100-kiloton range.
+Новые синхронные мультипроцессоры, встроенные нами в трехпроцессорную материнскую плату достаточно мощны, чтобы следить за температурой охлаждающей жидкости, забором холодной морской воды и выбросом отходов и отработанной воды в окружающую среду. Они отвечают и за бомбардировку нейтронами уранового топлива. При внезапном отключении компьютера реактор сразу же выйдет из-под контроля, что может вызвать цепную реакцию в изотопах урана. Не более чем через два часа после этого произойдет ядерный взрыв мощностью в 100 килотонн.
 
-The sum of the main portions of the reactor are placed underwater, beneath the station. This arrangement allows the ocean's natural temperature to keep the exterior cooler. Seawater, from 500 meters, is pumped into the coolant chamber. A portion of the cool seawater is diverted to the containment unit, where the core and control rods are. There, it circulates through the core, becoming heated from the nuclear reaction taking place. The seawater reaches the boiling point and the resulting steam is used to turn the turbine generator to create all of our electricity. The steam then condenses and returns to a filter tank. The cleansed water is entered back into a preparation tank, ready to start the cycle all over again.
+Сам блок реактора расположен глубоко под водой, под нашей станцией. Таким способом мы добиваемся нужной нам низкой температуры окружающей среды. На глубине 500 м. морская вода закачивается насосами в камеру охлаждения. Часть этой воды поступает в отсек хранения, где расположено ядро и контрольные стержни. А там жидкость омывает ядро, нагреваясь от происходящей ядерной реакции, и достигает точки кипения. Полученный в результате этого пар отводится по патрубкам в турбину главного генератора энергии, где и вырабатывается все наше электричество. Затем пар конденсируется и возвращается в бак фильтрации. Очищенная вода опять стекает в подготовительный бак, работая по замкнутому циклу.
 
-Severely radiated water, and miscellaneous toxic materials, are pumped out of the station through a waste-conduit, terminating one mile to the south. Reports from our survey crews state that our effluvia drifts down the coast of southern California and Mexico, causing irreversible ecological damage. Many of the beaches are now saturated with toxic waste, and highly radiated sea life. Fortunately, this doesn't effect us.
+Зараженная радиацией вода и всевозможные ядовитые материалы сливают по отводному каналу на расстояние 1852 метров к югу, после чего под давлением выводят на поверхность. Донесения нашей разведки позволяют установить, что выбросы в конечном счете попадают на побережье Южной Калифорнии и Мексики, помогая избавляться от вредоносных мутантов. Многие пляжи завалены умершими от радиации рыбами и водорослями.
 
-In any case, if our reactor is shut down, we do have some backup batteries that can be used to power vital systems throughout the Enclave until power is restored. However, these do not include extraneous and high energy items such as forcefields. Also, as a safety precaution, certain watertight doors throughout the station, will close when power is reduced (to prevent flooding in case of an emergency). This will restrict movement through the station but movement to the top of the station is still possible, through alternate routes.
+Как бы там ни было, если реактор внезапно прекратит работу, то наши резервные аккумуляторы позволят нам продолжать снабжение энергией главных помещений АНКЛАВА. Однако мы не сможем подавать ток на силовые поля и устройства, расходующие большое количество электричества. Повсюду включатся водонепроницаемые двери, чтобы не допустить затопления объектов в случае боевой тревоги. Это ограничит передвижение внутри АНКЛАВА, но по запасным путям можно будет выйти в верхнюю часть станции с целью эвакуации.
 
-The real problem is that if the computer is shut down or destroyed, unlikely though both of those events may be, the reactor will go critical to the point of meltdown within two-hours. We need to install some sort of a human-maintained backup system. I know that you may think I'm an alarmist for bringing up these provisions for an unthinkable event, however it always pays to be prepared.
+Главная проблема, которую я вижу, это отсутствие дополнительной системы управления, контролируемой вручную с одного из запасных пультов. Если главный компьютер будет отключен или уничтожен, хотя это и маловероятно, то в течение двух часов произойдут критические изменения в реакторе. Называйте меня перестраховщиком, но я считаю, что надо готовиться к неожиданностям и не дать застать себя врасплох.
 
-In the meantime, let's just make sure no one blows up our computer (hah, hah).
+Тем временем постарайтесь убедиться в том, что никто еще не взорвал наш компьютер (ха-ха!).
 
-Yours, Tom Murray, Chairman, A.E.C.}
+Искренне ваш, Томас Мюррей, председатель К.Я.Э.}
 
 #
-# Fallout Tactics Holodisk
+# Холодиски Fallout Tactics
 #
 
 # 39
@@ -937,48 +889,44 @@ I will make every attempt to fix this world for you, my love. I promise.
 Love Eternal, Simon Barnaky}
 
 #
-# FOnline Holodisks
+# Холодиски FOnline
 #
 
 # 42
 #
-{420}{}{Journalist's research}
-{421}{}{The second world revolution, or The thing that has affected the humankind more than the Great War - the truth and the fiction.
+{420}{}{Журналистское расследование}
+{421}{}{Второй переворот мира, или То, что изменило жизнь людей сильнее, чем война - правда и вымысел.
 
-At first I'd like to mention that within a couple of passed years the worst thing there can be has happened to the history of years 2242-2246 (If it'd have been forgotten - it would be a matter of time to find those who still know the facts), the information was still there but it rapidly changed and there occurred a lot of gossips, tales, myths and most worst of it - lies. I'm almost 100% sure that the Brotherhood of Steel as well as New Californian Republic (not to mention the Hubologists) has quite detailed information, however when I've turned to them with questions I was given such a classical reply that it has even survived through the Great War - ''No comments''. Therefore I could only rely on the stories of witnesses, or I'd say on the matching parts of their stories.
-
-
-Exactly at midday of the 3rd of February, 2243 over all Hubologists' churches in all towns there have appeared posters saying - ''COMPLETE THE REDEMPTION AND YOU WILL BE HONORED'', ''REDEEM YOUR IMMORTAL SOUL'' and so on. There were priests on the streets convincing to complete the Redemption, assuring it won't bring any obligations, and if you join the Wheel by completing the Redemption, you will really help 'em. The masses have ignored the propaganda, but I was among those quite a few people who felt involved in some way… I personally got attracted by the fact that I won't mind completing the Redemption and it would help the priests, well, at least they say so, and there was another thing that played a role in my decision - I was not taking the Hubologists seriously (at that point) - seemed to me that people play games, however the organization survived through the Great War and still exists without any signs of trouble, priests walk in their robes through the Wasteland and so on, and it can be quite a reason to show some respect to them. In other words, I have completed my first Redemption on 05.02.2243. I was quite surprised by the procedure: I found myself on a table looking more like it was for repairing cars, however it was obvious that it was there for the procedure, but there was no equipment, no signs of machinery, Hubologists called it the Altar. Then they have covered me with a dark casing and for a minute I found myself in complete darkness. Afterwards I was told that after I die I'll be resurrected in the church I've completed the Redemption in, I asked something like ''That's a metaphor, isn't it?'', and the Hubologists replied that it's not and I will be resurrected as mentioned previously. It was getting dark when I walked out, despite I felt it has passed only 20 minutes and it was midday when I've entered the church… That's more or less the story told by most of the witnesses who completed the Redemption in February 2243. No one took the stories of resurrection for real (at that time it sounded too unbelievable), but almost everyone has told their friends of the new Hubologist's whim. I was intrigued by the procedure of the Redemption and asked one of my friends who felt attracted to Hubologists and completed the Redemption once. I was told that the exercise of the Redemption process has become canonic and therefore questions on why it is done exactly this way (or whether it has undergone any changes) are pointless.
-
-
-It was at the end of February (I was in San-Fran) when I was sitting in one of the local pubs and heard of the Redemption process for the first time and that resurrection will follow after death. You could hear the laughter even outside of the building where the bar was located… 
-
-This way by the end on February, according to my data, there were not more than 30-40 people who have completed the process of Redemption, you could hear rumors that Hubologists offer resurrection everywhere, however there was no evidence of it so people had their laugh and forgot about it… What I did is join a caravan in the beginning of March and head to Shady Sands, but we had bad luck after defending ourselves against some raider-freaks and stopped for an overnight break, while I was in charge, a deathclaw has approached me without a sound and killed me. Shock was all I felt when I found myself in the San-Francisco Hubologist's church. Seemed that they have pumped me with some tranquilizers to make sure I won't go insane and I kind of appreciate it, as I was pretty close to it. I could remember my death… It's impossible to describe. Moreover, the fact of resurrection taking place just couldn't fit into my vision of life. I was offered to complete the process of Redemption again, and, of course, I agreed. This time the process took really just around a minute. No one knew what has happened to the caravan and I did not tell anyone either, just my close friend have learned about it and, trusting my words, also went to the church to complete the Redemption. Most probably no one of those who were resurrected during the February-March 2243 period dared to tell about it because you'd have to prove it and I'm sure no one would like to find themselves in the church with fresh memories of their death again, at least not if it isn't critical enough. Luckily, everyone who has completed the Redemption procedure during that period told, just in case, that they will be resurrected after their death. This way there was a small flow of volunteers at the Hubologist's churches, mostly relatives and close friends of those who have already been resurrected.
-At last by the end of March I've managed to reach Shady Sands and then New-Reno. There were talks about resurrection in every bar; however the overall mood was suspicious. And then the thing that would happen sooner or later anyway happened. One of the customers looking like a member of the local mafia, being drunk, started to tell that he has already died once and that the Hubologists have resurrected him. There were attempts to calm him down but he got even more excited, picking on everyone and asking whether they believe him or not. I simply looked in his eyes and said that I'm aware of it but one of the NCR rangers sitting nearby asked for a proof and offered a bet. As a result the bandit who has just shot himself in the mouth entered the bar from outside again, looking completely sober and dumbfound, and took the cash he won from the fainted ranger. By the way, I also won a couple of bets, as I was almost sure that this guy did not bluff.
-
-Sooner or later such cases took place in all towns and people were finally convinced that resurrection is possible. I think the first period of integrating resurrection was completed by the end of 2243 when the fact of resurrection became well known. People had no choice but to deal with it, which was not an easy thing to do…
-
-By the end of the year 2243 people in Modoc were called to boycott the Hubologists because most of the residents were afraid to take part in the Redemption procedure which terrifyingly changed the vision of life. Citizens even picketed for closure of the local church, but have not received any feedback within 3 weeks and calmed down. Two more weeks have passed when in the middle of September 2243 raiders started their raids growing into massive attacks, and the citizens realized that the Redemption is the only way to avoid serious losses in the defense.  This way boycott has ended under the influence of outside circumstances.
-
-Straightforward aggression was addressed to Hubologists only (not a surprise) in New-Reno and Den. Representatives of minor gangs of New-Reno came to Hubologists' church to ask them to keep their rivals away from the Redemption procedure but received a short-spoken "No". The gangster were more offended not even by the denial but because they were not taken seriously and tried to attack the church. I had a chance to talk to one of the attackers who told me that everything started as usually (especially in New-Reno): jet, psycho, go-go-go, and after the grenades exploded and cleared the entrance and gang stormed into the church, they were professionally knocked out by people in robes. ''If my reaction would not be faster due to the effects of the combat drugs, I'd not understand who's knocked us down'', he said. What happened after is something he did not enjoy bringing up in his memory at all, I saw that he was having a hard time going on with the story: 'They've checked whether all of us had completed the Redemption and those who did not were forced to. After they made sure that all of us will be resurrected, they started to kill us, without emotions, and at the same time they were so cruel that I'd better have mercy and save my memory and ears and won't get into the detail, I'll just tell you what - each one of us died that many times that we could not even remember the figures. Afterwards we were set free and told that if we ever approach any of their churches again and keep a distance less than 10 meters, then the thing which just happened to us will feel like heaven in comparison to what's going to happen. Same attack took place at Den, the reasons remain unknown but the people say that a crowd of freaks imagined that they're cool and big and decided to attack the church. The outcome was the same as in New-Reno; almost 24 hours after the attack people noticed the attackers running for their lives…
-
-
-This way the fact of resurrection was brought to the world almost without blood spilling, due to Wasteland's slow information flow resulting in news moving with caravans' speed many were planning to challenge the Hubologists' defense, but they were saved by the news from New-Reno and Den.
-
-By the middle of 2244 the first (or less unfortunate) of those who have already completed the Redemption procedure have been resurrected 3 times. After the 3rd (most luckily) Redemption they have learned, that from now on Redemption has to be paid. The cost will be calculated with a help of a complex astrological formula, and for each one personally, and the cost will be a pretty high one. If it's true that from the 4th resurrection on you'll have to pay or not stayed unclear - some claimed that they had to pay from the 2nd resurrection, some claimed that they have had over 10 resurrections and never were asked to pay. I assume that you can be 95% sure that you'll pay after the 3rd Redemption. This way or another but people who have been resurrected for 3 times already faced a problem, the cost of Redemption. As among the first who've faced the problem were unstable people, who did not really care on how to get money and so a new type of crimes overflowed the region - crime for the sake of the Redemption.
+Для начала хочу отметить, что за последние несколько лет с событиями 2242-2246-го произошло, пожалуй, самое страшное, что вообще может случиться с информацией в памяти людей (ведь даже если она бы забылась - найти тех, кто помнит, было бы делом техники)  - она исказилась, в рекордные сроки обросла диким количеством иногда противоречивых слухов, легенд и, что самое страшное, банального вранья. Я почти на 100% уверен, что как Братство Стали, так и Новая Калифорния (не говоря уже о Хабологах) обладают весьма точной информацией по вопросу, но, когда я к ним обратился, мне ответили фразой, настолько классической при общении с журналистами, что она пережила Войну - "Без комментариев". Так что мне пришлось базироваться только на рассказах очевидцев, вернее на тех аспектах, которые сходятся в большинстве рассказов.
  
-The danger of dying without Redemption did not hinder those people who have died 3 times already; nothing could stop them from getting gold to pay for immortality. Government tried to push the Hubologists not to accept those who have committed crimes in order to receive Redemption but it has never had success. It has ended with policemen in front of each church, which has happened to be the best solution, as anyone who has committed a crime for Redemption's sake would sooner or later appear.
+Итак 3 февраля 2243-го года над церквями хабологов во всех городах ровно в полдень появились плакаты: "ПРОЙДИ ОЧИЩЕНИЕ И ВОЗДАСТСЯ ТЕБЕ!", "ОЧИСТИ СВОЮ БЕССМЕРТНУЮ ДУШУ!" и все в таком духе. На улицах появились проповедники, агитирующие пройти Очищение и говорящие, что оно ни к чему не обяжет, но, присоединившись таким образом к Ободу Колеса, очистившийся поможет им. В массе люди игнорировали эту пропаганду, а меня, как и очень немногих других, она чем-то зацепила... Лично меня - тем, что я просто пройду Очищение - мне не сложно - а им от этого станет лучше, по крайней мере они сами так говорят, тут, конечно, еще сыграло свою роль мое несколько снисходительное (на тот момент) отношение к хабологам - вот ведь люди в игрушки играют, но организация пережила Войну и продолжает существовать без видимых проблем, наверное, могут себе позволить ходить по пустоши в рясах и все в таком духе, а это вызывает уважение. Короче говоря, 05.02.2243-го я прошел свое первое Очищение. И был сильно удивлен процедурой: меня положили на стол, больше всего напоминающий автодок, явно предназначенный для того, чтобы на нем лежали люди, признаков того, что это какая-то техника я не обнаружил, сами хабологи называли его алтарем. Потом стол закрыли непрозрачным кожухом и я пролежал около минуты в полной темноте. После этого мне сказали, что когда я умру, я воскресну в той церкви, в которой прошел Очищение, я спросил что-то вроде: "это метафора?" - хабологи сказали, что нет, я именно воскресну. Когда я вышел на улицу, было уже темно, хотя субъективно прошло около 20 минут, а зашел в церковь я днем... Привожу именно эту историю, так как она стандартна для всех, кто прошел Очищение в феврале 2243-го. Что характерно, рассказы о воскрешении никто в серьез не принял (тогда это звучало слишком невероятно), хотя почти все рассказали своим знакомым об этой новой причуде хабологов.  Меня лично заинтересовала сама процедура Очищения и я спросил о ней у одного из своих знакомых, сочувствовавших хабологам и проходивших Очищение раньше. Мне было сказано, что ритуал Очищения канонизирован и поэтому вопросы о том, почему он происходит именно так (равно как и вопросы о том, менялась ли сама процедура) - заведомо бессмысленны.
 
-Afterwards, by the beginning of year 2245 when it was clear that the Hubologists wouldn't give any credit nor discount to anyone, caravans, while hiring security and then the government hiring armed forces (for example to fight the riders) have included the price for the Redemption in security's salary. It is unknown who has started it first but most probably different people started it simultaneously, however after this people refused to work in security if they weren't paid for the Redemption or they were not given an advance to cover the cost before a mission.
+В конце февраля (я был в это время в Сан-Фране), сидя в одном из баров, я впервые услышал об Очищении и о том, что они обещают воскрешение. Хохот был слышен даже за пределами здания, в котором располагался бар...
 
-In the beginning of March, same year, Hubologists announced that they are willing to receive and save money people are going to pay for the Redemption (wouldn't matter whether the next one or any following ones) and Hubologists claimed that you can withdraw your money in any Hubologists' church. Almost everyone who had enough funds started to use this new benefit straight away. People started putting their cash on accounts in one city and took out in another so that they wouldn't tempt the raiders. Then lots of people started to take out cash only for certain needs and after a while started transferring money to each other instead of giving it from hand to hand…
+Таким образом к концу февраля, по имеющимся у меня данным, в каждом городе Очищение прошло не больше 30-40 человек, слух о том, что хабологи сулят бессмертие, прошел везде, но пока не было подтверждений - люди посмеялись и забыли...  Я же, в свою очередь, в начале марта присоединился к каравану, шедшему в Шейди Сендс, но нам не повезло, и после того, как мы отбились от каких-то рейдеров-отморозков и встали на ночлег, меня, стоявшего в карауле, убил неслышно подкравшийся коготь смерти. Шок - вот что я испытал, очнувшись в церкви хабологов Сан-Франциско. Видимо, они накачали меня какими-то транквилизаторами, чтобы я не сошел с ума, за что им отдельное спасибо, ибо я и так был близок к сумасшествию. Я помнил смерть... Неописуемое ощущение. Тем более, что сам факт воскрешения с трудом укладывался в моей картине мира. Мне предложили пройти Очищение еще раз, я, конечно, согласился. На этот раз процесс действительно занял около минуты. Рассказывать о том, что произошло, тем более, что о судьбе каравана никто ничего не знал, я не стал никому, кроме нескольких своих близких друзей, которые, поверив мне, тоже прошли Очищение. Скорее всего, никто из тех, кто воскрес в феврале-марте 2243-го не рискнул об этом рассказать, так как такие слова пришлось бы доказывать, а без крайней необходимости никому, думаю, не хотелось еще раз обнаруживать себя в церкви, с ощущением собственной смерти в кратковременной памяти. К счастью, все, кто прошел Очищение в это время, рассказали о том, что, возможно, воскреснут, если умрут - на всякий случай. Таким образом в марте у Хабологов был небольшой приток людей - близкие друзья тех, кто уже воскрес.
 
-Interesting fact is that the system, developed by the Hubologists, was functioning already very well by that time; however they have released their manifest only after the 24th of October, 2245. That's what one of them told me…
+К концу марта мне удалось-таки добраться до Шейди Сендс, а оттуда и до Нью-Рено. В каждом баре - разговоры о воскрешении, но общий настрой тогда был, что не стоит этому верить. И вот случилось то, что должно было рано или поздно произойти - один из посетителей бара, на вид - солдат местной мафии, начал в подпитии доказывать, что он уже умирал один раз - но Хабологи его воскресили. Его, конечно, попытались утихомирить, но он еще больше раззадоривался, приставая ко всем и каждому с вопросом - верят ему, или нет. Я просто посмотрел ему в глаза, и сказал, что я курсе, а вот один из сидевших рядом со мной рейнджеров НКР потребовал доказательств, и было заключено пари. В результате только что выстреливший себе в рот бандит, совершенно протрезвевший и изрядно ошарашенный, вошел в бар и забрал у остолбеневшего рейнджера свои деньги. Я, кстати, тоже выиграл несколько пари, так как был почти уверен, что этот парень не блефует... 
 
-I personally think that they were acting step by step to avoid public resonance and soften the reaction of people on the Redemption and also to make the information flow regarding the procedure's nature as little as possible. First, there were rumors, then they were approved, then the people got proof of resurrection and only after people have calmed down the Hubologists made it commercial. It's unknown until now if that something that resurrects people is a technology or of a mystical nature, there's no answer on whether the Hubologists have used it before making public and on what date the first resurrection took place. Everyone is free to decide basing on the facts which I've brought up in my short research.
+Рано или поздно такие случаи произошли во всех городах, люди убедились, что воскрешение реально. Я считаю, что первый пероид внедрения бессмертия в массы закончился к концу лета 2243-го, когда сам факт оживления людей стал известен всем. Людям оставалось к нему адаптироваться, что оказалось довольно непростым делом.... 
+
+В Модоке в конце лета 2243-го года был объявлен бойкот Хабологам, так как подавляющее большинство жителей боялось принять участие в процедуре, результат которой пугающим образом переворачивал картину мира. Горожане пытались даже пикетировать здание местной церкви, но, не добившись в течении трех недель абсолютно никакой реакции, прекратили активные действия в адрес Хабологов. Спустя еще две недели, когда в середине сентября 2243-го рейдеры начали совершать набеги, чуть ли не переходящие в штурм города, горожане поняли, что Очищение - единственный способ избежать серьезных потерь при обороне. Таким образом бойкот прекратился под давлением внешних факторов.
+
+Открытая агрессия в адрес Хабологов была, что характерно, проявлена только в Нью-Рено и в Дене. Представители одной из второстепенных банд Нью-Рено пришли в церковь Хабологов просить, чтобы те не допускали к Очищению их конкурентов, но встретили очень немногословный и категоричный отказ, после чего, обидевшись даже не столько на отказ, сколько на пренебрежительное к себе отношение, попытались взять церковь штурмом. Мне довелось говорить с одним из участников штурма, который рассказал мне, что начало было классическим (особенно для Нью-Рено): джет, психо, вперед, а вот потом, когда гранаты в дверях здания взорвались, и атакующие ворвались внутрь, их всех мгновенно и очень профессионально оглушили люди в рясах. "Если бы моя реакция не была ускорена боевыми препаратами, я бы вообще не заметил тех, кто нас вырубил" - так описал мне это непосредственный участник событий. О том, что произошло дальше, он до сих пор не любит вспоминать, я видел, что ему тяжело, когда он рассказывал об этом мне: "Они проверили, все ли из нас прошли Очищение, тех, кто не прошел - положили на алтарь. Когда они убедились, что все мы воскреснем, они начали нас убивать. Без эмоций. И при этом настолько жестоко, что я пожалею свою память и твои уши - не буду рассказывать, скажу только, что каждый из нас умирал столько раз подряд, что все мы сбились со счета. После этого нас отпустили на все четыре стороны и сказали, что если мы подойдем ближе, чем на 10 метров к любой церкви Хабологов - то, что мы пережили, покажется нам раем..."  Мотивы, по которым аналогичное нападение произошло в Дене - неизвестны. Большинство опрошенных мной там людей сходятся во мнении, что "толпа отморозков решила, что их много и они крутые, вот и решила попробовать штурмануть церковь..." Результат был таким же, как и в Нью-Рено, люди видели, как нападавшие почти сутки спустя после штурма со всех ног бежали от церкви...
+
+Таким образом, сам факт воскрешения вошел в мир практически бескровно, благодаря (во многом) тому, что в Пустоши всегда наблюдалось некоторое информационное голодание, и, как следствие, слухи разносились со скоростью передвижения караванов. Многие, думаю, хотели проверить оборону Хабологов на прочность, но их спасла вовремя дошедшая из Нью-Рено и Дена информация.
+
+К середине 2244-го первые (или наиболее невезучие) из тех, кто уже проходил Очищение, успели воскреснуть три раза. При третьем (скорее всего) воскрешении они услышали, что отныне Очищение будет стоить им сумму, которая высчитывается по какой-то сложной астрологической формуле, для каждого индивидуально, но сумма эта всегда оказывалась достаточно внушительной. Точно ли то, что платным становится именно (для всех) четвертое Очищение, неизвестно, некоторые говорят, что платили, начиная со второго, другие утверждают, что воскресали уже раз 10 и денег у них так и не попросили. Мне кажется, что можно утверждать с 95% вероятностью, что платными являются все Очищения после третьего. Так или иначе, перед людьми, которым довелось воскреснуть уже трижды, встала проблема оплаты следующего Очищения. Так как в числе первых, столкнувшихся с такой проблемой, было довольно много людей неспокойных, не особо разборчивых в методах добычи денег, появился новый тип преступлений - преступления ради оплаты Очищения. Перед лицом собственной смерти - на этот раз - окончательной - люди, которым уже довелось умереть трижды, не останавливались ни перед чем на пути добычи денег для оплаты собственного бессмертия. Власти пытались нажать на Хабологов, чтобы они не давали Очищение тем, кто получил деньги для его оплаты, совершив преступление. Безуспешно. Дело кончилось тем, что перед входом в каждую церковь появился пост местной полиции, что, в результате, оказалось оптимальным выходом из положения, так как там появлялся любой, нарушивший закон ради оплаты Очищения.
+
+Потом, к началу 2245-го, убедившись в том, что Хабологи не будут делать скидок ни для кого, сначала караванщики, нанимающие охрану, а потом и власти, набирающие вооруженные отряды (например, для борьбы с рейдерами), включили в оплату услуг наемников оплату Очищения. Кто начал такую практику первым - неизвестно, скорее всего, это было несколько человек одновременно, но после этого люди просто отказывались наниматься, если им не оплачивали Очищение, либо не давали аванс, достаточный для его оплаты перед началом боевого задания.
+
+В начале марта того же года Хабологи объявили, что готовы брать на хранение деньги, которые люди собираются потратить на Очищение (как на ближайшее, так и на любое количество последующих), а также, что эти деньги можно забирать обратно в любой церкви. Этим нововведением сразу же стали пользоваться практически все, у кого было достаточное для этого количество денег. Люди отдавали деньги в церковь в одном городе, чтобы не тащить их с собой через пустоши рейдерам на радость, а, добравшись до другого города, забирали их - сначала. Потом многие люди стали снимать деньги со счета только под конкретные задачи, а спустя еще некоторое время - переводить их на счет другого человека, вместо того, чтобы передавать физически...
+
+Интересно, что несмотря на то, что построенная Хабологами система работала на тот момент уже достаточно давно, они выпустили свой манифест только 24 октября 2245-го года, как мне объяснил один из них - убедившись, что все работает...
+
+Мне лично кажется, что последовательность их действий была продиктована тем, что они хотели вызвать как можно меньше общественного резонанса, максимально смягчить реакцию людей на появление бессмертия, а также выдать как можно меньше информации о самой природе этого явления. Сначала появились слухи, потом они начали подтверждаться, потом люди убедились в том, что бессмертие реально, и только после этого Хабологи ввели оплату Очищения, каждый раз давая страстям отгреметь. До сих пор неизвестно, является ли то, что воскрешает людей технологией, или же явлением мистического характера, нет ответа на вопрос о том, пользовались ли им Хабологи до того, как пустили в массы и, следовательно, неизвестна дата первого воскрешения. Тут каждый волен решать для себя, составляя свое мнение на основе имеющихся фактов, наиболее достоверные из которых я привел в своем небольшом журналистском расследовании.
 
 
-19.04.2246, San-Francisco}
+19.04.2246, Сан-Франциско}
 
 # 43
 #
@@ -1047,7 +995,7 @@ P.S. Уважаемый репликант,
 
 # 51
 #
-{510}{}{Копия записи камеры боевого робота BR 1717}
+{510}{}{Camera record copy BR 1717}
 {511}{}{Внимание! Аварийный запуск системы....
 
 Самодиагностика...
@@ -1147,7 +1095,7 @@ P.S. Уважаемый репликант,
 Завязалась перестрелка, я прикончил двоих. Но и меня зацепили. Эти кретины удрали, поджав хвосты, оставив меня умирать.
 Кое-как перевязал рану, и пополз к доку. 
  
-Твою долю хабара я оставил в деревянном ящике в Пустоши. Найди заброшенный лагерь в пустоши, недалеко от места встречи.
+Твою долю хабара я оставил в деревянном ящике в Пустоши. Найди заброшенный лагерь, недалеко от места встречи.
 Ориентиры - там камнями какие-то стрелки на земле выложены, и костры вокруг идола.. Вот в этом лагере, в одной из палаток, и надешь то, что твое по праву.
 
 Не поминай лихом, Боб. Передай жене, что я старался...
@@ -1156,8 +1104,7 @@ P.S. Уважаемый репликант,
 # 53
 #
 {530}{}{На этом диске записана техническая информации по обслуживанию подвески двигателя багги для Ретча.}
-{531}{}{На этом диске записана техническая информации по обслуживанию подвески двигателя багги для Ретча.}
-
+{531}{}{БНа этом диске записана техническая информации по обслуживанию подвески двигателя багги для Ретча.}
 
 # 54
 #
@@ -1181,6 +1128,7 @@ P.S. Уважаемый репликант,
 #
 {560}{}{На этом диске новая технология хабологов по обогащению урана.}
 {561}{}{На этом диске новая технология хабологов по обогащению урана.}
+
 # 57
 {570}{}{Записка Дровосека}
 {571}{}{	Кто-то может подумать, что я сошёл с ума, кто-то подумает. что я свихнулся. Но факт остаётся фактом - после удара молнии я решил оставить все свои сокровища тем, кто найдёт это место. Но я не хочу, чтобы его можно было найти так уж просто, поэтому вам придётся хорошо подумать головой и поработать руками, чтобы отыскать мою прелесть. Так что начнём без долгих вступлений. Я всё равно не увижу, как вы мучаетесь, так что не буду придумывать для вас красивых загадок.
@@ -1206,7 +1154,7 @@ P.S. Уважаемый репликант,
 	В 18 лет LoadRunner уходит в Ароййо за каким-то шаманом, чтобы тот научил его премудрости лечения. Через три года обучение заканчивается, но домой возвращаться не хочется. Поступает предложение помогать лечением группе людей, цель которых - помогать всем и каждому. Постепенно LoadRunner становится своим в этой компании. В это же время произошла встреча, которая определила дальнейшую судьбу лекаря - он встретил настоящего доктора, который отвёз его в ГУ и обучил более серьёзным вещам. После обучения LoadRunner совершает первую врачебную ошибку - он влюбляется в свою пациентку, впоследствии женится на ней. К тому времени группа ребят, в которой LoadRunner оттачивает свои навыки, постепенно становится уважаемой и серьёзной организацией.
 	Любит вырезать из дерева, не курит, не пьёт, часто вспоминает своих родителей и периодически их навещает. Из вредных привычек - много болтает. Всегда имеет при себе медикаменты и инструменты, ходит в сапогах в любую погоду, на поясе носит топор. Любит ходить в мантии - просторно, защищает от ветра и от палящих лучей солнца.
 
-	Назир, он же Наз, он же Назирка и Какашка, родился в уютной палатке близ Джанктауна, которая имела дырку интересной формы. Ну, по крайней мере он там появился, так как фермеры, нашедшие малыша, нигде не обнаружили человеческих следов. Странности и загадочности были отброшены на задний план, ибо мальчик был нереально красив, если сравнивать его со смертокогтем того же возраста.
+	Назир, он же Наз, он же Назирка и Какашка, родился в уютной палатке близ Джанктауна, которая имела дырку интересной формы. Ну, по крайней мере он там появился, так как фермеры, нашедшие малыша, нигде не обнаружили человеческих следов. Странности и загадочности были отброшены на задний план, ибо мальчик был нереально красив, если сравнивать его со когтем смерти того же возраста.
 	Шли года, Наз мужал, становился таким же суровым, как рулон наждачной бумаги, подсунутый в местный туалет каким-то шутником. Его Назир так и не вычислил. Первым занятием сурового Джанктауновского ремонтника было - как ни странно - починка оборудования и прочих примусов, причём везде, всегда и при любых обстоятельствах.
 Со временем, душа, жаждущая романтики, крупно поругалась с задом, ищущим приключения, и два отростка в тяжелых ботинках понесли парня по свету, причинять добро и наносить радость окружающим. Город за городом посещал он, одаряя тех, кому повезло меньше, куртками из шкуры гекко, пистолетами-пулеметами, а если день был удачным - то и добрым пулемётиком. Вторым, после ремонта, занятием было наматывание местной фауны и некоторой флоры на ствол своего минигана. Единовременно с этим он не бросал помогать тем, кто реально нуждался в помощи.
 	Ароййо стало его судьбой, именно там он встретил Юппи, девушку из Детей Пустоши. Досконально всю встречу он не помнит, в памяти отпечатались лишь некоторые слова из разговора, звезды на небе. И, конечно же, сиськи, без них никуда.
@@ -1276,7 +1224,7 @@ P.S. Уважаемый репликант,
 	Кто знает Лес - тот владеет инFOрмацией.}
 
 # 61
-{610}{}{Гимп Детей Пустоши}
+{610}{}{Гимн Детей Пустоши}
 {611}{}{В постъядерном мире,
 Где климат суров,
 Живём не в квартире,
@@ -1333,8 +1281,9 @@ P.S. Уважаемый репликант,
 …судя по строениям в долине, старик не соврал про местонахождение их бункера. Буду надеяться, что про потайной ход и тайник со Святым Граалем он тоже сказал правду… Я уже совсем близко к своей цели. На рассвете попробую проникнуть внутрь, осталось только взломать дверь в бункер, преодолеть силовые поля и найти тайник…
 [Конец записи]}
 
+
 # 99999
 # Последний корректный номер, после него текст берется из базы данных записей игроков.
 # Холодиск для записей игроков.
-{999990}{}{Holodisk}
-{999991}{}{[No information]}
+{999990}{}{Холодиск}
+{999991}{}{[Нет информации]}

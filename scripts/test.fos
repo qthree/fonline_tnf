@@ -264,193 +264,9 @@ void DLog(string& str)
 #include "_macros.fos"
 #include "entire.fos"
 
-#define push_back #(a,e) { a.resize(a.length()+1); a[a.length()-1] = e; }
-#define push_back_handle #(a,e) { a.resize(a.length()+1); @a[a.length()-1] = e; }
-
 // ent number for i-th room
 // global value, but we can change it to be different per-npc
 #define ENT #(i)	(50+i)
-
-//
-// Room info
-//
-class CRoom
-{
-	// id of the door/container lock
-	uint lockId;
-	// expiration date (full minutes)
-	uint expirationDate;
-	// room doors
-	Item@ doors;
-	// container
-	Item@ container;
-
-	CRoom(Item@ doors, Item@ container)
-	{
-		this.doors.LockerCondition = this.container.LockerCondition = LOCKER_LOCKED;
-
-	//	@this.doors = doors;
-	//	@this.container = container;
-	}
-
-	//
-	// Initializes locks for doors and container.
-	//
-	void InitLocks()
-	{
-		doors.LockerCondition = container.LockerCondition = LOCKER_LOCKED;
-		lockId = Random(1, 1000000);
-		doors.LockerId = container.LockerId = lockId;
-	}
-
-	//
-	// Rents a room for a given player for specified period of time
-	//
-	void Rent(Critter& player, uint days)
-	{
-		Item@ key = player.AddItem(PID_KEY, 1);
-		key.LockerId = lockId;
-		expirationDate = __FullSecond + days*24*60*60 - 1;
-	}
-	//
-	// Changes locks and transfers container' items to owner
-	//
-	void Expire(Critter& npc)
-	{
-		InitLocks();
-
-		//MoveItemsContToCritter(container, npc, 0);
-	}
-}
-
-class CHotel
-{
-	// hotel owner
-	Critter@ owner;
-	// list of rooms in the hotel
-	CRoom[] rooms;
-
-	CHotel(Critter& npc)
-	{
-		@this.owner = npc;
-		InitRooms();
-	}
-
-	//
-	// Hotel id - id of the owner
-	//
-	uint GetId()
-	{
-		return owner.Id;
-	}
-
-	//
-	// Initializes rooms to be managed by given npc
-	// it just looks for specified locks in the map
-	//
-	void InitRooms()
-	{
-		DLog("Initializing hotel rooms");
-		Map@ map = owner.GetMap();
-
-		for(uint8 i = 0; ;i++)
-		{
-			Item@ doors, container;
-			Entire[] entires;
-			uint n = ParseEntires(map, entires, ENT(i));
-			if(n == 0)
-				break;
-			DLog("Ent(" + ENT(i) + "):" + n);
-			for(uint j = 0; j < n; j++)
-			{
-				Item@[] items;
-				uint num = map.GetItems(entires[j].HexX, entires[j].HexY, items);
-				DLog("Items found: " + num);
-				for(uint k = 0; k < num; k++)
-				{
-					if(items[k].GetType() == ITEM_DOOR)
-						@doors = items[k];
-					if(items[k].GetType() == ITEM_CONTAINER)
-						@container = items[k];
-				}
-			}
-			if(not valid(doors))
-				Log("ERR: Couldn't find doors for room: " + i);
-			if(not valid(container))
-				Log("ERR: Couldn't find container for room: " + i);
-			else
-			{
-				push_back(rooms, CRoom(doors, container));
-				DLog("Room found");
-			}
-		}
-	}
-
-	//
-	// Gets unoccupied room in the hotel
-	//
-	CRoom@ GetFreeRoom()
-	{
-		for(uint i = 0; i < rooms.length(); i++)
-		{
-			if(rooms[i].expirationDate < __FullSecond)
-				return rooms[i];
-		}
-		return null;
-	}
-}
-
-CHotel@[] Hotels;
-
-//
-// Adds hotel for a given owner
-//
-CHotel@ AddHotel(Critter& npc)
-{
-	push_back_handle(Hotels, @CHotel(npc));
-    return Hotels[Hotels.length() - 1];
-}
-
-//
-// Gets hotel object for given npc
-//
-CHotel@ GetHotel(Critter& npc)
-{
-	for(uint i = 0; i < Hotels.length(); i++)
-	{
-		if(npc.Id == Hotels[i].GetId())
-		{
-			return Hotels[i];
-		}
-	}
-	// create new on demand
-	return CHotel(npc);
-}
-
-//
-// Checks if there is free room for rent
-//
-bool d_IsRoomFree(Critter& player, Critter@ npc, int val)
-{
-	CHotel@ hotel = GetHotel(npc);
-
-	return valid(hotel.GetFreeRoom());
-}
-
-//
-// Rents room for a player (for a week), val denotes node where to go when there is no free room
-//
-void r_RentRoom(Critter& player, Critter@ npc, int val)
-{
-	CHotel@ hotel = GetHotel(npc);
-	CRoom@ room = hotel.GetFreeRoom();
-
-	if(valid(room))
-		// for a week
-		room.Rent(player, 7);
-	else
-		__ForceDialog = val;
-}
 
 
 
@@ -668,7 +484,7 @@ void LocInfo(Critter& cr, int isRad, int value, int p2)
 	cr.Say(SAY_NETMSG,"MapPid "+cr.GetMap().GetProtoId());
 	cr.Say(SAY_NETMSG,"LocPid "+loc.GetProtoId());
 	cr.Say(SAY_NETMSG,"Visible "+(loc.Visible?"true":"false"));
-	cr.Say(SAY_NETMSG,"GeckEnabled "+(loc.GeckEnabled?"true":"false"));
+	cr.Say(SAY_NETMSG,"GeckVisible "+(loc.GeckVisible?"true":"false"));
 	cr.Say(SAY_NETMSG,"AutoGarbage "+(loc.AutoGarbage?"true":"false"));
 	cr.Say(SAY_NETMSG,"GeckCount "+loc.GeckCount);
 	cr.Say(SAY_NETMSG,"Radius "+loc.Radius);
@@ -801,27 +617,6 @@ void Boom(Critter& cr, int , int , int)
 	}
 }
 
-void Patch0(Critter& cr, int , int , int)
-{
-	Log("Begin patch...");
-	Critter@[] npcs;
-	GetAllNpc(0,npcs);
-	for(uint i=0,j=npcs.length();i<j;i++)
-	{
-		Critter@ npc=npcs[i];
-		Map@ map=npc.GetMap();
-		if(valid(map))
-		{
-			uint16 locPid=map.GetLocation().GetProtoId();
-			//if(LOCATION_IS_CITY(locPid)) npc.Refresh();
-		}
-	}
-
-	Location@ locHell=GetLocationByPid(LOCATION_ReplicationHell,0);
-	locHell.Reload();
-	Log("End patch.");
-}
-
 void RandomTypes(Critter& cr, int , int , int)
 {
 	Map@ map=cr.GetMap();
@@ -884,7 +679,18 @@ void AllToLife(Critter& cr, int , int , int)
 {
 	Map@ map=cr.GetMap();
 	Critter@[] critters;
-	map.GetCritters(0,FIND_ALL|FIND_ONLY_PLAYERS,critters);
+	map.GetCritters(0,FIND_DEAD|FIND_ONLY_PLAYERS,critters);
+	for(uint i=0,j=critters.length();i<j;i++)
+	{
+		critters[i].ToLife();
+	}
+}
+
+void NpcToLife(Critter& cr, int , int , int)
+{
+	Map@ map=cr.GetMap();
+	Critter@[] critters;
+	map.GetCritters(0,FIND_DEAD|FIND_ONLY_NPC,critters);
 	for(uint i=0,j=critters.length();i<j;i++)
 	{
 		critters[i].ToLife();
@@ -934,20 +740,17 @@ void GlobalCar(Critter& iam, int crId, int, int)
 	if(valid(cr))
 	{
 		Item@[] items;
-		cr.GetItemsByType(ITEM_MISC_EX,items);
+		cr.GetItemsByType(ITEM_CAR,items);
 		for(uint i=0;i<items.length();i++)
 		{
 			Item@ car=items[i];
-			if(car.IsCar())
-			{
-				car.CarFuel=car.Proto.Car_FuelTank;
-				car.CarDeteoration=0;
+			car.CarFuel=car.Proto.Car_TankVolume;
+			car.CarDeterioration=0;
 				car.Update();
 				iam.Say(SAY_NETMSG,"Done.");
 			}
 		}
 	}
-}
 
 void NullPtr(Critter& iam, int crId, int, int)
 {
@@ -1117,7 +920,7 @@ uint e_HostileMove(uint[]@ values)
 			if(say!="") hostile.Say(SAY_NORM,say);
 			SufferingLastTime=__FullSecond+Random(1,3)*60;
 		}
-		else if(Random(0,10)==0) hostile.ToDead(Random(COND_DEAD_BLOODY_SINGLE, COND_DEAD_BURN_RUN), null);  //ExplodeEx(hostile.GetMap(),hostile.HexX,hostile.HexY,PID_EXPLODE_ROCKET,10,666,DAMAGE_EXPLODE,10,0);
+		else if(Random(0,10)==0) hostile.ToDead(Random(ANIM2_DEAD_BLOODY_SINGLE, ANIM2_DEAD_BURN_RUN), null);  //ExplodeEx(hostile.GetMap(),hostile.HexX,hostile.HexY,PID_EXPLODE_ROCKET,10,666,DAMAGE_EXPLODE,10,0);
 	}
 
 	return REAL_SECOND(Random(10,20));
@@ -1189,16 +992,16 @@ void TurretParam(Critter& cr, int, int , int)
 void CreateCar(Critter& cr, int pid, int ox, int oy)
 {
 	Item@ car=cr.GetMap().AddItem(cr.HexX+ox,cr.HexY+oy,pid,1);
-	if(not valid(car) || not car.IsCar()) return;
+	if(not valid(car) || car.GetType()!=ITEM_CAR) return;
 
-	car.CarFuel=car.Proto.Car_FuelTank;
-	car.CarDeteoration=0;
+	car.CarFuel=car.Proto.Car_TankVolume;
+	car.CarDeterioration=0;
 
 	uint keyId=Random(10000,50000);
 	car.LockerId=keyId;
 	car.LockerComplexity=1000;
-	car.CarGetBag(0).LockerId=keyId;
-	car.CarGetBag(0).LockerComplexity=1000;
+	car.GetChild(0).LockerId=keyId;
+	car.GetChild(0).LockerComplexity=1000;
 	cr.AddItem(PID_BLUE_PASS_KEY,1).LockerId=keyId;
 
 	car.Update();
@@ -1208,17 +1011,17 @@ void CreateCar(Critter& cr, int pid, int ox, int oy)
 void CreateCarPersonal(Critter& cr, int pid, int crId, int oy)
 {
 	Item@ car=cr.GetMap().AddItem(cr.HexX,cr.HexY+oy,pid,1);
-	if(not valid(car) || not car.IsCar()) return;
+	if(not valid(car) || car.GetType()!=ITEM_CAR) return;
 
-	car.CarFuel=car.Proto.Car_FuelTank;
-	car.CarDeteoration=0;
+	car.CarFuel=car.Proto.Car_TankVolume;
+	car.CarDeterioration=0;
 	_CarSetNoLockpick(car);
 
 	uint keyId=_CritEyesDoorId(crId);
 	car.LockerId=keyId;
 	car.LockerComplexity=1000;
-	car.CarGetBag(0).LockerId=keyId;
-	car.CarGetBag(0).LockerComplexity=1000;
+	car.GetChild(0).LockerId=keyId;
+	car.GetChild(0).LockerComplexity=1000;
 
 	car.Update();
 	cr.Say(SAY_NETMSG,"Done.");
@@ -1292,6 +1095,44 @@ void Test3()
 	while(ggg!=0);
 }
 
+void TestNullptr(Critter&,int,int,int)
+{
+	Critter@ cr;
+	Log("begin");
+	uint id=cr.Id;
+	Log("end");
+}
+
+//Synchronizer TestLocker;
+void TestScriptConcurrent(Critter& cr, int test, int, int)
+{
+	//TestLocker.Lock();
+
+	Synchronize();
+	Map@ map=cr.GetMap();
+	Resynchronize();
+
+	if(test==1) Resynchronize(); // Invalid call
+	else if(test==2) Synchronize(); // Call without Resynchronize
+
+	if(test==5)
+	{
+		for(int i=0;i<1000;i++)
+			CreateTimeEvent(0,"e_TestScriptConcurrent",false);
+	}
+}
+
+int Data=0;
+uint e_TestScriptConcurrent(uint[]@ values)
+{
+	//TestLocker.Lock();
+
+	if(Data == 0) Data++;
+	else if(Data == 1) Data--;
+	else Log("Fail!");
+	return 1;
+}
+
 void TestLog(Critter&cr,int,int,int)
 {
 	for(uint i=0;i<10000;i++) Log("Test message "+i);
@@ -1335,7 +1176,7 @@ void patchBunker(Critter & cr, int, int, int)
 	}
 
 	loc.Visible=false;
-	loc.GeckEnabled=false;
+	loc.GeckVisible=false;
 	loc.AutoGarbage=false;
 	loc.Radius = 6;
 }
@@ -1398,7 +1239,7 @@ void PatchItemFlags(Critter& cr, int, int, int)
 		case ITEM_KEY:
 			canPickUp=true;
 			break;
-		case ITEM_MISC_EX:
+		//case ITEM_MISC_EX:
 		case ITEM_CONTAINER:
 			canPickUp=FLAG(item.Flags,ITEM_CAN_PICKUP);
 			break;
@@ -1539,9 +1380,320 @@ void DeleteNpc(Critter& cr, int crId, int, int)
 	DeleteNpc(GetCritter(crId));
 }
 
+void EndTB(Critter& cr, int, int, int)
+{
+	Map@ map=cr.GetMap();
+	map.SetTurnBasedAvailability(false);
+	map.EndTurnBased();
+}
+
+void TestVar(Critter& cr, int i, int, int)
+{
+	/*GameVar@ var=GetLocalVar(LMVAR_test_local_map,cr.GetMapId());
+	Log("var="+var.GetValue());
+
+	if(i!=0) var=i;
+
+	Log("var="+var.GetValue());
+
+	Log("begin vars generating");
+	for(int i=1;i<1000000;i++)
+	{
+		GameVar@ var=GetLocalVar(LIVAR_test_local_item,i);
+		var=Random(0,10);
+		var=7;
+	}
+	Log("end vars generating");
+*/
+//	GVAR_test_global
+//	LVAR_test_local
+//	UVAR_test_unicum
+//	LLVAR_test_local_loc
+//	LMVAR_test_local_map
+//	LIVAR_test_local_item
+}
+
+void TestTE(Critter& cr, int set, int, int)
+{
+	uint num=CreateTimeEvent(__FullSecond+REAL_SECOND(10),"e_TestTE",-8,false);
+	Log("created "+num);
+
+	uint duration=0;
+	uint[] values;
+	if(GetTimeEvent(num,duration,values))
+	{
+		Log("get ok+ duration "+duration);
+		for(uint i=0;i<values.length();i++) Log(i+") "+values[i]);
+		Log("get ok-");
+
+		if(set!=0)
+		{
+			values[0]=123;
+			uint value=456;
+			values.insertLast(value);
+			if(SetTimeEvent(num,duration,values))
+			{
+				Log("set ok+");
+				for(uint i=0;i<values.length();i++) Log(i+") "+values[i]);
+				Log("set ok-");
+			}
+		}
+	}
+}
+
+uint e_TestTE(int[]@ values)
+{
+	Log("e_TestTE+");
+	for(uint i=0;i<values.length();i++) Log(i+") "+values[i]);
+	Log("e_TestTE-");
+	return 0;
+}
+
+void DoorKey(Critter& cr, int, int, int)
+{
+	uint16 hx=cr.HexX,hy=cr.HexY;
+	Map@ map=cr.GetMap();
+	if(not valid(map)) return;
+	map.MoveHexByDir(hx,hy,cr.Dir,1);
+	Item@ door=map.GetDoor(hx,hy);
+	if(not valid(door)) return;
+	Item@ key=cr.AddItem(PID_TEMPLE_KEY,1);
+	if(not valid(key)) return;
+	key.LockerId=door.LockerId;
+	key.Update();
+}
+
+void HandToInv(Critter& cr, int, int, int)
+{
+	Item@ item=cr.GetItem(0,SLOT_HAND1);
+	if(valid(item))
+	{
+		if(cr.MoveItem(item.Id,0,SLOT_INV)) Log("ok");
+		else Log("fail");
+	}
+}
+
+void KillSpawn(Critter& cr, int, int, int)
+{
+	uint16 hx=cr.HexX,hy=cr.HexY;
+	Map@ map=cr.GetMap();
+	if(not valid(map)) return;
+
+	map.MoveHexByDir(hx,hy,cr.Dir,1);
+
+	Critter@ oldNpc=map.GetCritter(hx,hy);
+	if(not valid(oldNpc)) return;
+
+	DeleteNpc(oldNpc);
+
+	uint[] values={map.Id,hx,hy};
+	CreateTimeEvent(__FullSecond+REAL_MS(50),"e_KillSpawn",values,false);
+}
+
+uint e_KillSpawn(uint[]@ values)
+{
+	Map@ map=GetMap(values[0]);
+	if(valid(map)) map.AddNpc(20+Random(0,10),values[1],values[2],2,null,null,null);
+	return 0;
+}
+
+import void DropDrugEffects(Critter& cr) from "drugs";
+void DropDrugs(Critter& iam, int, int, int)
+{
+	Map@ map=iam.GetMap();
+	if(not valid(map)) return;
+
+	uint16 hx=iam.HexX,hy=iam.HexY;
+	for(uint i=0;i<10;i++)
+	{
+		map.MoveHexByDir(hx,hy,iam.Dir,1);
+		Critter@ cr=map.GetCritter(hx,hy);
+		if(valid(cr))
+		{
+			DropDrugEffects(cr);
+			cr.Say(SAY_NORM,"Drugs dropped.");
+			break;
+		}
+	}
+}
+
+void ClearExplode(Critter& iam, int, int, int)
+{
+	Map@ map=iam.GetMap();
+	if(not valid(map)) return;
+
+	Item@[] items;
+	map.GetItems(PID_ACTIVE_DYNAMITE,items);
+	map.GetItems(PID_ACTIVE_PLASTIC_EXPLOSIVE,items);
+	map.GetItems(PID_ACTIVE_MINE,items);
+
+	DeleteItems(items);
+}
+/*
+void Sandbags(Critter& iam, int lineLen, int skipLen, int stackCount)
+{
+	Map@ map=iam.GetMap();
+	if(not valid(map)) return;
+
+	uint16 pid=PID_SANDBAG_EMPTY;
+	if(stackCount!=0) pid=PID_SANDBAG_1-1+stackCount;
+
+	uint16 hx=iam.HexX,hy=iam.HexY;
+	for(uint i=0;i<uint(lineLen);i++)
+	{
+		if(skipLen!=0) skipLen--;
+		else
+		{
+			map.MoveHexByDir(hx,hy,iam.Dir,1);
+			map.AddItem(hx,hy,pid,1);
+		}
+	}
+}
+*/
+void ClearItems(Critter& iam, int lineLen, int skipLen, int)
+{
+	Map@ map=iam.GetMap();
+	if(not valid(map)) return;
+
+	Item@[] items;
+	uint16 hx=iam.HexX,hy=iam.HexY;
+	for(uint i=0;i<uint(lineLen);i++)
+	{
+		if(skipLen!=0) skipLen--;
+		else
+		{
+			map.MoveHexByDir(hx,hy,iam.Dir,1);
+			map.GetItems(hx,hy,items);
+		}
+	}
+
+	DeleteItems(items);
+}
+
+import void PlayMusic(Map& map, string& musicName, uint pos, uint repeat) from "media";
+void BattleMusic(Critter& iam, int index, int, int)
+{
+	if(index==1) PlayMusic(iam.GetMap(),"02 - Into The Dust.ogg",0,0);
+	else if(index==2) PlayMusic(iam.GetMap(),"07 - Echelon.ogg",0,0);
+	else if(index==3) PlayMusic(iam.GetMap(),"11 - Face To Face.ogg",0,0);
+	else if(index==4) PlayMusic(iam.GetMap(),"16 - Stranglet.ogg",0,0);
+	else if(index==5) PlayMusic(iam.GetMap(),"17 - Trinity.ogg",0,0);
+	else PlayMusic(iam.GetMap(),"01 - No Fate No Fear.ogg",0,0);
+}
+
+void SetAnim1(Critter& cr, int value, int, int)
+{
+	cr.SetAnims(0, value, 0);
+}
+
+void Pos(Critter& cr, int newPos, int, int)
+{
+	// 0 - stand, 1 - crouch, 2 - prone
+	int curPos = ((cr.Anim1Life & ANIM1_CROUCH) != 0 ? 1 : ((cr.Anim1Life & ANIM1_PRONE) != 0 ? 2 : 0));
+	switch(curPos)
+	{
+	case 0:
+		switch(newPos)
+		{
+		case 1: cr.Animate(0, ANIM2_CROUCH, null, true, true); break;
+		case 2: cr.Animate(0, ANIM2_CROUCH, null, true, true); cr.Animate(ANIM1_CROUCH, ANIM2_PRONE, null, false, true); break;
+		default: break;
+		}
+		break;
+	case 1:
+		switch(newPos)
+		{
+		case 0: cr.Animate(0, ANIM2_STAND, null, true, true); break;
+		case 2: cr.Animate(0, ANIM2_PRONE, null, true, true); break;
+		default: break;
+		}
+		break;
+	case 2:
+		switch(newPos)
+		{
+		case 0: cr.Animate(0, ANIM2_CROUCH, null, true, true); cr.Animate(ANIM1_CROUCH, ANIM2_STAND, null, false, true); break;
+		case 1: cr.Animate(0, ANIM2_CROUCH, null, true, true); break;
+		default: break;
+		}
+		break;
+	default:
+		break;
+	}
+	switch(newPos)
+	{
+	case 0: cr.SetAnims(0, 0, 0);            break;
+	case 1: cr.SetAnims(0, ANIM1_CROUCH, 0); break;
+	case 2: cr.SetAnims(0, ANIM1_PRONE, 0);  break;
+	default: break;
+	}
+}
+
+void ColorOffset(Critter& cr, int skin, int hair, int armor)
+{
+	cr.SetAnims(0, ANIM1_COLOR_SKIN(skin) | ANIM1_COLOR_HAIR(hair) | ANIM1_COLOR_ARMOR(armor), 0);
+}
+
+void Shield(Critter& cr, int on, int, int)
+{
+	if(on != 0)
+		cr.SetAnims(0, ANIM1_SHIELD, 0);
+	else
+		cr.SetAnims(0, 0, 0);
+}
+
+void Palette(Critter& cr, int index, int, int)
+{
+	cr.SetAnims(0, ANIM1_PALETTE(index), 0);
+}
+
+void SetWalk(Critter& cr, int time, int off, int)
+{
+	cr.StatBase[ST_WALK_TIME] = time;
+	cr.ModeBase[MODE_NO_WALK] = off;
+}
+
+void SetRun(Critter& cr, int time, int off, int)
+{
+	cr.StatBase[ST_RUN_TIME] = time;
+	cr.ModeBase[MODE_NO_RUN] = off;
+}
 
 
 
+void excep0(Critter& cr, int, int, int)
+{
+	Log("excep0");
+	excep1(cr);
+}
+void excep1(Critter& cr)
+{
+	Log("excep1");
+	int y=100;
+	excep2(6);
+}
+void excep2(int i)
+{
+	Log("excep2");
+	for(int k=0;k<10;k++)
+		excep3();
+}
+void excep3()
+{
+	Log("excep3");
+	int h=0;
+	int k=10/h;
+}
 
-
+void toDead(Critter& cr, int, int, int)
+{
+	cr.ToDead(ANIM2_DEAD_BLOODY_SINGLE,null);
+}
+void toLife(Critter& cr, int, int, int)
+{
+	cr.ToLife();
+}
+void toKO(Critter& cr, int, int, int)
+{
+	cr.ToKnockout(KNOCKOUT_ANIM2_DEFAULT(true),1000,cr.HexX,cr.HexY);
+}
 

@@ -185,6 +185,7 @@ bool transit_start(Critter& cr)
 
 bool transit_dead(Critter& cr)
 {
+	if(__Zombies && cr.Param[ST_BODY_TYPE]==BT_ZOMBIE) return false;
 	uint locid = CreateLocation(6,cr.WorldX,cr.WorldY,null); 
 	Location@ loc=GetLocation(locid);
 
@@ -203,22 +204,22 @@ bool transit_dead(Critter& cr)
 
 bool transit_modoc(Critter& player)
 {
-	if(player.CountItem(905)==0) player.AddItem(905,1);
+	//if(player.CountItem(905)==0) player.AddItem(905,1);
 
-	Map@ modoc = GetMapByPid  ( MAP_Modoc, 0);
+	Map@ modoc = GetMapByPid  ( /*MAP_Modoc*/ 51, 0);
 	if(valid(modoc) && player.TransitToMap(modoc.Id,0))
 	{
 		uint zoneX=player.WorldX/__GlobalMapZoneLength;
 		uint zoneY=player.WorldY/__GlobalMapZoneLength;
 		player.SetFog(zoneX  ,zoneY  ,FOG_NONE);
-		player.SetFog(zoneX-1,zoneY-1,FOG_SELF);
-		player.SetFog(zoneX  ,zoneY-1,FOG_SELF);
-		player.SetFog(zoneX+1,zoneY-1,FOG_SELF);
-		player.SetFog(zoneX-1,zoneY  ,FOG_SELF);
-		player.SetFog(zoneX+1,zoneY  ,FOG_SELF);
-		player.SetFog(zoneX-1,zoneY+1,FOG_SELF);
-		player.SetFog(zoneX  ,zoneY+1,FOG_SELF);
-		player.SetFog(zoneX+1,zoneY+1,FOG_SELF);
+		player.SetFog(zoneX-1,zoneY-1,FOG_HALF);
+		player.SetFog(zoneX  ,zoneY-1,FOG_HALF);
+		player.SetFog(zoneX+1,zoneY-1,FOG_HALF);
+		player.SetFog(zoneX-1,zoneY  ,FOG_HALF);
+		player.SetFog(zoneX+1,zoneY  ,FOG_HALF);
+		player.SetFog(zoneX-1,zoneY+1,FOG_HALF);
+		player.SetFog(zoneX  ,zoneY+1,FOG_HALF);
+		player.SetFog(zoneX+1,zoneY+1,FOG_HALF);
 		player.SetKnownLoc(false,LOCATION_Modoc);
 		return true;
 	}
@@ -338,21 +339,24 @@ bool setActivation(uint playerId, int toAct, Critter@ initiator, Item@ doc, bool
 	uint curMapPid = 0;
 	if(valid(curMap)) curMapPid = curMap.GetProtoId();
 
-	if(act>=ACT_BLOCK && toAct==ACT_DEACT && !force) toAct = ACT_BLOCK; 
+	if(act>=ACT_BLOCK && toAct==ACT_DEACT && !force) toAct = act; 
 
 	switch(toAct)
 	{
 	case ACT_DEACT:
 		{
-			if(act==ACT_DEACT && curMapPid==70 && !force)
+			//if(act==ACT_DEACT && curMapPid==70 && !force)
+			if(act==ACT_DEACT && !force)
 			{
 				if(valid(initiator)) initiator.Say(SAY_NETMSG, "Ïåğñîíàæ #"+playerId+" óæå áûë äåàêòèâèğîâàí.");
 				return false; 
 			}
 			
-			if(!transit_start(cr)) return false;
+			//if(!transit_start(cr)) return false;
+
+			if(!transit_modoc(cr)) return false;
 	
-			 start_items(cr);
+			 //start_items(cr);
 
 			gvAct=ACT_DEACT; 
 		}
@@ -376,9 +380,9 @@ bool setActivation(uint playerId, int toAct, Critter@ initiator, Item@ doc, bool
 				return false;
 			}
 
-			if(!transit_modoc(cr)) return false;
+			//if(!transit_modoc(cr)) return false;
 
-			player_items(cr); 
+			//player_items(cr); 
 
 			gvAct=toAct;
 		}
@@ -396,6 +400,7 @@ bool setActivation(uint playerId, int toAct, Critter@ initiator, Item@ doc, bool
 
 			gvAct=ACT_BLOCK;			
 		}
+		break;
 	case ACT_DEAD:
 		{
 			GameVar@ former = GetLocalVar(LVAR_former_act, cr.Id);
@@ -492,7 +497,7 @@ bool act_check_dead(Critter& player)	// Export
 bool act_var_check(Critter& player)	// Export
 {
 	int var = act_var_get(player);
-	return (var>0 && var<3 || var==4);
+	return (var>=0 && var<3);
 }
 
 
@@ -578,14 +583,14 @@ bool act(Critter& player)
 		uint zoneX=player.WorldX/__GlobalMapZoneLength;
 		uint zoneY=player.WorldY/__GlobalMapZoneLength;
 		player.SetFog(zoneX  ,zoneY  ,FOG_NONE);
-		player.SetFog(zoneX-1,zoneY-1,FOG_SELF);
-		player.SetFog(zoneX  ,zoneY-1,FOG_SELF);
-		player.SetFog(zoneX+1,zoneY-1,FOG_SELF);
-		player.SetFog(zoneX-1,zoneY  ,FOG_SELF);
-		player.SetFog(zoneX+1,zoneY  ,FOG_SELF);
-		player.SetFog(zoneX-1,zoneY+1,FOG_SELF);
-		player.SetFog(zoneX  ,zoneY+1,FOG_SELF);
-		player.SetFog(zoneX+1,zoneY+1,FOG_SELF);
+		player.SetFog(zoneX-1,zoneY-1,FOG_HALF);
+		player.SetFog(zoneX  ,zoneY-1,FOG_HALF);
+		player.SetFog(zoneX+1,zoneY-1,FOG_HALF);
+		player.SetFog(zoneX-1,zoneY  ,FOG_HALF);
+		player.SetFog(zoneX+1,zoneY  ,FOG_HALF);
+		player.SetFog(zoneX-1,zoneY+1,FOG_HALF);
+		player.SetFog(zoneX  ,zoneY+1,FOG_HALF);
+		player.SetFog(zoneX+1,zoneY+1,FOG_HALF);
 		player.SetKnownLoc(false,LOCATION_Modoc);
 		return true;
 	}
@@ -600,4 +605,4 @@ bool act(Critter& player)
 
 #include "activation_gm.fos"
 
-#include "activation_store.fos"
+//#include "activation_store.fos"

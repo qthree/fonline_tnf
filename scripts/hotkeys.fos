@@ -250,39 +250,44 @@ bool InitHotKeys() // Export
 
 void SetHotkey(HotKey& key, string CommandLine, bool hc)
 {
-key.Id = tempId;
-tempId++;
-key.IsHardcoded = hc;
-string@[]@ fullCmd = split(CommandLine, DELIMITER);
-string command;
-uint8 typeExists;
-if(StrToInt(fullCmd[2], key.modes))
-   {
-    typeExists = 0;
-   }
-else
-    {
-    StrToInt(fullCmd[3], key.modes);
-	key.type = fullCmd[1];
-	typeExists = 1;
+	key.Id = tempId;
+	tempId++;
+	key.IsHardcoded = hc;
+	string@[]@ fullCmd = split(CommandLine, DELIMITER);
+	string command;
+	uint8 typeExists;
+	
+	int temp_val=0;
+	
+	if(StrToInt(fullCmd[2], temp_val))
+	{
+		key.modes = uint16(temp_val);
+		typeExists = 0;
 	}
-key.prefix = fullCmd[0];
-command = fullCmd[1+typeExists];
-if(fullCmd.length()>3+typeExists)
-  if(findFirst(fullCmd[3+typeExists], "params:")!=-1)
-   {
- 
-    string @[]@ params = split(fullCmd[3+typeExists], "params:");
-	params = split(params[1], ",");
-	key.params.resize(params.length());
-	for(uint i=0, j = 0; i<params.length(); ++i)
-	    {
-		StrToInt(params[i], j);
-		key.params[i] = j;
-		}
-   }
-key.cmd = command;
-
+	else
+	{
+		StrToInt(fullCmd[3], temp_val);
+		key.modes = uint16(temp_val);
+		key.type = fullCmd[1];
+		typeExists = 1;
+	}
+	key.prefix = fullCmd[0];
+	command = fullCmd[1+typeExists];
+	if(fullCmd.length()>3+typeExists)
+	  if(findFirst(fullCmd[3+typeExists], "params:")!=-1)
+	   {
+	 
+		string @[]@ params = split(fullCmd[3+typeExists], "params:");
+		params = split(params[1], ",");
+		key.params.resize(params.length());
+		int j = 0;
+		for(uint i=0; i<params.length(); ++i)
+			{
+			StrToInt(params[i], j);
+			key.params[i] = j;
+			}
+	   }
+	key.cmd = command;
 }
 
 

@@ -8,7 +8,7 @@
 
 // import void ChangeBrokeAndAmmo(Item& item) from "mapgen_paste_items.fos";
 import void ActivateMobScript(Map& map) from "mob";
-import void SetWear(Item& item, int wearProcent) from "repair";
+import void SetDeterioration(Item& item, int wearProcent) from "repair";
 
 
 #define START_ENT	(30)
@@ -68,9 +68,9 @@ void runitemspawn(Critter& player, int param0, int param1, int param2)
 
 void ChangeBrokeAndAmmo(Item& item)
 {
-	  if(item.IsWeared())					//проверяем ломается ли итем
+	  if(item.IsDeteriorable())					//проверяем ломается ли итем
 	      {
-		SetWear(item, Random(30,90));				//ломаем его
+		SetDeterioration(item, Random(30,90));				//ломаем его
 		if(item.WeaponAmmoCount > 0)
 		{
 		  item.WeaponAmmoCount = Random(0,item.WeaponAmmoCount);
@@ -217,6 +217,14 @@ int16 GetCritInfo(uint16 mapProto, uint16 i, uint8 type)
 		case 4: return 18;
 	      }
     case 101: switch(type)
+	      {
+		case 0: return critterTypes_101[i];
+		case 1: return critterPopul_101[i];
+		case 2: return critterSpawn_101[i];
+		case 3: return critterTypes_101.length();
+		case 4: return 100;
+	      }
+    case 103: switch(type)
 	      {
 		case 0: return critterTypes_101[i];
 		case 1: return critterPopul_101[i];

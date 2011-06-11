@@ -1,19 +1,23 @@
+// Author: rifleman17
+// Скрипт патрульных для некоей локации
+// используется с помощью #include
+// Перед инклудом необходимо добавить дефайн с определением имени скрипта  #define SCRIPTNAME- требуется в misc-планах
+
 #include "_macros.fos"
 #include "_npc_pids.fos"
 #include "_teams.fos"
 #include "_dialogs.fos"
 
-//#define DL #(str)
-#define DL #(str) Log(str);
-
-import bool GetNearEntire(Map& map, uint8 number, uint16& hx, uint16& hy) from "entire";
-import bool AddMiscPlane(Critter& npc, uint priority, uint waitMinute, string@ funcName) from "npc_planes";
-import bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint8 cut) from "npc_planes";
+#define DL #(str)
+//#define DL #(str) Log(str);
+import bool GetNearEntire(Map& map, int number, uint16& hx, uint16& hy) from "entire";
+import bool AddMiscPlane(Critter& npc, uint priority, uint waitSecond, string@ funcName) from "npc_planes";
+import bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target, bool run) from "npc_planes";
 
 #define PLANE_MOVENEXT_PATROL_POINT				(49)
 #define MAX_DIST_TOBEGIN_PATROL					(4)
-#define PLAYER_ALARM_RADIUS						(3)
+#define PLAYER_ALARM_RADIUS						(6)
 
 class Patroller
 {
@@ -36,18 +40,27 @@ class Patroller
 
 		this.Id = cr.Id;
 		cr.ShowCritterDist1 = PLAYER_ALARM_RADIUS;
-		cr.SetEvent(CRITTER_EVENT_SHOW_CRITTER_1, "_ShowCritter1");
-		cr.SetEvent(CRITTER_EVENT_PLANE_END, "_PatrollerPlaneEnd");
-		cr.SetEvent(CRITTER_EVENT_FINISH, "_PatrollerFinish");
-		cr.SetEvent(CRITTER_EVENT_DEAD, "_PatrollerDead");
-		cr.SetEvent(CRITTER_EVENT_TALK, "_PatrollerTalk");
-		cr.SetEvent(CRITTER_EVENT_ATTACK, "_PatrollerAttack");
-		cr.SetEvent(CRITTER_EVENT_PLANE_BEGIN, "_PatrollerPlaneBegin");
-		cr.SetEvent(CRITTER_EVENT_SMTH_USE_SKILL, "_SmthUseSkill");
-		cr.SetEvent(CRITTER_EVENT_SMTH_USE_ITEM, "_SmthUseItem");
-
+		cr.SetScript("_PatrollerInit");
 		return cr;
 	}
+}
+
+void _PatrollerInit(Critter & cr, bool firstTime)
+{
+	if(!firstTime)
+	{
+		DeleteNpc(cr);
+		return;
+	}
+	cr.SetEvent(CRITTER_EVENT_SHOW_CRITTER_1, "_ShowCritter1");
+	cr.SetEvent(CRITTER_EVENT_PLANE_END, "_PatrollerPlaneEnd");
+	cr.SetEvent(CRITTER_EVENT_DEAD, "_PatrollerDead");
+	cr.SetEvent(CRITTER_EVENT_TALK, "_PatrollerTalk");
+	cr.SetEvent(CRITTER_EVENT_ATTACK, "_PatrollerAttack");
+	cr.SetEvent(CRITTER_EVENT_PLANE_BEGIN, "_PatrollerPlaneBegin");
+	cr.SetEvent(CRITTER_EVENT_SMTH_USE_SKILL, "_SmthUseSkill");
+	cr.SetEvent(CRITTER_EVENT_SMTH_USE_ITEM, "_SmthUseItem");
+
 }
 
 // точка патрулирования
@@ -82,7 +95,11 @@ class PatrolPoint
 		Map @map = GetMap(this.MapId);
 		if(!valid(map)) return false;
 
-		return GetNearEntire(map, this.EHexNum, x, y);
+		uint16 x_ = 0, y_ = 0;
+		bool result = GetNearEntire(map, this.EHexNum, x_, y_);
+		x = x_;
+		y = y_;
+		return result;
 	}
 }
 //маршрут патрулирования
@@ -96,7 +113,7 @@ class PatrolRoute
 	void AddPoint(PatrolPoint& p)
 	{
 		this.curIndex = 0;
-		push_back(this.points, p);
+		this.points.insertLast(p);
 	}
 
 
@@ -113,7 +130,7 @@ class PatrolRoute
 
 	void MoveNextPoint()
 	{
-		this.curIndex = this.curIndex+1<this.points.length()?this.curIndex+1:0;
+		this.curIndex = (this.curIndex+1<this.points.length()?this.curIndex+1:0);
 	}
 
 }
@@ -143,7 +160,7 @@ class PatrolInfo
 		p.AiPacket = ai;
 		p.PowerLvl = lvl;
 
-		push_back(this.Patrollers, p);
+		this.Patrollers.insertLast(p);
 	}
 
 	void MovePatrol()
@@ -222,7 +239,7 @@ class PatrolInfo
 
 	bool CheckAllPatrollersAtPoint()
 	{
-		PatrolPoint @ p = pi.Route.CurPoint();
+		PatrolPoint @ p = pInfo.Route.CurPoint();
 		if(!valid(p)) return false;
 		uint x = 0; uint y = 0;
 		if(!p.GetNearPatrolPoint(x, y)) return false;
@@ -233,7 +250,11 @@ class PatrolInfo
 			if(!valid(cr)) continue;
 			if(!cr.IsLife()) continue;
 			// проверку на совпадение карты можно не делать
-			if(GetDistantion(x,y, cr.HexX, cr.HexY)>MAX_DIST_TOBEGIN_PATROL) return false;
+			if(GetDistantion(x,y, cr.HexX, cr.HexY)>MAX_DIST_TOBEGIN_PATROL)
+			{
+				if(cr.IsNoPlanes()) this.MovePatroller(cr);
+				return false;
+			}
 		}
 
 		return true;
@@ -258,7 +279,7 @@ class PatrolInfo
 				return;//уже записан
 			}
 		}
-		ArrayPushBack(this.AcceptedPlayers, player.Id);
+		this.AcceptedPlayers.insertLast(player.Id);
 	}
 
 	// игроку разрешили тут находиться
@@ -276,12 +297,12 @@ class PatrolInfo
 }
 
 // глоб переменная уровня скрипта
-PatrolInfo pi;
+PatrolInfo pInfo;
 /* ********************* События патрульных *********************** */
 void _ShowCritter1(Critter& cr, Critter& showCrit)
 {
 	if(showCrit.IsNpc()) return;
-	if(pi.IsPlayerAccepted(showCrit)) return;
+	if(pInfo.IsPlayerAccepted(showCrit)) return;
 	NpcPlane @[] planes;
 	cr.GetPlanes(planes);
 	for(uint i=0;i<planes.length();i++)
@@ -294,13 +315,13 @@ void _ShowCritter1(Critter& cr, Critter& showCrit)
 
 	_FoundPlayer(cr);
 	DL("saw player");
-	//AddMiscPlane(cr, AI_PLANE_PATROL_PRIORITY*5, __FullMinute+pi.Route.CurPoint().WaitMinutes, "patrol_h@_FoundPlayer");
+	//AddMiscPlane(cr, AI_PLANE_PATROL_PRIORITY*5, __FullSecond+pInfo.Route.CurPoint().WaitMinutes*60, "_FoundPlayer");
 
 	Critter @[] talkers;
-	for(uint i = 0; i<pi.Patrollers.length();i++)
+	for(uint i = 0; i<pInfo.Patrollers.length();i++)
 	{
 
-		Critter @ pat = GetCritter(pi.Patrollers[i].Id);
+		Critter @ pat = GetCritter(pInfo.Patrollers[i].Id);
 		if(!valid(pat)) continue;
 		@ talkers;
 		if(pat.GetTalkedPlayers(talkers)>0)
@@ -316,19 +337,19 @@ void _ShowCritter1(Critter& cr, Critter& showCrit)
 		}
 	}
 	showCrit.Wait(0);
-	RunDialog(showCrit,cr,false);
+	RunDialog(showCrit,cr,true);
 }
 
 // Npc misc plane script
 void plane_MiscWait(Critter& npc)
 {
 
-	if(pi.CheckAllPatrollersAtPoint())
+	if(pInfo.CheckAllPatrollersAtPoint())
 	{
-		pi.Route.MoveNextPoint();
-		pi.MovePatrol();
+		pInfo.Route.MoveNextPoint();
+		pInfo.MovePatrol();
 	}else{
-		AddMiscPlane(npc, AI_PLANE_PATROL_PRIORITY, __FullMinute+pi.Route.CurPoint().WaitMinutes, "patrol_h@plane_MiscWait");
+		AddMiscPlane(npc, AI_PLANE_PATROL_PRIORITY, __FullSecond+pInfo.Route.CurPoint().WaitMinutes*60, SCRIPTNAME+"@plane_MiscWait");
 	}
 
 }
@@ -370,17 +391,17 @@ bool _PatrollerTalk(Critter& cr, Critter& player, bool attach, uint talkCount)
 {
 	if(!attach)
 	{
-		for(uint i = 0; i<pi.Patrollers.length();i++)
+		for(uint i = 0; i<pInfo.Patrollers.length();i++)
 		{
 
-			Critter @ pat = GetCritter(pi.Patrollers[i].Id);
+			Critter @ pat = GetCritter(pInfo.Patrollers[i].Id);
 			if(!valid(pat)) continue;
 			// если хотя бы один патрульный с кем то разговаривает, патруль не идет дальше
 			if(pat.GetTalkedPlayers(null)>0) return true;
 
 		}
 		//все разговоры закончены, следующая точка патрулирования
-		pi.MovePatrol();
+		pInfo.MovePatrol();
 	}else{
 		if(talkCount>2) return false;
 	}
@@ -388,18 +409,18 @@ bool _PatrollerTalk(Critter& cr, Critter& player, bool attach, uint talkCount)
 	return true;
 }
 
-bool _PatrollerPlaneBegin(Critter& cr, NpcPlane& plane, int reason, Critter@ someCr, Item@ someItem)
+int _PatrollerPlaneBegin(Critter& cr, NpcPlane& plane, int reason, Critter@ someCr, Item@ someItem)
 {
 	if(plane.Type == AI_PLANE_ATTACK&&plane.Priority==AI_PLANE_ATTACK_PRIORITY)
 	{
 		bool hasTarger = false;
 		Critter @ target = GetCritter(plane.Attack_TargId);
-		if(!valid(target)) return true;
-		for(uint i = 0; i< pi.Patrollers.length();i++)
+		if(!valid(target)) return PLANE_RUN_GLOBAL;
+		for(uint i = 0; i< pInfo.Patrollers.length();i++)
 		{
-			if(pi.Patrollers[i].Id==cr.Id) continue;
+			if(pInfo.Patrollers[i].Id==cr.Id) continue;
 			hasTarger = false;
-			Critter @ pat = GetCritter(pi.Patrollers[i].Id);
+			Critter @ pat = GetCritter(pInfo.Patrollers[i].Id);
 			if(valid(pat))
 			{
 				NpcPlane @[] planes;
@@ -417,7 +438,7 @@ bool _PatrollerPlaneBegin(Critter& cr, NpcPlane& plane, int reason, Critter@ som
 			}
 		}
 	}
-	return true;
+	return PLANE_RUN_GLOBAL;
 }
 
 bool _PatrollerAttack(Critter& cr, Critter& target)
@@ -425,34 +446,26 @@ bool _PatrollerAttack(Critter& cr, Critter& target)
 	return false;
 }
 
-void _PatrollerFinish(Critter& cr, bool deleted)
-{
-	if(!deleted)
-	{
-		DeleteNpcForce(cr);
-	}
-}
-
 int _PatrollerPlaneEnd(Critter& cr, NpcPlane& plane, int reason, Critter@ someCr, Item@ someItem)
 {
-	//DL("Plane end/reason^"+reason + " id "+plane.Identifier);
+	DL("Plane end/reason^"+reason + " id "+plane.Identifier+" plane x="+plane.Walk_HexX+"plane y = "+plane.Walk_HexY);
 	if(plane.Identifier==PLANE_MOVENEXT_PATROL_POINT)
 	{
-		PatrolPoint @ p = pi.Route.CurPoint();
+		PatrolPoint @ p = pInfo.Route.CurPoint();
 		if(!valid(p)) return PLANE_RUN_GLOBAL;
 
 		if(reason==REASON_SUCCESS)
 		{
-			AddMiscPlane(cr, AI_PLANE_PATROL_PRIORITY, __FullMinute+p.WaitMinutes, "patrol_h@plane_MiscWait");
+			AddMiscPlane(cr, AI_PLANE_PATROL_PRIORITY, __FullSecond+p.WaitMinutes*60, SCRIPTNAME+"@plane_MiscWait");
 		}else{
-			DL("Can't end patrol plane. Reason:" + reason);
 			uint x = plane.Walk_HexX;
 			uint y =  plane.Walk_HexY;
 			if(p.GetNearPatrolPoint(x, y))
 			{
 				plane.Walk_HexX = x;
 				plane.Walk_HexY = y;
-				return PLANE_DISCARD;
+				DL("Can't end patrol plane. Reason:" + reason+"hex x:"+x+"; y="+y);
+				return PLANE_KEEP;
 			}
 		}
 	}
@@ -462,27 +475,4 @@ int _PatrollerPlaneEnd(Critter& cr, NpcPlane& plane, int reason, Critter@ someCr
 
 /* *Диалоги. Помните - нужно указывать имя своего скрипта, в котором
 включен файл patrol_h, а не самого хидера */
-/* *********************         DEBUG       *********************** */
-//~run test t2m 45 45 45
-//~regenmap
-//~run patrol_h BP 0 0 0
-//~loadscript patrol_h
-void BP(Critter& cr, int type, int amount, int w)
-{
-	pi = PatrolInfo();
-	DL("here");
-	pi.Route.AddPoint(PatrolPoint(cr.GetMap(), 4, 4));
-	pi.Route.AddPoint(PatrolPoint(cr.GetMap(), 17, 4));
-//	pi.AddPatroller(DIALOG_ncr_patrol_ranger, NPC_PID_NCRRangerMale, 1, TEAM_Police , 1, 1);
-//	pi.AddPatroller(DIALOG_ncr_patrol_ranger, NPC_PID_NCRRangerFemale, 1, 1, 1, 1);
-//	pi.AddPatroller(DIALOG_ncr_patrol_policeman, NPC_PID_NCRPoliceman, 1, 1, 1, 1);
 
-	pi.BeginPatrol();
-	pi.MovePatrol();
-}
-
-void BP2(Critter& cr, int type, int amount, int w)
-{
-	pi.BeginPatrol();
-	pi.MovePatrol();
-}

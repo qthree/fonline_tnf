@@ -75,11 +75,11 @@ void TryHitSomeOne(Critter & player, Scenery& nukeMashine)
 	Map @map = player.GetMap();
 	if(!valid(map)) return;
 
-	uint x0 = nukeMashine.HexX;
-	uint y0 = nukeMashine.HexY;
+	uint16 x0 = nukeMashine.HexX;
+	uint16 y0 = nukeMashine.HexY;
 
-	uint x1 = x0;
-	uint y1 = y0;
+	uint16 x1 = x0;
+	uint16 y1 = y0;
 
 	uint dir = GetDirection(x0, y0, player.HexX, player.HexY);
 	bool targetHitted = false;
@@ -98,7 +98,7 @@ void TryHitSomeOne(Critter & player, Scenery& nukeMashine)
 				if(_CheckStat(target, ST_AGILITY, 0))
 				{
 					target.SayMsg(SAY_NETMSG, TEXTMSG_TEXT,STR_DODGE);
-					_CritAnimate(target, ANIM2_2D_DODGE_WEAPON);
+					_CritAnimate(target, ANIM2_DODGE_FRONT);
 
 					Critter @[] critters;
 					if(map.GetCrittersHex(target.HexX, target.HexY, PLAYERS_SRCH_RADIUS, FIND_ALL|FIND_ONLY_PLAYERS,   critters)>0)

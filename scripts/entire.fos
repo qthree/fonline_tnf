@@ -1,3 +1,4 @@
+// Authors: Cvet, rifleman17(dead
 #ifndef _ENTIRES_
 #define _ENTIRES_
 
@@ -13,12 +14,12 @@
 
 class Entire
 {
-	uint8 Number;
+	int Number;
 	uint16 HexX;
 	uint16 HexY;
 }
 
-uint ParseEntires(Map& map, Entire[]& entires, uint8 number)
+uint ParseEntires(Map& map, Entire[]& entires, int number)
 {
 	uint oldCount=entires.length();
 	uint count=map.CountEntire(number);
@@ -34,7 +35,7 @@ uint ParseEntires(Map& map, Entire[]& entires, uint8 number)
 	return count;
 }
 
-bool GetEntireFreeHex(Map& map, uint8 number, uint16& hx, uint16& hy)
+bool GetEntireFreeHex(Map& map, int number, uint16& hx, uint16& hy)
 {
 	uint count=map.CountEntire(number);
 
@@ -56,8 +57,12 @@ bool GetEntireFreeHex(Map& map, uint8 number, uint16& hx, uint16& hy)
 				for(int y=-1;y<=1;y++)
 				{
 					if(x==0 && y==0) continue; // Skip direct position
+
+					if(__MapHexagonal)
+					{
 					if((hx%2)==1 && ((x==-1 && y==1) || (x==1 && y==1))) continue;
 					if((hx%2)==0 && ((x==-1 && y==-1) || (x==1 && y==-1))) continue;
+					}
 
 					if(map.IsHexPassed(hx+x,hy+y))
 					{
@@ -72,7 +77,7 @@ bool GetEntireFreeHex(Map& map, uint8 number, uint16& hx, uint16& hy)
 	return false;
 }
 
-bool GetNearEntire(Map& map, uint8 number, uint16& hx, uint16& hy)
+bool GetNearEntire(Map& map, int number, uint16& hx, uint16& hy)
 {
 	uint16 hxBase=hx;
 	uint16 hyBase=hy;

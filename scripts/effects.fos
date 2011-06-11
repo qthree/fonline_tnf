@@ -46,6 +46,11 @@ void QuakeScreen(Critter& cr) // Export
 	if(cr.IsPlayer()) cr.RunClientScript("_QuakeScreen",QUAKE_NOISE,QUAKE_TIME,0,null,null);
 }
 
+void QuakeScreen2(Critter& cr) // Export
+{
+	if(cr.IsPlayer()) cr.RunClientScript("_QuakeScreen",QUAKE_NOISE,QUAKE_TIME,0,null,null);
+}
+
 void QuakeScreen(Critter& cr, uint noise, uint timeMs) // Export
 {
 	if(cr.IsPlayer()) cr.RunClientScript("_QuakeScreen",int(noise),int(timeMs),0,null,null);

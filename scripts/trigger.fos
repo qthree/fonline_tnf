@@ -40,7 +40,17 @@ void t_AttackStop(Critter& player, Scenery& trigger, bool entered, uint8 dir ,in
 					npc.EraseEnemyFromStack(player.Id);
 	}
 }
+/*
+void t_Kill(Critter& player, Scenery& trigger, bool entered, uint8 dir ,int type)
+{
+	Kill(player, type);
+}
 
+void t_Damage(Critter& player, Scenery& trigger, bool entered, uint8 dir , int dmg, int type)
+{
+	Damage(player, dmg, type, dir);
+}
+*/
 void t_DoorOpen(Critter& player, Scenery& trigger, bool entered, uint8 dir ,int entireNum)
 {
 	DoorControl(player,entireNum,true);
@@ -83,9 +93,16 @@ void t_Elevator(Critter& player, Scenery& trigger, bool entered, uint8 dir ,int 
 		else
 		{
 			uint[] pids = {uint(map1Pid)};
-			if(map2Pid>0) ArrayPushBack(pids, uint(map2Pid));
-			if(map3Pid>0) ArrayPushBack(pids, uint(map3Pid));
+			if(map2Pid>0) pids.insertLast(uint(map2Pid));
+			if(map3Pid>0) pids.insertLast(uint(map3Pid));
 			ShowElevator(player,elevatorType,pids, entireExit);
 		}
 	}
+}
+
+// Диалог с НПЦ рядом с триггером,  с определенной ролью. 1 параметр - роль НПЦ.
+void t_DialogNpc(Critter& player,Scenery& trigger, bool entered, uint8 dir, int npcRole)
+{
+	player.Wait(0);
+	DialogNpc(player, npcRole);
 }

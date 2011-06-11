@@ -167,7 +167,7 @@ void restore(Critter& player, file& f)
 
 //		@s2_params[i] = s2_p;
 
-		uint count=0;
+		int count=0;
 
 		uint cur_count = 0;
 
@@ -238,7 +238,7 @@ void restore(Critter& player, file& f)
 	
 	string@[]@ s2_inv = split(s_inv, " ");
 
-	uint items_count=0;
+	int items_count=0;
 
 	if(s2_inv.length()>0 && StrToInt(s2_inv[0], items_count) && items_count*2==(s2_inv.length()-1) )
 	{

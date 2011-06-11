@@ -38,6 +38,7 @@ import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, 
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
 
 import void addGuard(Critter& npc) from "gateway";
+import void AttackAndCatch(Critter& cr) from "gateway";
 
 //Найм охраны в город
 //params: location, number, level
@@ -46,22 +47,24 @@ void _InitGuard(Critter& cr, bool firstTime)
 {
 	cr.StatBase[ST_AI_ID]=12; 
 	cr.StatBase[ST_TEAM_ID]=5;
-	cr.StatBase[ST_PERCEPTION] = 9;
+	cr.StatBase[ST_PERCEPTION] = 10;
+	for(uint i=ST_NORMAL_ABSORB; i<=ST_EXPLODE_ABSORB; i++) cr.ParamBase[i]=10;
 	cr.ModeBase[MODE_UNLIMITED_AMMO] = 1;
 	cr.StatBase[ST_BAG_ID]=BAG_Empty;
 	if(cr.StatBase[ST_DIALOG_ID]!=330) cr.StatBase[ST_DIALOG_ID] = 352; //охранник Модока
 	cr.PerkBase[PE_SNIPER]=1;
-	cr.StatBase[ST_CRITICAL_CHANCE] = 60;
+	cr.StatBase[ST_CRITICAL_CHANCE] = 100;
+	cr.StatBase[ST_MAX_CRITICAL] = 100;
 	cr.StatBase[ST_NORMAL_ABSORB] = 10;
-	cr.StatBase[ST_HEALING_RATE]+=20;
+	cr.StatBase[ST_HEALING_RATE]+=50;
 	cr.StatBase[ST_MAX_LIFE] = Random(100,150);
 	cr.ParamBase[PE_BONUS_RANGED_DAMAGE] = 2;
-	cr.PerkBase[PE_BETTER_CRITICALS]+=1;
+	//cr.PerkBase[PE_BETTER_CRITICALS]+=1;
 	cr.StatBase[ST_LUCK]+=5;
-	cr.ShowCritterDist1=10;
+	cr.ShowCritterDist1=15;
 	//cr.SetEvent(CRITTER_EVENT_SHOW_CRITTER_1,"_armedAndDangerous");
 	//cr.SetEvent(CRITTER_EVENT_SMTH_STEALING, "_thief");
-	cr.SetEvent(CRITTER_EVENT_SHOW_CRITTER, "_checkEnemy");
+	/*if(cr.StatBase[ST_DIALOG_ID]!=330)*/ cr.SetEvent(CRITTER_EVENT_SHOW_CRITTER_1, "_checkEnemy"); //закомментил условие чтобы пропускающий таки бил аркад //изменил show на show 1 с дистанцией 15
 	//cr.SetEvent(CRITTER_EVENT_SMTH_ATTACKED, "_agression");
 	//cr.SetEvent(CRITTER_EVENT_SMTH_DEAD , "_alarm");
 	cr.SetEvent(CRITTER_EVENT_ATTACKED, "_wrongMove");
@@ -206,12 +209,14 @@ void _OnDeadEvent (Critter& dead, Critter@ killer)
 uint cte_deleteCorpse (Critter& dead, int identifier, uint& rate)
 {
 	Log("Guard: Deleting!");
-	DeleteNpcForce(dead);
+	DeleteNpc(dead);
    return 0;
 }
 
 void _checkEnemy(Critter& cr, Critter& showCr)
 {
+	if(cr.IsDead()) return;
+	
 	int body=showCr.Stat[ST_BODY_TYPE];
 	if(showCr.IsPlayer() && showCr.Stat[ARCADE_MODE]==1 || ((body>5 && body<10) || body>11))
 	{	
@@ -220,6 +225,7 @@ void _checkEnemy(Critter& cr, Critter& showCr)
 			cr.AddEnemyInStack(showCr.Id);
 			AddAttackPlane(cr, AI_PLANE_ATTACK_PRIORITY + 1, showCr);
 		}
+		if(cr.StatBase[ST_DIALOG_ID]==330) AttackAndCatch(showCr);
 	}	
 }
 /*

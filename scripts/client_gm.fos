@@ -10,6 +10,8 @@
 
 #define ARG_NUM #(CHN)	(num_args[CHN])
 
+#define ARG #(CHN)	parts[CHN]
+
 string[] parts;
 uint num = 0;
 bool[] num_args_b;
@@ -27,6 +29,63 @@ bool gm_msg_cmd(string& message)
 			message = "~respawn "+chosen.Id;
 			return true;
 		}
+		else if(CH_P(0, "#t"))
+		{
+			uint16 x=0, y=0, hexX=0, hexY=0;
+			GetMonitorHex(x, y, hexX, hexY);
+			message = "~move " + chosen.Id + " " + hexX + " " + hexY + " 1";
+			return true;
+		}
+		else if(CH_P(0, "#delmob"))
+		{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			message = "~run debug deleteCritter " + target.Id + " 0 0";
+			return true;
+		}
+		else if(CH_P(0, "#zc"))
+		{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			RunServerScript("raiders@controlMob",  target.Id, 0, 0, null, null);
+			return false;
+		}
+		else if(CH_P(0, "#za"))
+		{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			if(valid(target)) RunServerScript("raiders@attackMob",  target.Id, 0, 0, null, null);
+			else {uint16 hexX=0, hexY=0; GetMonitorHex(x, y, hexX, hexY); RunServerScript("raiders@moveMob",  0, hexX, hexY, null, null);}
+			return false;
+		}
+		else if(CH_P(0, "#zp"))
+		{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			RunServerScript("raiders@chaseMob",  target.Id, 0, 0, null, null);
+			return false;
+		}
+		else if(CH_P(0, "#lex"))
+		{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			message = "~run gm lex " + target.Id + " 0 0";
+			return true;
+		}
+		else if(CH_P(0, "#gm_calm"))
+		{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			message = "~run debug CalmDown " + target.Id + " 0 0";
+			return true;
+		}
+		else if(CH_P(0, "#delitem"))
+		{
+			uint16 x=__MouseX, y=__MouseY;
+			ItemCl@ item = GetMonitorItem (x, y);
+			message = "~run debug delItem 0 " + item.Id + " 0";
+			return true;
+		}
 		else if(CH_P(0, "#save"))
 		{
 			if(chosen.Param[ST_VAR5]>3)
@@ -37,12 +96,93 @@ bool gm_msg_cmd(string& message)
 			RunServerScriptUnsafe  ("activation@unsafe_save",  0, 0, 0, null, null);
 			return false;
 		}
+		else if(CH_P(0, "#zomb"))
+		{
+			RunServerScriptUnsafe("client_unsafe@unsafe_zombie",  0, 0, 0, null, null);
+			return false;
+		}
+		else if(CH_P(0, "#global_grid"))
+		{
+			__global^=CONF_GLOB_GRID;
+			Message("Сетка на глобальной карте теперь "+((__global&CONF_GLOB_GRID!=0)?"влючена.":"выключена."));
+			return false;
+		}
+		else if(CH_P(0, "#global_wild"))
+		{
+			__global^=CONF_GLOB_WILD;
+			Message("Карта дикости на глобальной карте теперь "+((__global&CONF_GLOB_WILD!=0)?"влючена.":"выключена."));
+			return false;
+		}
 	}
 	else if(num==2)
 	{
 		if(CH_P_NUM(1))
 		{
-			if(CH_P(0, "#me2cr"))
+			if(CH_P(0, "#mob"))
+			{
+				uint16 x=0, y=0, hexX=0, hexY=0;
+				GetMonitorHex(x, y, hexX, hexY);
+				message = "~run raiders sendAttack " + ARG_NUM(1) +" "+ hexX +" "+ hexY;
+				return true;
+			}
+			else if(CH_P(0, "#mob2"))
+			{
+				uint16 x=0, y=0, hexX=0, hexY=0;
+				GetMonitorHex(x, y, hexX, hexY);
+				message = "~run raiders sendAttack2 " + ARG_NUM(1) +" "+ hexX +" "+ hexY;
+				return true;
+			}
+			else if(CH_P(0, "#addnpc"))
+			{
+				uint16 x=0, y=0, hexX=0, hexY=0;
+				GetMonitorHex(x, y, hexX, hexY);
+				message = "~addnpc " + hexX + " " + hexY + " 1 " + ARG_NUM(1);
+				return true;
+			}
+			else if(CH_P(0, "#spawnnpc"))
+			{
+				uint16 x=0, y=0, hexX=0, hexY=0;
+				GetMonitorHex(x, y, hexX, hexY);
+				RunServerScript("raiders@spawnNPC",  ARG_NUM(1), hexX, hexY, null, null);
+				return false;
+			}
+			else if(CH_P(0, "#additem"))
+			{
+				uint16 x=0, y=0, hexX=0, hexY=0;
+				GetMonitorHex(x, y, hexX, hexY);
+				message = "~additem " + hexX + " " + hexY + " " + ARG_NUM(1) + " 1";
+				return true;
+			}
+			else if(CH_P(0, "#mobs"))
+			{
+				uint16 x=0, y=0, hexX=0, hexY=0;
+				GetMonitorHex(x, y, hexX, hexY);
+				message = "~run raiders sendMob " + ARG_NUM(1) +" "+ hexX +" "+ hexY;
+				return true;
+			}
+			else if(CH_P(0, "#gm_say"))
+			{
+				uint16 x=__MouseX, y=__MouseY;
+				CritterCl@ target = GetMonitorCritter (x, y);
+				message = "~run gm say " + target.Id + " " + ARG_NUM(1) + " 0";
+				return true;
+			}
+			else if(CH_P(0, "#act"))
+			{
+				message = "~setvar 6100 0 " + ARG_NUM(1) + " 0 2";
+				return true;
+			}
+			else if(CH_P(0, "#gm_cr2me"))
+			{
+				RunServerScript("debug@_ctd",  ARG_NUM(1), 0, 0, null, null);
+				return false;
+			}
+			else if(CH_P(0, "#gm_me2cr"))
+			{
+				RunServerScript("debug@_ctd",  ARG_NUM(1), 0, 1, null, null);
+				return false;
+			}
+			else if(CH_P(0, "#me2cr"))
 			{
 				message = "~run debug ctd "+ ARG_NUM(1) + " 0 1";
 				return true;
@@ -67,6 +207,11 @@ bool gm_msg_cmd(string& message)
 				RunServerScriptUnsafe("activation@unsafe_restore",  ARG_NUM(1), 0, 0, parts[2], null);
 				return false;
 			}
+			else if(CH_P(0, "#sinf"))
+			{
+				RunServerScript("gm@_sinf",  ARG_NUM(1), 0, 0, null, null);
+				return false;
+			}
 		}
 	}
 	else if(num==3)
@@ -85,7 +230,60 @@ bool gm_msg_cmd(string& message)
 			}
 		}
 	}
-
+	else if(num==4 || num==5)
+	{
+		if(CH_P_NUM(1))
+		{
+			if(CH_P(0, "#build")) // && CH_P_NUM(2) && CH_P_NUM(3))
+			{
+				string@ str= null;
+				if(num==5) @str=parts[4];
+				RunServerScript("qmap_debug@_client_build",  ARG_NUM(1), ARG_NUM(2), ARG_NUM(3), str, null);
+			}
+		}
+	}
+/*	else if(num==8)
+	{
+		if(CH_P(0, "#chac") && ((__sinf&SINF_TOOLS)!=0))
+		{
+			for(uint k=1; k<=7; k++)
+			{
+				if(!CH_P_NUM(k)) break;
+				if(k!=7) continue;
+				
+				uint[] actions;
+				GetChosenActions(actions);
+				
+				for(uint i=1; i<8; i++)
+				{
+					actions.insertLast(ARG_NUM(i));
+				}
+				
+				SetChosenActions(actions);
+				Message("Action added.");
+			}
+		}
+		else if(CH_P(0, "#chacf") && ((__sinf&SINF_TOOLS)!=0))
+		{
+			for(uint k=1; k<=7; k++)
+			{
+				if(!CH_P_NUM(k)) break;
+				if(k!=7) continue;
+				
+				uint[] actions;
+				GetChosenActions(actions);
+				
+				for(uint i=7; i>0; i--)
+				{
+					actions.insertFirst(ARG_NUM(i));
+				}
+				
+				SetChosenActions(actions);
+				Message("Action added.");
+			}
+		}
+	}
+*/
 	return false;
 }
 
@@ -98,13 +296,12 @@ bool gm_msg_run(string& message)
 	else if(CH_P(0, "%t")) parts[0]="~run test";
 	else if(CH_P(0, "%ac")) parts[0]="~run activation";
 	else if(CH_P(0, "%sk")) parts[0]="~run skins";
-	else if(CH_P(0, "%gm")) parts[0]="~run gm";
+	else if(CH_P(0, "%qd")) parts[0]="~run qmap_debug";
 	//else return false;
 	else
 	{
-		string ts = parts[0];
-		
-
+		string@ module_name = substring(parts[0], 1, parts[0].length()-1);
+		parts[0]="~run "+module_name;
 	}
 
 	if(num==2)
@@ -143,7 +340,7 @@ bool gm_msg_run(string& message)
 	return true;
 }
 
-import void SetConsoleName(string& name) from "client_names";
+//import void SetConsoleName(string& name) from "client_names";
 
 bool gm_msg_longstr(string& message)
 {
@@ -154,7 +351,7 @@ bool gm_msg_longstr(string& message)
 	{
 		if(CH_P(0, "$name") && GetCurrentCursor()<=CURSOR_MOVE)
 		{
-				string@[] parts_temp2;
+				/*string@[] parts_temp2;
 
 				parts_temp2.resize(parts.length()-1);
 
@@ -167,10 +364,205 @@ bool gm_msg_longstr(string& message)
 
 				SetConsoleName(name);
 
-				ChangeCursor(CURSOR_USE_SKILL);
+				ChangeCursor(CURSOR_USE_SKILL);*/
+				Message("Для запоминания имен используйте среднюю кнопку мыши.");
 
 		}
+/*		if(CH_P(0, "$sname"))
+		{
+			string@[] parts_temp2;
 
+			parts_temp2.resize(parts.length()-1);
+
+			for(uint i=1; i<parts.length(); i++)
+			{
+				@parts_temp2[i-1]=@parts[i];
+			}
+
+			string name = join(parts_temp2, " ");
+			RunServerScript("qmap_debug@_sname",  0, 0, 0, name, null);
+		}*/
+		else if(CH_P(0, "$hash"))
+		{
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-1);
+
+			for(uint i=1; i<parts.length(); i++)
+			{
+				@parts_temp2[i-1]=@parts[i];
+			}
+
+			string name = join(parts_temp2, " ");
+
+			uint hash = GetStrHash(name);
+			Message("hash "+int(hash));
+		}
+		else if(CH_P(0, "$s2a"))
+		{
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-1);
+			
+			for(uint i=1; i<parts.length(); i++)
+			{
+				@parts_temp2[i-1]=@parts[i];
+			}
+			
+			string str = join(parts_temp2, " ");
+			
+			RunServerScript("gm@_say2all",  0, 0, 0, str, null);
+		}
+		else if(CH_P(0, "$ans"))
+		{
+			if(chosen.Param[ST_VAR5]>3)
+			{
+				Message("Antiflood.");
+				return false;
+			}
+		
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-1);
+			
+			for(uint i=1; i<parts.length(); i++)
+			{
+				@parts_temp2[i-1]=@parts[i];
+			}
+			
+			string str = join(parts_temp2, " ");
+			
+			RunServerScriptUnsafe("gm@unsafe_ans",  0, 0, 0, str, null);
+			
+			Message("Отправлено.");
+		}
+		else if(CH_P(0, "$help"))
+		{
+			if(chosen.Param[ST_VAR5]>3)
+			{
+				Message("Antiflood.");
+				return false;
+			}		
+		
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-1);
+			
+			for(uint i=1; i<parts.length(); i++)
+			{
+				@parts_temp2[i-1]=@parts[i];
+			}
+			
+			string str = join(parts_temp2, " ");
+			
+			RunServerScriptUnsafe("gm@unsafe_help",  0, 0, 0, str, null);
+			
+			Message("Отправлено.");
+		}
+		else if(CH_P(0, "$poll"))
+		{
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-1);
+			
+			for(uint i=1; i<parts.length(); i++)
+			{
+				@parts_temp2[i-1]=@parts[i];
+			}
+			
+			string str = join(parts_temp2, " ");
+			
+			RunServerScript("gm@_poll",  0, 0, 0, str, null);
+		}
+		else if(num>=3 && CH_P(0, "$gmlex") && CH_P_NUM(1))
+		{
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-2);
+			
+			for(uint i=2; i<parts.length(); i++)
+			{
+				@parts_temp2[i-2]=@parts[i];
+			}
+			
+			string str = join(parts_temp2, " ");
+			
+			if(str.length()>0) RunServerScript("gm@_gmlex",  ARG_NUM(1), 0, 0, str, null);
+		}
+		else if(CH_P(0, "$gmlex2"))
+		{
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-1);
+			
+			for(uint i=1; i<parts.length(); i++)
+			{
+				@parts_temp2[i-1]=@parts[i];
+			}
+			
+			string str = join(parts_temp2, " ");
+			
+			CritterCl@ target = GetMonitorCritter (__MouseX, __MouseY);
+			
+			if(@target!=null && str.length()>0) RunServerScript("gm@_gmlex", target.Id, 0, 0, str, null);
+		}
+		else if(num>=3 && CH_P(0, "$gmitemlex") && CH_P_NUM(1))
+		{
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-2);
+			
+			for(uint i=2; i<parts.length(); i++)
+			{
+				@parts_temp2[i-2]=@parts[i];
+			}
+			
+			string str = join(parts_temp2, " ");
+			
+			if(str.length()>0) RunServerScript("gm@_gmitemlex",  ARG_NUM(1), 0, 0, str, null);
+		}
+		else if(CH_P(0, "$pm2"))
+		{
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-1);
+			
+			for(uint i=1; i<parts.length(); i++)
+			{
+				@parts_temp2[i-1]=@parts[i];
+			}
+			
+			string str = join(parts_temp2, " ");
+			
+			CritterCl@ target = GetMonitorCritter (__MouseX, __MouseY);
+			
+			if(@target!=null && str.length()>0) RunServerScript("gm@_private", target.Id, 0, 0, str, null);
+		}
+		else if(num>=3 && CH_P(0, "$pm") && CH_P_NUM(1))
+		{
+			string@[] parts_temp2;
+
+			parts_temp2.resize(parts.length()-2);
+			
+			for(uint i=2; i<parts.length(); i++)
+			{
+				@parts_temp2[i-2]=@parts[i];
+			}
+			
+			string str = join(parts_temp2, " ");
+			
+			if(str.length()>0) RunServerScript("gm@_private",  ARG_NUM(1), 0, 0, str, null);
+		}
+		else if(num==2 && CH_P(0, "$act"))
+		{
+			if(chosen.Param[ST_VAR5]>3)
+			{
+				Message("Antiflood.");
+				return false;
+			}
+			
+			if(ARG(1).length()>3) RunServerScriptUnsafe("activation@unsafe_act",  0, 0, 0, ARG(1), null);
+		}
 	}
 
 	return false;
@@ -198,11 +590,6 @@ bool gm_msg(string& message)
 	num_args_b.resize(num);
 	num_args.resize(num);
 	
-	if(message[0]=='$')
-	{
-		return gm_msg_longstr(message);
-	}
-	
 	if(message[0]=='%')
 	{
 		return gm_msg_run(message);
@@ -218,8 +605,10 @@ bool gm_msg(string& message)
 		return gm_msg_cmd(message);
 	}
 	
+	if(message[0]=='$')
+	{
+		return gm_msg_longstr(message);
+	}
+	
 	return false;
 }
-
-
-

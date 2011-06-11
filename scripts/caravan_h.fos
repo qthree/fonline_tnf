@@ -10,6 +10,7 @@
 #define CARAVAN_HAL_NCR_REDD							(4) // НКР-Реддинг, односторонний. Проводник: ncr_hal. Отправление 15 в 14:00
 #define CARAVAN_KIT_BH_GECKO                            (5) // Броукен-Хиллз - Гекко. Односторонний. Проводник: bh_kit. Отправление каждые сутки в 10:00
 #define PATROL_HATE_NCR                                 (6) // Односторонний ежедневный патруль рейнджеров.
+#define PATROL_SHRIM_VC                                 (7) // Односторонний ежедневный патруль гвардейцев ГУ.
 /* ******************************************************************************************************************************************************** */
 // Коды прототипов караванщиков и сумки
 /* ******************************************************************************************************************************************************** */
@@ -59,7 +60,7 @@
 #define CARAVAN_QUEST_COMPLETE							(11) // игрок сдал квест
 
 
-#define LEADER_SEARCH_RADIUS							(5) // радиус, в котором ищем проводника при проверках, в верной ли позиции он находится
+#define LEADER_SEARCH_RADIUS							(8) // радиус, в котором ищем проводника при проверках, в верной ли позиции он находится
 #define CrvId											StatBase[ST_VAR0] // у всех криттеров в составе каравана прописываем номер каравана, к которому они относятся
 
 #define MODEL_CRVNR_COWARD								(1)// модель поведения проводника: трус - пока других моделей поведения нет
@@ -67,8 +68,8 @@
 #define	MIN_DIST_CABS_DIST 								(6) // минимальное расстояние между соседними повозками
 #define STR_DONT_TOUCH									(3500) // строка, которую произносит проводник, если игрок пробует открыть повозки
 
-#define TIME_TO_WAIT_AT_ENDPOINT						(60*2) // время в игрокых минутах, через которое будет телепортирован в начальную точку лидер, если тип каравана = CRV_TYPE_ONEWAY_TRANSITLEADER и караван дошел до пункта назначенния
-#define TIME_TO_DELETE_LEADER                           (30) // время в игровых минутах, через которое будет удален проводник каравана в конечной точке маршрута, если тип каравана = CRV_TYPE_ONEWAY_DELETELEADER
+#define TIME_TO_WAIT_AT_ENDPOINT						(60*60*2) // время в игрокых минутах, через которое будет телепортирован в начальную точку лидер, если тип каравана = CRV_TYPE_ONEWAY_TRANSITLEADER и караван дошел до пункта назначенния
+#define TIME_TO_DELETE_LEADER                           (60*30) // время в игровых минутах, через которое будет удален проводник каравана в конечной точке маршрута, если тип каравана = CRV_TYPE_ONEWAY_DELETELEADER
 
 
 // управление квестовой переменной
@@ -87,11 +88,11 @@ bool _GetPlayerQuestFailed (Critter & cr,CaravanInfo & crv){uint q = GetQuestSta
 
 // Debug Log
 //#define DL#(s) (Log(s))
-#define DL#(s) 
+#define DL#(s)
 
 import void FindEncounter(Critter@[]& group, Item@ car, uint x, uint y, uint& encounterDescriptor, bool& waitForAnswer, bool empty) from "worldmap";
 import void InviteToEncounter(Critter@[]& group, Item@ car, uint encounterDescriptor, int combatMode, uint& mapId, uint16& hexX, uint16& hexY, uint8& dir) from "worldmap";
-import uint GetNearFullMinute(uint16 year, uint16 month, uint16 day, uint16 hour, uint16 minute) from "time";
+import uint GetNearFullSecond(uint16 year, uint16 month, uint16 day, uint16 hour, uint16 minute, uint16 second) from "time";
 
 void SetQuestState(Critter & player, uint idCaravan, int state)
 {
@@ -101,7 +102,6 @@ void SetQuestState(Critter & player, uint idCaravan, int state)
 	if(!valid(qVar)) return;
 
 	qVar = state;
-	player.SendQuestVar(qVar);
 
 }
 uint GetQuestState(Critter & player, uint idCaravan)
@@ -225,8 +225,8 @@ class CaravanLeaderInfo
 	{
 		Map @ map = pos.GetMap();
 		if(!valid(map)) return false;
-		uint x = pos.HexX;
-		uint y = pos.HexY;
+		uint16 x = pos.HexX;
+		uint16 y = pos.HexY;
 		if(!GetFreeHex(map, 2, x, y)) return false;
 		int[] params={ST_DIALOG_ID, DialogId, ST_TEAM_ID, TeamId, ST_AI_ID, AiPack, ST_BAG_ID, BagId, ST_LEVEL, Level};
 		Critter @ leader = map.AddNpc(this.NpcPid, x, y, Random(0,5), params, null, null);
@@ -310,7 +310,7 @@ class CaravanCabInfo
 		li.ItemAppearChance = chanceAppear;
 		li.IsReversedRouteItem = isReversLoot;
 
-		push_back(this.CabItems, li);
+		this.CabItems.insertLast(li);
 		DL("cab items:"+this.CabItems.length());
 	}
 	// размещение повозки с лутом на энкаунтере
@@ -367,7 +367,7 @@ class GlobalRouteCurve
 	// добавление нового узла в маршрут
 	void AddPoint(GlobalPoint @ point)
 	{
-		push_back(Points,point);
+		Points.insertLast(point);
 	}
 	// массив координат узлов ломанного маршрута
 	// должен включать и начальную с конечной точкой
@@ -378,7 +378,7 @@ class GlobalRouteCurve
 		return (nextPoint==-1);
 	}
 	// если караван достиг узла ломаной маршрута, меняем координаты точки назначения на следующую в маршруте
-	void SetRouteDir(uint x, uint y, uint& toX, uint& toY)
+	void SetRouteDir(uint x, uint y, float& toX, float& toY)
 	{
 		// нет ни одной точки в маршруте
 		if (Points.length()==0)
@@ -403,8 +403,8 @@ class GlobalRouteCurve
 				nextPoint++;
 			}
 		}
-		toX = Points[nextPoint].X;
-		toY = Points[nextPoint].Y;
+		toX = float(Points[nextPoint].X);
+		toY = float(Points[nextPoint].Y);
 
 	}
 	// преобразование марщрута в обратный
@@ -468,8 +468,8 @@ class CaravanGuardInfo
 	{
 		if(Random(1,100)>this.ChanceToJoin) return null;
 
-		uint hX = leader.HexX;
-		uint hY = leader.HexY;
+		uint16 hX = leader.HexX;
+		uint16 hY = leader.HexY;
 		if(!GetFreeHex(map, 4, hX, hY)) return  null;
 
 		int[] params={ST_DIALOG_ID, DialogId, ST_TEAM_ID, TeamId, ST_AI_ID, AiPack, ST_BAG_ID, BagId, ST_LEVEL, Level, ST_VAR1, ReactionNum, ST_VAR2, IsNervous};
@@ -499,8 +499,8 @@ class CaravanNpcFollowerInfo
 	// добавление нпц рядом с итемом
 	bool _AddNpcNearItem(Map & map, Item & item, uint8 dist)
 	{
-		uint hX = item.HexX;
-		uint hY = item.HexY;
+		uint16 hX = item.HexX;
+		uint16 hY = item.HexY;
 		if(!GetFreeHex(map, dist, hX, hY)) return false;
 
 		int[] params={ST_DIALOG_ID, DialogId};
@@ -515,8 +515,8 @@ class CaravanNpcFollowerInfo
 
 	Critter @ AddNpcNearCritter(Map & map, Critter & cr, uint8 dist)
 	{
-		uint hX = cr.HexX;
-		uint hY = cr.HexY;
+		uint16 hX = cr.HexX;
+		uint16 hY = cr.HexY;
 		if(!GetFreeHex(map, dist, hX, hY)) return null;
 
 		int[] params={ST_DIALOG_ID, DialogId};
@@ -556,8 +556,31 @@ class CaravanInfo
 
 	void TerminateCaravan()
 	{
-		// пока не реализовано, возможно не потребуется
-		// TODO: вернуться сюда и исправить
+		this.CaravanStatus = CRV_STATUS_END;
+		if(valid(this.Leader))
+		{
+			Critter @ leader = this.Leader.GetLeader();
+			if(valid(leader))
+			{
+				DL("Leader deleted");
+				DeleteNpc(leader);
+				this.Leader.CritterId=0;
+			}
+		}
+		for(uint i=0, l=this.Caravaneers.length();i<l;i++)
+		{
+			Critter @ guard = GetCritter(this.Caravaneers[i]);
+			if(valid(guard))
+			{
+				if(guard.IsNpc())
+				{
+					DeleteNpc(guard);
+					continue;
+				}
+			}
+		}
+		_SetQuestState(this, CARAVAN_FAILURE_PLAYER_ABANDONED);
+		this.CaravanReset();
 	}
 
 	void CaravanReset()
@@ -578,7 +601,7 @@ class CaravanInfo
 		{
 			if(id==this.Caravaneers[i])
 			{
-				remove_from_array(this.Caravaneers, i);
+				this.Caravaneers.removeAt(i);
 				return true;
 			}
 		}
@@ -586,7 +609,7 @@ class CaravanInfo
 		{
 			if(id==this.PlayersRequested[i])
 			{
-				remove_from_array(this.PlayersRequested, i);
+				this.PlayersRequested.removeAt(i);
 				return true;
 			}
 		}
@@ -614,7 +637,7 @@ class CaravanInfo
 			// уже есть в списках
 			if (id == this.Caravaneers[i]) return;
 		}
-		ArrayPushBack(this.Caravaneers, id);
+		this.Caravaneers.insertLast(id);
 	}
 
 	CaravanCabInfo @GetCab(int8 idx)
@@ -681,7 +704,7 @@ uint GetCrittersByDialogId(Map @ map, int dialog, uint pid, Critter @[]@ critter
 		if(foundCrits[i].StatBase[ST_DIALOG_ID]==dialog)
 		{
 			num++;
-			push_back_handle(critters, foundCrits[i]);
+			critters.insertLast(@foundCrits[i]);
 		}
 	}
 	return num;

@@ -2,7 +2,7 @@
 
 	_SetupCaravan(CARAVAN_WADE_REDD_VC, CRV_TYPE_TWOWAY, 2, LVAR_q_redd_wade_caravan_escort, 5);
 	_SetupCaravanLeader(CARAVAN_WADE_REDD_VC, DIALOG_redd_wade, NPC_PID_Wade, BAG_VaultCity_Military, TEAM_QuestNpc, AIPACKET_PEASANTS, 8);
-	_SetupCaravanLiderPosition(CARAVAN_WADE_REDD_VC, LOCATION_Redding, MAP_redding_miners, 67, 88, true); 
+	_SetupCaravanLiderPosition(CARAVAN_WADE_REDD_VC, LOCATION_Redding, MAP_redding_outer, 61, 52, true); 
 	_SetupCaravanLiderPosition(CARAVAN_WADE_REDD_VC, LOCATION_VaultCity, MAP_vcity_courtyard, 116, 62, false); 
 	_AddRoutePoint(CARAVAN_WADE_REDD_VC, 675, 525);
 	_AddRoutePoint(CARAVAN_WADE_REDD_VC, 617, 578);
@@ -51,7 +51,7 @@
 
 	_SetupCaravan(CARAVAN_SAVINEL_REDD_NR, CRV_TYPE_TWOWAY, 1, LVAR_q_redd_savinel_caravan_escort, 6);
 	_SetupCaravanLeader(CARAVAN_SAVINEL_REDD_NR, DIALOG_redd_savinel, NPC_PID_Savinelly, BAG_Savinelly, TEAM_QuestNpc, AIPACKET_THUGS, 15);	
-	_SetupCaravanLiderPosition(CARAVAN_SAVINEL_REDD_NR, LOCATION_Redding, MAP_redding_miners, 75, 114, true); 
+	_SetupCaravanLiderPosition(CARAVAN_SAVINEL_REDD_NR, LOCATION_Redding, MAP_redding_outer, 51, 93, true); 
 	_SetupCaravanLiderPosition(CARAVAN_SAVINEL_REDD_NR, LOCATION_NewReno, MAP_newr1, 75, 124, false); 
 	_AddRoutePoint(CARAVAN_SAVINEL_REDD_NR, 675, 525);//redding
 	_AddRoutePoint(CARAVAN_SAVINEL_REDD_NR, 682, 668);
@@ -97,7 +97,7 @@
 
 	_SetupCaravan(CARAVAN_STANWELL_REDD_NCR, CRV_TYPE_TWOWAY, 2, LVAR_q_redd_stan_caravan_escort, 8);
 	_SetupCaravanLeader(CARAVAN_STANWELL_REDD_NCR, DIALOG_redd_stanwell, NPC_PID_Stanwell, BAG_Stanwell, TEAM_QuestNpc, AIPACKET_GENERIC_GUARDS, 21);	
-	_SetupCaravanLiderPosition(CARAVAN_STANWELL_REDD_NCR, LOCATION_Redding, MAP_redding_miners, 61, 102, true); 
+	_SetupCaravanLiderPosition(CARAVAN_STANWELL_REDD_NCR, LOCATION_Redding, MAP_redding_outer, 37, 102, true); 
 	_SetupCaravanLiderPosition(CARAVAN_STANWELL_REDD_NCR, LOCATION_NCR, MAP_ncr_bazaar, 35, 82, false); 
 	_AddRoutePoint(CARAVAN_STANWELL_REDD_NCR, 675, 525);//redding
 	_AddRoutePoint(CARAVAN_STANWELL_REDD_NCR,663, 573);
@@ -142,7 +142,7 @@
 	_SetupCaravan(CARAVAN_HAL_NCR_REDD, CRV_TYPE_ONEWAY_TRANSITLEADER, 2, LVAR_q_ncr_redding_caravan_escort, 10);
 	_SetupCaravanLeader(CARAVAN_HAL_NCR_REDD, DIALOG_ncr_hal, NPC_PID_Hal, BAG_Hal, TEAM_QuestNpc, AIPACKET_TOUGH_GUARD, 21);
 	_SetupCaravanLiderPosition(CARAVAN_HAL_NCR_REDD, LOCATION_NCR, MAP_ncr_downtown, 154, 80, true); 
-	_SetupCaravanLiderPosition(CARAVAN_HAL_NCR_REDD, LOCATION_Redding, MAP_redding_miners, 76, 92, false); 
+	_SetupCaravanLiderPosition(CARAVAN_HAL_NCR_REDD, LOCATION_Redding, MAP_redding_outer, 73, 86, false); 
 	_AddRoutePoint(CARAVAN_HAL_NCR_REDD, 1125, 1425);//ncr
 	_AddRoutePoint(CARAVAN_HAL_NCR_REDD,1006, 1397);
 	_AddRoutePoint(CARAVAN_HAL_NCR_REDD,841, 1329);
@@ -232,3 +232,19 @@
 	_AddRoutePoint(PATROL_HATE_NCR, 1125, 1425);//ncr
 	_AddGuardInfo(PATROL_HATE_NCR,  NPC_PID_VaultCityPatrolMale, DIALOG_crvg_ncr_patroller, "caravan@_NcrRangerPatrolInit", AIPACKET_BOUNTY_HUNTER, BAG_SF_Caravan_VaultCityPatrolMale, TEAM_QuestNpc, 15, 0, 0, 100, false);
 	_SheduleCaravan(PATROL_HATE_NCR, 0, 21, 0, 22);
+	
+//PATROL_SHRIM_VC
+	_SetupCaravan(PATROL_SHRIM_VC, CRV_TYPE_ONEWAY_DELETELEADER, 2, LVAR_q_vc_shrim_patrol, 5);
+	_SetupCaravanLeader(PATROL_SHRIM_VC, DIALOG_vc_shrim, NPC_PID_BlackArmoredRebel, BAG_All_BountyHunters_10, TEAM_QuestNpc, AIPACKET_VAULT_GUARD, 50);
+	_SetupCaravanLiderPosition(PATROL_SHRIM_VC, LOCATION_VaultCity, MAP_vcity_courtyard, 58, 86, true); 
+	_SetupCaravanLiderPosition(PATROL_SHRIM_VC, LOCATION_VaultCity, MAP_vcity_courtyard, 58, 86, false); 
+	_AddRoutePoint(PATROL_SHRIM_VC, 1225, 325);//vc
+	_AddRoutePoint(PATROL_SHRIM_VC, 1207, 383);
+	_AddRoutePoint(PATROL_SHRIM_VC, 1154, 303);
+	_AddRoutePoint(PATROL_SHRIM_VC, 1186, 263);
+	_AddRoutePoint(PATROL_SHRIM_VC, 1253, 245);
+	_AddRoutePoint(PATROL_SHRIM_VC, 1279, 309);
+	_AddRoutePoint(PATROL_SHRIM_VC, 1265, 414);
+	_AddRoutePoint(PATROL_SHRIM_VC, 1225, 325);//vc
+	_AddGuardInfo(PATROL_SHRIM_VC,  NPC_PID_VCGuardsman, DIALOG_vc_patroller, "caravan@_VCPatrolInit", AIPACKET_VAULT_GUARD, BAG_SF_Caravan_VaultCityPatrolMale, TEAM_QuestNpc, 15, 0, 0, 100, false);
+	_SheduleCaravan(PATROL_SHRIM_VC, 0, 1, 0, 23);

@@ -1,0 +1,135 @@
+//Player Manager
+
+/*
+class Initializator
+{
+	Initializator()
+	{
+		Log("init test");
+	}
+}
+
+Initializator initer;
+*/
+/*
+#include "serializator.fos"
+
+#define BAN_FLAG_CHECK_ONLY_NAME		(0x1)
+#define BAN_FLAG_CHECK_ONLY_IP			(0x2)	//с этого ip нельзя зайти не за одного чара или зарегистрировать нового
+#define BAN_FLAG_CHECK_NAME_AND_IP		(0x3)
+#define BAN_FLAG_PERMANENT				(0x4)
+#define BAN_FLAG_EXPIRED				(0x8)
+#define BAN_FLAG_CANCELED				(0x10)
+#define BAN_FLAG_AUTOBAN				(0x20)	//если с этого ip зайти за любого чара, то автоматически создается бан с id этого чара
+
+class Ban
+{
+	uint Id;
+	uint Ip;
+	uint Mask;	//битовая маска. Например, 255.255.255.0
+	uint Until;	//полная игровая секунда когда бан будет снят
+	uint8 Flags;
+	uint Author;
+	string Reason;	//показывается забанненому игроку
+	string Comment; //комментарий для гмов и админов
+	
+	Ban()
+	{
+		Id=0; Ip=0; Mask=0;
+	}
+}
+
+class Banlist
+{
+	Ban[] List;
+	
+	void Add(Critter& player, uint time, bool blockLogin, bool blockIp, bool autoBan, Critter@ author)
+	{
+		Ban@ ban = List[getEmpty()];
+		ban.id=player.Id;
+		ban.Until=__FullSecond+time;
+	}
+	
+	uint getEmpty()
+	{
+		uint n=0;
+		for(uint i=0, j<List.length(); i<j; i++)
+		{
+			if(List[i].Id==0 && List[i].Ip==0)
+			{
+				n=0; break;
+			}
+		}
+		if(n==0)
+		{
+			n=List.length();
+			List.grow(4);
+		}
+		return n;
+	}
+}
+*/
+
+/*
+import void SetOnline(Critter& cr, bool online) from "manager";
+import uint GetAllPlayers(Critter@[]& crs) from "manager";
+import uint GetPlayers(Critter& cr, uint16 radius, bool square, Critter@[]& crs) from "manager";
+import uint GetPlayers(uint16 worldX, uint16 worldY, uint16 radius, bool square, Critter@[]& crs) from "manager";
+*/
+
+uint[] OnlinePlayers;
+
+//import void SetOnline(Critter& cr, bool online) from "manager";
+void SetOnline(Critter& cr, bool online)
+{
+	bool ck=false;
+	for(uint i=0, j=OnlinePlayers.length(); i<j; i++)
+	{
+		if(OnlinePlayers[i]!=cr.Id) continue;
+		if(online) {ck=true; break;}
+		OnlinePlayers.removeAt(i);
+		i--; j--;
+	}
+	
+	if(online && !ck) OnlinePlayers.insertLast(cr.Id);
+}
+
+//import uint GetAllPlayers(Critter@[]& crs) from "manager";
+uint GetAllPlayers(Critter@[]& crs)
+{
+   uint len = OnlinePlayers.length();
+   uint j = crs.length();
+   crs.resize(len+j);
+   for(uint i=0; i<len; i++)
+   {
+       Critter @ cr = GetCritter(OnlinePlayers[i]);
+       if(cr is null) {OnlinePlayers.removeAt(i); i--; len--; continue;}
+       @crs[j++] = cr;
+   }
+   if(j<crs.length()) crs.resize(j);
+   return j;
+}
+
+//import uint GetPlayers(Critter& cr, uint16 radius, bool square, Critter@[]& crs) from "manager";
+uint GetPlayers(Critter& cr, uint16 radius, bool square, Critter@[]& crs)
+{
+	return GetPlayers(cr.WorldX, cr.WorldY, radius, square, crs);
+}
+
+//import uint GetPlayers(uint16 worldX, uint16 worldY, uint16 radius, bool square, Critter@[]& crs) from "manager";
+uint GetPlayers(uint16 worldX, uint16 worldY, uint16 radius, bool square, Critter@[]& crs)
+{
+	Critter@[] players;
+	uint len = GetAllPlayers(players);
+	for(uint i = 0; i < len; i++)
+	{
+		int x = players[i].WorldX-worldX, y = players[i].WorldY-worldY;
+		if(square && (abs(x)>radius || abs(y)>radius)) continue; //квадартный поиск
+		else if(!square && sqrt(x*x+y*y)>radius) continue; //радиальный поиск
+		else
+		{
+			crs.insertLast(players[i]);
+		}
+	}
+	return crs.length();
+}

@@ -2,6 +2,7 @@
 
 #include "_macros.fos"
 #include "_animation.fos"
+#include "_npc_pids.fos"
 
 
 #define STOP_TRACE #(a,b) a=0;b=0
@@ -121,7 +122,7 @@ if (isLeg)
 else
     {
   	    ball.Say(SAY_SHOUT, "Buuummm!!!");
-        ball.ToDead(COND_DEAD_BACK, crt);
+        ball.ToDead(ANIM2_DEAD_BACK, crt);
     }
 
 }
@@ -191,7 +192,7 @@ void e_BallIntoInven (Critter& ball, Critter& crt, bool SetToActiveHand)
   {
      //Помещение мячика в инвентарь. Заменяем на айтем мяч
     crt.Action(ACTION_PICK_ITEM,1,null);
-    DeleteNpcForce(ball);
+    DeleteNpc(ball);
 	Item @ b_item = crt.AddItem(PID_BALL,1);
 	if(SetToActiveHand)
 	   crt.MoveItem(b_item.Id, SLOT_HAND1, 1);
@@ -208,7 +209,7 @@ void e_BallDeflated (Critter& ball, Critter@ crt)
    x = ball.HexX;
    y = ball.HexY;
    Map @ map = ball.GetMap();
-   DeleteNpcForce(ball);
+   DeleteNpc(ball);
    map.AddItem ( x, y, PID_BALL_DEAD, 1);  
     
 }
@@ -288,7 +289,7 @@ else
 }
 	
 //Вычисляем следующую координату после того как мячик отскочил (для статичных объектов)
-void Get_Next_Coord_Static (uint8& x, uint8& y, uint8& Dir, Map& map) 
+void Get_Next_Coord_Static (uint16& x, uint16& y, uint8& Dir, Map& map) 
 {
 uint8 RevDir, NearPlus;
 int8 NearMinus;

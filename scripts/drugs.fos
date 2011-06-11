@@ -1,7 +1,7 @@
 // Author: cvet
 // Original Fallout2 system
 #include "_macros.fos"
-#include "MsgStr.h"
+#include "_msgstr.fos"
 
 import void AffectRadiation(Critter& cr, int value) from "radiation";
 import void AffectPoison(Critter& cr, int value) from "poison";
@@ -81,37 +81,37 @@ const int[] DrugEffects={
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_RAD_X
-					-1,      0,          1440,   1440,          0,     0,
+			 -1,         0,   1440,   1440,          0,     0,
     ST_RADIATION_RESISTANCE,        50,    -25,    -25,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_PSYCHO
-      ADDICTION_PSYCHO,     20,           240,    240,       9600, 10080,
+      	   ADDICTION_PSYCHO,        20,    240,    240,       9600, 10080,
                  ST_AGILITY,         3,     -3,      0,          0,     0,
                ST_INTELLECT,        -3,      1,      2,         -2,     2,
            ST_NORMAL_RESIST,        50,    -25,    -25,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_BEER
-					-1,      0,            30,      0,          0,     0,
+			 -1,         0,     80,    160,          0,     0,
               ST_PERCEPTION,        -1,      1,      0,          0,     0,
-                         -1,         0,      0,      0,          0,     0,
+         ST_RADIATION_LEVEL,         0,     -5,     -5,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_BOOZE
-					-1,      0,            30,      0,          0,     0,
-              ST_PERCEPTION,        -1,      1,      0,          0,     0,
-                         -1,         0,      0,      0,          0,     0,
+			 -1,         0,    100,    150,          0,     0,
+              ST_PERCEPTION,        -2,      1,      1,          0,     0,
+         ST_RADIATION_LEVEL,         0,     -5,    -10,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_SUPER_STIMPAK
-					-1,      0,            10,     10,          0,     0,
+			 -1,         0,     10,     10,          0,     0,
               ST_CURRENT_HP,        75,     -3,     -6,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_JET
-         ADDICTION_JET,     50,    /*10*/ 240,   1430,       1450,     2, // Only after Jet Antidote was used
+              ADDICTION_JET,        50,    /*10*/ 240,   1430,       1450,     2, // Only after Jet Antidote was used
            ST_ACTION_POINTS,         2,     -4,      2,         -1,     1,
                 ST_STRENGTH,         1,     -4,      3,         -2,     2,
               ST_PERCEPTION,         1,     -4,      3,         -2,     2,
@@ -123,25 +123,25 @@ const int[] DrugEffects={
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_HEALING_POWDER
-					-1,      0,           360,      0,          0,     0,
+			 -1,         0,    360,      0,          0,     0,
                          -2,         8,      0,      0,          0,     0,
               ST_CURRENT_HP,        18,      0,      0,          0,     0,
               ST_PERCEPTION,        -1,      1,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_GAMMA_GULP_BEER
-					-1,      0,            30,      0,          0,     0,
+  			 -1,         0,     60,      0,          0,     0,
               ST_PERCEPTION,        -1,      1,      0,          0,     0,
-						 -1,         0,      0,      0,          0,     0,
+			 -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_ROENTGEN_RUM
-					-1,      0,            30,      0,          0,     0,
+	 		 -1,         0,     60,      0,          0,     0,
               ST_PERCEPTION,        -2,      2,      0,          0,     0,
-		                 -1,         0,      0,      0,          0,     0,
+	                 -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_HYPO_POISON
-					-1,      0,             0,      0,          0,     0,
+ 			 -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
@@ -159,9 +159,9 @@ const int[] DrugEffects={
            ST_NORMAL_RESIST,        50,    -50,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_ROT_GUT
-					-1,      0,            30,      0,          0,     0,
-              ST_PERCEPTION,        -2,      2,      0,          0,     0,
-                         -1,         0,      0,      0,          0,     0,
+			 -1,         0,     90,    200,          0,     0,
+              ST_PERCEPTION,        -3,      2,      1,          0,     0,
+         ST_RADIATION_LEVEL,         0,     -5,    -25,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
 // PID_MUTATED_TOE
@@ -362,8 +362,8 @@ uint ProcessDrug(Critter& cr, uint16 drugPid, uint& rate)
 	uint stage=RATE_TO_STAGE(rate);
 	uint flags=RATE_TO_FLAGS(rate);
 
-	if(cr.IsDead()) return 100; // Stop drug processing
-	if(drugPid==PID_JET && stage>=4) return 10000; // Only after Jet Antidote was used
+	if(cr.IsDead()) return REAL_MINUTE(5); // Stop drug processing
+	if(drugPid==PID_JET && stage>=4) return REAL_HOUR(5); // Only after Jet Antidote was used
 
 	int index=GetDrugTableIndex(drugPid);
 	uint duration=0;
@@ -386,7 +386,7 @@ uint ProcessDrug(Critter& cr, uint16 drugPid, uint& rate)
 			else if(stat==ST_CURRENT_HP)
 			{
 				cr.StatBase[ST_CURRENT_HP]=CLAMP(statVal+amount,-9999,cr.Stat[ST_MAX_LIFE]);
-				if(amount<0 && cr.Stat[ST_CURRENT_HP]<0) cr.ToDead(Random(0,1)==0?COND_DEAD_FRONT:COND_DEAD_BACK,null);
+				if(amount<0 && cr.Stat[ST_CURRENT_HP]<0) cr.ToDead(Random(0,1)==0?ANIM2_DEAD_FRONT:ANIM2_DEAD_BACK,null);
 			}
 			else if(stat==ST_POISONING_LEVEL) AffectPoison(cr,amount); // cr.SetStat(ST_POISONING_LEVEL,CLAMP(statVal+amount,0,2000));
 			else if(stat==ST_RADIATION_LEVEL) AffectRadiation(cr,amount); // cr.SetStat(ST_RADIATION_LEVEL,CLAMP(statVal+amount,0,2000));
@@ -443,7 +443,7 @@ uint ProcessDrug(Critter& cr, uint16 drugPid, uint& rate)
 
 	stage++;
 	rate=FORM_RATE(stage,flags);
-	return duration;
+	return duration*60;
 }
 
 void DropDrug(Critter& cr, uint16 drugPid, uint stage)

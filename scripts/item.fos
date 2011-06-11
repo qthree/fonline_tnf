@@ -109,7 +109,7 @@ void _DoorAutoCloseInit(Item& door, bool firstTime)
 
 bool e_UseAutoCloseDoor(Item& door, Critter& cr, int skill)
 {
-	CreateTimeEvent(__FullSecond + REAL_MINUTE(door.Val3 == 0? 2 : door.Val3), "e_AutoCloseDoor", door, true);
+	CreateTimeEvent(__FullSecond + REAL_MINUTE(door.Val3 == 0? 2 : door.Val3), "e_AutoCloseDoor", door.Id, true);
 	return false;
 }
 
@@ -253,7 +253,7 @@ bool e_ItemBagUseItem(Item& item, Critter& crit, Item@ usedItem)
   {
 //     MoveItem(usedItem, usedItem.GetCount(), item, 0);
     crit.ShowScreen(SCREEN_CLOSE, 0, "");
-    crit.ShowContainer(null, item,item.Proto.Container_IsGroundLevel()?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+    crit.ShowContainer(null, item,item.Proto.GroundLevel?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
     return true;
   }
   return false;
@@ -385,9 +385,9 @@ bool e_KeyBunchSkill(Item& item, Critter& cr, int skill) //143
 
     case SK_REPAIR: {Item@ temp = cr.AddItem(82, 1); msg = Random(0,51); temp.SetLexems("$KeyLex"+ Random(0,51));}
 
-    case SKILL_PICK_ON_GROUND : if(item.Accessory == ACCESSORY_HEX) {MoveItem  (item, item.GetCount(), cr); return true;}/* {@key = item; cr.ShowScreen(SCREEN_BAG , 0, "item@KeyAddScreen"); return true;}*/
+    case SKILL_PICK_ON_GROUND : if(item.Accessory == ACCESSORY_HEX) {MoveItem  (item, item.GetCount(), cr); return true;}/* {key = item.Id; cr.ShowScreen(SCREEN_BAG , 0, "item@KeyAddScreen"); return true;}*/
 
-				if(item.ContainerId == cr.Id) {cr.Say(SAY_NETMSG, "that's work"); @key = item; cr.ShowScreen(SCREEN_CLOSE , 0, "@"	);/* cr.ShowScreen(SCREEN_BAG , 0, "item@KeyAddScreen");*/ return true;}
+				if(item.ContainerId == cr.Id) {cr.Say(SAY_NETMSG, "that's work"); key = item.Id; cr.ShowScreen(SCREEN_CLOSE , 0, "@"	);/* cr.ShowScreen(SCREEN_BAG , 0, "item@KeyAddScreen");*/ return true;}
 
 				
 
@@ -489,7 +489,7 @@ bool e_KeyBunchAdd(Item& item, Critter& cr, Item@ usedItem)
   return false;
 }
 
-
+uint key;
 
 bool e_KeyBunchUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
 {
@@ -515,18 +515,6 @@ bool e_KeyBunchUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Sc
 
 
 
-void KeyAddScreen(Critter& cr, uint answerI, string& answerS)
-{
-  Item @ usedItem = GetItem(answerI);
-  if(!valid(usedItem)) {cr.Say(SAY_NETMSG, "f*ck!"); return;}
-  if(usedItem.GetType() == ITEM_KEY)
-  {
-    MoveItem(usedItem, usedItem.GetCount(), key, 0);
-    cr.Say(SAY_NETMSG, "You're added some key to brunch");
-    @key = null;
-  }
-}
-
 void KeyUseScreen(Critter& player, uint answerI, string& answerS)
 {
 //   Item@ item = GetItem(answerI);
@@ -535,14 +523,24 @@ void KeyUseScreen(Critter& player, uint answerI, string& answerS)
 
   if(answerS.length() != 0)
   {
+// 	  uint keyNumber = Random(0, 65534);	  
+// 	  onDoor.LockerCondition = LOCKER_LOCKED;
+// 	  onDoor.LockerComplexity = lockpick;
+// 	  Log("Locked, LockerCompl = " + onDoor.LockerComplexity);
+// 	  onDoor.LockerId = keyNumber;
+// 	  key.LockerId = keyNumber;
+    Item @ key = GetItem(player.StatBase[ST_VAR0]);
     key.SetLexems("$KeyLex"+ answerS);
+    key.Update();
+//     key.SetEvent(ITEM_EVENT_USE, "");
   }
-  else
-  {
-    key.SetLexems("$KeyLex"+ "noNameKey");
-  }
-    key.SetEvent(ITEM_EVENT_USE, "");
-    @key = null;
+//   else
+//   {
+//     key.SetLexems("$KeyLex"+ "noNameKey");
+//   }
+
+//     @key = null;
+// 	@onDoor = null;
 //   cr.Say(SAY_NETMSG, keyName);
 }
 
@@ -578,19 +576,20 @@ bool e_CrUseSkill(Critter& cr, int skill, Critter@ onCritter, Item@ onItem, Scen
 
 
 
-void _BlankKeyInit(Item& item, bool firstTime)
+void _LockerInit(Item& item, bool firstTime)
 {
-  if(firstTime)
-  {
-    item.SetLexems("$KeyLex"+"unnamed key");
-    item.SetEvent(ITEM_EVENT_USE, "e_BlankKeyUse");
-  }
+//   if(firstTime)
+//   {
+//     item.SetLexems("$KeyLex"+"unnamed key");
+    item.SetEvent(ITEM_EVENT_USE, "e_LockerKeyUse");
+//   }
 }
 
 
 
-Item @ key;
-
+// Item @ key;
+// Item @ onDoor;
+// uint16 lockpick = 0;
 
 bool ItemLockedCont(Item& item)
 {
@@ -613,25 +612,39 @@ bool ItemLockedCont(Item& item)
 }
 
 
-bool e_BlankKeyUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+bool e_LockerKeyUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
 {
   if(valid(onItem))
   {
-    if(onItem.GetType() == ITEM_DOOR || ItemLockedCont(onItem))
+    if((onItem.GetType() == ITEM_DOOR || ItemLockedCont(onItem)) && onItem.Val1 == 0 && onItem.Val0 == 0)
     {
       if(_LockerIsClose(onItem))/*onItem.LockerCondition == LOCKER_ISOPEN*/
       {
 	if(onItem.LockerCondition != LOCKER_LOCKED && onItem.LockerComplexity == 0)
 	{
-// 	  cr.Say(SAY_NETMSG, "if passed");	
+// 	  cr.Say(SAY_NETMSG, "if passed");
+// 		@onDoor = onItem;	
+// 	  @key = item;
+// 		lockpick = cr.Skill[SK_LOCKPICK];
+ 		switch(item.GetProtoId())
+ 		{
+		  case PID_LOCKER_LOW : onItem.Val0 = 1; break;
+		  case PID_LOCKER_MED : onItem.Val0 = 2; break;
+		  case PID_LOCKER_HARD : onItem.Val0 = 3; break;
+ 		}
+	  
+	  Item @ key = cr.AddItem(PID_BLANK_KEY, 1);
 	  uint keyNumber = Random(0, 65534);	  
 	  onItem.LockerCondition = LOCKER_LOCKED;
-	  onItem.LockerComplexity = cr.Skill[SK_LOCKPICK];
+	  onItem.LockerComplexity = item.Val0;
 	  Log("Locked, LockerCompl = " + onItem.LockerComplexity);
 	  onItem.LockerId = keyNumber;
-	  item.LockerId = keyNumber;
-	  @key = item;
+	  key.LockerId = keyNumber;
+	  item.SetLexems("$KeyLex"+"unnamed key");
+	  cr.StatBase[ST_VAR0] = key.Id;
 	  cr.ShowScreen(SCREEN_SAY , 0, "item@KeyUseScreen");
+	  key.Update();
+	  DeleteItem(item);
 	  return true;
 	}
 	else
@@ -716,7 +729,8 @@ bool e_FillRegistrationDocs(Item& item, Critter& cr, Critter@ onCritter, Item@ o
 
 #define FLARE_BURN_TIME		(1000)
 
-import bool GetPlayerRadius(Critter@ player, Critter@[]@ crs, uint16 radius) from "main";
+//import bool GetPlayerRadius(Critter@ player, Critter@[]@ crs, uint16 radius) from "main";
+import uint GetPlayers(Critter& cr, uint16 radius, bool square, Critter@[]& crs) from "manager";
 
 string dataName; //for anyData;
 // uint16 flareLocId = 0;
@@ -727,18 +741,19 @@ bool ShowFlare(Critter@[] crs)		//crs[length-1] - critter who run function
   Map @ map = crs[length-1].GetMap();
   if(!valid(map)) return false;
   Location @ loc = map.GetLocation();
-  if(!valid(loc)) return false;
-  dataName = "flare_"+loc.Id;
+  if(!valid(loc) || loc.AutoGarbage == false) {crs[crs.length()-1].Say(SAY_NETMSG, "Запускать ракету здесь - бессмыслеца. Найдите более подходящее место."); return false;}
+  /*dataName = "flare_"+loc.Id;
   uint16[] playersId;
   if(IsAnyData(dataName)) GetAnyData(dataName, playersId); 
    for(uint16 i = 0; i < length; i++)
    {
-     push_back(playersId, crs[i].Id);
+     //push_back(playersId, crs[i].Id);
+     playersId.insertLast(crs[i].Id);
      if(!crs[i].IsKnownLoc(true, loc.Id)) crs[i].SetKnownLoc(true, loc.Id);
    }
   SetAnyData(dataName, playersId);
   MakeLocVisible(loc, true);
-  loc.Color != COLOR_RED?loc.Color = COLOR_RED:0;
+  loc.Color != COLOR_RED?loc.Color = COLOR_RED:0;*/
   uint flareLocId = loc.Id;
   CreateTimeEvent(__FullSecond+FLARE_BURN_TIME, "e_ShowFlare", flareLocId, false);
   return true;
@@ -748,7 +763,7 @@ uint e_ShowFlare(uint[]@ values)
 {
   Location @ loc = GetLocation(values[0]);
   if(!valid(loc)) return 0;
-  uint16[] playersId;
+  /*uint16[] playersId;
   MakeLocVisible(loc, false);
   dataName = "flare_"+loc.Id;
   if(IsAnyData(dataName)) GetAnyData(dataName, playersId);
@@ -761,48 +776,567 @@ uint e_ShowFlare(uint[]@ values)
     if(cr.IsKnownLoc(true, loc.Id))
     cr.UnsetKnownLoc(true, loc.Id);
   }
+  EraseAnyData(dataName);*/
   return 0;
 }
 
-void MakeLocVisible(Location& loc, bool visible)
+/*void MakeLocVisible(Location& loc, bool visible)
 {
-  visible?loc.GeckEnabled=true:loc.GeckEnabled=false;
+  visible?loc.GeckVisible=true:loc.GeckVisible=false;
   visible?loc.GeckCount=1:loc.GeckCount=0;
   visible?loc.AutoGarbage=false:loc.AutoGarbage=true;
   //return false; //fail
-}
+}*/
 
 void _FlareGun(Item& item, bool firstTime)
 {
-  if(firstTime)
-  {
+  //if(firstTime)
+  //{
     item.SetEvent(ITEM_EVENT_SKILL, "e_FlareGunSkill");
-  }
+  //}
 }
 
 bool e_FlareGunSkill(Item& item, Critter& cr, int skill) //143
 {
-  string msg;
-  if(skill == SK_TRAPS && item.WeaponAmmoCount > 0)
+  if(skill != SK_TRAPS) return false;
+  return FlareGunUse(cr, item);
+}
+
+bool FlareGunUse(Critter& cr, Item& item) //export
+{
+  if(item.WeaponAmmoCount > 0)
   {
    Critter@[] crs;
+   GetGlobalMapCritters(cr.WorldX, cr.WorldY, 200, FIND_LIFE | FIND_ONLY_PLAYERS, crs);
+   crs.insertLast(cr);
+   if(!ShowFlare(crs)) return false;
    item.WeaponAmmoCount -= 1;
    item.Update();
-   if(!GetPlayerRadius(cr, crs, 200)) return false;
-   if(!ShowFlare(crs)) return false;
    cr.Say(SAY_NETMSG, "Вы запустили сигнальную ракету.");
-   return true;
+  }
+  return true;
+}
+/* //старая функция?? ShowFlare(crs) не будет работать с найденным.
+void testflare(Critter& cr, int p0, int p1, int p2)
+{
+   Critter@[] crs;
+   uint len = GetPlayers(cr, uint16(p0), p1!=0, crs);
+   cr.Say(SAY_NETMSG, "вспышку увидят "+len);
+   ShowFlare(crs);
+}*/
+//end of flare
+
+//gm item / quest reward
+
+uint expBook;
+
+void _ExpBookInit(Item& item, bool firstTime)
+{
+ item.SetEvent(ITEM_EVENT_SKILL, "e_ExpBookSkill");
+  if(firstTime)
+  {
+    
+    item.SetEvent(ITEM_EVENT_USE, "e_ExpBookUse");
+  }
+}
+
+bool e_ExpBookSkill(Item& item, Critter& cr, int skill)
+{
+  switch(skill)
+  {
+    case  SK_TRAPS : 	expBook = item.Id;
+			cr.ShowScreen(SCREEN_SAY, 1, "ExpBookScreen");
+			break;
+    case SK_REPAIR :	item.Val1 = (item.Val1 == 0 ? 1 : 0); break;
+    case SK_SCIENCE:	cr.Say(SAY_NETMSG, "item state = "+item.Val1); break;
+  }
+  return true;
+}
+
+void ExpBookScreen(Critter& cr, uint answerI, string& answerS)
+{
+  Item@ expBook0 = GetItem(expBook);
+  expBook0.SetEvent(ITEM_EVENT_SKILL, "");
+  if(answerS.length() > 0) StrToInt(answerS, expBook0.Val0);
+  cr.Say(SAY_NETMSG, ""+expBook0.Val0+" "+answerI+" "+answerS);
+}
+
+bool e_ExpBookUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+  cr.Say(SAY_NETMSG, ""+item.Val0);
+  if(item.Val0 != 0)
+  {
+    if(item.Val1==0)
+    {
+      cr.StatBase[ST_EXPERIENCE] += item.Val0;
+    }
+    else
+    {
+     cr.StatBase[ST_UNSPENT_SKILL_POINTS] += item.Val0;
+     cr.Say(SAY_NETMSG, "U recive "+item.Val0+" skill points");
+    }
+    DeleteItem(item);
+    return true;
   }
   return false;
 }
 
-void testflare(Critter& cr, int p0, int p1, int p2)
+//master key. unlock and open door
+void _InitMasterKey(Item& key, bool firstTime)
 {
-   string msg;
-   Critter@[] crs;
-   GetPlayerRadius(cr, crs, 20);// return;
-   msg = crs.length();
-   cr.Say(SAY_NETMSG, msg);
-   ShowFlare(crs);
+  //if(firstTime)
+  //{
+    key.SetEvent(ITEM_EVENT_USE, "e_MasterKeyUse");
+  //}
 }
-//end of flare
+
+bool e_MasterKeyUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+  if(valid(onItem) && (onItem.GetType() == ITEM_DOOR || onItem.GetType() == ITEM_CONTAINER))
+  {
+    onItem.LockerOpen();
+    onItem.LockerComplexity = 0;
+//     SETFLAG(onItem.LockerCondition,LOCKER_ISOPEN);
+     onItem.LockerId = 0;
+//     onItem.LockerCondition = LOCKER_ISOPEN;
+	SwitchState(item);
+   item.Update(); 
+  }
+  return false;
+}
+
+import bool SlotMachineWork(Critter& cr, Item& onehanded, int skill, Item@ item) from "casino";
+
+void _InitSlotMachine(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_SKILL, "e_SlotMachineUse");
+	item.SetEvent(ITEM_EVENT_USE_ON_ME, "e_SlotMachineOnMe");
+}
+
+bool e_SlotMachineUse(Item& item, Critter& cr, int skill)
+{
+	Item@key1 = cr.GetItem(PID_SLOT_MACHINE_KEY, SLOT_HAND1);
+	switch(skill)
+	{
+		case SK_REPAIR : if(item.LockerComplexity != 0) {cr.Say(SAY_NETMSG, "not repair needed"); return true;} 
+				 else if (@key1 != null){item.LockerId = key1.LockerId; item.LockerComplexity = 100; item.Update(); cr.Say(SAY_NETMSG, "U are repair slot machine");}
+					else {Item @ key = cr.AddItem(PID_SLOT_MACHINE_KEY, 1); uint16 rnd = Random(1,65534); key.LockerId = rnd; item.LockerId = rnd; item.LockerComplexity = 100; item.Update(); key.Update(); cr.Say(SAY_NETMSG, "U are repair slot machine"); return true;}
+		case SK_LOCKPICK : if(cr.StatBase[ST_AGILITY]*2>Random(15,25-(cr.StatBase[ST_LUCK] / 2))) {return false;} else {cr.Say(SAY_EMOTE_ON_HEAD, "do something with machine"); return true;}
+		case SKILL_PICK_ON_GROUND: if(item.LockerComplexity == 0 || (@key1 != null && key1.LockerId == item.LockerId)) cr.ShowContainer(null,item,item.Proto.GroundLevel?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+						else if(cr.CountItem(PID_BOTTLE_CAPS) >= 5) {SlotMachineWork(cr, item, skill, null); return true;}
+						  else {cr.Say(SAY_NETMSG, "need money"); return true;}
+		//case SKILL_PUT_CONT : if(valid(item)) cr.Say(SAY_NORM, "yep"); return true;
+	}
+
+return false;
+}
+
+bool e_SlotMachineOnMe(Item& item, Critter& cr, Item@ usedItem)
+{
+  if(@usedItem == null) return false;
+  SlotMachineWork(cr, item, SKILL_PICK_ON_GROUND, usedItem);
+  return true;
+}
+
+#include "_ltp.fos"
+
+#define STR_RUSS_ROULL_LOSE		(9000)
+#define STR_RUSS_ROULL_WIN		(9001)
+/*
+void russRoulReg(Critter& player, int var, int con, int param2)
+{
+	LTPREG(0,process_test)
+}
+
+void russRoulStart(Critter& cr, int type, int time, int param)
+{
+	StartProcess(cr, uint(type), uint(param), uint(time));
+}
+*/
+
+bool ltp_roul_inited=false;
+void ltp_roul_init()
+{
+	LTPREG(LTP_RUSSROUL,process_russ_roul)
+	ltp_roul_inited=true;
+}
+
+uint process_russ_roul(Critter@ cr, int& param0, int& param1, int& param2)
+{
+	LTPROCESSD(LTP_RUSSROUL)
+
+	if(param0==0)
+	{
+		Item@ item=GetItem(uint(param1));
+		if(valid(item))
+		{
+			item.WeaponAmmoCount--;
+			item.Update();
+		}
+		cr.StatBase[ST_CURRENT_HP] = 1;
+		cr.ToKnockout(KNOCKOUT_ANIM2_DEFAULT(Random(0,1)==0?true:false), Random(20,100), cr.HexX, cr.HexY);
+		cr.SayMsg(SAY_EMOTE_ON_HEAD,TEXTMSG_TEXT,STR_RUSS_ROULL_LOSE);
+	}
+	else
+	{
+		cr.SayMsg(SAY_EMOTE_ON_HEAD,TEXTMSG_TEXT,STR_RUSS_ROULL_WIN);
+	}
+	
+	return 0;
+}
+
+void _RevolverInit(Item& item, bool firstTime)
+   {
+       item.SetEvent(ITEM_EVENT_SKILL, "e_RevolverSkill");
+   }
+
+bool e_RevolverSkill(Item& item, Critter& cr, int skill)
+{
+	if(skill == SK_SCIENCE)
+	{
+		if(item.WeaponAmmoCount <= 0) return false;
+		if(!ltp_roul_inited) ltp_roul_init();
+		uint8 russianRoll=Random(10,70)-(cr.StatBase[ST_LUCK]/2);
+		uint rndTime =  Random(3,5)*1000;
+		bool roll = (russianRoll >= 10) && (russianRoll <= 20);
+		
+		StartProcess(cr, LTP_RUSSROUL, roll?0:1, item.Id, 0, rndTime);
+		
+		/* 
+		else 
+		{
+		StartProcess(cr, LTP_RUSSROUL, 1, rndTime);
+		//
+		//cr.Say(SAY_EMOTE, "");
+		}*/
+		
+		cr.Say(SAY_EMOTE_ON_HEAD, "Взводит курок");
+		return true;
+	}
+	return false;
+}
+
+
+
+void _InitPoliceStuff(Item& item, bool firstTime)
+{
+item.SetEvent(ITEM_EVENT_USE, "e_PoliceStuffUse");
+item.SetEvent(ITEM_EVENT_SKILL, "e_PoliceStuffPick");
+item.SetEvent(ITEM_EVENT_USE_ON_ME, "e_PoliceStuffHammer");
+}
+
+
+bool e_PoliceStuffPick(Item& item, Critter& cr, int skill)
+{
+	if((skill == SKILL_PICK_ON_GROUND) && (item.Accessory == ACCESSORY_HEX))
+	{
+	Map @ map = cr.GetMap();
+	Location @ loc = map.GetLocation();
+		if(loc.GetProtoId() == LOCATION_Modoc) 
+		{
+			if (cr.CountItem(PID_GUARD_BADGE)>=1 || item.Val0 == 0)
+			{
+			return false;
+			}
+			cr.Say(SAY_NETMSG, "Вы не уполномочены перенести табличку");
+			return true;
+		}
+		else if(item.Val1 == 0)
+		{
+		return false;
+		}
+		cr.Say(SAY_NETMSG, "Вы не можете перенести табличку");
+		return true;
+	}
+	return true;
+}
+
+bool e_PoliceStuffHammer(Item& item, Critter& cr, Item@ usedItem)
+{
+int HammerTime=(11-cr.Stat[ST_STRENGTH])*60*10;
+	if(item.GetProtoId() == PID_SIGN)
+	{
+		if((cr.Timeout[TO_SK_REPAIR]==0) && (cr.StatBase[ST_LEVEL] >= 6))
+		{
+			if(valid(usedItem) && (usedItem.GetProtoId()==PID_SLEDGEHAMMER))
+			{
+				if(cr.CountItem(PID_IRON_PROD) >= 1)
+				{
+					item.Val1 += 1;
+					cr.DeleteItem(PID_IRON_PROD,1);
+					cr.Say(SAY_NETMSG, "вы забиваете кувалдой крепежные штыри");
+					cr.TimeoutBase[TO_SK_REPAIR]=__FullSecond+HammerTime;
+				}
+				else cr.Say(SAY_NETMSG, "нет крепежных штырей");
+				return true;
+			}
+			if(valid(usedItem) && (usedItem.GetProtoId()==PID_CROWBAR))
+			{
+				if(item.Val1 >= 1)
+				{
+					item.Val1 -= 1;
+					cr.Say(SAY_NETMSG, "вы выдергиваете ломиком крепежные штыри");
+					cr.TimeoutBase[TO_SK_REPAIR]=__FullSecond+HammerTime;
+				}
+				else cr.Say(SAY_NETMSG, "табличка не закреплена");
+				return true;
+			}
+		}
+		cr.Say(SAY_NETMSG, "у вас недостаточно сил");
+	}
+return false;
+}
+ 
+bool e_PoliceStuffUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	if(item.GetProtoId()==PID_SIGN)
+	{
+		if(item.Val0 == 0)
+		{
+		cr.ShowScreen(SCREEN_SAY , 0, "item@SignUseScreen");
+		cr.StatBase[ST_VAR0] = item.Id;
+		}
+		else cr.Say(SAY_NETMSG, "табличка уже заполненна");
+	}
+	return true;
+}
+ 
+void SignUseScreen(Critter& player, uint answerI, string& answerS)
+{
+if(answerS.length() != 0)
+	{
+	Item @ item = GetItem(player.StatBase[ST_VAR0]);
+	item.SetLexems("$SignLex"+ answerS);
+	item.Val0 = 1;
+	item.Update();
+	}
+}
+
+
+import bool SetTrapOnItem(Critter& cr, Item& trap, Item& onItem) from "trap"; // Export
+//import bool UseSkillOnTrappedItem(Item& trappedItem, Critter& cr,  int skill) from "trap"; // Export
+
+void _TestTrapInit(Item& item, bool firstTime)
+{
+  item.SetEvent(ITEM_EVENT_USE, "e_TestTrapUse");
+}
+
+bool e_TestTrapUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+  if(@cr == null || @item == null || @onItem == null) return false;
+  if(SetTrapOnItem(cr, item, onItem))	 {onItem.SetEvent(ITEM_EVENT_SKILL, "trap@UseSkillOnTrappedItem"); return true;}
+  return false;
+}
+
+void _WhistInit(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_WhistUse");
+}
+
+bool e_WhistUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	Map @ map = cr.GetMap();
+	map.PlaySound("whist.wav", cr.HexX, cr.HexY, cr.Stat[ST_ENDURANCE] * 5);
+	cr.Say(SAY_EMOTE_ON_HEAD, "Свестит в свисток.");
+	return true;
+}
+
+void _InitRpNamer(Item& item, bool firstTime)
+{
+item.SetEvent(ITEM_EVENT_USE, "e_RpNamerUse");
+}
+
+bool e_RpNamerUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	if(item.GetProtoId()==PID_INFOPAD)
+	{
+		cr.ShowScreen(SCREEN_SAY , 0, "item@RpNamerUseScreen");
+		cr.StatBase[ST_VAR0] = item.Id;
+	}
+	return true;
+}
+ 
+void RpNamerUseScreen(Critter& player, uint answerI, string& answerS)
+{
+if(answerS.length() != 0)
+	{
+	Item @ item = GetItem(player.StatBase[ST_VAR0]);
+	player.SetLexems(answerS);
+	DeleteItem(item);
+	}
+}
+
+void _music_fleita(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_fleitaUse");
+}
+
+bool e_fleitaUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	Map @ map = cr.GetMap();
+	if(Random(1, 5)>4) map.PlaySound("flute.wav", cr.HexX, cr.HexY, cr.Stat[ST_ENDURANCE] * 5);
+	else if(Random(1, 5)>3) map.PlaySound("flute2.wav", cr.HexX, cr.HexY, cr.Stat[ST_ENDURANCE] * 5);
+	else if(Random(1, 5)>2) map.PlaySound("flute3.wav", cr.HexX, cr.HexY, cr.Stat[ST_ENDURANCE] * 5);
+	else if(Random(1, 5)>1) map.PlaySound("flute4.wav", cr.HexX, cr.HexY, cr.Stat[ST_ENDURANCE] * 5);
+	else if(Random(1, 5)>0) map.PlaySound("flute5.wav", cr.HexX, cr.HexY, cr.Stat[ST_ENDURANCE] * 5);
+	cr.Say(SAY_EMOTE_ON_HEAD, "Играет на флейте.");
+	return true;
+}
+
+void _TraderBadge(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_traderbadgeUse");
+}
+
+bool e_traderbadgeUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	cr.Say(SAY_EMOTE_ON_HEAD, "Показывает значек торговца");
+	return true;
+}
+
+void _PochtaBadge(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_PochtaBadgeUse");
+}
+
+bool e_PochtaBadgeUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	cr.Say(SAY_EMOTE_ON_HEAD, "Показывает значек почтальона");
+	return true;
+}
+
+void _kosakInit(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_kosakUse");
+}
+
+bool e_kosakUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	Map @ map = cr.GetMap();
+	if(Random(0, 1)>0) map.PlaySound("drugs1.wav", cr.HexX, cr.HexY, 1);
+	else map.PlaySound("drugs2.wav", cr.HexX, cr.HexY,  1);
+	cr.Say(SAY_EMOTE_ON_HEAD, "Раскуривает косяк.");
+	if(cr.Stat[ST_POISONING_LEVEL]==0) {cr.StatBase[ST_EXPERIENCE]+=Random(0, 50); cr.StatBase[ST_POISONING_LEVEL]+=2;}
+	cr.DeleteItem(PID_KOSYAK,1);
+	return true;
+}
+
+void _InitGmPistol(Item& item, bool firstTime)
+{
+item.SetEvent(ITEM_EVENT_USE, "e_GmPistolUse");
+}
+
+bool e_GmPistolUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	if(item.GetProtoId()==PID_GM_PISTOL && cr.GetAccess()>=ACCESS_MODER)
+	{
+		cr.ShowScreen(SCREEN_SAY , 0, "item@GmPistolUseScreen");
+		cr.StatBase[ST_VAR0] = item.Id;
+	}
+	return true;
+}
+ 
+void GmPistolUseScreen(Critter& player, uint answerI, string& answerS)
+{
+	Item @ item = GetItem(player.StatBase[ST_VAR0]);
+	if(answerS.length() >0)
+	{
+		int number=0;
+		StrToInt (answerS, number);
+		item.Val1 = number;
+		if (number == 100) {item.Val2 = 0; player.Say(SAY_NETMSG, "притягивание");}
+		else if (number == 200) {item.Val2 = 1; player.Say(SAY_NETMSG, "прыжок к");}
+		else if (number == 300) {item.Val2 = 2; player.Say(SAY_NETMSG, "обезвоживание");}
+		else if (number == 400) player.RunClientScript("client_main@_showId", 1, 1, 1, null, null);
+		Critter@ target=GetCritter(number);
+		if (not valid(target) || item.Val2>1) return;
+
+		Critter@ daddy=((item.Val2!=0)?target:player);
+		Critter@ child=((item.Val2==0)?target:player);
+
+		Map@ map=daddy.GetMap();
+		if (not valid(map)) return;
+		uint8 temp_dir = Random(0, 5);
+		for(uint i=0; i<6; i++)
+			{
+			uint16 hexX = daddy.HexX, hexY = daddy.HexY;
+			map.MoveHexByDir (hexX, hexY, (temp_dir+i)%6, 1);
+			if(not map.IsHexPassed(hexX, hexY)) continue;
+			child.TransitToMap(map.Id, hexX, hexY, 0);
+			break;	
+			}
+	}
+}
+
+void _InitRPStuff(Item& item, bool firstTime)
+{
+item.SetEvent(ITEM_EVENT_USE, "e_RPStuffUse");
+}
+ 
+bool e_RPStuffUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+		if(item.Val0 == 0)
+		{
+		cr.ShowScreen(SCREEN_SAY , 0, "item@RPStuffUseScreen");
+		cr.StatBase[ST_VAR0] = item.Id;
+		}
+		else cr.Say(SAY_NETMSG, "уже заполненно");
+	return true;
+}
+ 
+void RPStuffUseScreen(Critter& player, uint answerI, string& answerS)
+{
+if(answerS.length() != 0)
+	{
+	Item @ item = GetItem(player.StatBase[ST_VAR0]);
+	uint16 itemPid=item.GetProtoId();
+
+	switch(itemPid)
+		{
+		case PID_RPSTUFF1: item.SetLexems(""+ answerS); break;
+		case PID_RPSTUFF2: item.SetLexems(""+ answerS); break;
+		case PID_RPSTUFF3: item.SetLexems(""+ answerS); break;
+		case PID_RPSTUFF4: item.SetLexems(""+ answerS); break;
+		case PID_RPGUN1: item.SetLexems(""+ answerS); break;
+		case PID_RPGUN2: item.SetLexems(""+ answerS); break;
+		case PID_RPGUN3: item.SetLexems(""+ answerS); break;
+		}
+
+	item.Val0 = 1;
+	item.Update();
+	}
+}
+
+void _InitPuti(Item& item, bool firstTime)
+{
+item.SetEvent(ITEM_EVENT_DROP, "e_PutiDrop");
+}
+ 
+void e_PutiDrop(Item& item, Critter& cr)
+{
+	if(cr.CountItem(PID_ROPE_USED)!=0 || cr.CountItem(PID_HANDCUFFS_USED)!= 0)
+	{
+		cr.AddItem(PID_PUTI, 1);
+		cr.Say(SAY_NETMSG, "Вы не можете снять путы");
+	}
+	DeleteItem(item);
+}
+
+void _InitCodeDoor(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_SKILL, "e_CodeDoorSkill");
+	item.LockerCondition = LOCKER_ELECTRO;
+}
+
+bool e_CodeDoorSkill(Item& item, Critter& cr, int skill)
+{
+	if(skill == SKILL_PICK_ON_GROUND)
+	{
+		if(_LockerIsClose(item))
+		{
+			cr.RunClientScript("client_screen_codedoor@ShowScreen", item.Id, 0, 0, "", null);
+			return true;
+		}
+	}
+return false;
+}

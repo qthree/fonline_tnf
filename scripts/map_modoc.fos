@@ -8,10 +8,12 @@ import uint EraseAttackPlane(Critter& npc, Critter& target) from "npc_planes";
 
 void _MapInit(Map& map, bool firstTime)
 {
-map.SetEvent(MAP_EVENT_OUT_CRITTER, "_imLeaving");
+	map.SetEvent(MAP_EVENT_OUT_CRITTER, "_imLeaving");
+	GameVar@ cant_dig = GetLocalVar(LMVAR_cant_dig, map.Id);
+	cant_dig=1;
 }
 
-bool entrance_Modoc(Critter@[]& critters, uint8 entrance)
+bool entrance_Modoc(Location& loc, Critter@[]& critters, uint8 entrance)
 {
 	Critter@ leader=critters[0];
 	if(entrance==ENTRANCE_NORTH) return leader.Skill[SK_OUTDOORSMAN]>=50;

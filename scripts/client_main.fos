@@ -9,7 +9,11 @@
 #include "_animation.fos"
 #include "combat_h.fos"
 
+//#include "client_call_sign.fos" //tnf radio
+
+import void InitializeGame() from "config";
 import void InitTestScreen() from "client_screen_test";
+import void InitRadioScreen() from "radio";
 import void GUI_Init() from "client_gui";
 import void GUI_GetActiveScreens(int[]& result) from "client_gui";
 import void GUI_ShowScreen(int screenIndex, int p0, int p1, int p2) from "client_gui";
@@ -24,8 +28,10 @@ import void GUI_InputLost() from "client_gui";
 import bool PerkCheck(CritterCl& cr, uint perk) from "perks";
 import void CritterGenerate(int[]& data) from "parameters";
 import bool CritterGenerateCheck(int[]& data) from "parameters";
-import void InitNameColorizing() from "name_colorizing";
-import bool TryColorizeCritter(CritterCl& cr) from "name_colorizing";
+//import void InitNameColorizing() from "name_colorizing";
+//import bool TryColorizeCritter(CritterCl& cr) from "name_colorizing";
+import void InitChosenTabs() from "chosen_tabs";
+import void DrawChosenTabs() from "chosen_tabs";
 //binyan - Hotkeys
 import void SetHotkeysUse(bool use) from "hotkeys";
 //binyan - timeouts
@@ -33,49 +39,140 @@ import void show_timeouts() from "client_timeouts";
 /////////////////////////////////////////////////////////
 import bool gm_msg(string& message) from "client_gm";
 
-int MouseX=0;
-int MouseY=0;
-bool showId = false;
+#ifdef PLAYERS_3D
+import void Init3DChaRegScreen() from "client_3d_cha_reg";
+import void Set3DRegistrationGender(int gender) from "client_3d_cha_reg";
+import void Fill3DRegistrationParameters(int[]& params) from "client_3d_cha_reg";
+#endif
+import void PlayAnimSound(uint crType, int gender, uint anim1, uint anim2) from "animation";
+
+//qthree
+import void SaveNames() from "client_names";
+import void LoadNames() from "client_names";
+import void ClearNameCache() from "client_names";
+import string@ GetName(uint id) from "client_names";
+import bool updateNick(CritterCl& cr) from "client_names";
+import bool updateAllNicks() from "client_names";
+
+import void DrawMapTiles() from "qmap_client";
+import void qmap_loop() from "qmap_client";
+
+
+//@pm menu
+import void InitContMenuScreen() from "client_screen_contmenu"; // Export 
+import void InitFastPanelScreen() from "client_screen_fastpanel"; // Export
+import void InitFastPanelSkillbox() from "client_screen_fastpanel"; //export
+import void InitFastPanelTextbox() from "client_screen_fastpanel";
+//import void SaveFastPanel(bool save) from "client_screen_fastpanel";
+import void InitHistoryViewScreen() from "client_screen_history";
+import void InitHistoryAllScreen() from "client_screen_history";
+import void HidePanel() from "client_screen_fastpanel";
+import void InitCodedoorScreen() from "client_screen_codedoor";
+//#pm menu
+
+uint prevId = 0; //нужен для определения, когда загружать сохраненные имена
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on client loaded or new client_main.fos script received.
 bool start()
 {
+	InitializeGame();
+
 	if(__ScreenWidth<800 || __ScreenWidth>1280 || __ScreenHeight<600 || __ScreenHeight>1024)
 	{
+		// Recomendation message
 		Message(GetMsgStr(TEXTMSG_GAME,STR_INVALID_RESOLUTION));
-		return false;
+//		return false;
 	}
 
+#ifdef PLAYERS_3D
+	AppendIfaceIni("players3d_chareg.ini");
+ #ifndef PLAYERS_3D_NO_HEAD
+	AppendIfaceIni("players3d_headinv.ini");
+ #endif
+#endif
+
+	LoadFont(FONT_COURIER_NEW_SMALL,"CourierNewSmall");
+	//SetDefaultFont(FONT_COURIER_NEW_SMALL,COLOR_TEXT);
+/*
 	if(!LoadDataFile("longhairdude.dat")) Message("File longhairdude.dat with Long Hair Dude animations not found. Run Updater.exe.");
 	if(!LoadDataFile("vaultboy.dat")) Message("File vaultboy.dat with Vault Boy animations not found. Run Updater.exe.");
 	if(!LoadDataFile("cablack.dat")) Message("File cablack.dat with Black Combat Armor animations not found. Run Updater.exe.");
-	//if(!LoadDataFile("fonline006.dat")) Message("File fonline006.dat with patched files not found. Run Updater.exe.");
-	//if(!LoadDataFile("fonline007.zip")) Message("File fonline007.zip with patched files not found. Run Updater.exe.");
 	if(!LoadDataFile("mirelurk.dat")) Message("File mirelurk.dat with Black Combat Armor animations not found. Run Updater.exe.");
-	if(!LoadDataFile("tnf.zip")) Message("File tnf.zip with Super_Secret_Files not found. Run Updater.exe.");
-	if(!LoadDataFile("tnf2.zip")) Message("File tnf2.zip not found. Run Updater.exe.");
-	if(!LoadDataFile("tnf3.zip")) Message("File tnf3.zip not found. Run Updater.exe.");
 	if(!LoadDataFile("balddude.zip")) Message("File balddude.zip not found. Run Updater.exe.");
 	if(!LoadDataFile("sandrobe.zip")) Message("File sandrobe.zip not found. Run Updater.exe.");
+*/
+	if(!LoadDataFile("tnf.zip")) Message("Не найден tnf.zip! Обновите клиент с репозитория http://svn3.xp-dev.com/svn/fo_cl_rp/");
+	else if(!AppendIfaceIni("rp_default.ini")) Message("Не найден rp_default.ini! Обновите клиент с репозитория http://svn3.xp-dev.com/svn/fo_cl_rp/");
+	else Message("Файлы из tnf.zip успешно загружены, карта мира и интерфейс изменены для игры на Roleplay сервере.");
 
-#include "start_server_client.fos"
 	GUI_Init();
-	InitNameColorizing();
+	//InitNameColorizing();
 //TMP  CallSignStart();
 	//InitTestScreen();
+	InitRadioScreen();
+	InitChosenTabs();
+
+	//@pm menu
+	InitContMenuScreen();
+	InitFastPanelScreen();
+	InitFastPanelSkillbox();
+	InitFastPanelTextbox();
+	InitCodedoorScreen();
+	//InitHistoryViewScreen();
+	//InitHistoryAllScreen();
+	//#pm menu
+	
+#ifdef PLAYERS_3D
+	Init3DChaRegScreen();
+#endif
 
 	__ShowPlayerNames = true;
-	__ShowNpcNames = false;
+	__ShowNpcNames = true;
+	
+	__global = CONF_GLOB_GRID | CONF_GLOB_WILD;
 
+	// 3d models preloading
+#ifdef PLAYERS_3D
+	// Mobs
+/*	Load3dFile("VbAnt.fo3d"           , PT_ART_CRITTERS);
+	Load3dFile("VbAntQueen.fo3d"      , PT_ART_CRITTERS);
+	Load3dFile("VbBat.fo3d"           , PT_ART_CRITTERS);
+	Load3dFile("VbBeetle.fo3d"        , PT_ART_CRITTERS);
+	Load3dFile("VbCentipede.fo3d"     , PT_ART_CRITTERS);
+	Load3dFile("VbCougar.fo3d"        , PT_ART_CRITTERS);
+	Load3dFile("VbCow.fo3d"           , PT_ART_CRITTERS);
+	Load3dFile("VbDeathclaw.fo3d"     , PT_ART_CRITTERS);
+	Load3dFile("VbDesertStalker.fo3d" , PT_ART_CRITTERS);
+	Load3dFile("VbDog.fo3d"           , PT_ART_CRITTERS);
+	Load3dFile("VbGila.fo3d"          , PT_ART_CRITTERS);
+	Load3dFile("VbMantrap.fo3d"       , PT_ART_CRITTERS);
+	Load3dFile("VbRadToad.fo3d"       , PT_ART_CRITTERS);
+	Load3dFile("VbRat.fo3d"           , PT_ART_CRITTERS);
+	Load3dFile("VbThornSlinger.fo3d"  , PT_ART_CRITTERS);
+	Load3dFile("VbAnt.fo3d"           , PT_ART_CRITTERS);
+	Load3dFile("VbWaspGiant.fo3d"     , PT_ART_CRITTERS);
+	Load3dFile("VbWeedling.fo3d"      , PT_ART_CRITTERS);*/
+	// Critters
+	Load3dFile("VbFemaleFat.fo3d"     , PT_ART_CRITTERS);
+	Load3dFile("VbFemaleNormal.fo3d"  , PT_ART_CRITTERS);
+	Load3dFile("VbFemaleStrong.fo3d"  , PT_ART_CRITTERS);
+	Load3dFile("VbFemaleWiry.fo3d"    , PT_ART_CRITTERS);
+	Load3dFile("VbFemaleSkeleton.fo3d", PT_ART_CRITTERS);
+	Load3dFile("VbMaleFat.fo3d"       , PT_ART_CRITTERS);
+	Load3dFile("VbMaleNormal.fo3d"    , PT_ART_CRITTERS);
+	Load3dFile("VbMaleStrong.fo3d"    , PT_ART_CRITTERS);
+	Load3dFile("VbMaleWiry.fo3d"      , PT_ART_CRITTERS);
+	Load3dFile("VbMaleSkeleton.fo3d"  , PT_ART_CRITTERS);
+#endif
 	return true;
-
 }
-
-import void SaveNames() from "client_names";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main loop function. Returned time of next call in milliseconds.
+
+uint loop_turn=0;
+
 uint loop()
 {
 /*	CritterCl@ cr = GetChosen();
@@ -83,17 +180,25 @@ uint loop()
 	cr.NameOnHead="|0xff77ff22 "+cr.Name+" |0xffff0000 (Id:"+cr.Id+")\n|0xffAA55BB HexX: "+cr.HexX+"\n|0xff11ffff HexY: "+cr.HexY;
 	return 100;
 */
-/*
-	int[] result;
-	GUI_GetActiveScreens(result);
 
-	if(!(GetChosen() is null) && ((result.length()>0 && result[result.length()-1] == CLIENT_MAIN_SCREEN_GAME) || (result.length()>1 && result[result.length()-2] == CLIENT_MAIN_SCREEN_GAME)) )
+	if(loop_turn%5==0) qmap_loop();
+
+	if(loop_turn%100==0)
 	{
-		SaveNames();
-		return 30000;
+	  int[] result;
+	  GUI_GetActiveScreens(result);
+  
+	  CritterCl@ ch = GetChosen();
+  
+	  if(!(ch is null) && (prevId==ch.Id) && ((result.length()>0 && result[result.length()-1] == CLIENT_MAIN_SCREEN_GAME) || (result.length()>1 && result[result.length()-2] == CLIENT_MAIN_SCREEN_GAME)) )
+	  {
+		  SaveNames();
+	  }
 	}
-*/	
-	return 10000;
+	loop_turn+=1;
+	if(loop_turn>100) loop_turn=0;
+
+	return 100;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,6 +212,13 @@ void get_active_screens(int[]& result)
 // Show/hide screen behaviour.
 void screen_change(bool show, int screen, int p0, int p1, int p2)
 {
+//qthree
+if(screen==CLIENT_MAIN_SCREEN_LOGIN)
+{
+	prevId=0;
+	ClearNameCache();
+}
+
 //binyan - Hotkeys
 if(screen==CLIENT_SCREEN_SAY || screen==CLIENT_SCREEN_TIMER || screen==CLIENT_SCREEN_INPUT_BOX || screen==CLIENT_SCREEN_SPLIT)
    __IsTextInput = show?true:false;
@@ -130,27 +242,307 @@ if(screen==CLIENT_SCREEN_SAY || screen==CLIENT_SCREEN_TIMER || screen==CLIENT_SC
 //    4
 // PopUp menu, Cursor
 //    5
+//
+// Extra layers:
+// Global map
+//    100
+
+int[]@ data_color = null;
+int[]@ data_number = null;
+int[]@ data_char = null;
+
+void _dr(int param0, int param1, int param2, string@ param3, int[]@ param4) //draw data
+{
+	switch(param0)
+	{
+	case 1: @data_color = param4; break;
+	case 2: @data_number = param4; break;
+	case 3: @data_char = param4; break;
+	default: break;
+	}
+}
+
 void render_iface(uint layer)
 {
-	if(layer==3) GUI_Render();
-//binyan - Hex attack
-	if(__IsHexAttack)
-	{
-	  int tohit = to_hit_hex();
-	  if(tohit>0)
-	   	DrawText(tohit+"%", MouseX+7, MouseY+8, ((tohit/10>=1?2:1)+2)*10 , 10, COLOR_RED, FONT_FALLOUT, 0);
+	if(layer==3)
+ 	{
+		DrawChosenTabs();
+		GUI_Render();
+
+		//binyan - Hex attack
+		if(__IsHexAttack)
+		{
+			int tohit = to_hit_hex();
+			if(tohit>0)
+		   	DrawText(tohit+"%", __MouseX+7, __MouseY+8, ((tohit/10>=1?2:1)+2)*10 , 10, COLOR_RED, FONT_FALLOUT, 0);
+		}
+		if(__ShowTimeouts)
+		show_timeouts();
 	}
-	if(__ShowTimeouts)
-	   show_timeouts();
+	else if(layer == 100 && __GmapActive)
+	{
+		// Here you can draw on global map
 
+		// bool  __GmapActive - активна ли глобальная карта и все ли следующие нижеприведенные переменные корректны;
+		// bool  __GmapWait   - включен режим ожидания ответа о подтверждении энкаунтера;
+		// float __GmapZoom   - текущий масштаб, не забывайте учитывать его при рисовании на карте;
+		// int   __GmapOffsetX/Y   - смещение карты от нулевой координаты (верхний-левый угол);
+		// int   __GmapGroupCurX/Y - координаты группы игрока;
+		// int   __GmapGroupToX/Y  - координаты точки назначения;
+		// float __GmapGroupSpeed  - текущая скорость передвижения.
+		// Для примера, расчет текущего пикселя группы:
+		// x = __GmapGroupX / __GmapZoom + __GmapOffsetX, y = __GmapGroupY / __GmapZoom + __GmapOffsetY.
+		
+		CritterCl@ ch = GetChosen();
+		
+		int flags = (FT_NOBREAK | FT_CENTERX | FT_CENTERY | FT_BORDERED),
+		font = FONT_FALLOUT;
+		
+		float size = 10/__GmapZoom;
+		
+		uint16 chx = __GmapGroupCurX/10, chy = __GmapGroupCurY/10;
+		
+		if(@data_color!=null && __global&CONF_GLOB_WILD!=0)
+		{
+			uint len = data_color.length();
+			
+			if(len>0 && len%2==0)
+			{
+				//int color = 0x44772222;
+				
+				int[]  drawData(len/2*18);
+				
+				for(uint i=0, j=0; i<len/2; j++)
+				{
+					float x = (data_color[j*2]&0xFFFF),
+					y = ((data_color[j*2]>>16));
+					
+					//if(x0==chx && y0==chy) {len-=2; continue;}
+					
+					x=x*10/__GmapZoom+__GmapOffsetX;
+					y=y*10/__GmapZoom+__GmapOffsetY;
+					
+					int a = data_color[j*2+1];
+					
+					/*if(a==0x33773333)
+					{
+						len-=2; continue;
+					}*/
 
-//////////////////////////////////
+					uint k=i*18;
+					drawData[k++]=x;
+					drawData[k++]=y;
+					drawData[k++]=a;
+					drawData[k++]=x+size;
+					drawData[k++]=y;
+					drawData[k++]=a;
+					drawData[k++]=x;
+					drawData[k++]=y+size;
+					drawData[k++]=a;
+					drawData[k++]=x;
+					drawData[k++]=y+size;
+					drawData[k++]=a;
+					drawData[k++]=x+size;
+					drawData[k++]=y;
+					drawData[k++]=a;
+					drawData[k++]=x+size;
+					drawData[k++]=y+size;
+					drawData[k++]=a;
+					
+					/*for(uint k=0, p=i*18; k<4; k++)
+					{
+						drawData[p++]=x+size*(k&1);
+						drawData[p++]=y+size*(k>>1);
+						drawData[p++]=a;
+					}*/
+					
+					i++;
+				}
+				drawData.resize(len/2*18);
+				DrawPrimitive(DRAW_PRIMITIVE_TRIANGLELIST, drawData);
+			}
+		}
+		
+		if(size>10 && __global&CONF_GLOB_GRID!=0)
+		{
+			uint8 alpha = CLAMP((size-5)*20, 0, 0xAA);
+			//int r=0x66, g=0xBB, b=0x44;
+			int r=0x22, g=0x22, b=0x22;
+			//float t=2/__GmapZoom-2; t=MIN(t, 1);
+			//r*=t*t*t; g*=t; b*=t*t*t;
+			r=CLAMP(r, 0, 0xFF); g=CLAMP(g, 0, 0xFF); b=CLAMP(b, 0, 0xFF);
+			int color = ((alpha)<<24)|(r<<16)|(g<<8)|(b);
+			
+			float x0=__GmapOffsetX,
+			y0=__GmapOffsetY,
+			x=(ZONE_COUNT_X*ZONE_LENGTH)/__GmapZoom+__GmapOffsetX,
+			y=(ZONE_COUNT_Y*ZONE_LENGTH)/__GmapZoom+__GmapOffsetY;
+			
+			uint w = ZONE_COUNT_X*ZONE_LENGTH/10,
+			h = ZONE_COUNT_Y*ZONE_LENGTH/10;
+			
+			int[]  drawData((w+h+2)*6);
+			
+			for(uint i=0; i<=h; i++)
+			{
+				drawData[i*6]=x0;
+				drawData[i*6+1]=y0+size*i;
+				drawData[i*6+2]=color;
+				drawData[i*6+3]=x;
+				drawData[i*6+4]=y0+size*i;
+				drawData[i*6+5]=color;
+			}
+			for(uint j=0; j<=w; j++)
+			{
+				uint i=h+1+j;
+				drawData[i*6]=x0+size*j;
+				drawData[i*6+1]=y0;
+				drawData[i*6+2]=color;
+				drawData[i*6+3]=x0+size*j;
+				drawData[i*6+4]=y;
+				drawData[i*6+5]=color;
+			}
+			
+			DrawPrimitive(DRAW_PRIMITIVE_LINELIST, drawData);
+		}
+		
+		if(size>=5 /*&& ((ch !is null and ch.Stat[ARCADE_MODE]==1) || __sinf&SINF_GRID!=0 || __sinf&SINF_GLOBAL!=0)*/)
+		{
+			float x = (chx*10) / __GmapZoom + __GmapOffsetX,
+			y = (chy*10) / __GmapZoom + __GmapOffsetY;
+			
+			//int[]  drawData = {x, y, color, x+size, y, color, x+size, y+size, color, x, y+size, color, x, y, color};
+			//if(size<=10)
+			{
+				int color = 0xAA00FFFF;
+				
+				int[]  drawData = {x+1, y+1, color, x+size-1, y+1, color, x+size-1, y+size-1, color, x+1, y+size-1, color, x+1, y+1, color};
+				DrawPrimitive(DRAW_PRIMITIVE_LINESTRIP, drawData);
+			}
+			/*else
+			{
+				uint8 alpha = MIN((2000.0f/size), 0x88);
+				int color = 0x0000FFFF|((alpha)<<24);
+			
+				int[]  drawData = {x+1, y+1, color, x+size-1, y+1, color, x+1, y+size-1, color, x+size-1, y+size-1, color};
+				DrawPrimitive(DRAW_PRIMITIVE_TRIANGLESTRIP, drawData);
+			}*/
+		}
+		
+		if(@data_number!=null)
+		{
+			uint len = data_number.length();
+			
+			if(len>0 && len%2!=1)
+			{
+				for(uint i=0; i<len/2; i++)
+				{
+					float x = (data_number[i*2]&0xFFFF),
+					y = ((data_number[i*2]>>16));
+					
+					//bool drawTriangle=true;
+					//if(uint16(x/10)==chx && uint16(y/10)==chy) drawTriangle=false;
+					
+					x=x*10/__GmapZoom+__GmapOffsetX;
+					y=y*10/__GmapZoom+__GmapOffsetY;
+					int a = data_number[i*2+1]&0xFFFF,
+					b = data_number[i*2+1]>>16;;
+					//if(x<0 || y<0 || x>)
+					string str = a;
+					if(b>0) str+= "+"+(b-a);
+
+					/*if(size<=10 || !drawTriangle)
+					{
+						int color = 0xAAFFAA00;
+						
+						int[]  drawData = {x+1, y+1, color, x+size-1, y+1, color, x+size-1, y+size-1, color, x+1, y+size-1, color, x+1, y+1, color};
+						DrawPrimitive(DRAW_PRIMITIVE_LINESTRIP, drawData);
+					}
+					else*/
+					{
+						uint8 alpha = MIN((2000.0f/size), 0x88);
+						int color = 0x00FFAA00|((alpha)<<24);
+					
+						int[]  drawData = {x+1, y+1, color, x+size-1, y+1, color, x+1, y+size-1, color, x+size-1, y+size-1, color};
+						DrawPrimitive(DRAW_PRIMITIVE_TRIANGLESTRIP, drawData);
+					}	
+					//void GetTextInfo(string& text, int w, int h, int font, int flags, int& tw, int& th, int& lines)
+					//string& text – текст;
+					//int w, h, font, flags – высота, ширина, шрифт, флаги;
+					//int& tw, int& th, int& lines – итоговые ширина, высота и количество строк данного текста.
+					int tw=0, th=0, lines=0;
+					GetTextInfo(str, 0, 0, font, flags, tw, th, lines);
+					DrawText(str, x-(tw>>1), y-(tw>>1), size+tw, size+tw, 0xFF22AAFF, font, flags);
+				}				
+			}
+		}
+		
+		if(@data_char!=null)
+		{
+			uint len = data_char.length();
+			
+			if(len>0 && len%2!=1)
+			{
+				for(uint i=0; i<len/2; i++)
+				{
+					float x = (data_char[i*2]&0xFFFF),
+					y = ((data_char[i*2]>>16));
+					
+					//bool drawTriangle=true;
+					//if(uint16(x/10)==chx && uint16(y/10)==chy) drawTriangle=false;
+					
+					x=x*10/__GmapZoom+__GmapOffsetX;
+					y=y*10/__GmapZoom+__GmapOffsetY;
+					uint a = (data_char[i*2+1]&0x00FFFFFF)|0xFF000000,
+					b = data_char[i*2+1]>>24;
+					
+					string str = " ";
+					str[0]=b;
+					
+					//void GetTextInfo(string& text, int w, int h, int font, int flags, int& tw, int& th, int& lines)
+					//string& text – текст;
+					//int w, h, font, flags – высота, ширина, шрифт, флаги;
+					//int& tw, int& th, int& lines – итоговые ширина, высота и количество строк данного текста.
+					int tw=0, th=0, lines=0;
+					GetTextInfo(str, 0, 0, font, flags, tw, th, lines);
+					DrawText(str, x-(tw>>1), y-(tw>>1), size+tw, size+tw, a, font, flags);
+				}				
+			}
+		}
+		
+		/*if(__sinf&SINF_GLOBAL!=0)*/
+		{
+			float x=(__MouseX-__GmapOffsetX)*__GmapZoom,
+			y=(__MouseY-__GmapOffsetY)*__GmapZoom;
+			
+			x-= x%10; y-= y%10;
+			
+			string str=floor(x/10)+" : "+floor(y/10);
+			
+			x=x/__GmapZoom+__GmapOffsetX;
+			y=y/__GmapZoom+__GmapOffsetY;
+			
+			if(size>=5)
+			{
+				int[]  drawData = {x+1, y+1, COLOR_RED, x+size-1, y+1, COLOR_RED, x+size-1, y+size-1, COLOR_RED, x+1, y+size-1, COLOR_RED, x+1, y+1, COLOR_RED};
+				DrawPrimitive(DRAW_PRIMITIVE_LINESTRIP, drawData);
+			}
+			
+			int tw=0, th=0, lines=0;
+			/*GetTextInfo(str, 0, 0, font, flags, tw, th, lines);
+			DrawText(str, x-(tw>>1), y-(tw>>1), size+tw, size+tw, 0xFFAA66EE, font, flags);*/
+			
+			GetTextInfo(str, 0, 0, font, FT_NOBREAK, tw, th, lines);
+			DrawText(str, __MouseX+30, __MouseY+10, tw, th, COLOR_LGREEN, font, FT_NOBREAK);
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Render map function. You can use DrawMap* functions only there. This drawing before 1 iface layer.
 void render_map()
 {
+	DrawMapTiles();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,31 +550,59 @@ void render_map()
 // Return true to disable engine events.
 bool mouse_down(int click)
 {
-	return GUI_MouseDown(click,MouseX,MouseY);
+	return GUI_MouseDown(click, __MouseX, __MouseY);
 }
 
 bool mouse_up(int click)
 {
-	return GUI_MouseUp(click,MouseX,MouseY);
+	return GUI_MouseUp(click, __MouseX, __MouseY);
 }
 
 void mouse_move(int x, int y)
 {
-	MouseX=x;
-	MouseY=y;
+	// x == __MouseX
+	// y == __MouseY
 	GUI_MouseMove(x,y);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard behaviours. Key codes look in _client_defines.fos DirectInput keyboard scan codes.
 // Return true to disable engine events.
+bool AltDown=false;
 bool key_down(uint8 key)
 {
+	if(__waiting)
+	{
+		CritterCl@ ch = GetChosen();
+		if(@ch!=null)
+		{
+			if(key==DIK_ESCAPE || key==DIK_SPACE)
+			{
+				if(ch.Param[ST_VAR5]>0) {Message("Antiflood.");}
+				else RunServerScriptUnsafe("ltp@unsafe_StopProcess",  0, 0, 0, null, null);
+			}
+			return true;
+		}
+		else __waiting=false;		
+	}
+	
+	// Effect example, temporary
+	if(key==DIK_LMENU || key==DIK_RMENU) AltDown=true;
+	if(AltDown && key==DIK_Q) SetEffect(EFFECT_2D,-1,"2D_Default.fx");
+	if(AltDown && key==DIK_W) SetEffect(EFFECT_2D,-1,"2D_BlackWhite.fx");
+	
+	if(key == DIK_LCONTROL || key == DIK_RCONTROL) __ctrlDown = true; //@pm menu
+	
     return GUI_KeyDown(key);
 }
 
 bool key_up(uint8 key)
 {
+	if(key==DIK_LMENU || key==DIK_RMENU) AltDown=false;
+	if(key == DIK_LCONTROL || key == DIK_RCONTROL) __ctrlDown = false; //@pm menu
+	
+	if(__waiting) return true;
+
 	return GUI_KeyUp(key);
 }
 
@@ -190,49 +610,31 @@ bool key_up(uint8 key)
 // Called on mouse/keyboard input lost (alt-tab, minimize, lost focus).
 void input_lost()
 {
+	AltDown=false;
+
 	GUI_InputLost();
 }
-
-import string@ GetName(uint id) from "client_names";
-
-import void LoadNames() from "client_names";
-
-uint prevId = 0;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Called on something critter in/out game.
 void critter_in(CritterCl& cr)
 {
-/*
 	CritterCl@ ch = GetChosen();
-	
 	if(!(ch is null) && (ch.Id==cr.Id) && (prevId!=cr.Id))
 	{
+		@data_number=null;
+		@data_color=null;
+		@data_char=null;
 		LoadNames();
 		prevId=cr.Id;
 	}
 
-	string@ s_temp = null;
-	
-	@s_temp = GetName(cr.Id);
+	updateNick(cr);
 
-	if(!(s_temp is null)) cr.Name=s_temp;
-	else if(GetChosen().Id==cr.Id) {}
-	else cr.Name="";
-*/
 	// Default colors
-	if(cr.IsPlayer())
-	{
-		cr.NameColor=(cr.StatBase[ST_PLAYER_TEAM]==1?COLOR_GREEN:COLOR_RED);
-		cr.ContourColor=(cr.StatBase[ST_PLAYER_TEAM]==1?COLOR_CONTOUR_GREEN:COLOR_CONTOUR_RED);
-	}
-	else
-	{
-		cr.NameColor=COLOR_CRITTER_NAME;
-		cr.ContourColor=COLOR_CONTOUR_YELLOW;
-	}
-
-//	if(cr.Stat[ARCADE_MODE]==1) cr.ContourColor=COLOR_CONTOUR_RED;
+	cr.NameColor=COLOR_CRITTER_NAME;
+	cr.ContourColor=(cr.IsPlayer()?COLOR_CONTOUR_YELLOW:COLOR_CONTOUR_RED);
+	if(cr.Stat[ARCADE_MODE]==1) cr.ContourColor=COLOR_CONTOUR_RED;
 
 	// Try colorize from file
 	//if(TryColorizeCritter(cr)) return;
@@ -260,6 +662,8 @@ void critter_in(CritterCl& cr)
 			}
 		}
 	}*/
+	//HidePanel();
+	//SaveFastPanel(false); //@pm menu
 }
 
 void critter_out(CritterCl& cr)
@@ -301,6 +705,8 @@ void item_drop(ItemCl& item)
 // By default delay == [TextDelay + message length * 100] ms
 bool map_message(string& message, uint16& hexX, uint16& hexY, uint& color, uint& delay)
 {
+	// Detect radio
+	if(color==0xFFFFFFFE) message=".."+message+"..";
 	return true;
 }
 
@@ -309,104 +715,149 @@ bool map_message(string& message, uint16& hexX, uint16& hexY, uint& color, uint&
 // By default delay == [TextDelay + message length * 100] ms
 bool in_message(string& message, int& sayType, uint& critterId, uint& delay)
 {
-//binyan - Language barrier
-CritterCl@ sender = GetCritter(critterId);
-if(!sender.IsPlayer())
-return true;
-CritterCl@ receiver = GetChosen();
-int bs = sender.Stat[ST_BODY_TYPE];
-int br = receiver.Stat[ST_BODY_TYPE];
-if((bs==br&&bs!=BT_PLANT)||(((bs>=BT_MEN&&bs<BT_BRAHMIN)||bs==BT_ROBOT||bs==BT_BIG_BAD_BOSS)&&((br>=BT_MEN&&br<BT_BRAHMIN)||br==BT_ROBOT||br==BT_BIG_BAD_BOSS))
-   ||((bs==BT_MANTI||bs==BT_RADSCORPION||bs==BT_GIANT_ANT||bs==BT_GIANT_BEETLE||bs==BT_GIANT_WASP)&&(br==BT_MANTI||br==BT_RADSCORPION||br==BT_GIANT_ANT||br==BT_GIANT_BEETLE||br==BT_GIANT_WASP)))
-	return true;
-else
-{
- sayType=SAY_EMOTE;
- switch(bs)
-   {
-   case BT_MEN:message="Говорит";break;
-   case BT_WOMEN:message="Говорит";break;
-   case BT_CHILDREN:message="Говорит";break;
-   case BT_SUPER_MUTANT:message="Говорит";break;
-   case BT_GHOUL: message="Говорит";break;
-   case BT_BRAHMIN: message="Мычит";break;
-   case BT_RADSCORPION: message="Щелкает клешнями";break;
-   case BT_RAT: message="Пищит";break;
-   case BT_FLOATER: message="Хрипение";break;
-   case BT_CENTAUR: message="Хрипение";break;
-   case BT_ROBOT: message="Попикивает";break;
-   case BT_DOG: message="Лает";break;
-   case BT_MANTI: message="Стрекочет";break;
-   case BT_DEADCLAW: message="Рычит";break;
-   case BT_PLANT: message="";break;
-   case BT_GECKO: message="Шипит";break;
-   case BT_ALIEN: message="Хрипит";break;
-   case BT_GIANT_ANT: message="Стрекочет";break;
-   case BT_BIG_BAD_BOSS: message="Говорит";break;
-   case BT_GIANT_BEETLE: message="Стрекочет";break;
-   case BT_GIANT_WASP: message="Жужит";break;
-   case MAX_BODY_TYPES: message="";break;
-   }
-return true;
-}
-///////////////////////////////////////////////////	
+	if(sayType >= SAY_RADIO) return true; // for work radio and service messages
+
+	if((__sinf&SINF_CRID_CHAT)!=0 && critterId!=0 && sayType<=SAY_WHISP_ON_HEAD)
+	{
+		message="["+critterId+"] "+message;
+	}
+	if((__sinf&SINF_INSIGHT)!=0) return true;
+
+	//binyan - Language barrier
+	CritterCl@ sender = GetCritter(critterId);
+	if(sender is null) return false;
+	
+	if(sender.IsNpc()) return true;
+	
+	CritterCl@ receiver = GetChosen();
+	if(!(receiver is null) && receiver.Param[QST_MEDIUM]==0 && sender.Param[QST_MEDIUM]==0)
+	{
+		int bs = sender.Stat[ST_BODY_TYPE];
+		int br = receiver.Stat[ST_BODY_TYPE];
+		if(message.length()>1)
+		{
+			if((bs==br&&bs!=BT_PLANT)
+			|| (((bs>=BT_MEN&&bs<BT_BRAHMIN)||bs==BT_ROBOT||bs==BT_BIG_BAD_BOSS)&&((br>=BT_MEN&&br<BT_BRAHMIN)||br==BT_ROBOT||br==BT_BIG_BAD_BOSS))
+			|| ((bs==BT_MANTI||bs==BT_RADSCORPION||bs==BT_GIANT_ANT||bs==BT_GIANT_BEETLE||bs==BT_GIANT_WASP)&&(br==BT_MANTI||br==BT_RADSCORPION||br==BT_GIANT_ANT||br==BT_GIANT_BEETLE||br==BT_GIANT_WASP)) )
+			return true;
+		}
+		
+		if(bs == BT_ZOMBIE)
+		{
+			if(sender.IsDead()) return false;
+			string@ msg = GenerateZombieSpeech(sayType);
+			if(msg !is null && msg.length()>0) message=msg;
+		}
+		else
+		{
+			sayType=SAY_EMOTE;
+			switch(bs)
+			{
+				case BT_MEN:message="Говорит";break;
+				case BT_WOMEN:message="Говорит";break;
+				case BT_CHILDREN:message="Говорит";break;
+				case BT_SUPER_MUTANT:message="Говорит";break;
+				case BT_GHOUL: message="Говорит";break;
+				case BT_BRAHMIN: message="Мычит";break;
+				case BT_RADSCORPION: message="Щелкает клешнями";break;
+				case BT_RAT: message="Пищит";break;
+				case BT_FLOATER: message="Хрипение";break;
+				case BT_CENTAUR: message="Хрипение";break;
+				case BT_ROBOT: message="Попикивает";break;
+				case BT_DOG: message="Лает";break;
+				case BT_MANTI: message="Стрекочет";break;
+				case BT_DEADCLAW: message="Рычит";break;
+				case BT_PLANT: message="";break;
+				case BT_GECKO: message="Шипит";break;
+				case BT_ALIEN: message="Хрипит";break;
+				case BT_GIANT_ANT: message="Стрекочет";break;
+				case BT_BIG_BAD_BOSS: message="Говорит";break;
+				case BT_GIANT_BEETLE: message="Стрекочет";break;
+				case BT_GIANT_WASP: message="Жужит";break;
+				case MAX_BODY_TYPES: message="";break;
+			}
+		}
+ 	}
+	return true;	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on send message.
 bool out_message(string& message, int& sayType)
 {
-if(findFirst(message, "$arcade")==0) RunServerScriptUnsafe("arcade_menu@unsafe_arcade",0,0,0,null,null);
+	if(findFirst(message, "$arcade")==0) RunServerScriptUnsafe("arcade_menu@unsafe_arcade",0,0,0,null,null);
 
-//binyan - Hotkyes
+	//binyan - Hotkyes
 
-if(__MessagePrefix!="")
-  {
-    message = __MessagePrefix+" "+message;
-    __MessagePrefix="";
-  }
+	if(__MessagePrefix!="")
+	  {
+		message = __MessagePrefix+" "+message;
+		__MessagePrefix="";
+	  }
 
-if(__IsHotkeysUse)
-   __IsTextInput=true;
+	if(__IsHotkeysUse)
+	   __IsTextInput=true;
 
-if(findFirst(message, "~hotkeys")==0)
-  {
-    string@[]@ msg = split(message, " ");
-	if(msg.length()==1)
-	   Message("Hotkeys use is now "+(__IsHotkeysUse?"on":"off"));
-	else
-	{
-	   if(msg[1] == "on")
-	      SetHotkeysUse(true);
-	   else if(msg[1] == "off")
-	      SetHotkeysUse(false);
+	if(findFirst(message, "~hotkeys")==0)
+	  {
+		string@[]@ msg = split(message, " ");
+		if(msg.length()==1)
+		   Message("Hotkeys use is now "+(__IsHotkeysUse?"on":"off"));
+		else
+		{
+		   if(msg[1] == "on")
+			  SetHotkeysUse(true);
+		   else if(msg[1] == "off")
+			  SetHotkeysUse(false);
 
-	   if(__IsHotkeysUse)
-          __IsTextInput=true;;
-  
-	   Message("Hotkeys use is now "+(__IsHotkeysUse?"on":"off"));
-	}
-	return false;
-  }	
+		   if(__IsHotkeysUse)
+			  __IsTextInput=true;;
+	  
+		   Message("Hotkeys use is now "+(__IsHotkeysUse?"on":"off"));
+		}
+		return false;
+	  }	
  /////////////////////////////////////////////// 
 
 
-/*	if(message[0]=='~') // Command
+	if(message[0]=='~') // Command
 	{
-		if(message=="~names")
+		/*if(message=="~names")
 		{
 			InitNameColorizing();
 			Message("Names colorizer refreshed.");
 			return false;
+		}*/
+
+		if(message=="~newmenu")
+		{
+			__mouse3Use = (__mouse3Use ? false : true);
+			Message("newmenu for critters : "+(__mouse3Use ? "On" : "Off"));
+			return false;
+		}
+		
+		if(message=="~fastpanel")
+		{
+			__fastPanel = (__fastPanel ? false : true);
+			HidePanel();
+			//HidePanel();
+			if(__fastPanel) RunServerScriptUnsafe("client_unsafe@unsafe_send_fastpanel", 0, 0, 0, "", null);
+			Message("fastpanel : "+(__fastPanel ? "On" : "Off"));
+			//HidePanel();
+			return false;
 		}
 		return true;
 	}
-*/
-	if(message[0]=='#' || message[0]=='%' || message[0]=='$') //GM
+
+	if(message[0]=='#' || message[0]=='%' || message[0]=='$') //tnf commands
 	{
 		return gm_msg(message);
 	}
-
+	
+	
+	CritterCl@ chosen=GetChosen();
+	if(chosen !is null and sayType<SAY_NETMSG and chosen.IsDead() and chosen.Anim2Dead>ANIM2_DEAD_BACK){Message("Мертвые не разговаривают."); return false;}
+	
 	if(sayType==SAY_NORM)
 	{
 		if(message.length()>2 && (message[0]=='/' || message[0]=='.'))
@@ -435,10 +886,25 @@ if(findFirst(message, "~hotkeys")==0)
 			message=substring(message,1,message.length()-2);
 		}
 	}
-	if(sayType==SAY_RADIO)
+	
+	if(sayType>=SAY_NORM && sayType<=SAY_RADIO)
+	{
+		for(uint i=0, len=message.length(); i<len; i++)
+		{
+			uint8 chr = message[i];
+			if(chr<32 || (chr>34 && chr<42) || (chr>42 && chr<44) || chr==47 || (chr>57 && chr<63) || chr==64 || (chr>90 && chr<97) || (chr>122 && chr<192 && chr!=168 && chr!=184))
+			{
+				Message("В сообщениии есть запрещенные символы.");
+				return false;
+			}
+		}	 
+	}
+	
+	
+/*	if(sayType==SAY_RADIO)
 	{
 		bool result=false;
-//TMP		if (CallSignHook1(message, sayType, result)) return result;
+		if (CallSignHook1(message, sayType, result)) return result;  //radio sign
 		CritterCl@ chosen=GetChosen();
 		if(not valid(chosen)) return false;
 		ItemCl@ hand1=_CritGetItemHand(chosen);
@@ -449,9 +915,9 @@ if(findFirst(message, "~hotkeys")==0)
 			return false;
 		}
 
-//TMP		if (CallSignHook2(message, sayType, result)) return result;
+		if (CallSignHook2(message, sayType, result)) return result; //radio sign
 	}
-
+*/
 	bool result=false;
 	for(uint i=0,j=message.length();i<j;i++)
 	{
@@ -468,37 +934,46 @@ if(findFirst(message, "~hotkeys")==0)
 //binyan - Hex attack
 int to_hit_hex()
 {
-//Used only on empty hex and throwing weapon and rocket launchers
-CritterCl@ chosen = GetChosen();
-if (!chosen.IsLife()) return 0;
-CritterCl@ target = GetMonitorCritter (MouseX, MouseY);
-if (valid(target)) return 0;	
+	//Used only on empty hex and throwing weapon and rocket launchers
+	CritterCl@ chosen = GetChosen();
+	if (!chosen.IsLife()) return 0;
+	CritterCl@ target = GetMonitorCritter (__MouseX, __MouseY);
+	if (valid(target)) return 0;
 
-ProtoItem@ weapon = chosen.GetSlotProto(SLOT_HAND1);
-ItemCl@ realWeapon=_CritGetItemHand(chosen);
-bool isRocket=(realWeapon.WeaponAmmoPid == PID_EXPLOSIVE_ROCKET) || (realWeapon.WeaponAmmoPid == PID_ROCKET_AP) || (realWeapon.WeaponAmmoPid == PID_ROBO_ROCKET_AMMO) || (realWeapon.WeaponAmmoPid == PID_GRENADELAUNCHER_AMMO);
-uint skillNum=weapon.Weapon_Skill;
-  if(not (skillNum == SK_THROWING) && !isRocket)
-     return 0;
-
-if (valid(realWeapon) && weapon.Weapon_Round>0)
-   if (realWeapon.WeaponAmmoCount==0) return 0;
-	 
-uint16 tx = 0, ty = 0;
-GetMonitorHex(MouseX, MouseY, tx, ty);
-if(tx==0&&ty==0)
-   return 0;
-   
-int dist=GetDistantion(chosen.HexX, chosen.HexY, tx, ty);
+	uint8 mode = 0;
+	ProtoItem@ weapon = chosen.GetSlotProto(SLOT_HAND1, mode);
+	if(weapon is null) return 0;
+	uint skillNum=_WeaponSkill(weapon, mode);
+	int dmgType=_WeaponDmgType(weapon, mode);
 	
-uint16 toHx = tx, toHy = ty;
-GetHexCoord ( chosen.HexX,  chosen.HexY, toHx, toHy,  0.0f, dist);
-if((tx!=toHx)||(ty!=toHy))
-  return 0;
+	ItemCl@ realWeapon=_CritGetItemHand(chosen);
+
+	bool isFlareGun = (realWeapon.WeaponAmmoPid == PID_FLARE_GUN_AMMO) && (_WeaponModeUse(mode) == 1); //pm added flare gun check
+
+	bool isRocket=false;
+	if(valid(realWeapon)) isRocket=(realWeapon.WeaponAmmoPid == PID_EXPLOSIVE_ROCKET) || (realWeapon.WeaponAmmoPid == PID_ROCKET_AP) || (realWeapon.WeaponAmmoPid == PID_ROBO_ROCKET_AMMO) || (realWeapon.WeaponAmmoPid == PID_GRENADELAUNCHER_AMMO);
+	
+	 if(!isFlareGun && !isRocket && (skillNum != SK_THROWING || !(dmgType==DAMAGE_PLASMA || dmgType==DAMAGE_EMP || dmgType==DAMAGE_EXPLODE) ))
+		return 0;
+
+	if (valid(realWeapon) && skillNum != SK_THROWING)
+	   if (realWeapon.WeaponAmmoCount==0) return 0;
+		 
+	uint16 tx = 0, ty = 0;
+	GetMonitorHex(__MouseX, __MouseY, tx, ty);
+	if(tx==0&&ty==0)
+	   return 0;
+	   
+	int dist=GetDistantion(chosen.HexX, chosen.HexY, tx, ty);
+		
+	uint16 toHx = tx, toHy = ty;
+	GetHexCoord ( chosen.HexX,  chosen.HexY, toHx, toHy,  0.0f, dist);
+	if((tx!=toHx)||(ty!=toHy))
+	return 0;
 
  
    
-    int wpnMaxDist=weapon.Weapon_MaxDist;
+    int wpnMaxDist=_WeaponMaxDist(weapon, mode);
     if (skillNum == SK_THROWING) wpnMaxDist = MIN(wpnMaxDist, 3 * MIN(int(10), chosen.Stat[ST_STRENGTH] + 2*chosen.Perk[PE_HEAVE_HO]));
 
 
@@ -508,8 +983,6 @@ if((tx!=toHx)||(ty!=toHy))
     int weaponPerk=weapon.Weapon_Perk;
     int blockers=0;
 
-    bool isMachineGun=(realWeapon.GetProtoId()==PID_MINIGUN) || (realWeapon.GetProtoId()==PID_AVENGER_MINIGUN) || (realWeapon.GetProtoId()==PID_VINDICATOR_MINIGUN) || (realWeapon.GetProtoId()==PID_BOZAR) || (realWeapon.GetProtoId()==PID_LIGHT_SUPPORT_WEAPON) || (realWeapon.GetProtoId()==PID_M60); //cs
-    bool isRifle=(realWeapon.GetProtoId()==PID_SCOPED_HUNTING_RIFLE) || (realWeapon.GetProtoId()==PID_SNIPER_RIFLE) || (realWeapon.GetProtoId()==PID_M72_GAUSS_RIFLE) || (realWeapon.GetProtoId()==PID_LASER_RIFLE) || (realWeapon.GetProtoId()==PID_LASER_RIFLE_EXT_CAP) || (realWeapon.GetProtoId()==PID_YK42B_PULSE_RIFLE); //cs
 
     int distmod1=2; // used for initial weapon bonus
     int distmod2=0; // minimal distance
@@ -519,8 +992,6 @@ if((tx!=toHx)||(ty!=toHy))
         distmod1=5;
         distmod2=8;
      }
-    else if (isMachineGun)  distmod1=-2;
-    if (dist<9 && isRifle) toHit=5; //cs
 
     int perception=chosen.Stat[ST_PERCEPTION];
     int acc=dist;
@@ -566,22 +1037,27 @@ if((tx!=toHx)||(ty!=toHy))
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // To-hit chance.
-int to_hit(CritterCl& chosen, CritterCl& target, ProtoItem& weapon, int hitLocation)
+int to_hit(CritterCl& chosen, CritterCl& target, ProtoItem& weapon, uint8 weaponMode)
 {
+	int use=_WeaponModeUse(weaponMode);
+	int hitLocation=_WeaponModeAim(weaponMode);
+	if(use>2) return 0;
+
     if (target.IsDead()) return 0;
     if (!chosen.IsLife()) return 0;
 
     ItemCl@ realWeapon=_CritGetItemHand(chosen);
     ProtoItem@ ammo=null;
 
-    if (valid(realWeapon) && weapon.Weapon_Round>0)
+    if (valid(realWeapon) && _WeaponRound(weapon,use)>0)
     {
         if (realWeapon.WeaponAmmoCount==0) return 0;
         @ammo=GetProtoItem(realWeapon.WeaponAmmoPid);
     }
-	uint skillNum=weapon.Weapon_Skill;
-    int skillVal=chosen.Skill[skillNum];
-    int wpnMaxDist=weapon.Weapon_MaxDist;
+
+    uint skillNum=_WeaponSkill(weapon,use);
+    int skillVal=int(chosen.Skill[skillNum]);
+    int wpnMaxDist=_WeaponMaxDist(weapon,use);
     if (skillNum == SK_THROWING) wpnMaxDist = MIN(wpnMaxDist, 3 * MIN(int(10), chosen.Stat[ST_STRENGTH] + 2*chosen.Perk[PE_HEAVE_HO]));
     uint8 weaponSubtype= (skillNum==SK_SMALL_GUNS || skillNum==SK_BIG_GUNS || skillNum==SK_ENERGY_WEAPONS)?WS_GUN:((skillNum==SK_THROWING)?WS_THROWING:(skillNum==SK_MELEE_WEAPONS)?WS_MELEE:WS_UNARMED);
 	 //Roleplay
@@ -685,14 +1161,14 @@ int to_hit(CritterCl& chosen, CritterCl& target, ProtoItem& weapon, int hitLocat
     if (weaponPerk == WEAPON_PERK_ACCURATE) toHit+=20;
 
     int acmod=target.Stat[ST_ARMOR_CLASS];
-    if (valid(ammo)) acmod += ammo.Ammo_AcMod;
+    if(valid(ammo)) acmod += ammo.Ammo_ACMod;
     if (acmod>0) toHit-=acmod;
-
+    // TODO: tohit+=15 if target is multihex
     // TODO: light penalty
 
     if (chosen.Damage[DAMAGE_EYE]!=0) toHit-=25;
     if (target.IsKnockout()) toHit+=40;
-    if (target.GetMultihex()>0) toHit+=15;
+    toHit+=target.GetMultihex()*15;
 
     int hitMod=GetHitAim(hitLocation);
     if (skillNum==SK_MELEE_WEAPONS || skillNum==SK_UNARMED) hitMod/=2;
@@ -722,28 +1198,21 @@ uint GetHitAim(int hitLocation)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Combat results.
+// Override aim location set by player through targetting screen or simple click on target.
+void hit_aim(uint8& aim)
+{
+}
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Combat results.
 void combat_result(uint[]& data)
 {
   uint datalen=data.length();
   if (datalen == 0) return;
   if (data[0] != datalen) return;
 
-  // [23:49] <+cvet> Okay. __CombatMessagesType, 0 - brief (default), 1 - verbose
-  // note: verbose is default, afaik
-
   uint current=1;
-  /*
-  string debugsay;
-  for (uint i=0;i<datalen;i++)
-  {
-    debugsay+=data[i];
-    if (i+1 != datalen) debugsay+=", ";
-  }
 
-  Message(debugsay);
-  */
   while (current<datalen)
   {
     int damage=-1;
@@ -765,20 +1234,26 @@ void combat_result(uint[]& data)
 	  string name="error0";
 	  if(valid(cr))
 	  {
-		  if (!self) name=cr.Name;
-		  else name=GetMsgStr(TEXTMSG_COMBAT,chosen.Stat[ST_GENDER]==GENDER_MALE?506:556);
+			if(!self)
+				name = cr.Name;
+			else
+				name = GetMsgStr(TEXTMSG_COMBAT, chosen.Stat[ST_GENDER] == GENDER_MALE ? 506 : 556);
 	  }
 
    uint offset;
    if (self)
     {
-      if (cr.Stat[ST_GENDER]==GENDER_MALE) offset=506;
-        else offset=556;
+			if(cr.Stat[ST_GENDER] == GENDER_MALE)
+				offset = 506;
+			else
+				offset = 556;
     }
     else
     {
-      if (cr.Stat[ST_GENDER]==GENDER_MALE) offset=606;
-        else offset=706;
+			if(cr.Stat[ST_GENDER] == GENDER_MALE)
+				offset = 606;
+			else
+				offset = 706;
     }
 
     string result;
@@ -809,10 +1284,8 @@ void combat_result(uint[]& data)
       case CMSG_AIMED_HIT_DEAD:
         loc=data[current++];
         damage=data[current++];
-        //Message("loc,damage"+loc+","+damage);
         result=GetMsgStr(TEXTMSG_COMBAT,offset+(damage>1?6:(damage!=0?16:20)));
 			  result=ReplaceText(result,"%s",name);
-			  //Message("mess #"+(1000+cr.CrTypeAlias*10+loc-1)+"="+GetMsgStr(TEXTMSG_COMBAT,1000+cr.CrTypeAlias*10+loc-1));
 			  result=ReplaceText(result,"%s",GetMsgStr(TEXTMSG_COMBAT,1000+cr.CrTypeAlias*10+loc-1));
 			  if (damage>1) result=ReplaceText(result,"%d",damage);
         break;
@@ -846,8 +1319,6 @@ void combat_result(uint[]& data)
         damage=data[current++];
         message=data[current++];
         result=GetMsgStr(TEXTMSG_COMBAT,offset+(damage>1?5:(damage!=0?15:19)));
-        //Message("loc,damage"+loc+","+damage);
-        //Message("mess #"+(1000+cr.CrTypeAlias*10+loc-1)+"="+GetMsgStr(TEXTMSG_COMBAT,1000+cr.CrTypeAlias*10+loc-1));
 			  result=ReplaceText(result,"%s",name);
 			  result=ReplaceText(result,"%s",GetMsgStr(TEXTMSG_COMBAT,1000+cr.CrTypeAlias*10+loc-1));
 			  if (damage>1) result=ReplaceText(result,"%d",damage);
@@ -857,19 +1328,22 @@ void combat_result(uint[]& data)
         // +2 "... was hit instead of you!"
         // +3 "... was hit instead of ...!"
         @trueTarget=GetCritter(who2);
-        if (self) // i was original target
+			if(self)
         {
-          result=GetMsgStr(TEXTMSG_COMBAT,(cr.Stat[ST_GENDER]==GENDER_MALE?608:708));
+				// It was original target
+				result = GetMsgStr(TEXTMSG_COMBAT, cr.Stat[ST_GENDER] == GENDER_MALE ? 608 : 708);
           string nameTrue="error1";
 	        if(valid(trueTarget)) nameTrue=trueTarget.Name;
           result=ReplaceText(result,"%s",nameTrue);
         }
         else
         {
-          // i was not original target
+				// It was not original target
           result=GetMsgStr(TEXTMSG_COMBAT,offset+3);
           if (who2==GetChosen().Id)
+				{
             result=ReplaceText(result,"%s",GetMsgStr(TEXTMSG_COMBAT,chosen.Stat[ST_GENDER]==GENDER_MALE?506:556));
+				}
           else
           {
             string nameTrue="error1";
@@ -878,7 +1352,6 @@ void combat_result(uint[]& data)
           }
           result=ReplaceText(result,"%s",name);
         }
-
         break;
       case CMSG_MISS:
         result=GetMsgStr(TEXTMSG_COMBAT,offset+9);
@@ -888,62 +1361,65 @@ void combat_result(uint[]& data)
         result=GetMsgStr(TEXTMSG_COMBAT,offset+9);
         result=ReplaceText(result,"%s",name);
         result+=GetMsgStr(TEXTMSG_COMBAT,108)+GetMsgStr(TEXTMSG_COMBAT,offset-306+20);
-		  default: break;
+		default:
+			break;
 		}
 
     bool isVerbose = (__CombatMessagesType == 0);
-    //bool isVerbose=true;
     string@[] ext;
 
-    if (message!=-1 && isVerbose) // must be critical hit
+		if(message != -1 && isVerbose) // Must be critical hit
     {
       result+=GetMsgStr(TEXTMSG_COMBAT,message);
     }
     else if (effect!=0)
     {
       offset-=306;
-      if(mode>CMSG_CRIT_MISS_DAMAGE) // hit flags
+			if(mode > CMSG_CRIT_MISS_DAMAGE) // Hit flags
       {
-        if(FLAG(effect,HF_KNOCKOUT)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset));
-        if(FLAG(effect,HF_KNOCKDOWN)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+1));
-        if(FLAG(effect,HF_CRIPPLED_LEFT_LEG)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+2));
-        if(FLAG(effect,HF_CRIPPLED_RIGHT_LEG)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+3));
-        if(FLAG(effect,HF_CRIPPLED_LEFT_ARM)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+4));
-        if(FLAG(effect,HF_CRIPPLED_RIGHT_ARM)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+5));
-        if(FLAG(effect,HF_BLINDED)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+6));
-        // if(FLAG(effect,HF_DEATH)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset)); // this is handled elsewhere
-        // if(FLAG(effect,HF_ON_FIRE)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+10)); // not used
-        if(FLAG(effect,HF_BYPASS_ARMOR)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+11));
-        if(FLAG(effect,HF_DROPPED_WEAPON)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+14)); // not used
-        if(FLAG(effect,HF_LOST_NEXT_TURN)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+15));
-        if(FLAG(effect,HF_RANDOM)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+21));
+				if(FLAG(effect, HF_KNOCKOUT))           ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT, offset + 0 ));
+        if(FLAG(effect,HF_KNOCKDOWN)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+1));
+        if(FLAG(effect,HF_CRIPPLED_LEFT_LEG)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+2));
+        if(FLAG(effect,HF_CRIPPLED_RIGHT_LEG)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+3));
+        if(FLAG(effect,HF_CRIPPLED_LEFT_ARM)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+4));
+        if(FLAG(effect,HF_CRIPPLED_RIGHT_ARM)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+5));
+        if(FLAG(effect,HF_BLINDED)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+6));
+				// if(FLAG(effect, HF_DEATH))              ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT, offset     )); // This is handled elsewhere
+				// if(FLAG(effect, HF_ON_FIRE))            ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT, offset + 10)); // Not used
+        if(FLAG(effect,HF_BYPASS_ARMOR)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+11));
+				if(FLAG(effect, HF_DROPPED_WEAPON))     ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT, offset + 14));
+        if(FLAG(effect,HF_LOST_NEXT_TURN)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+15));
+        if(FLAG(effect,HF_RANDOM)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+21));
       }
       else
       {
-        if(FLAG(effect,MF_KNOCKED_DOWN)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+1));
-        // if(FLAG(effect,MF_ON_FIRE)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+10)); // not used
-        if(FLAG(effect,MF_WEAPON_EXPLODED)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+12));
-        if(FLAG(effect,MF_WEAPON_DESTROYED)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+13));
-        if(FLAG(effect,MF_WEAPON_DROPPED)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+14));
-        if(FLAG(effect,MF_LOST_NEXT_TURN)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+15));
-        if(FLAG(effect,MF_HIT_SELF)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+16));
-        if(FLAG(effect,MF_LOST_REST_OF_AMMO)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+17));
-        if(FLAG(effect,MF_FIRED_DUD_SHOT)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+18));
-        if(FLAG(effect,MF_HURT_SELF)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+19));
-        // if(FLAG(effect,MF_HIT_RANDOMLY)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+20)); // this is handled elsewhere
-        if(FLAG(effect,MF_CRIPPLED_RANDOM_LIMB)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+21));
-        if(FLAG(effect,MF_WAS_KILLED)) push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+7));
+        if(FLAG(effect,MF_KNOCKED_DOWN)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+1));
+				// if(FLAG(effect, MF_ON_FIRE))              ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT, offset + 10)); // Not used
+        if(FLAG(effect,MF_WEAPON_EXPLODED)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+12));
+        if(FLAG(effect,MF_WEAPON_DESTROYED)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+13));
+        if(FLAG(effect,MF_WEAPON_DROPPED)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+14));
+        if(FLAG(effect,MF_LOST_NEXT_TURN)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+15));
+        if(FLAG(effect,MF_HIT_SELF)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+16));
+        if(FLAG(effect,MF_LOST_REST_OF_AMMO)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+17));
+        if(FLAG(effect,MF_FIRED_DUD_SHOT)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+18));
+        if(FLAG(effect,MF_HURT_SELF)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+19));
+				// if(FLAG(effect, MF_HIT_RANDOMLY))         ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT, offset + 20)); // This is handled elsewhere
+        if(FLAG(effect,MF_CRIPPLED_RANDOM_LIMB)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+21));
+        if(FLAG(effect,MF_WAS_KILLED)) ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+7));
       }
       offset+=306;
 		}
 
 		if (8<=mode && mode<=11 && (!isVerbose || message==-1))
-		  push_back_handle(ext,GetMsgStr(TEXTMSG_COMBAT,offset+7-306));
+		  ext.insertLast(@GetMsgStr(TEXTMSG_COMBAT,offset+7-306));
 
     for(uint m=0,n=ext.length();m<n;m++)
 		{
-			if(m==n-1) result+=GetMsgStr(TEXTMSG_COMBAT,108);
-			else result+=", ";
+			if(m == n - 1)
+				result += GetMsgStr(TEXTMSG_COMBAT, 108);
+			else
+				result += ", ";
+
 			result+=ext[m];
 		}
 
@@ -954,8 +1430,9 @@ void combat_result(uint[]& data)
 		if (8<=mode && mode<=11 && isVerbose && message!=-1)
 		  Message(name+" "+GetMsgStr(TEXTMSG_COMBAT,offset+7-306)+".",FOMB_COMBAT_RESULT);
 
-		// On head indication  <-- whatever it does
-		if(__DamageHitDelay>0 && damage>0) MapMessage("-"+damage,cr.HexX,cr.HexY,__DamageHitDelay,0xFFC80000,true,Random(-5,5),-20);
+		// On head indication
+		if(__DamageHitDelay > 0 && damage > 0)
+			MapMessage("-" + damage, cr.HexX, cr.HexY, __DamageHitDelay, 0xFFC80000, true, Random(-5, 5), -20);
   }
 }
 
@@ -984,30 +1461,34 @@ string generic_description(int descType, int& offsX, int& offsY)
 		ItemCl@ weaponMain=chosen.GetItem(0,SLOT_HAND1);
 		if(valid(weaponMain))
 		{
+			int use=_WeaponModeUse(weaponMain.Mode);
+			if(use>2) use=0;
+
 			result+=GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(weaponMain))+"\n";
 
 			if(weaponMain.GetType()==ITEM_WEAPON)
 			{
 				result+=GetMsgStr(TEXTMSG_GAME,STR_INV_DMG)+" ";
-				result+=weaponMain.Proto.Weapon_DmgMin+"-";
-				int wpnMaxDmg=weaponMain.Proto.Weapon_DmgMax;
-				if(_WeapIsHtHAttack(weaponMain)) wpnMaxDmg+=chosen.Stat[ST_MELEE_DAMAGE];
+				result+=_WeaponDmgMin(weaponMain.Proto,use)+"-";
+				int wpnMaxDmg=_WeaponDmgMax(weaponMain.Proto,use);
+				if(_WeaponIsHtHAttack(weaponMain.Proto,use)) wpnMaxDmg+=chosen.Stat[ST_MELEE_DAMAGE];
 				result+=wpnMaxDmg;
 
-				if(weaponMain.Proto.Weapon_MaxDist>1)
+				if(_WeaponMaxDist(weaponMain.Proto,use)>1)
 				{
 					result+=" "+GetMsgStr(TEXTMSG_GAME,STR_INV_DIST)+" ";
-					int wpnMaxDist=weaponMain.Proto.Weapon_MaxDist;
-					if(weaponMain.Proto.Weapon_Skill==SK_THROWING) wpnMaxDist=MIN(wpnMaxDist,3*MIN(int(10),chosen.Stat[ST_STRENGTH]+2*chosen.Perk[PE_HEAVE_HO]));
+					int wpnMaxDist=_WeaponMaxDist(weaponMain.Proto,use);
+					if(_WeaponSkill(weaponMain.Proto, use) == SK_THROWING)
+						wpnMaxDist = MIN(wpnMaxDist, 3 * MIN(int(10), chosen.Stat[ST_STRENGTH] + 2 * chosen.Perk[PE_HEAVE_HO]));
 					result+=wpnMaxDist;
 				}
 				result+="\n";
 
-				if(weaponMain.Proto.Weapon_VolumeHolder>0)
+				if(weaponMain.Proto.Weapon_MaxAmmoCount > 0)
 				{
 					result+=GetMsgStr(TEXTMSG_GAME,STR_INV_AMMO)+" ";
 					result+=weaponMain.WeaponAmmoCount+"/";
-					result+=weaponMain.Proto.Weapon_VolumeHolder+" ";
+					result += weaponMain.Proto.Weapon_MaxAmmoCount  + " ";
 					result+=GetMsgStr(TEXTMSG_GAME,STR_CALIBER(weaponMain.Proto.Weapon_Caliber));
 				}
 				result+="\n";
@@ -1020,11 +1501,12 @@ string generic_description(int descType, int& offsX, int& offsY)
 		else
 		{
 			// Unarmed
-			ProtoItem@ unarmed=chosen.GetSlotProto(SLOT_HAND1);
+			uint8 mode=0;
+			ProtoItem@ unarmed=chosen.GetSlotProto(SLOT_HAND1,mode);
 			result+=GetMsgStr(TEXTMSG_GAME,STR_INV_NO_ITEM)+"\n";
 			result+=GetMsgStr(TEXTMSG_GAME,STR_INV_UNARMED_DMG)+" ";
-			result+=unarmed.Weapon_DmgMin+"-";
-			result+=(unarmed.Weapon_DmgMax+chosen.Stat[ST_MELEE_DAMAGE]);
+			result+=_WeaponDmgMin(unarmed,_WeaponModeUse(mode))+"-";
+			result+=(_WeaponDmgMax(unarmed,_WeaponModeUse(mode))+chosen.Stat[ST_MELEE_DAMAGE]);
 			result+="\n\n";
 		}
 		result+="---------------------\n";
@@ -1032,29 +1514,33 @@ string generic_description(int descType, int& offsX, int& offsY)
 		ItemCl@ weaponExt=chosen.GetItem(0,SLOT_HAND2);
 		if(valid(weaponExt))
 		{
+			int use=_WeaponModeUse(weaponExt.Mode);
+			if(use>2) use=0;
+
 			result+=GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(weaponExt))+"\n";
 
 			if(weaponExt.GetType()==ITEM_WEAPON)
 			{
 				result+=GetMsgStr(TEXTMSG_GAME,STR_INV_DMG)+" ";
-				result+=weaponExt.Proto.Weapon_DmgMin+"-";
-				int wpnMaxDmg=weaponExt.Proto.Weapon_DmgMax;
-				if(_WeapIsHtHAttack(weaponExt)) wpnMaxDmg+=chosen.Stat[ST_MELEE_DAMAGE];
+				result+=_WeaponDmgMin(weaponExt.Proto,use)+"-";
+				int wpnMaxDmg=_WeaponDmgMax(weaponExt.Proto,use);
+				if(_WeaponIsHtHAttack(weaponExt.Proto,use)) wpnMaxDmg+=chosen.Stat[ST_MELEE_DAMAGE];
 				result+=wpnMaxDmg;
-				if(weaponExt.Proto.Weapon_MaxDist>1)
+				if(_WeaponMaxDist(weaponExt.Proto,use)>1)
 				{
 					result+=" "+GetMsgStr(TEXTMSG_GAME,STR_INV_DIST)+" ";
-					int wpnMaxDist=weaponExt.Proto.Weapon_MaxDist;
-					if(weaponExt.Proto.Weapon_Skill==SK_THROWING) wpnMaxDist=MIN(wpnMaxDist,3*MIN(int(10),chosen.Stat[ST_STRENGTH]+2*chosen.Perk[PE_HEAVE_HO]));
+					int wpnMaxDist=_WeaponMaxDist(weaponExt.Proto,use);
+					if(_WeaponSkill(weaponExt.Proto, use) == SK_THROWING)
+						wpnMaxDist = MIN(wpnMaxDist, 3 * MIN(int(10), chosen.Stat[ST_STRENGTH] + 2 * chosen.Perk[PE_HEAVE_HO]));
 					result+=wpnMaxDist;
 				}
 				result+="\n";
 
-				if(weaponExt.Proto.Weapon_VolumeHolder>0)
+				if(weaponExt.Proto.Weapon_MaxAmmoCount > 0)
 				{
 					result+=GetMsgStr(TEXTMSG_GAME,STR_INV_AMMO)+" ";
 					result+=weaponExt.WeaponAmmoCount+"/";
-					result+=weaponExt.Proto.Weapon_VolumeHolder+" ";
+					result += weaponExt.Proto.Weapon_MaxAmmoCount   + " ";
 					result+=GetMsgStr(TEXTMSG_GAME,STR_CALIBER(weaponExt.Proto.Weapon_Caliber));
 				}
 				result+="\n";
@@ -1067,17 +1553,18 @@ string generic_description(int descType, int& offsX, int& offsY)
 		else
 		{
 			// Unarmed
-			ProtoItem@ unarmed=chosen.GetSlotProto(SLOT_HAND2);
+			uint8 mode=0;
+			ProtoItem@ unarmed=chosen.GetSlotProto(SLOT_HAND2,mode);
 			result+=GetMsgStr(TEXTMSG_GAME,STR_INV_NO_ITEM)+"\n";
 			result+=GetMsgStr(TEXTMSG_GAME,STR_INV_UNARMED_DMG)+" ";
-			result+=unarmed.Weapon_DmgMin+"-";
-			result+=(unarmed.Weapon_DmgMax+chosen.Stat[ST_MELEE_DAMAGE]);
+			result+=_WeaponDmgMin(unarmed,_WeaponModeUse(mode))+"-";
+			result+=(_WeaponDmgMax(unarmed,_WeaponModeUse(mode))+chosen.Stat[ST_MELEE_DAMAGE]);
 			result+="\n\n";
 		}
 
 		result+=GetMsgStr(TEXTMSG_GAME,STR_INV_TOTAL_WEIGHT)+" ";
-		result+=chosen.ItemsWeight()/1000+"/";
-		result+=chosen.Stat[ST_CARRY_WEIGHT]/1000+".";
+		result += (chosen.ItemsWeight() / 1000) + "/";
+		result += (chosen.Stat[ST_CARRY_WEIGHT] / 1000) + ".";
 	}
 	else if(descType==DESC_INVENTORY_SPECIAL)
 	{
@@ -1124,7 +1611,8 @@ string generic_description(int descType, int& offsX, int& offsY)
 string item_description(ItemCl& item, int lookType)
 {
 	// Default error text
-	if(not IsMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)+(lookType!=ITEM_LOOK_ONLY_NAME?1:0))) return GetMsgStr(TEXTMSG_GAME,STR_ITEM_LOOK_NOTHING);
+	if(not IsMsgStr(TEXTMSG_ITEM, STR_ITEM_INFO(item) + (lookType != ITEM_LOOK_ONLY_NAME ? 1 : 0)))
+		return GetMsgStr(TEXTMSG_GAME, STR_ITEM_LOOK_NOTHING);
 
 	string result;
 
@@ -1133,21 +1621,26 @@ string item_description(ItemCl& item, int lookType)
 	{
 		string fuel=GetMsgStr(TEXTMSG_GAME,STR_INV_CAR_FUEL);
 		fuel=ReplaceText(fuel,"VALUE",item.CarFuel/100);
-		fuel=ReplaceText(fuel,"MAX_VALUE",_CarGetFuelTank(item)/100);
-		string wear=GetMsgStr(TEXTMSG_GAME,STR_INV_CAR_WEAR);
-		wear=ReplaceText(wear,"VALUE",item.CarDeteoration*100/_CarGetRunToBreak(item));
-		result=fuel+"\n"+wear;
+		fuel = ReplaceText(fuel, "MAX_VALUE", item.Proto.Car_TankVolume / 100);
+		string deterioration = GetMsgStr(TEXTMSG_GAME, STR_INV_CAR_DETERIORATION);
+		deterioration = ReplaceText(deterioration, "VALUE", item.CarDeterioration * 100 / item.Proto.Car_MaxDeterioration);
+		result = fuel + "\n" + deterioration;
 	}
 	// Short info
 	else if(lookType==ITEM_LOOK_ONLY_NAME)
 	{
-		if(showId) result+=ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_ITEM_LOOK),"NAME",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item))+" ("+item.GetProtoId()+":"+item.Id+")");
-		else result+=ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_ITEM_LOOK),"NAME",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
+		result+=ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_ITEM_LOOK),"NAME",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
+		if(item.Lexems!="") result+=" "+item.Lexems;
+		if(((__sinf&SINF_ITEMID)!=0) && item.GetType ()>0 && item.GetType ()<10)
+		{
+			result+=" |0xffff0000 id: " +item.Id+" pid: "+item.GetProtoId();
+		}
 	}
 	// Full info
 	else
 	{
 		if(lookType==ITEM_LOOK_INVENTORY) result+=GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item))+"\n";
+		if(item.Lexems!="") result+=""+item.Lexems+" ";
 
 		if(item.GetProtoId()==PID_HOLODISK && item.HolodiskNumber!=0)
 			result+=GetMsgStr(TEXTMSG_HOLO,STR_HOLO_INFO_NAME(item.HolodiskNumber));
@@ -1156,48 +1649,58 @@ string item_description(ItemCl& item, int lookType)
 
 		if(lookType!=ITEM_LOOK_MAP)
 		{
-			// Weight
-			result+="\n"+ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_ITEM_WEIGHT_GRAMM),"VALUE",item.Proto.Weight*item.GetCount());
+			uint16 pid = item.GetProtoId();
+			if(pid<PID_FISH_SMALLEST || pid>PID_FISH_BIGGEST)
+			{
+				// Weight
+				result+="\n"+ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_ITEM_WEIGHT_GRAMM),"VALUE",item.Proto.Weight*item.GetCount());
+			}
+			else
+			{
+				result+="\nРазмер: "+item.Val7+" см.";
+			}
 
 			// Ammo load
-			if(item.GetType()==ITEM_WEAPON && item.Proto.Weapon_VolumeHolder>0)
+			if(item.GetType() == ITEM_WEAPON && item.Proto.Weapon_MaxAmmoCount > 0)
 			{
 				result+="\n";
 				string str=GetMsgStr(TEXTMSG_GAME,STR_INV_HAS_SHOTS);
 				str=ReplaceText(str,"VALUE",item.WeaponAmmoCount);
-				str=ReplaceText(str,"MAX_VALUE",item.Proto.Weapon_VolumeHolder);
+				str = ReplaceText(str,"MAX_VALUE", item.Proto.Weapon_MaxAmmoCount);
 				str=ReplaceText(str,"AMMO",GetMsgStr(TEXTMSG_GAME,STR_CALIBER(item.Proto.Weapon_Caliber)));
 				result+=str;
 			}
 
-			// Wear
-			if(item.IsWeared())
+			// Deterioration
+			if(item.IsDeteriorable())
 			{
-				uint8 flags=item.BrokenFlags;
+				uint8 brokenFlags    = item.BrokenFlags;
 				uint8 brokenCount=item.BrokenCount;
-				uint16 wearCount=item.BrokenWear;
+				uint16 deterioration = item.Deterioration;
 
 				// Broken level, procent
 				result+="\n";
-				if(FLAG(flags,BI_NOTRESC)) result+=GetMsgStr(TEXTMSG_GAME,STR_INV_WEAR_NO_RESC);
-				else if(FLAG(flags,BI_LOWBROKEN)) result+=GetMsgStr(TEXTMSG_GAME,STR_INV_WEAR_BROKEN_LOW);
-				else if(FLAG(flags,BI_NORMBROKEN)) result+=GetMsgStr(TEXTMSG_GAME,STR_INV_WEAR_BROKEN_NORM);
-				else if(FLAG(flags,BI_HIGHBROKEN)) result+=GetMsgStr(TEXTMSG_GAME,STR_INV_WEAR_BROKEN_HIGH);
-				else result+=ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_INV_WEAR_PROC),"VALUE",wearCount*100/WEAR_MAX);
+				if(FLAG(brokenFlags,BI_NOTRESC))         result += GetMsgStr(TEXTMSG_GAME, STR_DETERIORATION_NO_RESC);
+				else if(FLAG(brokenFlags,BI_LOWBROKEN))  result += GetMsgStr(TEXTMSG_GAME, STR_DETERIORATION_BROKEN_LOW);
+				else if(FLAG(brokenFlags,BI_NORMBROKEN)) result += GetMsgStr(TEXTMSG_GAME, STR_DETERIORATION_BROKEN_NORM);
+				else if(FLAG(brokenFlags,BI_HIGHBROKEN)) result += GetMsgStr(TEXTMSG_GAME, STR_DETERIORATION_BROKEN_HIGH);
+				else result += ReplaceText(GetMsgStr(TEXTMSG_GAME, STR_DETERIORATION_PROCENT), "VALUE", deterioration * 100 / MAX_DETERIORATION);
 
 				// Service
-				if(FLAG(flags,BI_SERVICE)) result+="\n"+GetMsgStr(TEXTMSG_GAME,STR_INV_WEAR_SERVICE);
+				if(FLAG(brokenFlags,BI_SERVICE)) result += "\n" + GetMsgStr(TEXTMSG_GAME, STR_DETERIORATION_SERVICE);
 
 				// Service ext
-				if(FLAG(flags,BI_SERVICE_EXT)) result+="\n"+GetMsgStr(TEXTMSG_GAME,STR_INV_WEAR_SERVICE_EXT);
+				if(FLAG(brokenFlags,BI_SERVICE_EXT)) result += "\n" + GetMsgStr(TEXTMSG_GAME, STR_DETERIORATION_SERVICE_EXT);
 
 				// Broken count
 				CritterCl@ chosen=GetChosen();
-				if(valid(chosen) && chosen.Perk[PE_MR_FIXIT]!=0) result+="\n"+ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_INV_WEAR_BROKEN_COUNT),"VALUE",brokenCount);
+				if(valid(chosen) && chosen.Perk[PE_MR_FIXIT] != 0)
+					result += "\n" + ReplaceText(GetMsgStr(TEXTMSG_GAME, STR_DETERIORATION_BROKEN_COUNT), "VALUE", brokenCount);
 			}
 
 			// Key id
-			if(item.GetType()==ITEM_KEY) result+="\n"+ReplaceText(GetMsgStr(TEXTMSG_GAME,STR_INV_KEY_NUMBER),"KEY_ID",item.LockerId);
+			if(item.GetType()==ITEM_KEY)
+				result += "\n"+ReplaceText(GetMsgStr(TEXTMSG_GAME, STR_INV_KEY_NUMBER), "KEY_ID", item.LockerId);
 		}
 	}
 
@@ -1225,54 +1728,43 @@ string critter_description(CritterCl& cr, int lookType)
 		}
 		// Short info
 		else if(lookType==CRITTER_LOOK_SHORT)
-		{
-			if(showId)
+		{			
+			result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK1(gender));
+			if(cr.Param[ARCADE_MODE]!=1 || ((__sinf&SINF_LOGIN)!=0))
 			{
-				result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK1(gender));
-				result+=cr.Name;
-				result+=". (";
-				result+=cr.Id;
-				result+=")";
+				if(cr.Name!="") result+=cr.Name+".";
+				else result+="???";
 			}
 			else
 			{
-				result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK1(gender));
-				if(cr.Param[ARCADE_MODE]!=1)
-				{
-					if(cr.Name!="") result+=cr.Name+".";
-					else result+="???";
-				}
-				else
-				{
-					if(crType==20||crType==21||crType==114) result+=GetMsgStr(TEXTMSG_GAME,10950);
-					else if(crType==28||crType==29||crType==79) result+=GetMsgStr(TEXTMSG_GAME,10953);
-					else if(crType==22||crType==59) result+=GetMsgStr(TEXTMSG_GAME,10952);
-					else if(crType==25) result+=GetMsgStr(TEXTMSG_GAME,10951);
-					else if(crType==15) result+=GetMsgStr(TEXTMSG_GAME,10954);
-					else if(crType==19) result+=GetMsgStr(TEXTMSG_GAME,10955);
-					else if(crType==23) result+=GetMsgStr(TEXTMSG_GAME,10956);
-					else if(crType==70||crType==75) result+=GetMsgStr(TEXTMSG_GAME,10957);
-					else if(crType==16) result+=GetMsgStr(TEXTMSG_GAME,10958);
-					else if(crType==52) result+=GetMsgStr(TEXTMSG_GAME,10959);
-					else if(crType==51||crType==60||crType==100) result+=GetMsgStr(TEXTMSG_GAME,10960);
-					else if(crType==65) result+=GetMsgStr(TEXTMSG_GAME,10961);
-					else if(crType==67) result+=GetMsgStr(TEXTMSG_GAME,10962);
-					else if(crType==80) result+=GetMsgStr(TEXTMSG_GAME,10963);
-					else if(crType==97) result+=GetMsgStr(TEXTMSG_GAME,10964);
-					else if(crType==17) result+=GetMsgStr(TEXTMSG_GAME, 10965);
-					else if(crType==53) result+=GetMsgStr(TEXTMSG_GAME, 10966);
-					else if(crType==54) result+=GetMsgStr(TEXTMSG_GAME, 10967);
-					else if(crType==66) result+=GetMsgStr(TEXTMSG_GAME, 10968);
-					else if(crType==101) result+=GetMsgStr(TEXTMSG_GAME, 10969);
-					else if(crType==24) result+=GetMsgStr(TEXTMSG_GAME, 10970);
-					else if(crType==55) result+=GetMsgStr(TEXTMSG_GAME, 10971);
-					else if(crType==76) result+=GetMsgStr(TEXTMSG_GAME, 10972);
-					else if(crType==68) result+=GetMsgStr(TEXTMSG_GAME, 10973);
-					else if(crType==81) result+=GetMsgStr(TEXTMSG_GAME, 10974);
-					else if(crType==86) result+=GetMsgStr(TEXTMSG_GAME, 10975);	
-					result+=".";
-				}
-			}
+				if(crType==20||crType==21||crType==114) result+=GetMsgStr(TEXTMSG_GAME,10950);
+				else if(crType==28||crType==29||crType==79) result+=GetMsgStr(TEXTMSG_GAME,10953);
+				else if(crType==22||crType==59) result+=GetMsgStr(TEXTMSG_GAME,10952);
+				else if(crType==25) result+=GetMsgStr(TEXTMSG_GAME,10951);
+				else if(crType==15) result+=GetMsgStr(TEXTMSG_GAME,10954);
+				else if(crType==19) result+=GetMsgStr(TEXTMSG_GAME,10955);
+				else if(crType==23) result+=GetMsgStr(TEXTMSG_GAME,10956);
+				else if(crType==70||crType==75) result+=GetMsgStr(TEXTMSG_GAME,10957);
+				else if(crType==16) result+=GetMsgStr(TEXTMSG_GAME,10958);
+				else if(crType==52) result+=GetMsgStr(TEXTMSG_GAME,10959);
+				else if(crType==51||crType==60||crType==100) result+=GetMsgStr(TEXTMSG_GAME,10960);
+				else if(crType==65) result+=GetMsgStr(TEXTMSG_GAME,10961);
+				else if(crType==67) result+=GetMsgStr(TEXTMSG_GAME,10962);
+				else if(crType==80) result+=GetMsgStr(TEXTMSG_GAME,10963);
+				else if(crType==97) result+=GetMsgStr(TEXTMSG_GAME,10964);
+				else if(crType==17) result+=GetMsgStr(TEXTMSG_GAME, 10965);
+				else if(crType==53) result+=GetMsgStr(TEXTMSG_GAME, 10966);
+				else if(crType==54) result+=GetMsgStr(TEXTMSG_GAME, 10967);
+				else if(crType==66) result+=GetMsgStr(TEXTMSG_GAME, 10968);
+				else if(crType==101) result+=GetMsgStr(TEXTMSG_GAME, 10969);
+				else if(crType==24) result+=GetMsgStr(TEXTMSG_GAME, 10970);
+				else if(crType==55) result+=GetMsgStr(TEXTMSG_GAME, 10971);
+				else if(crType==76) result+=GetMsgStr(TEXTMSG_GAME, 10972);
+				else if(crType==68) result+=GetMsgStr(TEXTMSG_GAME, 10973);
+				else if(crType==81) result+=GetMsgStr(TEXTMSG_GAME, 10974);
+				else if(crType==86) result+=GetMsgStr(TEXTMSG_GAME, 10975);	
+				result+=".";
+			}	
 		}
 		// Full info
 		else
@@ -1324,12 +1816,10 @@ string critter_description(CritterCl& cr, int lookType)
 
 			// Special
 			uint[] special;
-			for(uint i=0;i<7;++i)
+			for(uint i = 0; i < 7 ; i++)
 			{
 				if(not IsMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_SPEC(gender,i,cr.Stat[ST_STRENGTH+i]))) continue;
-				uint len=special.length();
-				special.resize(len+1);
-				special[len]=i;
+				special.insertLast(i);
 			}
 
 			if(special.length()>0)
@@ -1353,11 +1843,7 @@ string critter_description(CritterCl& cr, int lookType)
 			for(uint i=0;i<7;i++)
 			{
 				if(cr.GetPerk(PE_DAMAGE_POISONED+i)!=0 && IsMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_DMG(gender,i)))
-				{
-					uint len=damage.length();
-					damage.resize(len+1);
-					damage[len]=i;
-				}
+					damage.insertLast(i);
 			}
 
 			if(damage.length()>0)
@@ -1378,7 +1864,7 @@ string critter_description(CritterCl& cr, int lookType)
 			}
 
 			// Perks
-			for(int i=0;i<=PE_SEPARATED_KARMA;i++)
+			for(uint i = 0; i <= PE_SEPARATED_KARMA; i++)
 			{
 				if(cr.GetPerk(i)!=0 && IsMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_PERK(gender,i)))
 				{
@@ -1407,12 +1893,6 @@ string critter_description(CritterCl& cr, int lookType)
 			else if(cr.IsKnockout() && IsMsgStr(TEXTMSG_DLG,STR_NPC_INFO_KO(dlgId,npcPid))) result+=GetMsgStr(TEXTMSG_DLG,STR_NPC_INFO_KO(dlgId,npcPid));
 			else if(cr.IsDead() && IsMsgStr(TEXTMSG_DLG,STR_NPC_INFO_DEAD(dlgId,npcPid))) result+=GetMsgStr(TEXTMSG_DLG,STR_NPC_INFO_DEAD(dlgId,npcPid));
 			else defaultText=true;
-			if(showId)
-			{
-				result+=" (";
-				result+=cr.Id;
-				result+=")";
-			}
 		}
 		// Full info
 		else
@@ -1439,32 +1919,39 @@ string critter_description(CritterCl& cr, int lookType)
 			}
 		}
 	}
-
+	
 	// Additional description
 	if(lookType==CRITTER_LOOK_FULL)
 	{
 		if(result.length()>0 && result[result.length()-1]!='.') result+=".";
 		result+=" ";
+
 		CritterCl@ chosen=GetChosen();
-		if(valid(chosen) && chosen.Perk[PE_AWARENESS]!=0) // Awareness
+		ItemCl@ item=cr.GetItem(0,SLOT_HAND1);
+		ItemCl@ item2=cr.GetItem(0,SLOT_HAND2);
+		ItemCl@ item3=cr.GetItem(0,SLOT_ARMOR);
+		if(valid(chosen) && chosen.Perk[PE_AWARENESS]>=2) // GM AWARNESS
 		{
 			result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_HP(gender));
 			result=ReplaceText(result,"CUR",cr.Stat[ST_CURRENT_HP]);
 			result=ReplaceText(result,"MAX",cr.Stat[ST_MAX_LIFE]);
 
-			ItemCl@ item=cr.GetItem(0,SLOT_HAND1);
 			if(_CritIsInjured(cr))
 			{
-				if(valid(item)) result+=", ";
-				else result+=GetMsgStr(TEXTMSG_GAME,STR_AND);
+				if(valid(item))
+					result += ", ";
+				else
+					result += GetMsgStr(TEXTMSG_GAME, STR_AND);
+
 				result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_LIMBS(gender,false));
 			}
+
 
 			if(valid(item))
 			{
 				if(item.GetType()==ITEM_WEAPON)
 				{
-					if(item.Proto.Weapon_VolumeHolder==0)
+					if(item.Proto.Weapon_MaxAmmoCount == 0)
 					{
 						result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_WEAP);
 						result=ReplaceText(result,"WEAPON",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
@@ -1474,7 +1961,7 @@ string critter_description(CritterCl& cr, int lookType)
 						result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_WEAP_AMMO);
 						result=ReplaceText(result,"WEAPON",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
 						result=ReplaceText(result,"CUR",item.WeaponAmmoCount);
-						result=ReplaceText(result,"MAX",item.Proto.Weapon_VolumeHolder);
+						result = ReplaceText(result, "MAX"   , item.Proto.Weapon_MaxAmmoCount);
 						result=ReplaceText(result,"AMMO",GetMsgStr(TEXTMSG_GAME,STR_CALIBER(item.Proto.Weapon_Caliber)));
 					}
 				}
@@ -1483,6 +1970,84 @@ string critter_description(CritterCl& cr, int lookType)
 					result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_MISC);
 					result=ReplaceText(result,"MISC",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
 				}
+			if(item.Lexems!="") result+=" "+item.Lexems;
+			}
+			if(valid(item2))
+			{
+				if(item2.GetType()==ITEM_WEAPON)
+				{
+					if(item2.Proto.Weapon_MaxAmmoCount==0)
+					{
+						result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_WEAP);
+						result=ReplaceText(result,"WEAPON",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item2)));
+					}
+					else
+					{
+						result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_WEAP_AMMO);
+						result=ReplaceText(result,"WEAPON",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item2)));
+						result=ReplaceText(result,"CUR",item2.WeaponAmmoCount);
+						result=ReplaceText(result,"MAX",item2.Proto.Weapon_MaxAmmoCount);
+						result=ReplaceText(result,"AMMO",GetMsgStr(TEXTMSG_GAME,STR_CALIBER(item2.Proto.Weapon_Caliber)));
+					}
+				}
+				else
+				{
+					result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_MISC);
+					result=ReplaceText(result,"MISC",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item2)));
+				}
+			if(item2.Lexems!="") result+=" "+item2.Lexems;
+			}
+			if(valid(item3))
+			{
+				if (gender==GENDER_FEMALE) result+=", на ней ";
+				else result+=", на нем ";
+				result+=GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item3));
+				if(item3.Lexems!="") result+=" "+item3.Lexems;
+			}
+		}
+
+		else if(valid(chosen) && chosen.Perk[PE_AWARENESS]==1) // Awareness
+		{
+			result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_HP(gender));
+			result=ReplaceText(result,"CUR",cr.Stat[ST_CURRENT_HP]);
+			result=ReplaceText(result,"MAX",cr.Stat[ST_MAX_LIFE]);
+
+			if(_CritIsInjured(cr))
+			{
+				if(valid(item))
+					result += ", ";
+				else
+					result += GetMsgStr(TEXTMSG_GAME, STR_AND);
+
+				result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_LIMBS(gender,false));
+			}
+			if(valid(item))
+			{
+				if(item.GetType()==ITEM_WEAPON)
+				{
+					result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_WEAP);
+					result=ReplaceText(result,"WEAPON",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
+				}
+				else
+				{
+					result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_MISC);
+					result=ReplaceText(result,"MISC",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
+				}
+			if(item.Lexems!="") result+=" "+item.Lexems;
+			}
+
+			if(valid(item2))
+			{
+				result += " и ";
+				result+=GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item2));
+				if(item2.Lexems!="") result+=" "+item2.Lexems;
+			}
+			if(valid(item3))
+			{
+				if (gender==GENDER_FEMALE) result+=", на ней ";
+				else result+=", на нем ";
+				result+=GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item3));
+				if(item3.Lexems!="") result+=" "+item3.Lexems;
 			}
 		}
 		else // Simple
@@ -1501,13 +2066,54 @@ string critter_description(CritterCl& cr, int lookType)
 				if(hp_proc<90) result+=GetMsgStr(TEXTMSG_GAME,STR_AND);
 				result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_LIMBS(gender,hp_proc>=90));
 			}
+			if(valid(item))
+			{
+				if(item.GetType()==ITEM_WEAPON)
+				{
+					result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_WEAP);
+					result=ReplaceText(result,"WEAPON",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
+					if(item.Lexems!="") result+=" "+item.Lexems;
+				}
+				else
+				{
+					result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_MISC);
+					result=ReplaceText(result,"MISC",GetMsgStr(TEXTMSG_ITEM,STR_ITEM_INFO(item)));
+					if(item.Lexems!="") result+=" "+item.Lexems;
+				}
+			}
 		}
+		if(valid(item3) && (item3.GetProtoId()==PID_SANDROBE)) result+=", лицо скрыто капюшоном";
+		else if(chosen.Trait[TRAIT_BLOODY_MESS]!=0)
+			{
+			switch(Random(0,9))
+				{
+				case 0: result+=", смотрит зло на тебя"; break;
+				case 1: result+=", бормочет что-то нехорошее о тебе"; break;
+				case 2: result+=", смотрит с ненавистью"; break;
+				case 3: result+=", насмехается над тобой"; break;
+				case 4: result+=", смотрит презрительно"; break;
+				case 5: result+=", выглядит уродливо"; break;
+				case 6: result+=", коситься в твою сторону"; break;
+				case 7: result+=", кажется хочет напасть"; break;
+				case 8: result+=", скалится на тебя"; break;
+				case 9: result+=", шепчет сдохни"; break;
+				}
+			}
+		else if(cr.Lexems!="") {result+=", "; result+=cr.Lexems;}
 		result+=".";
+	}
+	
+	if(lookType==CRITTER_LOOK_SHORT && (__sinf&SINF_CRID)!=0)
+	{
+		result+=" |0xffff0000 ";
+		result+=cr.Id;
 	}
 
 	// Format tags
 	if(cr.Lexems!="") return FormatTags(result,cr.Lexems);
+	
 	return result;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1555,7 +2161,8 @@ bool get_elevator(uint type, uint[]& data)
 	uint currentLevel=(type>>16);
 
 	if(index>8) return false;
-	data=elevators[index];
+	data.resize(elevators[index].length());
+	for(uint i=0;i<data.length();i++) data[i]=elevators[index][i];
 	data[0]=currentLevel;
 	return true;
 }
@@ -1606,10 +2213,18 @@ bool check_perk(CritterCl& cr, uint perk)
 void player_data_generate(int[]& data)
 {
 	CritterGenerate(data);
+
+#ifdef PLAYERS_3D
+	Set3DRegistrationGender(data[ST_GENDER]);
+#endif
 }
 
 bool player_data_check(int[]& data)
 {
+#ifdef PLAYERS_3D
+	Fill3DRegistrationParameters(data);
+#endif
+
 	return CritterGenerateCheck(data);
 }
 
@@ -1632,32 +2247,15 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 		case ACTION_USE_SKILL:
 		//case ACTION_PICK_ITEM:
 		//case ACTION_PICK_CRITTER:
-		case ACTION_OPERATE_CONTAINER: return;
-		default: break;
+		case ACTION_OPERATE_CONTAINER:
+			return; // Skip processing
+		default:
+			break;  // Processing
 		}
 	}
-	/* else if(cr.IsChosen() && localCall)
-	{
-		switch(action)
-		{
-		//case ACTION_SHOW_ITEM:
-		//case ACTION_HIDE_ITEM:
-		//case ACTION_MOVE_ITEM:
-		//case ACTION_USE_ITEM:
-		//case ACTION_DROP_ITEM:
-		//case ACTION_USE_WEAPON:
-		//case ACTION_PICK_ITEM:
-		//case ACTION_RELOAD_WEAPON:
-		//case ACTION_USE_SKILL:
-		//case ACTION_PICK_CRITTER:
-		//case ACTION_OPERATE_CONTAINER: return;
-		default: break;
-		}
 
-	}
-*/
-	const ProtoItem@ proto=(valid(item)?item.Proto:cr.GetSlotProto(SLOT_HAND1));
-	bool is2d=(not cr.IsAnim3d());
+	uint8 mode=0;
+	const ProtoItem@ proto=(valid(item)?item.Proto:cr.GetSlotProto(SLOT_HAND1,mode));
 
 	if((action>=ACTION_SHOW_ITEM && action<=ACTION_OPERATE_CONTAINER) || action==ACTION_STANDUP) cr.Wait(__Breaktime);
 
@@ -1674,175 +2272,107 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 	case ACTION_SHOW_ITEM:
 		if(cr.IsLife() && valid(proto))
 		{
-		if(proto.GetProtoId()==585) return; //Игнорируем перекладывание мяча в руку. binyan
+		if(proto.ProtoId==585) return; //Игнорируем перекладывание мяча в руку. binyan
 			cr.ClearAnim();
-			if(is2d)
-			{
-				if(proto.GetType()==ITEM_WEAPON && proto.Weapon_Anim1!=ANIM1_UNARMED)
-					cr.Animate(0,ANIM2_2D_SHOW,item);
-				else
-					cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE,item);
-			}
-			else
-			{
-				if(proto.GetType()==ITEM_WEAPON) cr.Animate(0,ANIM2_3D_SHOW,item);
-				else cr.Animate(0,ANIM2_3D_USE,item);
-			}
+			cr.Animate(0, ANIM2_SHOW_WEAPON, item);
 		}
 		break;
 	case ACTION_HIDE_ITEM:
 		if(cr.IsLife() && valid(proto))
 		{
 			cr.ClearAnim();
-			if(is2d)
-			{
-				if(proto.GetType()==ITEM_WEAPON && proto.Weapon_Anim1!=ANIM1_UNARMED)
-					cr.Animate(0,ANIM2_2D_HIDE,item);
-				else
-					cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE,item);
-			}
-			else
-			{
-				if(proto.GetType()==ITEM_WEAPON) cr.Animate(0,ANIM2_3D_HIDE,item);
-				else cr.Animate(0,ANIM2_3D_USE,item);
-			}
+			cr.Animate(0, ANIM2_HIDE_WEAPON, item);
 		}
 		break;
 	case ACTION_MOVE_ITEM:
 		if(cr.IsLife())
 		{
 			cr.ClearAnim();
-			if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE);
-			else cr.Animate(0,ANIM2_3D_SWITCH_ITEMS);
+			cr.Animate(0, ANIM2_SWITCH_ITEMS);
 		}
 		break;
 	case ACTION_USE_ITEM:
 		if(cr.IsLife() && valid(proto))
 		{
 			cr.ClearAnim();
-			if(proto.GetType()==ITEM_WEAPON && FLAG(proto.Flags,ITEM_CAN_USE_ON_SMTH) && cr.IsAnimAviable(proto.Weapon_Anim1,proto.Weapon_Anim2))
-			{
-				if(is2d) cr.Animate(proto.Weapon_Anim1,proto.Weapon_Anim2,item);
-				else cr.Animate(proto.Weapon_Anim1,ConvertAnim2_2dTo3d(proto.Weapon_Anim1,proto.Weapon_Anim2),item);
-			}
-			else
-			{
-				if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE,item);
-				else cr.Animate(0,ANIM2_3D_USE,item);
-			}
+
+			if(proto.Type == ITEM_WEAPON && FLAG(proto.Flags, ITEM_CAN_USE_ON_SMTH) && cr.IsAnimAviable(proto.Weapon_Anim1, proto.Weapon_Anim2_0))
+				cr.Animate(proto.Weapon_Anim1, proto.Weapon_Anim2_0, item);
+				else
+				cr.Animate(0, ANIM2_USE, item);
 		}
 		break;
 	case ACTION_DROP_ITEM:
 		if(cr.IsLife())
 		{
 			cr.ClearAnim();
-			if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_PICKUP);
-			else cr.Animate(0,ANIM2_3D_PICKUP);
+			cr.Animate(0, ANIM2_PICKUP);
 		}
 		break;
 	case ACTION_USE_WEAPON:
-	    Log("Use weapon procedure (client)");
+	    //Log("Use weapon procedure (client)");
 		if(localCall) return;
 		if(cr.IsLife() && valid(proto))
 		{
-			int use=actionExt&0xF;
-			int aim=(actionExt>>4)&0xF;
-			bool fail=((actionExt>>8)&1)!=0;
+			int use   = (actionExt & 0xF);
+			int aim   = ((actionExt >> 4) & 0xF);
+			bool fail = (((actionExt >> 8) & 1) != 0);
 
-			if(use!=0 && proto.GetProtoId()>=1000 && proto.GetProtoId()<1040) {
-				if(!localCall && !valid(item) && proto.GetProtoId()==1000)
-				{
-					@proto=GetProtoItem(1020);
-				}
-				use=0;
-			}
-
-			proto.Weapon_SetUse(use);
 			cr.ClearAnim();
-			PlaySound('W',SOUND_WEAPON_USE,proto.Weapon_SoundId,proto.Weapon_CurrentUse!=1?'1':'2');
 
-			if(is2d)
-			{
-				if(proto.Weapon_RequiresActivation)
-				{
-					cr.Animate(0,ANIM2_2D_PREPARE_WEAPON,item);
-					cr.Animate(0,proto.Weapon_Anim2,item);
-					if(actionExt==0) cr.Animate(0,ANIM2_2D_TURNOFF_WEAPON,item);
-				}
-				else
-				{
-					cr.Animate(0,proto.Weapon_Anim2,item);
-				}
+			cr.Animate(0, ANIM2_PREPARE_WEAPON);
 
-				if(fail) cr.Animate(ANIM1_UNARMED,ANIM2_2D_DAMAGE_FRONT,item);
-			}
+			PlaySound('W', SOUND_WEAPON_USE, _WeaponSoundId(proto, use), use != 1 ? '1' : '2');
+					cr.Animate(0,_WeaponAnim2(proto,use),item);
+
+			if(fail)
+				cr.Animate(0, ANIM2_DAMAGE_FRONT, item);
 			else
-			{
-				cr.Animate(0,ConvertAnim2_2dTo3d(proto.Weapon_Anim1,proto.Weapon_Anim2),item);
-				if(fail) cr.Animate(0,ANIM2_3D_DAMAGE_FRONT,item);
-			}
+				cr.Animate(0, ANIM2_TURNOFF_WEAPON);
 		}
 		break;
 	case ACTION_RELOAD_WEAPON:
 		if(cr.IsLife() && valid(proto))
 		{
 			cr.ClearAnim();
-			PlaySound('W',SOUND_WEAPON_RELOAD,proto.Weapon_SoundId,'1');
-
-			if(is2d)
-			{
-				if(proto.Weapon_RequiresActivation)
-				{
-					cr.Animate(0,ANIM2_2D_PREPARE_WEAPON,item);
-					cr.Animate(0,ANIM2_2D_TURNOFF_WEAPON,item);
-				}
-				else
-				{
-					cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE,item);
-				}
-			}
-			else
-			{
-				cr.Animate(item.Proto.Weapon_Anim1,ANIM2_3D_RELOAD,item);
-			}
+			PlaySound('W', SOUND_WEAPON_RELOAD, proto.Weapon_SoundId_0, '1');
+			cr.Animate(item.Proto.Weapon_Anim1, ANIM2_RELOAD, item);
 		}
 		break;
 	case ACTION_USE_SKILL:
 		if(cr.IsLife() && actionExt!=SK_SNEAK && actionExt!=SK_STEAL)
 		{
 			cr.ClearAnim();
-			if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE);
-			else cr.Animate(0,ANIM2_3D_USE);
+			cr.Animate(0, ANIM2_USE);
 		}
 		break;
 	case ACTION_PICK_ITEM:
-	    if(localCall)
-		   return;
-		if(cr.IsLife() && ((valid(proto))||actionExt>0))
+		if(cr.IsLife())
 		{
-		bool isGround= true;
-		    if(actionExt==0)
-			   {
-			      isGround=(proto.GetType()>=ITEM_ARMOR && proto.GetType()<=ITEM_KEY && not item.IsCar());
-			      if(proto.GetType()==ITEM_CONTAINER) isGround=proto.Container_IsGroundLevel();
-			   }
-			else 
-			    isGround = true;
 			cr.ClearAnim();
-			if(is2d) cr.Animate(ANIM1_UNARMED,isGround?ANIM2_2D_PICKUP:ANIM2_2D_USE);
-			else cr.Animate(0,isGround?ANIM2_3D_PICKUP:ANIM2_3D_USE);
+
+			bool isGround=(actionExt!=0);
+
+			if(!isGround)
+			{
+				if(!valid(proto)) break;
+				isGround = proto.GroundLevel;
+			}
+
+			cr.Animate(0, isGround ? ANIM2_PICKUP : ANIM2_USE);
 		}
 		break;
 	case ACTION_PICK_CRITTER:
 		if(cr.IsLife())
 		{
 			cr.ClearAnim();
+
 			switch(actionExt) // 0 - loot, 1 - steal, 2 - push
 			{
-			case 0: if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_PICKUP); else cr.Animate(0,ANIM2_3D_PICKUP); break;
-			//case 1: if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE); else cr.Animate(0,ANIM2_3D_USE); break;
-			case 2: if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_PUNCH); else cr.Animate(0,ANIM2_3D_PUNCH_LEFT); break;
-			case 3: if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE); else cr.Animate(0,ANIM2_3D_USE); break;
+			case 0: cr.Animate(0, ANIM2_LOOT);  break;
+			//case 1: cr.Animate(0, ANIM2_STEAL); break;
+			case 2: cr.Animate(0, ANIM2_PUSH);  break;
+			case 3: cr.Animate(0, ANIM2_STEAL); break;
 			default: break;
 			}
 		}
@@ -1850,176 +2380,78 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 	case ACTION_OPERATE_CONTAINER:
 		if(cr.IsLife())
 		{
+			cr.ClearAnim();
 			int transferType=actionExt/10;
 			int directionType=actionExt%10;
 
-			cr.ClearAnim();
 			if(transferType==TRANSFER_HEX_CONT_DOWN || transferType==TRANSFER_CRIT_LOOT)
-			{
-				if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_PICKUP);
-				else cr.Animate(0,ANIM2_3D_PICKUP);
-			}
-			else if(transferType==TRANSFER_CRIT_STEAL)
-			{
-				uint temp = 1;
-			}
-			else
-			{
-				if(is2d) cr.Animate(ANIM1_UNARMED,ANIM2_2D_USE);
-				else cr.Animate(0,ANIM2_3D_USE);
-			}
+				cr.Animate(0, ANIM2_PICKUP);
+				else
+				cr.Animate(0, ANIM2_USE);
 		}
 		break;
 	case ACTION_DODGE:
 		if(not cr.IsAnimPlaying() && cr.IsLife())
 		{
-			if(is2d) cr.Animate(0,ANIM2_2D_DODGE_WEAPON);
-			else cr.Animate(0,actionExt==0?ANIM2_3D_DODGE_FRONT:ANIM2_3D_DODGE_BACK);
+			cr.Animate(0, actionExt == 0 ? ANIM2_DODGE_FRONT : ANIM2_DODGE_BACK);
 		}
 		break;
 	case ACTION_DAMAGE:
 		if(not cr.IsAnimPlaying())
 		{
-			if(is2d)
-			{
-				if(cr.IsLife()) cr.Animate(ANIM1_UNARMED,actionExt==0?ANIM2_2D_DAMAGE_FRONT:ANIM2_2D_DAMAGE_BACK);
+				if(cr.IsLife())
+				cr.Animate(0, actionExt == 0 ? ANIM2_DAMAGE_FRONT : ANIM2_DAMAGE_BACK);
+				else if(cr.IsKnockout())
+				cr.Animate(0, actionExt == 0 ? ANIM2_DAMAGE_PRONE_FRONT : ANIM2_DAMAGE_PRONE_BACK);
 			}
-			else
-			{
-				if(cr.IsLife()) cr.Animate(0,actionExt==0?ANIM2_3D_DAMAGE_FRONT:ANIM2_3D_DAMAGE_BACK);
-				else if(cr.IsKnockout()) cr.Animate(0,actionExt==0?ANIM2_3D_DAMAGE_PRONE_FRONT:ANIM2_3D_DAMAGE_PRONE_BACK);
-			}
+		else
+		{
+			// Todo:
+			// ANIM2_WALK_DAMAGE_FRONT
+			// ANIM2_WALK_DAMAGE_BACK
+			// ANIM2_LIMP_DAMAGE_FRONT
+			// ANIM2_LIMP_DAMAGE_BACK
+			// ANIM2_RUN_DAMAGE_FRONT
+			// ANIM2_RUN_DAMAGE_BACK
 		}
 		break;
 	case ACTION_DAMAGE_FORCE:
-		if(is2d)
-		{
 			if(cr.IsLife())
 			{
 				cr.ClearAnim();
-				cr.Animate(ANIM1_UNARMED,actionExt==0?ANIM2_2D_DAMAGE_FRONT:ANIM2_2D_DAMAGE_BACK);
-			}
-		}
-		else
-		{
-			if(cr.IsLife())
-			{
-				cr.ClearAnim();
-				cr.Animate(0,actionExt==0?ANIM2_3D_DAMAGE_FRONT:ANIM2_3D_DAMAGE_BACK);
+			cr.Animate(0, actionExt == 0 ? ANIM2_DAMAGE_FRONT : ANIM2_DAMAGE_BACK);
 			}
 			else if(cr.IsKnockout())
 			{
 				cr.ClearAnim();
-				cr.Animate(0,actionExt==0?ANIM2_3D_DAMAGE_PRONE_FRONT:ANIM2_3D_DAMAGE_PRONE_BACK);
-			}
+			cr.Animate(0, actionExt == 0 ? ANIM2_DAMAGE_PRONE_FRONT : ANIM2_DAMAGE_PRONE_BACK);
 		}
 		break;
 	case ACTION_KNOCKOUT:
-		if(cr.IsLife())
+		if(not cr.IsKnockout())
 		{
 			cr.ClearAnim();
-			if(is2d) cr.Animate(ANIM1_DEAD,actionExt==0?ANIM2_2D_KNOCK_FRONT:ANIM2_2D_KNOCK_BACK);
-			else cr.Animate(0,actionExt==0?ANIM2_3D_KNOCK_FRONT:ANIM2_3D_KNOCK_BACK);
+			cr.Animate(0, actionExt);
 		}
 		break;
 	case ACTION_STANDUP:
 		if(cr.IsKnockout())
 		{
 			cr.ClearAnim();
-			if(is2d)
-			{
-				if(cr.CondExt==COND_KNOCKOUT_FRONT) cr.Animate(ANIM1_KNOCKOUT,ANIM2_2D_STANDUP_FRONT);
-				else cr.Animate(ANIM1_KNOCKOUT,ANIM2_2D_STANDUP_BACK);
-			}
-			else
-			{
-				if(cr.CondExt==COND_KNOCKOUT_FRONT) cr.Animate(0,ANIM2_3D_STANDUP_FRONT);
-				else cr.Animate(0,ANIM2_3D_STANDUP_BACK);
-			}
+			cr.Animate(0, actionExt);
 		}
 		break;
 	case ACTION_FIDGET:
 		if(cr.IsLife() && not cr.IsAnimPlaying())
 		{
-			if(is2d) cr.Animate(0,ANIM2_2D_STAY);
-			else cr.Animate(0,Random(0,1)==0?ANIM2_3D_FIDGET1:ANIM2_3D_FIDGET2);
+			cr.Animate(0, ANIM2_FIDGET);
 		}
 		break;
 	case ACTION_DEAD:
 		if(not cr.IsDead())
 		{
 			cr.ClearAnim();
-
-			bool isKo=cr.IsKnockout();
-			if(isKo && (actionExt!=COND_DEAD_FRONT && actionExt!=COND_DEAD_BACK)) actionExt=COND_DEAD_FRONT;
-
-			if(is2d)
-			{
-				int anim2=ANIM2_2D_DEAD_FRONT2;
-				switch(actionExt)
-				{
-				case COND_DEAD_FRONT: anim2=ANIM2_2D_DEAD_FRONT2; break;
-				case COND_DEAD_BACK: anim2=ANIM2_2D_DEAD_BACK2; break;
-				case COND_DEAD_BURST: anim2=ANIM2_2D_DEAD_BRUST; break;
-				case COND_DEAD_BLOODY_SINGLE: anim2=ANIM2_2D_DEAD_BLOODY_SINGLE; break;
-				case COND_DEAD_BLOODY_BURST: anim2=ANIM2_2D_DEAD_BLOODY_BURST; break;
-				case COND_DEAD_PULSE: anim2=ANIM2_2D_DEAD_PULSE; break;
-				case COND_DEAD_PULSE_DUST: anim2=ANIM2_2D_DEAD_PULSE_DUST; break;
-				case COND_DEAD_LASER: anim2=ANIM2_2D_DEAD_LASER; break;
-				case COND_DEAD_EXPLODE: anim2=ANIM2_2D_DEAD_EXPLODE; break;
-				case COND_DEAD_FUSED: anim2=ANIM2_2D_DEAD_FUSED; break;
-				case COND_DEAD_BURN: anim2=ANIM2_2D_DEAD_BURN; break;
-				case COND_DEAD_BURN2: anim2=ANIM2_2D_DEAD_BURN2; break;
-				case COND_DEAD_BURN_RUN: anim2=ANIM2_2D_DEAD_BURN_RUN; break;
-				default: break;
-				}
-
-				if(cr.IsAnimAviable(ANIM1_DEAD,anim2))
-				{
-					if(!isKo && anim2==ANIM2_2D_DEAD_FRONT2) cr.Animate(ANIM1_DEAD,ANIM2_2D_DEAD_FRONT);
-					if(!isKo && anim2==ANIM2_2D_DEAD_BACK2) cr.Animate(ANIM1_DEAD,ANIM2_2D_DEAD_BACK);
-					cr.Animate(ANIM1_DEAD,anim2);
-				}
-				else
-				{
-					if(!isKo) cr.Animate(ANIM1_DEAD,ANIM2_2D_DEAD_FRONT);
-					cr.Animate(ANIM1_DEAD,ANIM2_2D_DEAD_FRONT2);
-				}
-			}
-			else
-			{
-				int anim1=cr.GetAnim1();
-				int anim2=ANIM2_3D_KNOCK_FRONT;
-				switch(actionExt)
-				{
-				case COND_DEAD_FRONT: anim2=ANIM2_3D_DEAD_PRONE_FRONT; break;
-				case COND_DEAD_BACK: anim2=ANIM2_3D_DEAD_PRONE_BACK; break;
-				case COND_DEAD_BURST: anim2=ANIM2_3D_DEAD_BURST; break;
-				case COND_DEAD_BLOODY_SINGLE: anim2=ANIM2_3D_DEAD_BLOODY_SINGLE; break;
-				case COND_DEAD_BLOODY_BURST: anim2=ANIM2_3D_DEAD_BLOODY_BURST; break;
-				case COND_DEAD_PULSE: anim2=ANIM2_3D_DEAD_PULSE; break;
-				case COND_DEAD_PULSE_DUST: anim2=ANIM2_3D_DEAD_PULSE_DUST; break;
-				case COND_DEAD_LASER: anim2=ANIM2_3D_DEAD_LASER; break;
-				case COND_DEAD_EXPLODE: anim2=ANIM2_3D_DEAD_EXPLODE; break;
-				case COND_DEAD_FUSED: anim2=ANIM2_3D_DEAD_FUSED; break;
-				case COND_DEAD_BURN: anim2=ANIM2_3D_DEAD_BURN; break;
-				case COND_DEAD_BURN2: anim2=ANIM2_3D_DEAD_BURN; break;
-				case COND_DEAD_BURN_RUN: anim2=ANIM2_3D_DEAD_BURN_RUN; break;
-				default: break;
-				}
-
-				if(cr.IsAnimAviable(anim1,anim2) || cr.IsAnimAviable(ANIM1_UNARMED,anim2))
-				{
-					if(!isKo && anim2==ANIM2_3D_DEAD_PRONE_FRONT) cr.Animate(0,ANIM2_3D_KNOCK_FRONT);
-					if(!isKo && anim2==ANIM2_3D_DEAD_PRONE_BACK) cr.Animate(0,ANIM2_3D_KNOCK_BACK);
-					cr.Animate(0,anim2,item);
-				}
-				else
-				{
-					if(!isKo) cr.Animate(0,ANIM2_3D_KNOCK_FRONT);
-					cr.Animate(0,ANIM2_3D_DEAD_PRONE_FRONT);
-				}
-			}
+			cr.Animate(0, actionExt);
 		}
 		break;
 	case ACTION_CONNECT:
@@ -2037,31 +2469,65 @@ void critter_action(bool localCall, CritterCl& cr, int action, int actionExt, It
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call before 2d animation playing.
-void animation2d_process(CritterCl& cr, uint anim1, uint anim2, ItemCl@ item)
+void animation2d_process(bool animateStay, CritterCl& cr, uint anim1, uint anim2, ItemCl@ item)
 {
-	// Todo: play sounds here
+	if(!animateStay) PlayAnimSound(cr.CrType, cr.Stat[ST_GENDER], anim1, anim2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call before 3d animation playing.
-void animation3d_process(CritterCl& cr, uint anim1, uint anim2, ItemCl@ item)
+void animation3d_process(bool animateStay, CritterCl& cr, uint anim1, uint anim2, ItemCl@ item)
 {
-	// Restore initial values
-	for(uint i=ANIM3D_LAYER_SKIN;i<=ANIM3D_LAYER_BACKPACK;i++) cr.Anim3dLayer[i]=cr.Stat[ST_ANIM3D_LAYERS+i];
+	if(!animateStay) PlayAnimSound(cr.CrType, cr.Stat[ST_GENDER], anim1, anim2);
+
+//#ifdef PLAYERS_3D
+	// You must implement this pids
+#define PID_STRAWHAT                     	uint(-1) // Head slot
+#define PID_ARMIN_CAP	                    uint(-2) // Head slot
+#define PID_POWER_HELMET                    uint(-3) // Head slot
+#define PID_MOTORCYCLE_HELMET               uint(-4) // Head slot
+#define PID_TIBBETS_PRISON             		uint(-5) // Armor slot
+#define PID_VAULT_SUIT             			uint(-6) // Armor slot
 
 	// Change values
-	//uint16 headPid=cr.GetSlotProto(SLOT_HEAD).GetProtoId();
-	uint16 armorPid=cr.GetSlotProto(SLOT_ARMOR).GetProtoId();
-	uint16 weapPid=(valid(item)?item.GetProtoId():cr.GetSlotProto(SLOT_HAND1).GetProtoId());
+	uint8 mode=0;
+	uint16 armorPid   = (valid(cr.GetSlotProto(SLOT_ARMOR, mode)) ? cr.GetSlotProto(SLOT_ARMOR, mode).ProtoId : 0);
+	uint16 weapPid    = (valid(item) ? item.GetProtoId() : cr.GetSlotProto(SLOT_HAND1, mode).ProtoId);
+	uint16 weapExPid  = (valid(cr.GetSlotProto(SLOT_HAND2, mode)) ? cr.GetSlotProto(SLOT_HAND2, mode).ProtoId : 0);
+	ItemCl@ armorItem = cr.GetItem(0, SLOT_ARMOR);
+	ItemCl@ headItem  = null;
+
+#ifndef PLAYERS_3D_NO_HEAD
+	uint16 headPid    = (valid(cr.GetSlotProto(SLOT_HEAD,  mode)) ? cr.GetSlotProto(SLOT_HEAD,  mode).ProtoId : 0);
+	ItemCl@ headItem  = cr.GetItem(0, SLOT_HEAD);
+#endif
+#ifdef PLAYERS_3D_NO_HEAD
+	uint16 headPid    = 0;
+#endif
+
+	bool weapBigGun = false;
+	if(valid(item))
+	{
+		if(FLAG(item.Flags, ITEM_BIG_GUN)) weapBigGun = true;
+	}
+	else
+	{
+		ItemCl@ weap = cr.GetItem(0, SLOT_HAND1);
+		if(valid(weap) && FLAG(weap.Flags, ITEM_BIG_GUN)) weapBigGun = true;
+	}
 
 	int rhandleAtr=0;
+	int lhandleAtr  = 0;
 	int handsAtr=0;
 	int bodyAtr=0;
 	int feetAtr=0;
 	int headAtr=0;
+	int eyeAtr      = 0;
 	int shoulderAtr=0;
+	int backAtr     = 0;
+	int backpackAtr = 0;
 
-	switch(armorPid)
+	/*switch(armorPid)
 	{
 	case PID_LEATHER_JACKET:
 		bodyAtr=ATTRIBUTE_Body_LeatherOutfit;
@@ -2071,12 +2537,26 @@ void animation3d_process(CritterCl& cr, uint anim1, uint anim2, ItemCl@ item)
 		break;
 	case PID_POWERED_ARMOR:
 	case PID_HARDENED_POWER_ARMOR:
-		// ATTRIBUTE_Head_PowerArmor
 		bodyAtr=ATTRIBUTE_Body_PowerArmor;
 		handsAtr=ATTRIBUTE_Hands_PowerArmor;
 		feetAtr=ATTRIBUTE_Feet_PowerArmor;
 		shoulderAtr=ATTRIBUTE_Shoulderpieces_PowerArmor;
+		headAtr     = ATTRIBUTE_Head_ArmingCap;
+#ifdef PLAYERS_3D_NO_HEAD
+		headAtr     = ATTRIBUTE_Head_PowerArmor;
+#endif
 		break;
+	case PID_TIBBETS_PRISON:
+		bodyAtr     = ATTRIBUTE_Body_PrisonSuit;
+		feetAtr     = ATTRIBUTE_Feet_PrisonSuit;
+		backAtr     = armorItem.Val5;
+		break;
+	case PID_VAULT_SUIT:
+		bodyAtr     = ATTRIBUTE_Body_VaultSuit;
+		feetAtr     = ATTRIBUTE_Feet_VaultSuit;
+		backAtr     = armorItem.Val5;
+		break;
+		// Missed models, set some default clothes
 	case PID_LEATHER_ARMOR:
 	case PID_LEATHER_ARMOR_MK_II:
 	case PID_CURED_LEATHER_ARMOR:
@@ -2090,140 +2570,313 @@ void animation3d_process(CritterCl& cr, uint anim1, uint anim2, ItemCl@ item)
 	case PID_ADVANCED_POWER_ARMOR_MK2:
 	case PID_PURPLE_ROBE:
 	case PID_KEEPBRIGE_ROBE:
-	default: break;
-	}
+		bodyAtr     = ATTRIBUTE_Body_PrisonSuit;
+		feetAtr     = ATTRIBUTE_Feet_PrisonSuit;
+		break;
+	default:
+		break;
+	}*/
 
-//	switch(headPid)
-//	{
-//	}
-
-	switch(weapPid)
+	// Temporary sets, mostly intended for work with PLAYERS_3D_NO_HEAD
+	// Will be corrected as the development of the missing content
+	switch(armorPid)
 	{
-	case PID_ZIP_GUN:                        rhandleAtr=ATTRIBUTE_Handle_Weapon_22Autoloader; break;
-	case PID_9MM_MAUSER:                     rhandleAtr=ATTRIBUTE_Handle_Weapon_9mmAutoloader; break;
-	case PID_10MM_PISTOL:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_22Autoloader; break;
-	case PID_14MM_PISTOL:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_22Autoloader; break;
-	case PID_DESERT_EAGLE:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_45Autoloader; break;
-	case PID_DESERT_EAGLE_EXT_MAG:           rhandleAtr=ATTRIBUTE_Handle_Weapon_45Autoloader_GunExtClip; break;
-	case PID_223_PISTOL:                     rhandleAtr=ATTRIBUTE_Handle_Weapon_223Autoloader; break;
-	case PID_44_MAGNUM_REVOLVER:             rhandleAtr=ATTRIBUTE_Handle_Weapon_44Revolver; break;
-	case PID_44_MAGNUM_SPEEDLOADER:          rhandleAtr=ATTRIBUTE_Handle_Weapon_44Revolver; break;
-	case PID_NEEDLER_PISTOL:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_22Autoloader; break;
-	case PID_PK12_GAUSS_PISTOL:              rhandleAtr=ATTRIBUTE_Handle_Weapon_2mmGaussPistol; break;
-	case PID_HUNTING_RIFLE:                  rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break; // A lot shotguns here, because VB has no real rifle model.
-	case PID_SCOPED_HUNTING_RIFLE:           rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_SPRINGER_RIFLE:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_ASSAULT_RIFLE:                  rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_ASSAULT_RIFLE_EXT_MAG:          rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_SNIPER_RIFLE:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_FN_FAL:                         rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_FN_FAL_NIGHT_SCOPE:             rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_FN_FAL_HPFA:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_RED_RYDER_BB_GUN:               rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_RED_RYDER_LE_BB_GUN:            rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_JONNY_BB_GUN:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_INDEPENDENT:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_M72_GAUSS_RIFLE:                rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_SHOTGUN:                        rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_SAWED_OFF_SHOTGUN:              rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_COMBAT_SHOTGUN:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_HK_CAWS:                        rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_PANCOR_JACKHAMMER:              rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_10MM_SMG:                       rhandleAtr=ATTRIBUTE_Handle_Weapon_9mmMachinePistol; break;
-	case PID_HK_P90C:                        rhandleAtr=ATTRIBUTE_Handle_Weapon_9mmMachinePistol; break;
-	case PID_TOMMY_GUN:                      rhandleAtr=ATTRIBUTE_Handle_Weapon_SawedOffShotgun; break;
-	case PID_HK_G11:                         rhandleAtr=ATTRIBUTE_Handle_Weapon_9mmMachinePistol; break;
-	case PID_HK_G11E:                        rhandleAtr=ATTRIBUTE_Handle_Weapon_9mmMachinePistol; break;
-	case PID_GREASE_GUN:                     rhandleAtr=ATTRIBUTE_Handle_Weapon_9mmMachinePistol; break;
-	case PID_FLAMER:                         rhandleAtr=ATTRIBUTE_Handle_Weapon_Flamethrower; break;
-	case PID_IMPROVED_FLAMETHROWER:          rhandleAtr=ATTRIBUTE_Handle_Weapon_Flamethrower_FlamerExtTank; break;
-	case PID_ROCKET_LAUNCHER:                rhandleAtr=ATTRIBUTE_Handle_Weapon_15mmArtemisRailGun; break;
-	case PID_MINIGUN:                        rhandleAtr=ATTRIBUTE_Handle_Weapon_223Minigun; break;
-	case PID_AVENGER_MINIGUN:                rhandleAtr=ATTRIBUTE_Handle_Weapon_223Minigun; break;
-	case PID_VINDICATOR_MINIGUN:             rhandleAtr=ATTRIBUTE_Handle_Weapon_223Minigun; break;
-	case PID_BOZAR:                          rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_LIGHT_SUPPORT_WEAPON:           rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_M60:                            rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_LASER_PISTOL:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserPistol; break;
-	case PID_MAGNETO_LASER_PISTOL:           rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserPistol; break;
-	case PID_SOLAR_SCORCHER:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_APOLLOLaserPistol; break;
-	case PID_LASER_RIFLE:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_LASER_RIFLE_EXT_CAP:            rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_GATLING_LASER:                  rhandleAtr=ATTRIBUTE_Handle_Weapon_223Minigun; break;
-	case PID_ALIEN_LASER_PISTOL:             rhandleAtr=ATTRIBUTE_Handle_Weapon_APOLLOLaserPistol; break;
-	case PID_PLASMA_PISTOL:                  rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserPistol; break;
-	case PID_PLASMA_PISTOL_EXT_CART:         rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserPistol; break;
-	case PID_PLASMA_RIFLE:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_TURBO_PLASMA_RIFLE:             rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_YK32_PULSE_PISTOL:              rhandleAtr=ATTRIBUTE_Handle_Weapon_2mmGaussPistol; break;
-	case PID_YK42B_PULSE_RIFLE:              rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_MOLOTOV_COCKTAIL:               rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeFrag; break;
-	case PID_FRAG_GRENADE:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeFrag; break;
-	case PID_PLASMA_GRENADE:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadePlasma; break;
-	case PID_PULSE_GRENADE:                  rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeEMP; break;
-	case PID_FLARE:                          rhandleAtr=ATTRIBUTE_Handle_Weapon_Flare; break;
-	case PID_ACTIVE_FLARE:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_Flare; break;
-	case PID_PLANT_SPIKE:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_Rock; break;
-	case PID_THROWING_KNIFE:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_ThrowingKnife; break;
-	case PID_ROCK:                           rhandleAtr=ATTRIBUTE_Handle_Weapon_Rock; break;
-	case PID_GOLD_NUGGET:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_Rock; break;
-	case PID_URANIUM_ORE:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_Rock; break;
-	case PID_REFINED_ORE:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_Rock; break;
-	//case PID_DYNACORD:                       rhandleAtr=ATTRIBUTE_Handle_Weapon_Dynamite; break;
-	case PID_KNIFE:                          rhandleAtr=ATTRIBUTE_Handle_Weapon_CombatKnife; break;
-	case PID_COMBAT_KNIFE:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_CombatKnife; break;
-	case PID_LIL_JESUS_WEAPON:               rhandleAtr=ATTRIBUTE_Handle_Weapon_CombatKnife; break;
-	case PID_SHIV:                           rhandleAtr=ATTRIBUTE_Handle_Weapon_Shiv; break;
-	case PID_SWITCHBLADE:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_Switchblade; break;
-	case PID_WAKIZASHI_BLADE:                rhandleAtr=ATTRIBUTE_Handle_Weapon_Machete; break;
-	case PID_SPEAR:                          rhandleAtr=ATTRIBUTE_Handle_Weapon_Spear; break;
-	case PID_SHARP_SPEAR:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_Spear; break;
-	case PID_SHARPENED_POLE:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_Spear; break;
-	case PID_AXE:                            rhandleAtr=ATTRIBUTE_Handle_Weapon_Hatchet; break;
-	case PID_CLUB:                           rhandleAtr=ATTRIBUTE_Handle_Weapon_NightStick; break;
-	case PID_CROWBAR:                        rhandleAtr=ATTRIBUTE_Handle_Weapon_Crowbar; break;
-	case PID_WRENCH:                         rhandleAtr=ATTRIBUTE_Handle_Weapon_HeavyWrench; break;
-	case PID_SLEDGEHAMMER:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_Sledgehammer; break;
-	case PID_LOUISVILLE_SLUGGER:             rhandleAtr=ATTRIBUTE_Handle_Weapon_Baseballbat; break;
-	case PID_SUPER_SLEDGE:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_Sledgehammer; break;
-	//case PID_PLASMA_TORCH:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_NightStick; break;
-	case PID_CATTLE_PROD:                    rhandleAtr=ATTRIBUTE_Handle_Weapon_CattleProd; break;
-	case PID_SUPER_CATTLE_PROD:              rhandleAtr=ATTRIBUTE_Handle_Weapon_CattleProd; break;
-	case PID_RIPPER:                         rhandleAtr=ATTRIBUTE_Handle_Weapon_Machete; break;
-	case PID_BOXING_GLOVES:                  rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeBio; break;
-	case PID_PLATED_BOXING_GLOVES:           rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeBio; break;
-	case PID_RING_BOXING_GLOVES:             rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeBio; break;
-	case PID_RING_PLATED_BOXING_GLOVES:      rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeBio; break;
-	case PID_POWER_FIST:                     handsAtr=ATTRIBUTE_Hands_PowerFist; break;
-	case PID_BRASS_KNUCKLES:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeBio; break;
-	case PID_SPIKED_KNUCKLES:                rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeBio; break;
-	case PID_MEGA_POWER_FIST:                handsAtr=ATTRIBUTE_Hands_PowerFist; break;
-	// Player will never have this weapons anyway.
-	case PID_ROBO_ROCKET_LAUNCHER:           rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_PHAZER:                         rhandleAtr=ATTRIBUTE_Handle_Weapon_45Revolver ; break;
-	case PID_DEATHCLAW_CLAW_1:               rhandleAtr=ATTRIBUTE_Handle_Weapon_45Revolver ; break;
-	case PID_DEATHCLAW_CLAW_2:               rhandleAtr=ATTRIBUTE_Handle_Weapon_45Revolver ; break;
-	case PID_FIRE_GECKO_FLAME_WEAPON:        rhandleAtr=ATTRIBUTE_Handle_Weapon_Flamethrower ; break;
-	case PID_SPECIAL_BOXER_WEAPON:           rhandleAtr=ATTRIBUTE_Handle_Weapon_45Revolver ; break;
-	case PID_GUN_TURRET_WEAPON:              rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_EYEBALL_FIST_1:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_45Revolver ; break;
-	case PID_EYEBALL_FIST_2:                 rhandleAtr=ATTRIBUTE_Handle_Weapon_45Revolver ; break;
-	case PID_DUAL_MINIGUN:                   rhandleAtr=ATTRIBUTE_Handle_Weapon_223Minigun; break;
-	case PID_HEAVY_DUAL_MINIGUN:             rhandleAtr=ATTRIBUTE_Handle_Weapon_223Minigun; break;
-	case PID_END_BOSS_KIFE:                  rhandleAtr=ATTRIBUTE_Handle_Weapon_Machete; break;
-	case PID_END_BOSS_PLASMA_GUN:            rhandleAtr=ATTRIBUTE_Handle_Weapon_LaserArraygun; break;
-	case PID_HOLY_HAND_GRENADE:              rhandleAtr=ATTRIBUTE_Handle_Weapon_GrenadeFrag; break;
-	default: break;
+	case PID_LEATHER_JACKET:
+		bodyAtr     = ATTRIBUTE_Body_LeatherOutfit;
+		handsAtr    = ATTRIBUTE_Hands_LeatherOutfit;
+		feetAtr     = ATTRIBUTE_Feet_LeatherOutfit;
+		break;
+
+	case PID_POWERED_ARMOR:
+	case PID_HARDENED_POWER_ARMOR:
+		bodyAtr     = ATTRIBUTE_Body_PowerArmor;
+		handsAtr    = ATTRIBUTE_Hands_PowerArmor;
+		feetAtr     = ATTRIBUTE_Feet_PowerArmor;
+		headAtr     = ATTRIBUTE_Head_ArmingCap;
+		break;
+
+	case PID_TIBBETS_PRISON:
+		bodyAtr     = ATTRIBUTE_Body_PrisonSuit;
+		feetAtr     = ATTRIBUTE_Feet_PrisonSuit;
+		backAtr     = armorItem.Val5;
+		break;
+
+	case PID_JUMPSUIT:
+	case PID_FAKE_JUMPSUIT:
+	case PID_VAULT_SUIT:
+		bodyAtr     = ATTRIBUTE_Body_VaultSuit;
+		feetAtr     = ATTRIBUTE_Feet_VaultSuit;
+		backAtr     = armorItem.Val5;
+		break;
+
+	case PID_LEATHER_ARMOR:
+	case PID_LEATHER_ARMOR_MK_II:
+	case PID_CURED_LEATHER_ARMOR:
+		bodyAtr     = ATTRIBUTE_Body_LeatherOutfit;
+		handsAtr    = ATTRIBUTE_Hands_LeatherOutfitGauntlet;
+		feetAtr     = ATTRIBUTE_Feet_LeatherOutfit;
+		shoulderAtr = ATTRIBUTE_Shoulderpieces_LeatherOutfit;
+		break;
+
+	case PID_METAL_ARMOR:
+	case PID_METAL_ARMOR_MK_II:
+	case PID_TESLA_ARMOR:
+		bodyAtr     = ATTRIBUTE_Body_PowerArmor;
+		feetAtr     = ATTRIBUTE_Feet_PowerArmor;
+		break;
+
+	case PID_COMBAT_ARMOR:
+	case PID_COMBAT_ARMOR_MK_II:
+	case PID_BROTHERHOOD_COMBAT_ARMOR:
+	case PID_MIRELURK_ARMOR:
+	case PID_BLACK_COMBAT_ARMOR:
+		bodyAtr     = ATTRIBUTE_Body_CombatArmor;
+		handsAtr    = ATTRIBUTE_Hands_CombatArmor;
+		feetAtr     = ATTRIBUTE_Feet_CombatArmor;
+		shoulderAtr = ATTRIBUTE_Shoulderpieces_CombatArmor;
+#ifdef PLAYERS_3D_NO_HEAD
+		headAtr     = ATTRIBUTE_Head_CombatArmor;
+#endif
+		break;
+
+	case PID_ADVANCED_POWER_ARMOR:
+	case PID_ADVANCED_POWER_ARMOR_MK2:
+		bodyAtr     = ATTRIBUTE_Body_PowerArmor;
+		handsAtr    = ATTRIBUTE_Hands_PowerArmor;
+		feetAtr     = ATTRIBUTE_Feet_PowerArmor;
+		shoulderAtr = ATTRIBUTE_Shoulderpieces_PowerArmor;
+		headAtr     = ATTRIBUTE_Head_PowerArmor;
+		break;
+
+	case PID_PURPLE_ROBE:
+		bodyAtr     = ATTRIBUTE_Body_PrisonSuit;
+		feetAtr     = ATTRIBUTE_Feet_PrisonSuit;
+		break;
+	case PID_KEEPBRIGE_ROBE:
+		bodyAtr     = ATTRIBUTE_Body_PrisonSuit;
+		feetAtr     = ATTRIBUTE_Feet_PrisonSuit;
+		headAtr     = ATTRIBUTE_Head_StrawHat;
+		break;
+	case PID_BLACK_ROBE:
+		bodyAtr     = ATTRIBUTE_Body_PrisonSuit;
+		feetAtr     = ATTRIBUTE_Feet_PrisonSuit;
+		headAtr     = ATTRIBUTE_Head_ArmingCap;
+		break;
+
+	default:
+		break;
 	}
+
+	// Head
+	switch(headPid)
+	{
+	case PID_STRAWHAT:
+		headAtr     = ATTRIBUTE_Head_StrawHat;
+		break;
+	case PID_ARMIN_CAP:
+		headAtr     = ATTRIBUTE_Head_ArmingCap;
+		break;
+	case PID_POWER_HELMET:
+		headAtr     = ATTRIBUTE_Head_PowerArmor;
+		break;
+	case PID_MOTORCYCLE_HELMET:
+		headAtr     = (headItem.Val5 != 0 ? headItem.Val5 : ATTRIBUTE_Head_Motorcycle_White);
+		break;
+	default:
+		break;
+	}
+
+	// Backpack
+	if(     weapPid   == PID_BAG || weapPid   == PID_BROWN_BAG) backpackAtr = ATTRIBUTE_Backpack_PaLg01;
+	else if(weapPid   == PID_BACKPACK)                          backpackAtr = ATTRIBUTE_Backpack_PaSm01;
+	else if(weapExPid == PID_BAG || weapExPid == PID_BROWN_BAG) backpackAtr = ATTRIBUTE_Backpack_PaLg01;
+	else if(weapExPid == PID_BACKPACK)                          backpackAtr = ATTRIBUTE_Backpack_PaSm01;
+
+	// Hands
+	if(weapPid == PID_POWER_FIST || weapPid == PID_MEGA_POWER_FIST)
+	{
+		handsAtr = ATTRIBUTE_Hands_PowerFist;
+	}
+	else if(weapBigGun)
+	{
+		rhandleAtr = GetHandleValue(weapPid);
+	}
+	else
+	{
+		rhandleAtr = GetHandleValue(weapPid);
+		lhandleAtr = GetHandleValue(weapExPid);
+	}
+
+#ifdef PLAYERS_3D_VAULT_SUITE
+	bool isSkeleton = (cr.CrType == CRTYPE_3D_MALE_SKELETON || cr.CrType == CRTYPE_3D_FEMALE_SKELETON);
+	if(bodyAtr == 0 && !isSkeleton) bodyAtr = ATTRIBUTE_Body_VaultSuit;
+#endif
 
 	cr.Anim3dLayer[ANIM3D_LAYER_RHANDLE]=rhandleAtr;
+	cr.Anim3dLayer[ANIM3D_LAYER_LHANDLE ] = lhandleAtr;
 	cr.Anim3dLayer[ANIM3D_LAYER_BODY]=bodyAtr;
 	cr.Anim3dLayer[ANIM3D_LAYER_FEET]=feetAtr;
 	cr.Anim3dLayer[ANIM3D_LAYER_HANDS]=handsAtr;
 	cr.Anim3dLayer[ANIM3D_LAYER_HEAD]=headAtr;
 	cr.Anim3dLayer[ANIM3D_LAYER_SHOULDER]=shoulderAtr;
-	cr.Anim3dLayer[ANIM3D_LAYER_ARMLET]=ATTRIBUTE_Armlet_PipBoyClosed;
+	cr.Anim3dLayer[ANIM3D_LAYER_EYE     ] = eyeAtr;
+	cr.Anim3dLayer[ANIM3D_LAYER_BACK    ] = backAtr;
+	cr.Anim3dLayer[ANIM3D_LAYER_BACKPACK] = backpackAtr;
+
+	// Set custom values
+	for(uint i = ANIM3D_LAYER_SKIN; i <= ANIM3D_LAYER_BACKPACK; i++)
+		if(cr.Stat[ST_ANIM3D_LAYERS + i] != 0) cr.Anim3dLayer[i] = cr.Stat[ST_ANIM3D_LAYERS + i];
+//#endif
 }
+
+//#ifdef PLAYERS_3D
+int GetHandleValue(uint16 pid)
+{
+	if(pid == 0 || (pid >= 1000 && pid <=1100)) return 0;
+
+	int handle = 0;
+	switch(pid)
+	{
+	case PID_ZIP_GUN:                        handle = ATTRIBUTE_Handle_Weapon_22Autoloader;               break;
+	case PID_9MM_MAUSER:                     handle = ATTRIBUTE_Handle_Weapon_9mmAutoloader;              break;
+	case PID_10MM_PISTOL:                    handle = ATTRIBUTE_Handle_Weapon_22Autoloader;               break;
+	case PID_14MM_PISTOL:                    handle = ATTRIBUTE_Handle_Weapon_22Autoloader;               break;
+	case PID_DESERT_EAGLE:                   handle = ATTRIBUTE_Handle_Weapon_45Autoloader;               break;
+	case PID_DESERT_EAGLE_EXT_MAG:           handle = ATTRIBUTE_Handle_Weapon_45Autoloader_GunExtClip;    break;
+	case PID_223_PISTOL:                     handle = ATTRIBUTE_Handle_Weapon_223Autoloader;              break;
+	case PID_44_MAGNUM_REVOLVER:             handle = ATTRIBUTE_Handle_Weapon_44Revolver;                 break;
+	case PID_44_MAGNUM_SPEEDLOADER:          handle = ATTRIBUTE_Handle_Weapon_44Revolver;                 break;
+	case PID_NEEDLER_PISTOL:                 handle = ATTRIBUTE_Handle_Weapon_22Autoloader;               break;
+	case PID_PK12_GAUSS_PISTOL:              handle = ATTRIBUTE_Handle_Weapon_2mmGaussPistol;             break;
+	case PID_HUNTING_RIFLE:                  handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_SCOPED_HUNTING_RIFLE:           handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_SPRINGER_RIFLE:                 handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_ASSAULT_RIFLE:                  handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_ASSAULT_RIFLE_EXT_MAG:          handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_SNIPER_RIFLE:                   handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_FN_FAL:                         handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_FN_FAL_NIGHT_SCOPE:             handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_FN_FAL_HPFA:                    handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_RED_RYDER_BB_GUN:               handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_RED_RYDER_LE_BB_GUN:            handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_JONNY_BB_GUN:                   handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_INDEPENDENT:                    handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_M72_GAUSS_RIFLE:                handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_SHOTGUN:                        handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_SAWED_OFF_SHOTGUN:              handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_COMBAT_SHOTGUN:                 handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_HK_CAWS:                        handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_PANCOR_JACKHAMMER:              handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_10MM_SMG:                       handle = ATTRIBUTE_Handle_Weapon_9mmMachinePistol;           break;
+	case PID_HK_P90C:                        handle = ATTRIBUTE_Handle_Weapon_9mmMachinePistol;           break;
+	case PID_TOMMY_GUN:                      handle = ATTRIBUTE_Handle_Weapon_SawedOffShotgun;            break;
+	case PID_HK_G11:                         handle = ATTRIBUTE_Handle_Weapon_9mmMachinePistol;           break;
+	case PID_HK_G11E:                        handle = ATTRIBUTE_Handle_Weapon_9mmMachinePistol;           break;
+	case PID_GREASE_GUN:                     handle = ATTRIBUTE_Handle_Weapon_9mmMachinePistol;           break;
+	case PID_FLAMER:                         handle = ATTRIBUTE_Handle_Weapon_Flamethrower;               break;
+	case PID_IMPROVED_FLAMETHROWER:          handle = ATTRIBUTE_Handle_Weapon_Flamethrower_FlamerExtTank; break;
+	case PID_ROCKET_LAUNCHER:                handle = ATTRIBUTE_Handle_Weapon_15mmArtemisRailGun;         break;
+	case PID_MINIGUN:                        handle = ATTRIBUTE_Handle_Weapon_223Minigun;                 break;
+	case PID_AVENGER_MINIGUN:                handle = ATTRIBUTE_Handle_Weapon_223Minigun;                 break;
+	case PID_VINDICATOR_MINIGUN:             handle = ATTRIBUTE_Handle_Weapon_223Minigun;                 break;
+	case PID_BOZAR:                          handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_LIGHT_SUPPORT_WEAPON:           handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_M60:                            handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_LASER_PISTOL:                   handle = ATTRIBUTE_Handle_Weapon_LaserPistol;                break;
+	case PID_MAGNETO_LASER_PISTOL:           handle = ATTRIBUTE_Handle_Weapon_LaserPistol;                break;
+	case PID_SOLAR_SCORCHER:                 handle = ATTRIBUTE_Handle_Weapon_APOLLOLaserPistol;          break;
+	case PID_LASER_RIFLE:                    handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_LASER_RIFLE_EXT_CAP:            handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_GATLING_LASER:                  handle = ATTRIBUTE_Handle_Weapon_223Minigun;                 break;
+	case PID_ALIEN_LASER_PISTOL:             handle = ATTRIBUTE_Handle_Weapon_APOLLOLaserPistol;          break;
+	case PID_PLASMA_PISTOL:                  handle = ATTRIBUTE_Handle_Weapon_LaserPistol;                break;
+	case PID_PLASMA_PISTOL_EXT_CART:         handle = ATTRIBUTE_Handle_Weapon_LaserPistol;                break;
+	case PID_PLASMA_RIFLE:                   handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_TURBO_PLASMA_RIFLE:             handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_YK32_PULSE_PISTOL:              handle = ATTRIBUTE_Handle_Weapon_2mmGaussPistol;             break;
+	case PID_YK42B_PULSE_RIFLE:              handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_MOLOTOV_COCKTAIL:               handle = ATTRIBUTE_Handle_Weapon_GrenadeFrag;                break;
+	case PID_FRAG_GRENADE:                   handle = ATTRIBUTE_Handle_Weapon_GrenadeFrag;                break;
+	case PID_PLASMA_GRENADE:                 handle = ATTRIBUTE_Handle_Weapon_GrenadePlasma;              break;
+	case PID_PULSE_GRENADE:                  handle = ATTRIBUTE_Handle_Weapon_GrenadeEMP;                 break;
+	case PID_FLARE:                          handle = ATTRIBUTE_Handle_Weapon_Flare;                      break;
+	case PID_ACTIVE_FLARE:                   handle = ATTRIBUTE_Handle_Weapon_Flare;                      break;
+	case PID_PLANT_SPIKE:                    handle = ATTRIBUTE_Handle_Weapon_Rock;                       break;
+	case PID_THROWING_KNIFE:                 handle = ATTRIBUTE_Handle_Weapon_ThrowingKnife;              break;
+	case PID_ROCK:                           handle = ATTRIBUTE_Handle_Weapon_Rock;                       break;
+	case PID_GOLD_NUGGET:                    handle = ATTRIBUTE_Handle_Weapon_Rock;                       break;
+	case PID_URANIUM_ORE:                    handle = ATTRIBUTE_Handle_Weapon_Rock;                       break;
+	case PID_REFINED_ORE:                    handle = ATTRIBUTE_Handle_Weapon_Rock;                       break;
+	case PID_KNIFE:                          handle = ATTRIBUTE_Handle_Weapon_CombatKnife;                break;
+	case PID_COMBAT_KNIFE:                   handle = ATTRIBUTE_Handle_Weapon_CombatKnife;                break;
+	case PID_LIL_JESUS_WEAPON:               handle = ATTRIBUTE_Handle_Weapon_CombatKnife;                break;
+	case PID_SHIV:                           handle = ATTRIBUTE_Handle_Weapon_Shiv;                       break;
+	case PID_SWITCHBLADE:                    handle = ATTRIBUTE_Handle_Weapon_Switchblade;                break;
+	case PID_WAKIZASHI_BLADE:                handle = ATTRIBUTE_Handle_Weapon_Machete;                    break;
+	case PID_SPEAR:                          handle = ATTRIBUTE_Handle_Weapon_Spear;                      break;
+	case PID_SHARP_SPEAR:                    handle = ATTRIBUTE_Handle_Weapon_Spear;                      break;
+	case PID_SHARPENED_POLE:                 handle = ATTRIBUTE_Handle_Weapon_Spear;                      break;
+	case PID_AXE:                            handle = ATTRIBUTE_Handle_Weapon_Hatchet;                    break;
+	case PID_CLUB:                           handle = ATTRIBUTE_Handle_Weapon_NightStick;                 break;
+	case PID_CROWBAR:                        handle = ATTRIBUTE_Handle_Weapon_Crowbar;                    break;
+	case PID_WRENCH:                         handle = ATTRIBUTE_Handle_Weapon_HeavyWrench;                break;
+	case PID_SLEDGEHAMMER:                   handle = ATTRIBUTE_Handle_Weapon_Sledgehammer;               break;
+	case PID_LOUISVILLE_SLUGGER:             handle = ATTRIBUTE_Handle_Weapon_Baseballbat;                break;
+	case PID_SUPER_SLEDGE:                   handle = ATTRIBUTE_Handle_Weapon_Sledgehammer;               break;
+	case PID_CATTLE_PROD:                    handle = ATTRIBUTE_Handle_Weapon_CattleProd;                 break;
+	case PID_SUPER_CATTLE_PROD:              handle = ATTRIBUTE_Handle_Weapon_CattleProd;                 break;
+	case PID_RIPPER:                         handle = ATTRIBUTE_Handle_Weapon_Machete;                    break;
+	case PID_BOXING_GLOVES:                  handle = ATTRIBUTE_Handle_Weapon_GrenadeBio;                 break;
+	case PID_PLATED_BOXING_GLOVES:           handle = ATTRIBUTE_Handle_Weapon_GrenadeBio;                 break;
+	case PID_RING_BOXING_GLOVES:             handle = ATTRIBUTE_Handle_Weapon_GrenadeBio;                 break;
+	case PID_RING_PLATED_BOXING_GLOVES:      handle = ATTRIBUTE_Handle_Weapon_GrenadeBio;                 break;
+	case PID_BRASS_KNUCKLES:                 handle = ATTRIBUTE_Handle_Weapon_GrenadeBio;                 break;
+	case PID_SPIKED_KNUCKLES:                handle = ATTRIBUTE_Handle_Weapon_GrenadeBio;                 break;
+	case PID_DYNAMITE:                       handle = ATTRIBUTE_Handle_Weapon_Dynamite;                   break;
+	case PID_PLASTIC_EXPLOSIVES:             handle = ATTRIBUTE_Handle_Weapon_Dynamite;                   break;
+	case PID_MINE:                           handle = ATTRIBUTE_Handle_Weapon_Dynamite;                   break;
+	// Player will never have this weapons anyway
+	case PID_ROBO_ROCKET_LAUNCHER:           handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_PHAZER:                         handle = ATTRIBUTE_Handle_Weapon_45Revolver;                 break;
+	case PID_DEATHCLAW_CLAW_1:               handle = ATTRIBUTE_Handle_Weapon_45Revolver;                 break;
+	case PID_DEATHCLAW_CLAW_2:               handle = ATTRIBUTE_Handle_Weapon_45Revolver;                 break;
+	case PID_FIRE_GECKO_FLAME_WEAPON:        handle = ATTRIBUTE_Handle_Weapon_Flamethrower;               break;
+	case PID_SPECIAL_BOXER_WEAPON:           handle = ATTRIBUTE_Handle_Weapon_45Revolver;                 break;
+	case PID_GUN_TURRET_WEAPON:              handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_EYEBALL_FIST_1:                 handle = ATTRIBUTE_Handle_Weapon_45Revolver;                 break;
+	case PID_EYEBALL_FIST_2:                 handle = ATTRIBUTE_Handle_Weapon_45Revolver;                 break;
+	case PID_DUAL_MINIGUN:                   handle = ATTRIBUTE_Handle_Weapon_223Minigun;                 break;
+	case PID_HEAVY_DUAL_MINIGUN:             handle = ATTRIBUTE_Handle_Weapon_223Minigun;                 break;
+	case PID_END_BOSS_KIFE:                  handle = ATTRIBUTE_Handle_Weapon_Machete;                    break;
+	case PID_END_BOSS_PLASMA_GUN:            handle = ATTRIBUTE_Handle_Weapon_LaserArraygun;              break;
+	case PID_HOLY_HAND_GRENADE:              handle = ATTRIBUTE_Handle_Weapon_GrenadeFrag;                break;
+	// Other items
+	case PID_STIMPAK:
+	case PID_RADAWAY:
+	case PID_SUPER_STIMPAK:
+	case PID_HYPO:
+	case PID_PSYCHO:
+	case PID_HYPO_POISON:                    handle = ATTRIBUTE_Handle_Item_FirstAidKit;                  break;
+	case PID_LOCKPICKS:
+	case PID_EXP_LOCKPICK_SET:
+	case PID_ELECTRONIC_LOCKPICKS:
+	case PID_ELEC_LOCKPICK_MKII:             handle = ATTRIBUTE_Handle_Item_SecurityKit;                  break;
+	case PID_MULTI_TOOL:
+	case PID_SUPER_TOOL_KIT:
+	case PID_OIL_CAN:                        handle = ATTRIBUTE_Handle_Item_Toolkit;                      break;
+	// No handle
+	case PID_POWER_FIST:
+	case PID_MEGA_POWER_FIST:
+	case PID_BAG:
+	case PID_BROWN_BAG:
+	case PID_BACKPACK:                       handle = 0;                                                  break;
+	// Generic item
+	default:                                 handle = 0;                                                  break;
+	}
+
+	return handle;
+}
+//#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Called on some items collection generating.
@@ -2242,23 +2895,33 @@ void items_collection(int collection, ItemCl@[]& items)
 	}*/
 }
 
-
-
-
-void _showId(int param0, int param1, int param2, string@ param3, int[]@ param4)
+void _sinf(int param0, int param1, int param2, string@ param3, int[]@ param4)
 {
-	showId = (param0!=0);
+	__sinf = uint(param0);
+	
+	string red = "|0xFFAA0000 ",
+	green = "|0xFF008800 ";
+	
+	Message("Информационные опции:");
+	Message((((__sinf&SINF_LOGIN)!=0)?green:red)+"Показывать логины игроков"); 
+	Message((((__sinf&SINF_CRID)!=0)?green:red)+"Показывать Id криттеров в <<Вы видите>>");
+	Message((((__sinf&SINF_CRID_ON_HEAD)!=0)?green:red)+"Показывать Id криттеров над головами");
+	Message((((__sinf&SINF_CRID_CHAT)!=0)?green:red)+"Показывать Id криттеров в сообщениях чата");
+	Message((((__sinf&SINF_ITEMID)!=0)?green:red)+"Показывать Id итемов");
+	Message((((__sinf&SINF_HEX)!=0)?green:red)+"Показывать координаты гекса");
+	Message((((__sinf&SINF_INSIGHT)!=0)?green:red)+"Показывать сообщения аркады");
+	Message((((__sinf&SINF_GLOBAL)!=0)?green:red)+"Показывать на глобале квадратный курсор.");
+	Message((((__sinf&SINF_GRID)!=0)?green:red)+"Показывать на глобале сетку.");
+	
+	updateAllNicks();
 }
 
+bool waiting=false;
 
-void colorizeCritterByTeam(int team, int param1, int param2, string@ param3, int[]@ param4)
+void _waiting(int param0, int param1, int param2, string@ param3, int[]@ param4)
 {
-  CritterCl@ cr = GetChosen();
-  if(!valid(cr)) return;
-  switch(team)
-  {
-    case 0 : cr.ContourColor=COLOR_CONTOUR_RED; break;
-    case 1 : cr.ContourColor=COLOR_CONTOUR_GREEN; break;
-    default: cr.ContourColor=COLOR_CONTOUR_YELLOW; break; 
-  }
+	__waiting=((param0!=0)?true:false);
+	ChangeCursor((__waiting)?CURSOR_WAIT:CURSOR_DEFAULT);
 }
+
+#include "client_zomb.fos"

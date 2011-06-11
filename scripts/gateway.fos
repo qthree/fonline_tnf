@@ -1,47 +1,101 @@
 #include "_macros.fos"
 
-Critter@[] guards;
+uint[] guards;
 
-import bool act_var_check(Critter& player) from "activation";
+import int act_var_get(Critter& player) from "activation";
 
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target, int minHp) from "npc_planes";
+import uint EraseAttackPlane(Critter& npc, Critter& target) from "npc_planes";
 
-void t_firstEnterHex(Critter& cr, Scenery& trigger, bool entered, uint8 dir)
+void t_EnterHex(Critter& cr, Scenery& trigger, bool entered, uint8 dir, int val)
 {
 	if(cr.IsNpc()) return;
-
-	if(!act_var_check(cr))
+	
+	int ck = act_var_get(cr);
+	
+	if(entered && ck!=ACT_CODE && ck!=ACT_GM)
 	{
-		AttackAndCatch(cr);		
+		//Log("нелегал");
+		if(val==5)AttackAndCatch(cr);
+		else if(val==4)
+		{
+			//Log("кричим");
+			Critter@ gu = null;			
+			for(uint i=0, len=guards.length(); i<len; i++)
+			{
+					Critter@ tgu = GetCritter(guards[i]);
+					if((tgu is null) || tgu.Param[ST_DIALOG_ID]!=330) continue;
+					@gu = tgu;
+					break;
+			}
+			if(gu is null) return;
+			
+			//Log("123");
+			
+			uint8 dir = GetDirection(gu.HexX, gu.HexY, cr.HexX, cr.HexY);
+			
+			//uint8 dir2 = (dir+3)%6;
+			
+			//Log("мой "+cr.Dir+" а dir "+dir);
+			
+			if(cr.Dir==dir || cr.Dir==((dir+1)%6) || cr.Dir==(dir+5)%6) return;
+			
+			//Log("345");
+			
+			gu.Say(SAY_SHOUT_ON_HEAD, "Стоять! Тебе нельзя в город!");
+			
+			gu.SetDir(dir);
+			
+			cr.SetEvent(CRITTER_EVENT_IDLE, null);
+			cr.Wait(1000);
+		}
 	}
+	
 
 
 }
 
 void AttackAndCatch(Critter& cr)
 {
+	Map@ map = cr.GetMap();
+	if(map is null) return;
+	
 	for(uint i=0; i<guards.length(); i++)
 	{
-		if(guards[i] is null) continue;
+		Critter@ guard = GetCritter(guards[i]);
+		if(guard is null) continue;
 		
-		AddAttackPlane(guards[i], 0, cr, -10);
+		uint len = GetDistantion(cr.HexX, cr.HexY, guard.HexX, guard.HexY);
+		if(len>25) continue;
+		
+		AddAttackPlane(guard, 0, cr, -10);
 	}
 
-	cr.SetEvent (CRITTER_EVENT_KNOCKOUT, "_KoAndCatch");
+	if(cr.Param[ARCADE_MODE]==0 && cr.Stat[ST_BODY_TYPE]!=BT_ZOMBIE) cr.SetEvent (CRITTER_EVENT_KNOCKOUT, "_KoAndCatch");
 
 }
 
-void _KoAndCatch(Critter& cr, bool faceUp, uint lostAp, uint knockDist)
+void _KoAndCatch(Critter& cr, uint anim2begin, uint anim2idle, uint anim2end, uint lostAp, uint knockDist)
 {
-	if(!cr.IsDead () && !act_var_check(cr))
+	int ck = act_var_get(cr);
+
+	bool ck2=false;
+	
+	if(!cr.IsDead () && ck!=ACT_CODE && ck!=ACT_GM)
 	{
 		for(uint i=0; i<guards.length(); i++)
 		{
-			if((guards[i] is null)||(!guards[i].IsSee(cr))) continue;
+			Critter@ guard = GetCritter(guards[i]);
+
+			if((guard is null)) continue;
+			
+			EraseAttackPlane(guard, cr);
+			
+			if(ck2 || (!guard.IsSee(cr))) continue;
 			
 			if(!catch(cr)) Log("Fail with catch!");
-
-			break;
+			
+			ck2=true;
 		}
 	}
 
@@ -92,9 +146,11 @@ bool catch(Critter& cr)
 void addGuard(Critter& npc)
 //void _InitGuard(Critter& npc, bool firstTime)
 {
-	uint len = guards.length();
-	guards.resize(len+1);
-	@guards[len]=npc;
+	guards.insertLast(npc.Id);
+	//if(npc.Param[ST_DIALOG_ID]!=330)
+	//{
+//		npc.ParamBase[]
+	//}
 }
 
 
@@ -127,4 +183,41 @@ bool d_isGoOut(Critter& master, Critter@ slave)
 
 	return(dir>0 && dir<4);
 	
+}
+
+void AttackAndCatch(Critter& player, int id, int param1, int param2)
+{
+	Critter@ cr = GetCritter(uint(id));
+	if(cr is null) return;
+	AttackAndCatch(cr);
+}
+
+void Release(Critter& player, int id, int param1, int param2)
+{
+	Critter@ cr = GetCritter(uint(id));
+	if(cr is null) return;
+	Map@ map = cr.GetMap();
+	if(map is null) return;
+
+	uint16 hexX=0, hexY=0;
+	if(!map.GetEntireCoords(0, 0, hexX, hexY) || !cr.TransitToHex(hexX, hexY, 5)) return;
+		
+	player.Say(SAY_NETMSG, "Transfer ok.");
+	
+	if(param1==0) return;
+	
+	hexX=0; hexY=0;
+	if(!map.GetEntireCoords(58, 0, hexX, hexY)) return;
+
+	Item@ toCont = map.GetItem(hexX, hexY, 188); //ищем шкаф с pid 188 на гексе #58
+
+	if(valid(toCont))
+	{
+		Item@[] items;
+		toCont.GetItems(cr.Id, items);
+	
+		MoveItems(items, cr); //прячем вещички в шкаф с замком 300
+		
+		player.Say(SAY_NETMSG, "Item return ok.");
+	}
 }

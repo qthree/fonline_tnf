@@ -45,7 +45,15 @@ $   90  speter
 $   91  replicator
 $   92  replicator_energy
 
+$	100	lake_bar
+$	101	lake_fish
+$	102	lake_general
+
+$	110	xmas_grand
+
 $	206	Bulletin_board
+
+$	211	all_roulette
 
 $	10000	enc_klad_trader
 $	10001	enc_ocean_trader
@@ -87,6 +95,8 @@ $	320	mod_farmer_q
 
 $	330	mod_enter_guard
 
+$	331 moder1
+
 $	350 mod_comm_man
 $	351 mod_comm_woman
 $	352	mod_comm_guard
@@ -107,7 +117,19 @@ $	376	mod_trader_junk
 $	377	mod_trader_tools
 $	378	mod_trader_baltas
 
+$	379	jun_Harvi_Trader
+$	380	jun_junker
+$	381	jun_mutant_leader
+$	382	jun_Mutdoc
+$	383	jun_raider2
+$	384	jun_Tein
+$	385	sat_doc
+$	386	sat_narcodiller
+$	387	sat_Reactorguy
+$	388	sat_weaponguy
+
 $       400     mod_gov_treasurer
+$	401	black_junk
 
 $	4700	start_caravan
 $	4701	start_drover
@@ -150,10 +172,5 @@ $	5058	mob_bandit
 $	5059	mob_mutant
 $	5060	mob_egg_wan
 $	5061	mob_ill_brahmin
-$       5062    taxi2
-$	5063	test_br
-$	5064	test_g
-$	5065	test_m
-$	5066	test_u
 
 ************************************************************

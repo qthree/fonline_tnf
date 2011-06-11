@@ -87,7 +87,7 @@ cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12901);
 return 30*60;
 
 case 3:
-if(!cr.IsKnockout()) cr.ToKnockout(false,50,cr.HexX,cr.HexY);
+if(!cr.IsKnockout()) cr.ToKnockout(KNOCKOUT_ANIM2_DEFAULT(false),50,cr.HexX,cr.HexY);
 cr.ParamBase[ST_STRENGTH]=1;
 cr.ParamBase[ST_PERCEPTION]=1;
 cr.ParamBase[ST_AGILITY]=1;

@@ -2136,7 +2136,7 @@ position=huddle, spacing:3*/
 	group.AddItem(PID_ROCK);
 /*type_00=ratio:0%, pid:19*/
 
-										// Bounty_Hunter_Low
+/*										// Bounty_Hunter_Low
 	@group=@EncounterGroups[GROUP_Bounty_Hunter_Low];
 	group.TeamNum=0;
 	group.Position=POSITION_SURROUNDING;
@@ -2148,13 +2148,13 @@ position=huddle, spacing:3*/
 	group.AddCritter(182).Ratio(100).Dialog(0).Script("encounter_npc@_NpcInit")
 		.AddItem(PID_DESERT_EAGLE,1,1,SLOT_HAND1)
 		.AddItem(PID_HEALING_POWDER,1,1,SLOT_INV)
-		.AddItem(PID_BOTTLE_CAPS,5,15,SLOT_INV);
+		.AddItem(PID_BOTTLE_CAPS,5,15,SLOT_INV);*/
 /*type_00=pid:16777397, Item:10(wielded), Item:(1-3)273, Item:(10-20)41, Script:836
 type_01=ratio:100%, pid:16777398, Item:18(wielded), Item:273, Item:(5-15)41, Script:836
 position=Surrounding, Spacing:2, distance:4*/
 
 										// Bounty_Hunter_Low_Mid
-	@group=@EncounterGroups[GROUP_Bounty_Hunter_Low_Mid];
+/*	@group=@EncounterGroups[GROUP_Bounty_Hunter_Low_Mid];
 	group.TeamNum=0;
 	group.Position=POSITION_SURROUNDING;
 	group.Spacing=2;
@@ -2183,7 +2183,7 @@ position=Surrounding, Spacing:2, distance:4*/
 		.AddItem(PID_ASSAULT_RIFLE,1,1,SLOT_INV)
 		.AddItem(PID_FRAG_GRENADE,3,8,SLOT_HAND1)
 		.AddItem(PID_STIMPAK,1,1,SLOT_INV)
-		.AddItem(PID_BOTTLE_CAPS,15,30,SLOT_INV);
+		.AddItem(PID_BOTTLE_CAPS,15,30,SLOT_INV);*/
 /*type_00=pid:16777399, Item:143(wielded), Item:236 Item:(1-2)40, Item:(20-50)41, Script:836
 type_01=pid:16777397, Item:10(wielded), Item:(1-3)273, Item:(10-20)41, Script:836
 type_02=ratio:30%, pid:16777400, Item:22(wielded), Item:40, Item:(15-30)41, Script:836
@@ -2193,7 +2193,7 @@ type_05=ratio:20%, pid:16777401, Item:23, Item:(3-8)25(wielded), Item:40, Item:(
 position=Surrounding, Spacing:2, distance:4*/
 
 										// Bounty_Hunter_High_Mid
-	@group=@EncounterGroups[GROUP_Bounty_Hunter_High_Mid];
+/*	@group=@EncounterGroups[GROUP_Bounty_Hunter_High_Mid];
 	group.TeamNum=0;
 	group.Position=POSITION_SURROUNDING;
 	group.Spacing=2;
@@ -2220,7 +2220,7 @@ position=Surrounding, Spacing:2, distance:4*/
 		.AddItem(PID_POWER_FIST,1,1,SLOT_HAND1)
 		.AddItem(PID_FRAG_GRENADE,2,5,SLOT_INV)
 		.AddItem(PID_STIMPAK,1,1,SLOT_INV)
-		.AddItem(PID_BOTTLE_CAPS,25,40,SLOT_INV);
+		.AddItem(PID_BOTTLE_CAPS,25,40,SLOT_INV);*/
 /*type_00=pid:16777402, Item:118(wielded), Item:39, Item:(1-2)40, Item:(30-70)41, Script:836
 type_01=pid:16777399, Item:143(wielded), Item:236, Item:(1-2)40, Item:(20-50)41, Script:836
 type_02=ratio:25%, pid:16777403, Item:16(wielded), Item:40, Item:(25-40)41, Script:836
@@ -2229,7 +2229,7 @@ type_04=ratio:50%, pid:16777403, Item:235(wielded), Item:(2-5)25, Item:40, Item:
 position=Surrounding, Spacing:2, distance:4*/
 
 										// Bounty_Hunter_High
-	@group=@EncounterGroups[GROUP_Bounty_Hunter_High];
+/*	@group=@EncounterGroups[GROUP_Bounty_Hunter_High];
 	group.TeamNum=0;
 	group.Position=POSITION_SURROUNDING;
 	group.Spacing=2;
@@ -2259,7 +2259,7 @@ position=Surrounding, Spacing:2, distance:4*/
 		.AddItem(PID_PLASMA_PISTOL,1,1,SLOT_INV)
 		.AddItem(PID_PLASMA_GRENADE,2,4,SLOT_HAND1)
 		.AddItem(PID_STIMPAK,1,2,SLOT_INV)
-		.AddItem(PID_BOTTLE_CAPS,35,50,SLOT_INV);
+		.AddItem(PID_BOTTLE_CAPS,35,50,SLOT_INV);*/
 /*type_00=pid:16777405, Item:392(wielded), Item:(2-4)40, Item:(40-80)41, Script:836
 type_01=pid:16777402, Item:118(wielded), Item:39, Item:(1-2)40, Item:(30-70)41, Script:836
 type_02=pid:16777406, Item:116(wielded), Item:(2-4)26, Item:(1-2)40, Item:(35-50)41, Script:836              ; Ripper
@@ -2269,7 +2269,7 @@ type_05=pid:16777406, Item:24, Item:(2-4)26(wielded), Item:(1-2)40, Item:(35-50)
 position=Surrounding, Spacing:2, distance:4*/
 
 										// Morton_Brother
-	@group=@EncounterGroups[GROUP_Morton_Brother];
+/*	@group=@EncounterGroups[GROUP_Morton_Brother];
 	group.TeamNum=0;
 	group.Position=POSITION_SURROUNDING;
 	group.Spacing=2;
@@ -2290,7 +2290,7 @@ position=Surrounding, Spacing:2, distance:4*/
 		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);
 	group.AddCritter(30).Ratio(25).Dialog(0).Script("encounter_npc@_NpcInit")
 		.AddItem(PID_223_PISTOL,1,1,SLOT_HAND1)
-		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);
+		.AddItem(PID_BOTTLE_CAPS,0,30,SLOT_INV);*/
 /*type_00=pid:16777454, Item:268(wielded), Script:1026, If(Global(386) = 1)      ; Toad Morton (Raider) w/ H&K CAWS
 type_01=pid:16777500, Item:355(wielded), Script:1026, If(Global(386) = 3)      ; Newt Morton (Bounty Hunter 13-18) w/ Light Support Weapon
 type_02=pid:16777403, Item:391(wielded), Script:1026, If(Global(386) = 5)      ; Snake Morton (Mysterious Stranger) w/ H&K G11E
@@ -2399,7 +2399,7 @@ position=Surrounding, Spacing:2, distance:4*/
 
 	// Global tables
 	CEncounterTable globalTable;
-	globalTable.AddEncounter( 15, 10033040).AddGroup(GROUP_Bounty_Hunter_Low     , 2, 5).AddGroup(GROUP_Player            , 0, 0).Fighting(0,1).CheckParam(ST_LEVEL,'<',7).CheckParam(KARMA_CHILDKILLER,'>',1);
+/*	globalTable.AddEncounter( 15, 10033040).AddGroup(GROUP_Bounty_Hunter_Low     , 2, 5).AddGroup(GROUP_Player            , 0, 0).Fighting(0,1).CheckParam(ST_LEVEL,'<',7).CheckParam(KARMA_CHILDKILLER,'>',1);
 	globalTable.AddEncounter( 15, 10033050).AddGroup(GROUP_Bounty_Hunter_Low_Mid , 2, 5).AddGroup(GROUP_Player            , 0, 0).Fighting(0,1).CheckParam(ST_LEVEL,'>',6).CheckParam(ST_LEVEL,'<',13).CheckParam(KARMA_CHILDKILLER,'>',1);
 	globalTable.AddEncounter( 15, 10033060).AddGroup(GROUP_Bounty_Hunter_High_Mid, 2, 5).AddGroup(GROUP_Player            , 0, 0).Fighting(0,1).CheckParam(ST_LEVEL,'>',12).CheckParam(ST_LEVEL,'<',19).CheckParam(KARMA_CHILDKILLER,'>',1);
 	globalTable.AddEncounter( 15, 10033070).AddGroup(GROUP_Bounty_Hunter_High    , 2, 6).AddGroup(GROUP_Player            , 0, 0).Fighting(0,1).CheckParam(ST_LEVEL,'>',18).CheckParam(KARMA_CHILDKILLER,'>',1);
@@ -2409,7 +2409,7 @@ position=Surrounding, Spacing:2, distance:4*/
 	globalTable.AddEncounter( 15, 10033110).AddGroup(GROUP_Bounty_Hunter_High    , 2, 5).AddGroup(GROUP_Player            , 0, 0).Fighting(0,1).CheckParam(ST_LEVEL,'>',18).CheckParam(ST_KARMA,'<',-500);
 	globalTable.AddEncounter( 10, 10033120).AddGroup(GROUP_Morton_Brother        , 4, 7).CheckLVar(LVAR_redding_morton_brothers,'>',0).CheckLVar(LVAR_redding_morton_brothers,'<',6).AssignLVar(LVAR_redding_morton_brothers,'=',6);
 	// Add yours special encounters here
-	AddTableToAllTables(globalTable);
+	AddTableToAllTables(globalTable);*/
 
 
 	// Local tables

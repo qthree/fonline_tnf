@@ -1,4 +1,4 @@
-// Author: Tabloid
+// Author: Tab10id
 //#define __DEBUG__
 #include "_macros.fos"
 #include "roulette_game_list_h.fos"
@@ -14,8 +14,6 @@
 // 7. Сохранение данный в массиве AnyData по аналогии со скриптом покера.
 // 8. Запрет на повторение ставки на то же поле.
 // 9. Всплывающие фразы над крупье во время игры.
-
-#define add_element #(a)	{ a.resize(a.length()+1); }
 
 #define GAMEVAR_COUNT (1) //ToDo
 #define ANSWER_COUNT_PER_PAGE (5)
@@ -37,7 +35,7 @@ CBet@[][] Bets; // Массив ставок (включая размер)
 // Следующие переменные расчитывается для каждого нпц с прикрепленным скриптом рулетки на основе значения NpcRole
 uint[] MinBet; // Значения минимальной ставки
 uint[] MaxBet; // Значения максимальной ставки
-uint[] Bet1; // Первый вариант ставки для диалога 
+uint[] Bet1; // Первый вариант ставки для диалога
 uint[] Bet2; // Второй вариант ставки для диалога
 uint[] Bet3; // Третий вариант ставки для диалога
 uint[] Bet4; // Четвертый вариант ставки для диалога
@@ -74,54 +72,58 @@ void _RouletteInit(Critter& croupier, bool firstTime)
 
 void AddElements()
 {
-	add_element(Bets);
-	add_element(CurBetType);
-	add_element(DialogAnswerPageIndex);
-	add_element(DialogAnswerNum);
-	add_element(AnyDataTemp);
-	add_element(GameAnyData);
-	//add_element(InGame);
-	add_element(MinBet);
-	add_element(MaxBet);
-	add_element(Bet1);
-	add_element(Bet2);
-	add_element(Bet3);
-	add_element(Bet4);
-	add_element(AllBetSize);
-	add_element(OnCheat1);
-	add_element(OnCheat2);
-	add_element(OnCheat3);
-	add_element(CLevel);
-	add_element(StopGameMoney);
-	add_element(WaitForGame);
-	add_element(GameCurrency);
+	Bets.grow(1);
+	CurBetType.grow(1);
+	DialogAnswerPageIndex.grow(1);
+	DialogAnswerNum.grow(1);
+	AnyDataTemp.grow(1);
+	GameAnyData.grow(1);
+	//InGame.grow(1);
+	MinBet.grow(1);
+	MaxBet.grow(1);
+	Bet1.grow(1);
+	Bet2.grow(1);
+	Bet3.grow(1);
+	Bet4.grow(1);
+	AllBetSize.grow(1);
+	OnCheat1.grow(1);
+	OnCheat2.grow(1);
+	OnCheat3.grow(1);
+	CLevel.grow(1);
+	StopGameMoney.grow(1);
+	WaitForGame.grow(1);
+	GameCurrency.grow(1);
 }
 
 void dlg_MakeBet(Critter& master, Critter@ croupier, string@ str) // Ветка выбора координат ставки
 {
-	uint coord=0;
+	int coord=0;
 	if(IS_DIALOG_SAY_MODE(str)) // Если игрок воспользовался функцией Say About
 	{
 		master.Say(SAY_APPEND,"\n");
 		if((not StrToInt(str,coord)) and (str!="00")) // Проверяем данные на соответствие игровым полям
 		{
-			master.SayMsg(SAY_APPEND,TEXTMSG_DLG,STR_INVALID_COORD); // Если не соответствуют, то выдаем сообщение об ошибке
+			//master.SayMsg(SAY_APPEND,TEXTMSG_DLG,STR_INVALID_COORD); // Если не соответствуют, то выдаем сообщение об ошибке
+			master.SayMsg(SAY_APPEND,TEXTMSG_TEXT,STR_INVALID_COORD);
 		}
 		else
 		{
 			if(str=="00")
 			{
-				master.SayMsg(SAY_DIALOG,TEXTMSG_DLG,STR_COORD_OPERATION_SUCCESS); // Есди игрок ввел "00", то выводим сообщение об успешной операции
+				//master.SayMsg(SAY_DIALOG,TEXTMSG_DLG,STR_COORD_OPERATION_SUCCESS); // Есди игрок ввел "00", то выводим сообщение об успешной операции
+				master.SayMsg(SAY_DIALOG,TEXTMSG_TEXT,STR_COORD_OPERATION_SUCCESS); 
 			}
 			else
 			{
 				if((coord<0) or (coord>36))
 				{
-					master.SayMsg(SAY_APPEND,TEXTMSG_DLG,STR_INVALID_COORD); // Есди число лежит не в промежутке, от нуля, до 36, значит игрок ввел неверное значение координаты
+					//master.SayMsg(SAY_APPEND,TEXTMSG_DLG,STR_INVALID_COORD); // Есди число лежит не в промежутке, от нуля, до 36, значит игрок ввел неверное значение координаты
+					master.SayMsg(SAY_APPEND,TEXTMSG_TEXT,STR_INVALID_COORD);
 				}
 				else
 				{
-					master.SayMsg(SAY_DIALOG,TEXTMSG_DLG,STR_COORD_OPERATION_SUCCESS); // Есди число лежит в промежутке, от нуля, до 36, значит игрок ввел верное значение координаты
+					//master.SayMsg(SAY_DIALOG,TEXTMSG_DLG,STR_COORD_OPERATION_SUCCESS); // Есди число лежит в промежутке, от нуля, до 36, значит игрок ввел верное значение координаты
+					master.SayMsg(SAY_DIALOG,TEXTMSG_TEXT,STR_COORD_OPERATION_SUCCESS);
 				}
 			}
 		}
@@ -130,7 +132,7 @@ void dlg_MakeBet(Critter& master, Critter@ croupier, string@ str) // Ветка выбор
 	{
 		if(valid(str)) // Вызыв функции произошел в момент формирования диалога
 		{
-			str="$makebet"+"@msg dlg "+STR_SET_BET_TYPE+"@"; //ToDo спрашиваем на что будем ставить (в дальнейшем будет доработка)
+			str="$makebet"+"@msg text "+STR_SET_BET_TYPE+"@"; //ToDo спрашиваем на что будем ставить (в дальнейшем будет доработка)
 		}
 	}
 }
@@ -145,6 +147,7 @@ void dlg_CheckWinNumber(Critter& master, Critter@ croupier, string@ str) // Форм
 	if(winCash>0) // Если выигрыш больше 0
 	{
 		master.AddItem(GameCurrency[croupier.StatBase[CROUPIER_NUM]], winCash); // Выдаем игроку его выигрыш (в игровой валюте)
+		master.StatBase[ST_EXPERIENCE]+=10;
 	}
 	str+="$winnumber"+GetNumberStr(num)+winCash; // Выдаем в диалог информацию о сумме выигрыша
 	EndGame(croupier); // Завершаем текущую игру
@@ -157,7 +160,7 @@ void dlg_SetBetSize(Critter& master, Critter@ croupier, string@ str) // Установк
 	{
 		mBet=GetMaxBetForBetType(croupier, croupier.StatBase[BET_TYPE]);
 		// ToDo необходимо сделать проверку на непривышение максимального размера общей суммы ставок
-		
+
 		// Формируем реплики
 		str+="$minbet"+MinBet[croupier.StatBase[CROUPIER_NUM]];
 		str+="$betone"+Bet1[croupier.StatBase[CROUPIER_NUM]];
@@ -172,9 +175,9 @@ void dlg_SetBetSize(Critter& master, Critter@ croupier, string@ str) // Установк
 bool d_MaxBet(Critter& master, Critter@ croupier) // Проверка достаточно ли у игрока денег, чтобы сделать максимальную ставку.
 {
 	uint maxBet=GetMaxBetForBetType(croupier, croupier.StatBase[BET_TYPE]);
-	
+
 	// ToDo необходимо сделать проверку на непривышение максимального размера общей суммы ставок
-	
+
 	if(master.CountItem(GameCurrency[croupier.StatBase[CROUPIER_NUM]])>maxBet)
 	{
 		return true;
@@ -464,11 +467,11 @@ void r_SetBetSize(Critter& master, Critter@ croupier, int betSizeNum) // Установ
 		{
 			if(bCoord==NUMBER_ZERO)
 			{
-				sCoords+="@msg dlg "+DLGSTR(DID,STR_ZERO)+"@"; // подставляем в строку лексему формирующую слово зеро
+				sCoords+="@msg text "+STR_ZERO+"@"; // подставляем в строку лексему формирующую слово зеро
 			}
 			else // NUMBER_DOUBLE_ZERO
 			{
-				sCoords+="@msg dlg "+DLGSTR(DID,STR_DOUBLE_ZERO)+"@"; // подставляем в строку лексему формирующую слова "двойное зеро"
+				sCoords+="@msg text "+STR_DOUBLE_ZERO+"@"; // подставляем в строку лексему формирующую слова "двойное зеро"
 			}
 		}
 		if(i!=len2-1) // Если мы не дошли до последнего числа
@@ -476,9 +479,9 @@ void r_SetBetSize(Critter& master, Critter@ croupier, int betSizeNum) // Установ
 			sCoords+=", "; // Ставим запятую между числами
 		}
 	}
-	master.SayMsg(SAY_NETMSG,TEXTMSG_DLG,STR_BETS_COORDS_INTRO); // Выдаем в статусное окно сообщение "Выигрышные числа" на нужном языке
-	master.SayMsg(SAY_NETMSG,TEXTMSG_DLG,STR_BETS_COORDS,"$result"+sCoords); // Выдаем в статусное окно выигрышные числа
-	master.SayMsg(SAY_NETMSG,TEXTMSG_DLG,STR_CURENT_BET_SIZE,"$betsize"+AllBetSize[croupier.StatBase[CROUPIER_NUM]]); // Выдаем в статусное окно сумму всех поставленных денег
+	master.SayMsg(SAY_NETMSG,TEXTMSG_TEXT,STR_BETS_COORDS_INTRO); // Выдаем в статусное окно сообщение "Выигрышные числа" на нужном языке
+	master.SayMsg(SAY_NETMSG,TEXTMSG_TEXT,STR_BETS_COORDS,"$result"+sCoords); // Выдаем в статусное окно выигрышные числа
+	master.SayMsg(SAY_NETMSG,TEXTMSG_TEXT,STR_CURENT_BET_SIZE,"$betsize"+AllBetSize[croupier.StatBase[CROUPIER_NUM]]); // Выдаем в статусное окно сумму всех поставленных денег
 }
 
 void r_SetCurBetType(Critter& master, Critter@ croupier, int betType) // Сохраняем в памяти текущий тип ставки

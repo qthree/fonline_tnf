@@ -32,6 +32,10 @@ bool OnUseExplode(Critter& cr, Item& explode, Critter@ targetCr, Item@ targetIte
 	int trapsSkill=cr.Skill[SK_TRAPS];
 	if(trapsSkill<0) trapsSkill=0;
 
+	if(timer<TIMER_MIN_VALUE) timer=TIMER_MIN_VALUE;
+	if(timer>TIMER_MAX_VALUE) timer=TIMER_MAX_VALUE;
+	timer*=60; // Convert to game seconds
+
 	// Activate dynamite explosion
 	if(pid==PID_DYNAMITE)
 	{
@@ -40,17 +44,14 @@ bool OnUseExplode(Critter& cr, Item& explode, Critter@ targetCr, Item@ targetIte
 
 		if(not isExpert) timer=timer*Random(80,120)/100;
 
-		if(int(timer)<TIMER_MIN_VALUE) timer=TIMER_MIN_VALUE;
-		if(int(timer)>TIMER_MAX_VALUE) timer=TIMER_MAX_VALUE;
-
-		uint numEvent=CreateTimeEvent(__FullSecond+timer*60,"explode@e_Explode",activateExpl,true);
+		uint numEvent=CreateTimeEvent(__FullSecond+timer,"explode@e_Explode",activateExpl.Id,true);
 		SETFLAG(activateExpl.Flags,ITEM_TRAP);
 		_ExplodeSetNumEvent(activateExpl,numEvent);
 		_ExplodeSetOwner(activateExpl,cr.Id);
 		activateExpl.TrapValue=TRAPS_HIDE(cr.Skill[SK_TRAPS]);
 		_ExplodeSetBonusDamage(activateExpl,Random(0, trapsSkill/10));
 		_ExplodeSetBonusRadius(activateExpl,isExpert?1:0);
-		if(cr.Timeout[TO_REMOVE_FROM_GAME]<int(timer)+5*60) cr.TimeoutBase[TO_REMOVE_FROM_GAME]=__FullSecond+timer+5*60;
+		if(cr.Timeout[TO_REMOVE_FROM_GAME]<int(timer)+REAL_MINUTE(5)) cr.TimeoutBase[TO_REMOVE_FROM_GAME]=__FullSecond+timer+REAL_MINUTE(5);
 	}
 	// Activate plastic explosion
 	else if(pid==PID_PLASTIC_EXPLOSIVES)
@@ -131,7 +132,12 @@ bool OnUseExplode(Critter& cr, Item& explode, Critter@ targetCr, Item@ targetIte
 // Explosions initialisation
 void _ExplodeInit(Item& item, bool firstTime)
 {
-	if(item.GetProtoId()==PID_ACTIVE_MINE) item.SetEvent(ITEM_EVENT_WALK,"_MineWalk");
+	if(item.GetProtoId()==PID_ACTIVE_MINE) 
+	{
+		SETFLAG(item.Flags,ITEM_TRAP);
+		item.SetEvent(ITEM_EVENT_WALK,"_MineWalk");
+		item.Update();
+	}
 }
 
 // Item walk event
@@ -139,7 +145,7 @@ void _MineWalk(Item& mine, Critter& cr, bool entered, uint8 dir)
 {
 	if(entered && cr.Stat[ST_LOCOMOTION_TYPE]!=LOCOMOTION_FLY && (cr.Perk[PE_LIGHT_STEP]==0 || Random(0,1)==0))
 	{
-		CreateTimeEvent(__FullSecond,"e_Explode",mine,false);
+		CreateTimeEvent(__FullSecond,"e_Explode",mine.Id,false);
 	}
 }
 
@@ -238,7 +244,7 @@ void ExplodeEx(Map& map, uint16 hexX, uint16 hexY, uint16 effectPid, uint effect
 	поскольку Val1 - используется только для динамита пока
 	!работает только для предмета Активированная мина
 	все параметры:
-	Val1 - время респавна мины после активации
+	Val1 - время респавна мины после активации, в игровых минутах
 	Val2 - Id сапера, поставившего мину
 	TrapValue- сложность мины
 	Val3 - дополнительный урон
@@ -261,7 +267,7 @@ void _TimerMineWalk(Item& mine, Critter& cr, bool entered, uint8 dir)
 	// Cкопировано из _MineWalk
 	if(entered && cr.Stat[ST_LOCOMOTION_TYPE]!=LOCOMOTION_FLY && (cr.Perk[PE_LIGHT_STEP]==0 || Random(0,1)==0))
 	{
-		CreateTimeEvent(__FullSecond,"e_Explode",mine,false);
+		CreateTimeEvent(__FullSecond,"e_Explode",mine.Id,false);
 
 		// Respawn
 		if(mine.Val1>0)
@@ -310,7 +316,6 @@ bool _OnSkillTimerMine (Item& mine, Critter& cr, int skill)
 	// Success
 	if(chance>Random(1,100))
 	{
-		//if(pid==PID_ACTIVE_MINE) cr.AddItem(PID_MINE,1); Для исключения источника бесконечных мин
 		cr.StatBase[ST_EXPERIENCE]+=EXPLODE_CLEARANCE_EXPERIENCE;
 	}
 	// Fail

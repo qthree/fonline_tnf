@@ -1,0 +1,307 @@
+//code door screen
+//pm
+
+#include "_client_defines.fos"
+#include "client_gui_h.fos"
+#include "_colors.fos"
+#include "_defines.fos"
+
+#define	CODE_LENGTH		(5)
+#define BUTTON_ERASE		(0)
+#define BUTTON_NUMBER		(1)
+#define BUTTON_OPEN		(2)
+#define BUTTON_CLOSE		(3)
+
+
+
+class ScreenMain : IGUIScreenCallbackShow, IGUIScreenCallbackHide
+{
+  IGUIScreenOpt@ screenOpt;
+  InputCode @ Code;
+  NumberButton @ Button;
+  uint16 doorId;
+  bool codeSet;
+  
+	void OnShow(int p0, int p1, int p2)
+	{
+		//SetCode("123");
+		doorId = p0;
+		codeSet = (p2 != 0 ? true : false);
+	}
+	
+	void OnHide(int p0, int p1, int p2)
+	{
+
+	}
+	
+	uint8 GetCodeLegth()
+	{
+		return Code.GetCode().length();
+	}
+	
+	void EraseCode()
+	{
+		Code.EraseCode();
+	}
+	
+	void SetCode(string code)
+	{
+		Code.SetCode(code);
+	}
+	
+	uint16 GetDoorId()
+	{
+		return doorId;
+	}
+	
+	uint16 GetCode()
+	{
+		int code = 0;
+		StrToInt(Code.GetCode(), code);
+		return code;
+	}
+	
+  
+}
+
+class InputCode : IGUIElementCallbackInit
+{
+  IGUIElementOpt @ elementOpt;
+  ScreenMain@ Instance;
+	
+	InputCode(ScreenMain& instance)
+	{
+		@Instance=instance;
+		@Instance.Code=this;
+		
+	}
+	
+	void OnInit()
+	{
+		@elementOpt = GUI_GetElementOptions();
+		//elementOpt.Text("enter code", FONT_FALLOUT,COLOR_GREEN,0,FT_CENTERX|FT_CENTERY|FT_BORDERED);
+	}
+	
+	void EraseCode()
+	{
+		string sTemp = elementOpt.GetText();
+		sTemp.resize(sTemp.length() - 1);
+		elementOpt.Text(sTemp, FONT_FALLOUT,COLOR_GREEN,0,FT_CENTERX|FT_CENTERY|FT_BORDERED);
+	}
+	
+	void SetCode(string code)
+	{
+		string sTemp = elementOpt.GetText()+code;
+		if(sTemp == "enter code") sTemp = code;
+		elementOpt.Text(""+sTemp, FONT_FALLOUT,COLOR_GREEN,0,FT_CENTERX|FT_CENTERY|FT_BORDERED);
+	}
+	
+	string GetCode()
+	{
+		return elementOpt.GetText();
+	}
+	
+	uint8 GetCodeLegth()
+	{
+		return elementOpt.GetText().length();
+	}
+}
+
+class NumberButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick//, IGUIElementCallbackDraw
+{
+  
+	ScreenMain@ Instance;
+	InputCode @ Code;
+	
+	uint8 ButtonClass;
+	uint8 ButtonNumber;
+
+	NumberButton(ScreenMain& instance)
+	{
+		@Instance=instance;
+		@Instance.Button=this;
+	}
+	
+	void OnInit()
+	{
+	}
+	
+	void OnMouseClick(int click)
+	{
+		switch(ButtonClass)
+		{
+		  case BUTTON_ERASE : if(Instance.GetCodeLegth() > 0) Instance.EraseCode(); break;
+		  case BUTTON_NUMBER :if(Instance.GetCodeLegth() < CODE_LENGTH) Instance.SetCode(""+ButtonNumber); break;
+		  case BUTTON_OPEN :  RunServerScriptUnsafe("client_unsafe@unsafe_openCodeDoor", Instance.GetDoorId(), Instance.GetCode(), Instance.codeSet ? 1 : 0, "", null); Message("Unsafe run"); break;
+		  case BUTTON_CLOSE : IGUIScreenCallbackHide::HideScreen(0,2,2,2); break;
+		}
+	}
+}
+
+class TestScreenButtonShow : IGUIElementCallbackMouseClick
+{
+	void OnMouseClick(int click)
+	{
+		//Message("GUITestScreenButtonShow::OnMouseClick "+click);
+		::ShowScreen(CLIENT_SCREEN_CODEDOOR,30,3,3);
+	}
+}
+
+void ShowScreen(int p0, int p1, int p2, string@+ p3, int[]@+ p4)
+{
+	ShowScreen(CLIENT_SCREEN_CODEDOOR,p0,0,p2);
+}
+
+void InitCodedoorScreen() // Export
+{
+	/*
+	TestScreenButtonShow buttonShow;
+	GUI_AddScreenElement(CLIENT_MAIN_SCREEN_GAME,"ebut_out.frm",150,40)
+		.CallbackMouseClick(buttonShow)
+		.DownPic("ebut_in.frm");
+  */
+	ScreenMain screenMain();
+	GUI_CreateScreen(CLIENT_SCREEN_CODEDOOR,"codeScreen.png")
+		.CallbackHide(screenMain)
+		.CallbackShow(screenMain)
+		.CloseOnMiss(true)
+		.AutoCursor(true,CURSOR_DEFAULT);
+	
+	InputCode InputCodeB(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR, "keyCodeEnter.png", 0,0)
+		 .CallbackInit(InputCodeB)
+		.TextInput(true,5,COLOR_LGREEN);
+	
+	NumberButton ButtonErase(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",155, 265)
+		.CallbackInit(ButtonErase)
+		.CallbackMouseClick(ButtonErase)
+		.Text("<", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonErase.ButtonClass = BUTTON_ERASE;
+	
+	NumberButton ButtonOpen(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",15, 265)
+		.CallbackInit(ButtonOpen)
+		.CallbackMouseClick(ButtonOpen)
+		.Text("OP", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonOpen.ButtonClass = BUTTON_OPEN;
+	/*
+	NumberButton ButtonClose(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new_close.png",215, 5)
+		.CallbackInit(ButtonClose)
+		.CallbackMouseClick(ButtonClose)
+		//.Text("C, FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonClose.ButtonClass = BUTTON_CLOSE;
+	*/
+	uint16 axistX = 0, axistY = 0;
+	
+	for(uint8 i = 0; i <= 9; i++)
+	{
+		
+		
+		NumberButton ButtonNumber(screenMain);
+		GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",i != 0 ? 15+axistX : 85, i != 0 ? 85+axistY : 265)
+			.CallbackInit(ButtonNumber)
+			.CallbackMouseClick(ButtonNumber)
+			.Text(""+i, FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+			.DownPic("keyCodeKeyDown_new.png");
+			ButtonNumber.ButtonClass = BUTTON_NUMBER;
+			ButtonNumber.ButtonNumber = i;
+		
+		if(i % 3 == 0 && i != 0) {axistX = 0; axistY += 60;} else {i != 0 ? axistX += 70 : 0;}
+		
+	}
+	/*
+	NumberButton ButtonNumber0(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",80, 265)
+		.CallbackInit(ButtonNumber0)
+		.CallbackMouseClick(ButtonNumber0)
+		.Text("0", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber0.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber0.ButtonNumber = 0;
+	
+	NumberButton ButtonNumber1(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",15, 85)
+		.CallbackInit(ButtonNumber1)
+		.CallbackMouseClick(ButtonNumber1)
+		.Text("1", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber1.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber1.ButtonNumber = 1;
+	
+	NumberButton ButtonNumber2(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",80, 85)
+		.CallbackInit(ButtonNumber2)
+		.CallbackMouseClick(ButtonNumber2)
+		.Text("2", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber2.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber2.ButtonNumber = 2;
+	
+	NumberButton ButtonNumber3(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",155, 85)
+		.CallbackInit(ButtonNumber3)
+		.CallbackMouseClick(ButtonNumber3)
+		.Text("3", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber3.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber3.ButtonNumber = 3;
+	
+	NumberButton ButtonNumber4(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",15, 145)
+		.CallbackInit(ButtonNumber4)
+		.CallbackMouseClick(ButtonNumber4)
+		.Text("4", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber4.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber4.ButtonNumber = 4;
+	
+	NumberButton ButtonNumber5(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",80, 145)
+		.CallbackInit(ButtonNumber5)
+		.CallbackMouseClick(ButtonNumber5)
+		.Text("5", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber5.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber5.ButtonNumber = 5;
+	
+	NumberButton ButtonNumber6(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",155, 145)
+		.CallbackInit(ButtonNumber6)
+		.CallbackMouseClick(ButtonNumber6)
+		.Text("6", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber6.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber6.ButtonNumber = 6;
+	
+	NumberButton ButtonNumber7(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",15, 205)
+		.CallbackInit(ButtonNumber7)
+		.CallbackMouseClick(ButtonNumber7)
+		.Text("7", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber7.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber7.ButtonNumber = 7;
+	
+	NumberButton ButtonNumber8(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",80, 205)
+		.CallbackInit(ButtonNumber8)
+		.CallbackMouseClick(ButtonNumber8)
+		.Text("8", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber8.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber8.ButtonNumber = 8;
+	
+	NumberButton ButtonNumber9(screenMain);
+	GUI_AddScreenElement(CLIENT_SCREEN_CODEDOOR,"keyCodeKey_new.png",155, 205)
+		.CallbackInit(ButtonNumber9)
+		.CallbackMouseClick(ButtonNumber9)
+		.Text("9", FONT_FALLOUT,COLOR_SAND,0,FT_CENTERX|FT_CENTERY|FT_BORDERED)
+		.DownPic("keyCodeKeyDown_new.png");
+	ButtonNumber9.ButtonClass = BUTTON_NUMBER;
+	ButtonNumber9.ButtonNumber = 9;*/
+}

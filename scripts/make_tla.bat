@@ -1,0 +1,35 @@
+@echo off
+
+@: Environment
+@set PATH=C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE;%PATH%
+@set PATH=C:\Program Files\Microsoft Visual Studio 9.0\VC\BIN;%PATH%
+@set LIB=C:\Program Files\Microsoft Visual Studio 9.0\VC\LIB;%LIB%
+@set LIB=C:\Program Files\Microsoft SDKs\Windows\v6.0A\Lib;%LIB%
+@set LIB=.\StlPort;%LIB%
+@set INCLUDE=C:\Program Files\Microsoft Visual Studio 9.0\VC\include;%INCLUDE%
+@set INCLUDE=.\StlPort;%INCLUDE%
+
+cl.exe /nologo /MT /W3 /O2 /Gd /Fo".\\" /Fd".\\scriptarray.obj" /FD /c ".\\scriptarray.cpp"
+
+@: Server
+@del ".\\fonline_tla.dll"
+cl.exe /nologo /MT /W3 /O2 /Gd /D "__SERVER" /Fo".\\" /Fd".\\fonline_tla.obj" /FD /c ".\\fonline_tla.cpp"
+link.exe /nologo /dll /incremental:no /machine:I386 ".\\fonline_tla.obj" ".\\scriptarray.obj" /out:".\\fonline_tla.dll"
+
+@: Client
+@del ".\\fonline_tla_client.dll"
+cl.exe /nologo /MT /W3 /O2 /Gd /D "__CLIENT" /Fo".\\fonline_tla_client.obj" /Fd".\\" /FD /c ".\\fonline_tla.cpp"
+link.exe /nologo /dll /incremental:no /machine:I386 ".\\fonline_tla_client.obj" ".\\scriptarray.obj" /out:".\\fonline_tla_client.dll"
+
+@: Delete unnecessary stuff
+@del ".\\scriptarray.obj"
+@del ".\\fonline_tla.obj"
+@del ".\\fonline_tla.exp"
+@del ".\\fonline_tla.lib"
+@del ".\\fonline_tla.idb"
+@del ".\\fonline_tla_client.obj"
+@del ".\\fonline_tla_client.exp"
+@del ".\\fonline_tla_client.lib"
+@del ".\\vc90.idb"
+
+@pause

@@ -2,7 +2,190 @@
 
 import void critter_reload_weapon(Critter& cr, Item& weapon, Item@ ammo) from "main";
 import bool critter_use_item(Critter& cr, Item& item, Critter@ targetCr, Item@ targetItem, Scenery@ targetScen, uint param) from "main";
-import void CombatAttack(Critter& cr, Critter@ target, ProtoItem& weapon, ProtoItem@ ammo, uint8 aim, uint16 hexX, uint16 hexY) from "combat";
+import void CombatAttack(Critter& cr, Critter@ target, ProtoItem& weapon, uint8 weaponMode, ProtoItem@ ammo, uint16 hexX, uint16 hexY) from "combat";
+
+import void Actions(Critter& cr, uint8 actionType, uint16 pickType) from "context_callback";
+
+void unsafe_contmenu_callback(Critter& player, int id, int screenId, int actionId, string@ command, int[]@ myArr)
+{
+	//fastpanel
+  	/*if(screenId != 0)
+	{
+		switch(screenId)
+		{
+		  case SCREEN_SKILLBOX : 
+		}
+	}*/
+	
+	//myArr[0] = 123;
+	//player.Say(SAY_NETMSG, "unsafe done");
+	player.StatBase[ST_LAST_CRIT_ID] = myArr[ARRAY_ID_INDEX];
+	player.StatBase[ST_OBJECT_TYPE] = myArr[ARRAY_OBJ_INDEX];
+	player.StatBase[ST_ITEM_HEXX] = myArr[ARRAY_ITEM_HEXX];
+	player.StatBase[ST_ITEM_HEXY] = myArr[ARRAY_ITEM_HEXY];
+	player.StatBase[ST_ITEM_PID] = myArr[ARRAY_ITEM_PID];
+
+	  
+	switch(myArr[ARRAY_SCREEN_INDEX])
+	{
+	  case SCREEN_BAG : player.ShowScreen(myArr[ARRAY_SCREEN_INDEX], id, "context_callback@ScreenBag"); break;
+	  case SCREEN_SKILLBOX : player.ShowScreen(myArr[ARRAY_SCREEN_INDEX], id, "context_callback@ScreenSkillbox"); break;
+	  case ACTION_PICK_ITEM : Actions(player, myArr[ARRAY_SCREEN_INDEX], 0); break;
+	  case ACTION_PICK_CRITTER : Actions(player, myArr[ARRAY_SCREEN_INDEX], myArr[ARRAY_PICK_TYPE]); break;
+	  case ACTION_DIR : Actions(player, myArr[ARRAY_SCREEN_INDEX], 0); break;
+	  case ACTION_TALK : Actions(player, myArr[ARRAY_SCREEN_INDEX], 0); break;
+	  case ACTION_FAST : Actions(player, myArr[ARRAY_SCREEN_INDEX], myArr[ARRAY_SKILL_INDEX]); break;
+	  default : break;
+	}
+	
+}
+
+void unsafe_fastpanel_say(Critter& player, int p0, int p1, int p2, string@ message, int[]@ p4)
+{
+	if(message.length() > 0)
+	{
+		uint8 sayType = 0;
+		switch(p0)
+		{
+		  case 1 : sayType = SAY_NORM; break;
+		 // case 2 : sayType = SAY_SOCIAL; break;
+		  case 2 : sayType = SAY_SHOUT; break;
+		  case 3 : sayType = SAY_EMOTE; break;
+		  case 4 : sayType = SAY_WHISP; break;
+		  default: sayType = SAY_NETMSG; break;
+		}
+		
+	if(sayType>=SAY_NORM && sayType<=SAY_RADIO)
+	{
+		for(uint i=0, len=message.length(); i<len; i++)
+		{
+			uint8 chr = message[i];
+			if(chr<32 || (chr>34 && chr<42) || (chr>42 && chr<44) || chr==47 || (chr>57 && chr<63) || chr==64 || (chr>90 && chr<97) || (chr>122 && chr<192 && chr!=168 && chr!=184))
+			{
+				player.Say(SAY_NETMSG, "В сообщениии есть запрещенные символы.");
+				return;
+			}
+		}	 
+	}
+		
+		player.Say(sayType, ""+message);
+	}
+}
+
+void SendFastPanelInfo(Critter& cr, bool type)
+{
+	file f;
+	string word = "", word2 = "";
+	uint pos = 0;
+	//cr.Say(SAY_NETMSG, "start sendin");
+	if(f.open(PATH_TO_FASTPANEL_FOLDER+cr.Id,"r")==0)
+	{
+	  //cr.Say(SAY_NETMSG, "file open successful");
+	  f.setPos(0);
+		while(!f.isEndOfFile())// || count > length))
+			{
+				pos = f.getPos();
+				f.readLine(word);
+				word2 += word;
+				
+//				cr.Say(SAY_NETMSG, word);
+//				cr.Say(SAY_NETMSG, word);
+			}
+		f.close();
+	}
+	//if(word2 != "")	cr.RunClientScript("client_screen_fastpanel@LoadPanel", 0, 0, 0, word2, null); else cr.Say(SAY_NETMSG, "error with sending fastpanel info");
+	if(!type)
+	{
+		if(pos != 0) cr.RunClientScript("client_screen_fastpanel@GetServerFileSize", pos, 0, 0, "", null);
+	}
+	else
+	{
+		if(word2 != "")	cr.RunClientScript("client_screen_fastpanel@LoadPanel", 0, 0, 0, word2, null); else cr.Say(SAY_NETMSG, "error with sending fastpanel info");
+	}
+}
+
+void unsafe_fastpanel_save(Critter& player, int p0, int p1, int p2, string@ info, int[]@ p4)
+{
+	file f;
+	if(f.open(PATH_TO_FASTPANEL_FOLDER+player.Id,"w")==0)
+		{
+			//f.setPos(0);
+			f.writeString(info);
+		}
+	f.close();
+}
+
+void unsafe_send_fastpanel(Critter& cr, int p0, int p1, int p2, string@ info, int[]@ p4)
+{
+	file f;
+	string word = "", word2 = "";
+	uint pos = 0;
+	//cr.Say(SAY_NETMSG, "start sendin");
+	if(f.open(PATH_TO_FASTPANEL_FOLDER+cr.Id,"r")==0)
+	{
+	  //cr.Say(SAY_NETMSG, "file open successful");
+	  f.setPos(0);
+		while(!f.isEndOfFile())// || count > length))
+			{
+				pos = f.getPos();
+				f.readLine(word);
+				word2 += word;
+				
+//				cr.Say(SAY_NETMSG, word);
+//				cr.Say(SAY_NETMSG, word);
+			}
+		f.close();
+	}
+	//if(word2 != "")	cr.RunClientScript("client_screen_fastpanel@LoadPanel", 0, 0, 0, word2, null); else cr.Say(SAY_NETMSG, "error with sending fastpanel info");
+	if(p0 == 0)
+	{
+		if(pos != 0) cr.RunClientScript("client_screen_fastpanel@GetServerFileSize", pos, 0, 0, "", null);
+	}
+	else
+	{
+		if(word2 != "")	cr.RunClientScript("client_screen_fastpanel@LoadPanel", 0, 0, 0, word2, null); else cr.Say(SAY_NETMSG, "error with sending fastpanel info");
+	}
+	//SendFastPanelInfo(player, true);
+}
+
+void unsafe_openCodeDoor(Critter& player, int itemId, int code, int param2, string@ param3, int[]@ param4)
+{
+	  Item @ item = GetItem(itemId);
+	  if(@item == null) return;
+	  if((player.HexX < item.HexX + 2 || player.HexX > item.HexX - 2) && (player.HexY < item.HexY + 2 || player.HexY > item.HexY - 2))
+	  {
+		if(param2 != 0) {item.Val4 = code; player.Say(SAY_NETMSG, "Вы установили новый код : "+code); return;}
+		if(item.Val4 == code)
+		{
+			if(_LockerIsClose(item))
+			  item.LockerOpen();
+		}
+		else player.Say(SAY_NETMSG, "Не верный код");
+	  }
+	  else player.Say(SAY_NETMSG, "Слишком далеко");
+}
+
+import void LoadClientHistoryBase(Critter& cr, bool all) from "history_menu";
+import void SaveCritterHistory(Critter& cr, string saveText) from "history_menu";
+import void LoadCritterHistory(Critter& cr) from "history_menu";
+
+void unsafe_history_load(Critter& player, int loadType, int param1, int param2, string@ param3, int[]@ param4)
+{
+	  if(player.GetAccess() < 2) {player.Say(SAY_NETMSG, "hey dude. don't try to hack this. just gohome."); Log("hack detected player "+player.Id+" name "+GetPlayerName(player.Id)+" try crack history menu"); return;}
+	  Critter@ cr = GetCritter(param1);
+	  switch(loadType)
+	  {
+	    case 0: LoadClientHistoryBase(player, false); break;
+	    case 1: LoadClientHistoryBase(player, true); break;
+	    case 2: LoadCritterHistory(@cr != null ? cr : player); break;
+	  }
+}
+
+void unsafe_history_save(Critter& player, int param0, int param1, int param2, string@ saveText, int[]@ param4)
+{
+	 if(saveText == "") {player.Say(SAY_NETMSG, "Oops! Same error here!"); return;}
+	 SaveCritterHistory(player, saveText);
+}
 
 void unsafe_hotkey_command (Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
 {
@@ -32,7 +215,7 @@ if(command == "RELOAD")
    return; 
    Item@ ammo = player.GetItem(weapon[0].WeaponAmmoPid, SLOT_INV); 
 
-   if(valid (ammo) && weapon[0].WeaponAmmoCount< weapon[0].Proto.Weapon_VolumeHolder && player.Stat[ST_CURRENT_AP]>=2)
+   if(valid (ammo) && weapon[0].WeaponAmmoCount< weapon[0].Proto.Weapon_MaxAmmoCount && player.Stat[ST_CURRENT_AP]>=2)
       {
       critter_reload_weapon(player, weapon[0], ammo);
 	  player.Action(ACTION_RELOAD_WEAPON, 0, weapon[0]);
@@ -65,43 +248,128 @@ else
 void unsafe_hex_attack(Critter& player, int hexX, int hexY, int param2, string@ command, int[]@ param4)
 {
 
-Item@[] realweapon; 
-Map@ map = player.GetMap();
- player.GetItems(SLOT_HAND1, realweapon); 
- ProtoItem@ weapon = GetProtoItem(realweapon[0].GetProtoId()); 
- ProtoItem@ ammo;
- 
- 
-uint16 toHx = hexX, toHy = hexY;
-int dist=GetDistantion(player.HexX,  player.HexY, hexX, hexY);
-map.GetHexCoord( player.HexX,  player.HexY, toHx, toHy,  0.0f, dist);
-if((hexX!=toHx)||(hexY!=toHy))
-{player.SayMsg(SAY_NETMSG, TEXTMSG_COMBAT, 104); return;}
+	Map@ map = player.GetMap();
 
-bool isRocket=(realweapon[0].WeaponAmmoPid == PID_EXPLOSIVE_ROCKET) || (realweapon[0].WeaponAmmoPid == PID_ROCKET_AP) || (realweapon[0].WeaponAmmoPid == PID_ROBO_ROCKET_AMMO) || (realweapon[0].WeaponAmmoPid == PID_GRENADELAUNCHER_AMMO);
- if(weapon.Weapon_Skill!=SK_THROWING && !isRocket)
-    return;	
+	if(map is null) return;
+
+	Item@[] realweapon; 
+	 player.GetItems(SLOT_HAND1, realweapon); 
+	 if(realweapon.length()<1 || (realweapon[0] is null)) return;
+
+	 uint8 mode = realweapon[0].Mode;
+	 ProtoItem@ weapon = GetProtoItem(realweapon[0].GetProtoId()); 
+	 //ProtoItem@ weapon = player.GetSlotProto(SLOT_HAND1, mode);
+	 ProtoItem@ ammo;
+	 
+	 
+	uint16 toHx = hexX, toHy = hexY;
+	int dist=GetDistantion(player.HexX,  player.HexY, hexX, hexY);
+	map.GetHexCoord( player.HexX,  player.HexY, toHx, toHy,  0.0f, dist);
+	if((hexX!=toHx)||(hexY!=toHy))
+	{player.SayMsg(SAY_NETMSG, TEXTMSG_COMBAT, 104); return;}
+
+	bool isFlareGun=(realweapon[0].WeaponAmmoPid == PID_FLARE_GUN_AMMO) && (mode == 1); //pm added flare gun
+
+	bool isRocket=(realweapon[0].WeaponAmmoPid == PID_EXPLOSIVE_ROCKET) || (realweapon[0].WeaponAmmoPid == PID_ROCKET_AP) || (realweapon[0].WeaponAmmoPid == PID_ROBO_ROCKET_AMMO) || (realweapon[0].WeaponAmmoPid == PID_GRENADELAUNCHER_AMMO);
+	 if(_WeaponSkill(weapon,mode)!=SK_THROWING && !isRocket && !isFlareGun)
+		return;	
+		
+	int wpnMaxDist=_WeaponMaxDist(weapon,mode);
+	   if(_WeaponSkill(weapon,mode)==SK_THROWING) wpnMaxDist = MIN(wpnMaxDist, 3 * MIN(int(10), player.Stat[ST_STRENGTH] + 2*player.Perk[PE_HEAVE_HO]));	
+	 if (dist>wpnMaxDist)
+		{player.SayMsg(SAY_NETMSG, TEXTMSG_COMBAT, 102); return;}
+		
+		
+	 if(player.Stat[ST_CURRENT_AP]<_WeaponApCost(weapon,mode))
+	   return;
+
+	if(weapon.Weapon_MaxAmmoCount>0)
+	  {
+	  if(realweapon[0].WeaponAmmoCount==0)
+		 return;
+	  else
+		@ammo = GetProtoItem(realweapon[0].WeaponAmmoPid);
+	  }
+
+
+	Critter@ target = map.GetCritter(uint16(hexX), uint16(hexY));
 	
-int wpnMaxDist=weapon.Weapon_MaxDist;
-   if(weapon.Weapon_Skill==SK_THROWING) wpnMaxDist = MIN(wpnMaxDist, 3 * MIN(int(10), player.Stat[ST_STRENGTH] + 2*player.Perk[PE_HEAVE_HO]));	
- if (dist>wpnMaxDist)
-    {player.SayMsg(SAY_NETMSG, TEXTMSG_COMBAT, 102); return;}
+	player.ParamBase[ST_CURRENT_AP]-=_WeaponApCost(weapon,mode)*100;
+	//HIT_LOCATION_UNCALLED
+	CombatAttack(player, target, weapon, mode, ammo, uint16(hexX), uint16(hexY));
+}
+
+int[] zomb_skins = {33, 36, 37, 39, 40, 41, 43, 48, 57, 61, 62, 63, 64};
+
+
+void zomb(Critter& player, int on, int param1, int param2)
+{
+	if(on==0)
+	{
+		__Zombies=false;
+		player.Say(SAY_NETMSG, "Зомби-мод отключен.");
+	}
+	else
+	{
+		__Zombies=true;
+		player.Say(SAY_NETMSG, "Зомби-мод включен.");
+	}
+}
+
+import void skin(Critter& cr, int crType) from "skins";
+
+void unsafe_zombie(Critter& player, int hexX, int hexY, int param2, string@ lex, int[]@ param4)
+{
+	if(!__Zombies)
+	{
+		player.Say(SAY_NETMSG, "Зомби-мод отключен.");
+		return;
+	}
 	
+	Map@ map = player.GetMap();
+	Map@ modoc = GetMapByPid(MAP_Modoc, 0);
+	if(modoc is null) return;
 	
- if(player.Stat[ST_CURRENT_AP]<weapon.Weapon_ApCost)
-   return;
-
-if(weapon.Weapon_VolumeHolder>0)
-  {
-  if(realweapon[0].WeaponAmmoCount==0)
-     return;
-  else
-    @ammo = GetProtoItem(realweapon[0].WeaponAmmoPid);
-  }
-
-
-Critter@ target = map.GetCritter(uint16(hexX), uint16(hexY));
-player.ParamBase[ST_CURRENT_AP]-=weapon.Weapon_ApCost*100;
-CombatAttack(player, target, weapon, ammo, HIT_LOCATION_UNCALLED, uint16(hexX), uint16(hexY));
-
+	if(player.Param[ST_BODY_TYPE]==BT_ZOMBIE)
+	{
+		if(player.IsDead())
+		{
+			Item@[] items;
+			if(player.GetItems(0, items)>0) DeleteItems(items);
+			
+			player.ParamBase[DAMAGE_EYE]=0;
+			player.ParamBase[DAMAGE_RIGHT_ARM]=0;
+			player.ParamBase[DAMAGE_LEFT_ARM]=0;
+			player.ParamBase[DAMAGE_RIGHT_LEG]=0;
+			player.ParamBase[DAMAGE_LEFT_LEG]=0;
+			player.ToLife();
+			player.ParamBase[ST_CURRENT_HP]=player.Param[ST_MAX_LIFE];
+			player.ParamBase[TO_REPLICATION]=-1;
+			player.ParamBase[TO_DEAD]=__FullSecond+REAL_SECOND(Random(30,60));
+			player.ParamBase[ST_WALK_TIME]=Random(200, 800);
+			player.TransitToMap(modoc.Id,0);
+			uint zsl = zomb_skins.length();
+			if(zsl>0) skin(player, zomb_skins[Random(0, zsl-1)]);
+		}
+		
+	}
+	else if(map is null or map.GetProtoId()!=51)
+	{
+		return;
+	}
+	else
+	{
+		player.ParamBase[ST_BODY_TYPE]=BT_ZOMBIE;
+		
+		uint zsl = zomb_skins.length();
+		if(zsl>0) skin(player, zomb_skins[Random(0, zsl-1)]);
+		
+		player.ParamBase[ST_MAX_LIFE]+=100;
+		player.ParamBase[ST_CURRENT_HP]+=100;
+		player.ParamBase[MODE_NO_RUN]=1;
+		player.ParamBase[ST_WALK_TIME]=Random(200, 800);
+		player.ParamBase[TO_DEAD]=__FullSecond+REAL_MINUTE(2);
+		player.ParamBase[ST_REPLICATION_TIME]=-1;
+		player.TransitToMap(modoc.Id,0);
+	}
 }

@@ -14,7 +14,6 @@ class Record
 }
 Record[] Records;
 
-
 void InitNameColorizing() // Export
 {
 	Records.resize(0);
@@ -47,9 +46,8 @@ void InitNameColorizing() // Export
 		{
 			if(f.readWord()==NAME_TOKEN)
 			{
-				uint len=Records.length();
-				Records.resize(len+1);
-				Record@ r=Records[len];
+				Records.grow(1);
+				Record@ r=Records.last();
 
 				r.NameStr=strlwr(f.readWord());
 				r.NameColor=GetColor(colors,f.readWord(),COLOR_CRITTER_NAME);
@@ -76,7 +74,6 @@ bool TryColorizeCritter(CritterCl& cr) // Export
 	}
 	return false;
 }
-
 
 uint GetColor(dictionary& dict, string& colorName, uint defaultColor)
 {

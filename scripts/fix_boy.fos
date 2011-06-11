@@ -1,6 +1,8 @@
 // Author: cvet
 #include "_macros.fos"
 
+import void AffectRadiation(Critter& cr, int value) from "radiation";
+
 #define FIX_SUCCESS         (FIXBOY_DEFAULT)
 #define FIX_TIMEOUT         (FIXBOY_DEFAULT^FIXBOY_SET_TIMEOUT)
 #define FIX_FAIL            (FIXBOY_DEFAULT^FIXBOY_ALLOW_CRAFT)
@@ -58,6 +60,7 @@ int fix_Science(Critter& cr, int stage)
 	  return FIXBOY_DEFAULT;
 }
 
+
 //...Науки и ремонта, сложный предмет...
 int fix_Advanced(Critter& cr, int stage)
 {
@@ -82,6 +85,17 @@ int fix_HighTech(Critter& cr, int stage)
 	  return FIXBOY_DEFAULT;
 }
 
+//...Науки... радиоактивный крафт
+int fix_Science2(Critter& cr, int stage)
+{
+	 if(stage==FIXBOY_CRAFT)
+	  {
+		cr.TimeoutBase[TO_SK_SCIENCE]=SCIENCE_TIMEOUT(cr)+SHORT_TO;
+		AffectRadiation (cr, 100);
+		return FIX_TIMEOUT;
+	  }
+	  return FIXBOY_DEFAULT;
+}
 
 
 

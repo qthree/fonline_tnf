@@ -22,11 +22,11 @@ AP              10         |  12         |  16         |  20         |  22      
 */
 const int[] slayerStats_ = {
 //     MeleeMin,    MeleeMax,   SnMin,   SnMax,   MDmg,   HP,    ResMin,   ResMax, AP
-       120,         150,        150,     200,     8,      120,   30,       50,      8,
-	   150,         180,        200,     240,     12,     150,   40,       55,     10,
-	   160,         200,        220,     260,     16,     190,   40,       60,     12,
-	   200,         250,        220,     290,     22,     220,   45,       60,     13,
-	   240,         300,        250,     300,     25,     260,   45,       80,     16
+       160,         190,        190,     220,     12,     220,   30,       40,     10,
+	   180,         200,        200,     240,     14,     250,   40,       55,     12,
+	   190,         220,        220,     260,     16,     290,   40,       60,     13,
+	   200,         250,        220,     290,     22,     320,   45,       60,     15,
+	   240,         300,        250,     300,     25,     360,   45,       80,     18
 };
 #define LvlCount (5)
 #define ColumnsCount(9) // Индекс первой колонки=0
@@ -50,7 +50,7 @@ class SlayerPattern : CommonPattern
 
 		if(plane.Type==AI_PLANE_ATTACK)
 		{
-			CreateTimeEvent(SNEAK_TIMEOUT(cr)-__FullMinute,"e_SneakWhileAttack",cr,false);
+			CreateTimeEvent(SNEAK_TIMEOUT(cr)-__FullSecond,"e_SneakWhileAttack",cr.Id,false);
 		}
 
 		return PLANE_RUN_GLOBAL;
@@ -103,10 +103,11 @@ class SlayerPattern : CommonPattern
 		_SetRun(plane, cr);
 
 		if(target.IsKnockout()) return false;
-		ProtoItem @ weapon = cr.GetSlotProto(SLOT_HAND1);
+		uint8 mode=0;
+		ProtoItem @ weapon = cr.GetSlotProto(SLOT_HAND1,mode);
 		if(!valid(weapon)) return false;
-		if(weapon.GetType()!=ITEM_WEAPON) return false;
-		if(weapon.Weapon_Skill!=SK_MELEE_WEAPONS&&weapon.Weapon_Skill!=SK_UNARMED) return false;
+		if(weapon.Type!=ITEM_WEAPON) return false;
+		if(weapon.Weapon_Skill_0!=SK_MELEE_WEAPONS && weapon.Weapon_Skill_0!=SK_UNARMED) return false;
 
 		Item @ weap = _CritGetItemHand(cr);
 		if(!valid(weap)) return false;
@@ -114,8 +115,8 @@ class SlayerPattern : CommonPattern
 		ProtoItem @ ammo = GetProtoItem(weap.WeaponAmmoPid);
 
 		// Скопировано из основного обработчика
-		cr.TimeoutBase[TO_AGGRESSOR]=__FullMinute+__TimeMultiplier;
-		CombatAttack(cr, target, weapon, ammo, HIT_LOCATION_EYES, 0, 0);
+		cr.TimeoutBase[TO_AGGRESSOR]=__FullSecond+REAL_MINUTE(1);
+		CombatAttack(cr, target, weapon, _WeaponModeMake(0, HIT_LOCATION_EYES), ammo);
 
 		return true;
 	}
@@ -148,9 +149,10 @@ void _SlayerInit(Critter & cr, bool firstTime)
 void SetSlayerStats(Critter & cr, uint8 lvl)
 {
 	lvl = CLAMP(lvl, 0, LvlCount-1);
-	if (lvl>4) cr.PerkBase[PE_BETTER_CRITICALS] = 1;
+	if(lvl<1) return;
+	if (lvl>2) cr.PerkBase[PE_BETTER_CRITICALS] = 1;
 	cr.PerkBase[PE_SILENT_DEATH] = 1;
-	cr.PerkBase[PE_SLAYER] = 1;
+	if(lvl>2) cr.PerkBase[PE_SLAYER] = 1;
 	cr.PerkBase[PE_SILENT_RUNNING] = 1;
 
 	cr.StatBase[ST_MELEE_DAMAGE] = _SlayerMeleeDamage(lvl);
@@ -187,7 +189,7 @@ uint e_SneakWhileAttack(uint[]@ values)
 	pattern._SetSneak(cr);
 	if(cr.IsCurPlane(AI_PLANE_ATTACK))
 	{
-		return SNEAK_TIMEOUT(cr)-__FullMinute;
+		return SNEAK_TIMEOUT(cr)-__FullSecond;
 	}else{
 		return 0;
 	}

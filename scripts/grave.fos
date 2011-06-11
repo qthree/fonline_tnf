@@ -2,8 +2,8 @@
 // Script attached to all graves, in protos.
 // Graves pids: 344..347, 374..376.
 #include "_macros.fos"
-#include "ITEMPID.H"
-#include "MsgStr.h"
+#include "_itempid.fos"
+#include "_msgstr.fos"
 
 import void SwitchState(Item& locker) from "lockers";
 

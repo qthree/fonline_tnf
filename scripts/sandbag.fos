@@ -1,15 +1,18 @@
 // Author: rifleman17
 #include "_macros.fos"
-#include "MsgStr.h"
+#include "_msgstr.fos"
+#include "utils_for_array.fos"
+
 #define PID_SINGLE_SANDBAG        (PID_SANDBAG_1) // единичный мешок           флаги: ITEM_SHOOT_THRU
 #define PID_DOUBLE_SANDBAG        (PID_SANDBAG_2) // два мешка на одном гексе  флаги:
 #define PID_TRIPLE_SANDBAG        (PID_SANDBAG_3) // стопка из трех мешков     флаги:
 #define PID_QUADRO_SANDBAG        (PID_SANDBAG_4) // стопка из четырех мешков  флаги:
 #define PID_QUINTO_SANDBAG        (PID_SANDBAG_5) // стопка из пяти мешков     флаги:
-
 #define STR_TEAR_SANDBAG          (200) // Мешок порвался у вас в руках. 
 #define STR_CANT_PLACE_SANDBAG    (201) // В этом месте больше невозможно уложить ни одного мешка. 
 #define STR_TEAR_REPAIR           (202) // Вы рвете мешок и песок рассыпается на землю.
+#define MIN_ENTIRE_DIST           (5)   // Минимальное расстояние до ближайшего ентайр гекса, на котором можно расположить мешок
+
 // Кладет мешок на карту в указанных координатах
 // - проверяется возможность положить мешок
 // - проверяется, что в координатах нет двери или контейнера - на них мешки класть нельзя. Новый мешок в таком случае удаляется
@@ -22,7 +25,12 @@ bool AddSandBag(Map & map, Critter& player, uint16 x, uint16 y, Item & sandBag)
 	
 	if(pidCur!=PID_SINGLE_SANDBAG)
 		return false;
-		
+	if(CheckIsNearEntire(sandBag))// Удаление мешка если рядом есть спецгекс
+	{
+		DeleteItem(sandBag);
+		player.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, STR_TEAR_SANDBAG);
+		return false;
+	}
 	if(map.GetItems(x, y, items)>0)
 	{
 		for(uint i=0, l=items.length();i<l; i++)
@@ -67,6 +75,8 @@ bool AddSandBag(Map & map, Critter& player, uint16 x, uint16 y, Item & sandBag)
 					break;
 				case PID_QUINTO_SANDBAG:
 					player.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, STR_CANT_PLACE_SANDBAG);
+					player.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, STR_TEAR_SANDBAG);
+					DeleteItem(sandBag);
 					return true;
 				default:
 					break;
@@ -76,7 +86,16 @@ bool AddSandBag(Map & map, Critter& player, uint16 x, uint16 y, Item & sandBag)
 	}
 	if(pidCur!=sandBag.GetProtoId())
 	{
-		if(!sandBag.ChangeProto(pidCur))
+		// Проверка, что на гексе с мешком не стоит игрок
+		// иначе его можно заложить мешками и он будет непростреливаемым
+		if(valid(map.GetCritter(x,y)))
+		{
+			// в этом гексе уже лежит мешок, и на нем стоит человек
+			DeleteItem(sandBag);
+			player.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, STR_TEAR_SANDBAG);
+			return false;
+		}
+		if(!ChangeSandBagProto(sandBag, pidCur))
 		{
 			Log("SandBag ChangeProto() failed. ErrText = " + GetLastError());
 			return false;
@@ -87,6 +106,13 @@ bool AddSandBag(Map & map, Critter& player, uint16 x, uint16 y, Item & sandBag)
 	return true;
 }
 
+bool ChangeSandBagProto(Item & sb, int16 pidNew)
+{
+	if(!sb.ChangeProto(pidNew)) return false;
+	sb.Flags = sb.Proto.Flags;
+	SETFLAG(sb.Flags, ITEM_GAG);
+	return true;
+}
 
 // Попытка забрать верхний мешок из стопки
 bool TakeSandBag(Map & map, Critter & player, Item & takeFrom)
@@ -128,6 +154,11 @@ bool TakeSandBag(Map & map, Critter & player, Item & takeFrom)
 		player.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_OVERWEIGHT);
 		return false;
 	}
+	if(player.StatBase[ST_LEVEL] <= 3)
+	{
+		player.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_OVERWEIGHT);
+		return false;
+	}
 	// Если это последний мешок в стопке на земле - перемещаем предмет в инвентарь персонажа
 	// Иначе, уменьшаем высоту стопки
 	if(lastSB)
@@ -135,7 +166,7 @@ bool TakeSandBag(Map & map, Critter & player, Item & takeFrom)
 		MoveItem(takeFrom,0,player);
 		return true;
 	}else{
-		if(!takeFrom.ChangeProto(newPid))
+		if(!ChangeSandBagProto(takeFrom, newPid))
 		{
 			Log("SandBag ChangeProto() failed. ErrText = " + GetLastError());
 			return false;
@@ -154,9 +185,9 @@ bool IsSandBag(uint pid)
 bool _SandBagUseOnMe(Item& item, Critter& cr, Item@ usedItem)
 {
 	if(!valid(usedItem)) return false;
-	
+
 	if(!IsSandBag(usedItem.GetProtoId())) return false;
-	uint x = 0; uint y = 0;
+	uint16 x = 0, y = 0;
 	Map @ map = item.GetMapPosition(x,y);
 	if(valid(map))
 	{
@@ -167,8 +198,26 @@ bool _SandBagUseOnMe(Item& item, Critter& cr, Item@ usedItem)
 // При использовнии навыка на итеме. При false вызывается обработчик криттера, потом глобальный on_use_skill. При true выход.
 bool _SandBagSkill(Item& item, Critter& cr, int skill)
 {
+	if(cr.Param[ARCADE_MODE]==1) return true;
+	if(cr.StatBase[ST_LEVEL] <= 3)
+	{
+		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_OVERWEIGHT);
+		return true;
+	}
 	uint pid = item.GetProtoId();
 	if(!IsSandBag(pid)) return false;
+	if(cr.IsNpc())
+	{
+		if(pid==PID_SINGLE_SANDBAG)
+		{
+			DeleteItem(item);
+		}else{
+			pid--;
+			ChangeSandBagProto(item, pid);
+			item.Update();
+		}
+		return true;
+	}
 	switch(skill)
 	{
 		 case SKILL_PICK_ON_GROUND:
@@ -189,8 +238,11 @@ bool _SandBagSkill(Item& item, Critter& cr, int skill)
 			if(pid==PID_SINGLE_SANDBAG)
 			{
 				DeleteItem(item);
+				//cr.AddItem (PID_SANDBAG_EMPTY,1);
 			}else{
 				pid--;
+				//cr.AddItem (PID_SANDBAG_EMPTY,1);
+				//ChangeSandBagProto(item, pid);
 				item.ChangeProto(pid);
 				item.Update();				
 			}
@@ -209,34 +261,55 @@ bool _SandBagSkill(Item& item, Critter& cr, int skill)
 void _SandBagDrop(Item& item, Critter& cr)
 {
 	if(!IsSandBag(item.GetProtoId())) return;
-	uint x = 0; uint y = 0;
+	uint16 x = 0, y = 0;
 	Map @ map = item.GetMapPosition(x,y);
-	
 	if(valid(map))
 	{
 		AddSandBag(map, cr, x, y, item);
 	}
 }
+
+bool CheckIsNearEntire(Item & item) // Проверка, что рядом с предметом нет EntireHex'a
+{
+	if(item.MapId<1) return false;
+	Map @ map = GetMap(item.MapId);
+	if(!valid(map)) return false;
+	uint[] entires;
+	uint[] ignoreEntries = {154,155,156,157,158,159};// Список исключений
+	uint16[] hexX;
+	uint16[] hexY;
+	uint count=map.GetEntires(-1,entires,hexX,hexY);
+	for(uint i=0;i<count;i++)
+	{
+		if(!Present(entires[i], ignoreEntries)&& ::GetDistantion(item.HexX,item.HexY,hexX[i],hexY[i])<MIN_ENTIRE_DIST)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void _SandBagInit(Item & sb, bool firstTime)
 {
+	if(CheckIsNearEntire(sb))
+	{
+		DeleteItem(sb);
+		return;
+	}
+	SETFLAG(sb.Flags, ITEM_GAG);
 	sb.SetEvent(ITEM_EVENT_DROP,"_SandBagDrop");
 	sb.SetEvent(ITEM_EVENT_SKILL,"_SandBagSkill");
 	sb.SetEvent(ITEM_EVENT_USE_ON_ME,"_SandBagUseOnMe");
 }
 
-
 /// DEBUG
-
 void SandContour( Critter & cr, int len, int num, int)
 {
 	Map @ map = cr.GetMap();
 	if(!valid(map)) return;
-	
 	num = CLAMP(num-1,0,4);
-	
-	uint x = cr.HexX; 
-	uint y = cr.HexY;
-	
+	uint16 x = cr.HexX;
+	uint16 y = cr.HexY;
 	for(int dir=0;dir<6;dir++)
 	{
 		for(int i = 0;i<len; i++)

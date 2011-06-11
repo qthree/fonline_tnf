@@ -1,22 +1,9 @@
 #ifndef __ITEM_PID__
 #define __ITEM_PID__
 
-/*******TEMP*****
-*****************
-****************/
-#define PID_SKIN_CHANGER					(905)
-#define PID_ACTIVATOR						(906)
-#define PID_MODOC_DOCUMENTS					(910)
-#define PID_MICROCHIP                       (599)
-
 /******************************************************************
 ***************       Armor                         ***************
 ******************************************************************/
-
-#define PID_FLAG			    (1315) //tnf pvp
-#define PID_FLAG_POINT			    (1316) //tnf pvp
-
-
 
 // Light
 #define PID_LEATHER_JACKET                  (74)
@@ -34,6 +21,7 @@
 #define PID_BROTHERHOOD_COMBAT_ARMOR        (239)
 #define PID_BLACK_COMBAT_ARMOR              (547)
 #define PID_MIRELURK_ARMOR                  (586)
+#define PID_MANTIS_ARMOUR                  (1457)
 
 // Heavy
 #define PID_POWERED_ARMOR                   (3)
@@ -69,7 +57,7 @@
 #define PID_NEEDLER_PISTOL                  (388)  // HN Needler
 #define PID_PK12_GAUSS_PISTOL               (394)  // 2mm EC
 #define PID_ONEHAND_ROCKET_LAUNCHER         (1034)
-#define PID_FLASH_PISTOL                    (1037)
+#define PID_FLARE_GUN 	                    (1037)
 #define PID_ANACONDA	                    (1040)
 	// Rifles
 #define PID_HUNTING_RIFLE                   (10)
@@ -130,6 +118,7 @@
 #define PID_PLASMA_PISTOL_EXT_CART          (406)
 #define PID_PLASMA_RIFLE                    (15)
 #define PID_TURBO_PLASMA_RIFLE              (233)
+#define PID_LASER_PISTOL_LOW		    (1041)
 	// Pulse
 #define PID_YK32_PULSE_PISTOL               (396)  // Small Energy
 #define PID_YK42B_PULSE_RIFLE               (397)  // Micro Fusion
@@ -242,14 +231,9 @@
 #define PID_BBS                             (163)
 #define PID_HN_NEEDLER_CARTRIDGE            (361)
 #define PID_HN_AP_NEEDLER_CARTRIDGE         (362)
+#define PID_FLARE_GUN_AMMO		    (1038)
 
 #define PID_PA_PARTS                        (601)
-#define PID_DEFIB                           (670)
-#define PID_ANTIDOTE_2                      (680)
-#define PID_HANDCUFFS                       (690)
-#define PID_CUFFS_KEY                       (691)
-#define PID_HANDCUFFS_USED                  (692)
-#define PID_BROKEN_CUFFS                    (693)
 
 // Special
 #define PID_ROBO_ROCKET_AMMO                (274)
@@ -358,6 +342,10 @@
 #define PID_POOL_TABLE_5                    (514)
 #define PID_POOL_TABLE_6                    (515)
 #define PID_POOR_BOX                        (521)
+
+#define PID_SLOT_MACHINE		    (832)
+#define PID_SLOT_MACHINE2		    (834)
+#define PID_SLOT_MACHINE_KEY		    (833)
 
 #define PID_EB_LONG_HOR                     (850)
 #define PID_EB_LONG_VERT                    (851)
@@ -470,6 +458,10 @@
 #define PID_TEMPLE_KEY                      (438)
 #define PID_JAIL_KEY                        (456) // PID_CELL_DOOR_KEY
 #define PID_BLANK_KEY				(1313)
+
+#define PID_LOCKER_LOW				(1317)
+#define PID_LOCKER_MED				(1318)
+#define PID_LOCKER_HARD				(1319)
 
 /******************************************************************
 ***************       Misc.                         ***************
@@ -697,8 +689,8 @@
 #define PID_LETTER_TO_LIN                   (551)
 #define PID_LETTER_TO_TODD                  (552)
 #define PID_EDWARD_REPORT                   (553)
-#define PID_LETTER_TO_SINDY                 (554)
-#define PID_LETTER_TO_CASSIDY               (555)
+#define PID_LETTER_TO_CASSIDY               (554)
+#define PID_LETTER_TO_SINDY                 (555)
 #define PID_FIRE_GECKO_PELT                 (556)
 #define PID_DANTON_POISON                   (557)
 #define PID_ARROYO_SYRINGE                  (560)
@@ -796,6 +788,16 @@
 #define PID_ACTIVE_PLASTIC_EXPLOSIVE        (209)
 #define PID_ACTIVE_MINE                     (545)
 
+#define PID_TRAP_KNIFES				(835)
+#define PID_TRAP_ELECTRIC			(925)
+#define PID_TRAP_ITEM_BREAKER			(926)
+#define PID_TRAP_FIRE_BREATH			(927)
+#define PID_TRAP_POISON_BLADE			(928)
+#define PID_TRAP_CANISTER_SHOT			(929)
+#define PID_TRAP_STAKE				(930)
+#define PID_TRAP_SLEDGE_HAMMER			(931)
+#define PID_TRAP_STUNNER			(932)
+
 // Manufacture, Still
 #define PID_STILL_B_BROKEN                  (810)
 #define PID_STILL_S_BROKEN                  (811)
@@ -825,6 +827,145 @@
 //#define PID_KOTW_BEER                       (588)
 //#define PID_KOTW_GRAIL                      (589)
 //#define PID_KOTW_STATUETTE                  (590)
+
+//Roleplay
+
+#define PID_DEFIB                           (670)
+#define PID_ANTIDOTE_2                      (680)
+#define PID_HANDCUFFS                       (690)
+#define PID_CUFFS_KEY                       (691)
+#define PID_HANDCUFFS_USED                  (692)
+#define PID_BROKEN_CUFFS                    (693)
+#define PID_ROPE_USED			(694)
+
+#define PID_SKIN_CHANGER					(905)
+#define PID_ACTIVATOR						(906)
+#define PID_MODOC_DOCUMENTS					(910)
+#define PID_MICROCHIP                       			(599)
+
+
+//q3: Fishing
+#define PID_ROD								(920)
+#define PID_HOOK							(921)
+#define PID_STRING							(922)
+#define PID_ROD_STRING						(923)
+#define PID_ROD_STRING_HOOK					(924)
+
+#define PID_ALGAE							(939) //throw weapon
+#define PID_FISH_SMALLEST					(940)
+#define PID_FISH_SMALL						(941)
+#define PID_FISH							(942)
+#define PID_FISH_BIG						(943)
+#define PID_FISH_BIGGEST					(944)
+
+//q3: Planting
+#define PID_PLANT_RADCVET					(960)
+
+/******************************************************************
+***************       Erl_King items  low-tech      ***************
+******************************************************************/
+
+#define PID_HAND_ATTACK1	(1001)
+#define PID_HAND_ATTACK2	(1002)
+#define PID_HAND_ATTACK3	(1003)
+#define PID_HAND_GRAPPLE	(1010)
+#define PID_LEG_ATTACK1 	(1021)
+#define PID_LEG_ATTACK2 	(1022)
+#define PID_LEG_ATTACK3 	(1023)
+#define PID_KNIFE_P		(1042)
+#define PID_SPEAK_P		(1043)
+#define PID_MKNIFE_P		(1044)
+#define PID_CKNIFE_P		(1045)
+#define PID_SAWGUN_LOW		(1400)
+#define PID_GATLING_LOW		(1401)
+#define PID_DRUM_GUN_LOW	(1402)
+#define PID_SNIPER_GUN_LOW	(1403)
+#define PID_PLASMA_SMG_LOW	(1404)
+#define PID_SHOTPISTOL_LOW	(1405)
+#define PID_REVOLVER_LOW	(1406)
+#define PID_PISTOL_LOW		(1407)
+#define PID_REV_RIFLE_LOW	(1408)
+#define PID_GECKO_LOW		(1409)
+#define PID_BIGGUN_LOW		(1410)
+#define PID_BOOMERANG_LOW	(1411)
+#define PID_SMOKE_GUN_LOW	(1412)
+#define PID_REV_BALL1		(1413)
+#define PID_REV_BALL2		(1414)
+#define PID_14mm_BIGGUN2_LOW	(1415)
+#define PID_3GUN_LOW		(1416)
+#define PID_REVFIST1		(1417)
+#define PID_REVKNIFE1		(1418)
+#define PID_REVKNIFE2		(1419)
+#define PID_CHAIN		(1420)
+#define PID_REVCLUB1		(1421)
+#define PID_AUTOGUN_LOW		(1422)
+#define PID_IRON_PROD		(1423)
+#define PID_GOLF_CLUB		(1424)
+#define PID_WOOD_PLANK		(1425)
+#define PID_WATER_TUBE		(1426)
+#define PID_SPEARTHROWER1	(1427)
+#define PID_SPEARTHROWER2	(1428)
+#define PID_10mm_LOW		(1430)
+#define PID_044mag_LOW		(1431)
+#define PID_14mm_LOW		(1432)
+#define PID_12g_LOW		(1433)
+#define PID_223_LOW		(1434)
+#define PID_CUENCELL_LOW	(1435)
+#define PID_MUSH_LOW		(1436)
+#define PID_RAD_LOW		(1437)
+#define PID_RAD_MEAT		(1440)
+#define PID_MANTIS_SHELL	(1441)
+#define PID_MIRELUK_SHELL	(1442)
+#define PID_MUTATED_GLAND	(1443)
+#define PID_MOLERAT_STOMATCH	(1444)
+#define PID_OCTOGLOBE		(1450)
+#define PID_COMPAS		(1451)
+#define PID_BAROMETR		(1452)
+#define PID_KLESH		(1453)
+#define PID_GUARD_BADGE		(1454)
+#define PID_SHER_BADGE		(1455)
+#define PID_KHAN_BADGE		(1456)
+#define PID_SIGN		(1458)
+#define PID_INFOPAD		(1460)
+#define PID_IRON_PLATE		(1473)
+#define PID_IRON_BAR		(1474)
+#define PID_IRON_DETALS		(1475)
+#define PID_PB_PLATE		(1477)
+#define PID_PB_FOR_AMMO		(1478)
+#define PID_KOSYAK		(1490)
+#define PID_PERED_MEH		(1502)
+#define PID_SOED_MEH		(1503)
+#define PID_OHLAD_MEH		(1504)
+#define PID_DETAL_MEH		(1505)
+#define PID_EMKOCT_MEH		(1506)
+#define PID_HLAM_MEH		(1507)
+#define PID_HLAM2_MEH		(1508)
+#define PID_BANKA_MEH		(1509)
+#define PID_SPIKE_MEH		(1510)
+#define PID_ELECTO_MEH		(1511)
+#define PID_HARD_HIDE		(1512)
+#define PID_MAG_LENTA		(1513)
+#define PID_SAMURAI_MAG		(1516)
+#define PID_DVIGAT_MEH		(1517)
+#define PID_SCIENCE_MAG		(1518)
+#define PID_METAL_LIST_MEH	(1519)
+#define PID_LASER_PISTOL_LOW	(1520)
+#define PID_LASER_PISTOL_LOW2	(1521)
+#define PID_DRILL		(1522)
+#define PID_GM_PISTOL		(1523)
+#define PID_GRAPPLE_HOOK	(1524)
+#define PID_MELEE_HOOK		(1525)
+#define PID_HOLD_HOOK		(1526)
+#define PID_RPSTUFF1		(1527)
+#define PID_RPSTUFF2		(1528)
+#define PID_RPSTUFF3		(1529)
+#define PID_RPSTUFF4		(1530)
+#define PID_RPGUN1		(1531)
+#define PID_RPGUN2		(1532)
+#define PID_RPGUN3		(1533)
+#define PID_PUTI		(1534)
+#define PID_MINDCONTROL		(1535)
+
 
 /******************************************************************
 ***************       Effects                       ***************

@@ -16,9 +16,44 @@ int DFGroupCount(Critter& player, Critter@ npc)
 		@leader = player.GetFollowLeader(); // иначе берем лидера
 
 	Critter@[] groups;
-	ArrayPushBack(groups,leader);
+	groups.insertLast(@leader);
 	leader.GetFollowGroup(FIND_LIFE,groups);
 	return groups.length();
+}
+
+//!/ –азмер группы больше >=VAL
+bool d_GroupCountMore(Critter& player, Critter@ npc, int val)
+{
+	return DFGroupCount(player, npc)>=val;
+}
+
+bool d_GroupCountLess(Critter& player, Critter@ npc, int val)
+{
+	return DFGroupCount(player, npc)<val;
+}
+
+//!/ ” всех уровень больше >=VAL
+// ѕроверка что все игроки в группе больше или равны указанному уровню.
+bool d_GroupLevelMore(Critter& player, Critter@ npc, int val)
+{
+	Critter@[] groups;
+	groups.insertLast(@player);
+	player.GetFollowGroup(FIND_LIFE,groups);
+	for(uint i=0;i<groups.length();i++)
+		if(groups[i].Stat[ST_LEVEL]<val) // если хот€бы один из них меньше требуемого уровн€
+			return false;
+	return true;
+}
+
+bool d_GroupLevelLess(Critter& player, Critter@ npc, int val)
+{
+	Critter@[] groups;
+	groups.insertLast(@player);
+	player.GetFollowGroup(FIND_LIFE,groups);
+	for(uint i=0;i<groups.length();i++)
+		if(groups[i].Stat[ST_LEVEL]>val) // если хот€бы один из них меньше требуемого уровн€
+			return false;
+	return true;
 }
 
 // »грок нуждаетьс€ в лечении?
@@ -584,4 +619,33 @@ void r_DoorOpen(Critter& player, Critter@ npc ,int entireNum)
 void r_DoorClose(Critter& player, Critter@ npc ,int entireNum)
 {
 	DoorControl(player,entireNum,false);
+}
+
+// ƒаем игроку голодиск
+void r_GiveHolodisk(Critter& player, Critter@ npc, int holodiskNum)
+{
+	Item@ holo=player.AddItem(PID_HOLODISK,1);
+	holo.HolodiskNumber=holodiskNum;
+	holo.Update();
+}
+
+bool d_DuplKey(Critter& player, Critter@ npc)
+{
+  Item@ key = player.GetItem(0, SLOT_HAND1);
+  if(!valid(key) || key.GetType() != ITEM_KEY) return false;
+  return true;
+}
+
+import void KeyUseScreen(Critter& player, uint answerI, string& answerS) from "item";
+
+void r_DuplKey(Critter & player, Critter @ npc)
+{
+  Item @ key = player.GetItem(0, SLOT_HAND1);
+  if(!valid(key) || key.GetType() != ITEM_KEY) return;
+  Item @ newKey = player.AddItem(PID_BLANK_KEY, 1);
+  newKey.LockerId = key.LockerId;
+  newKey.SetLexems("$KeyLex"+"some key");
+  player.StatBase[ST_VAR0] = newKey.Id;
+  player.ShowScreen(SCREEN_SAY , 0, "item@KeyUseScreen");
+  newKey.Update();
 }

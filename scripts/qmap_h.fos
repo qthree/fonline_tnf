@@ -1,0 +1,249 @@
+#ifndef __QMAP_H__
+#define __QMAP_H__
+
+#include "_macros.fos"
+
+//#define HS2_IS_ROOF
+
+//#define W2DW #(a, b) (uint(a)|((uint(b)&0xFFFF)<<16))
+
+#ifdef NEVAR
+
+bool getTileFromData(int[]& data, uint16 tile, uint16& hs_1, uint16& hs_2, uint16& hexX, uint16& hexY, uint8& layer)
+{
+	//if(data.length()<tile*2+2) return false;
+	
+	hs_1=uint16(data[tile*2]&0xFFFF);
+	hs_2=uint16((data[tile*2]>>16)&0xFFFF);
+	hexX=uint16(data[tile*2+1]&0xFFF);
+	hexY=uint16((data[tile*2+1]>>12)&0xFFF);
+	layer=uint8((data[tile*2+1]>>24)&0xFF);
+	
+	return true;
+}
+
+bool getTileFromData(int[]& data, uint16 tile, uint16& hs_1, uint16& hs_2)
+{
+	//if(data.length()<tile*2+2) return false;
+	
+	hs_1=uint16(data[tile*2]&0xFFFF);
+	hs_2=uint16((data[tile*2]>>16)&0xFFFF);
+
+	return true;
+}
+
+bool checkTileData(int[]& data)
+{
+	return checkTileData(data, 0);
+}
+
+bool checkTileData(int[]& data, uint16 tile)
+{
+	if(data.length()<tile*2+2) return false;
+
+	return ((uint16(data[tile*2]&0xFFFF)!=0
+	#ifdef HS2_IS_ROOF
+	|| uint16((data[tile*2]>>16)&0xFFFF)!=0
+	#endif
+	) /*&& uint16(data[tile*2+1]&0xFFFF)!=0 && uint16((data[tile*2+1]>>16)&0xFFFF)!=0*/);
+}
+/*
+bool checkTileData(uint16 hs_1, uint16 hs_2, uint16 hexX, uint16 hexY)
+{
+	return ((hs_1!=0
+	#ifdef HS2_IS_ROOF
+	|| hs_2!=0
+	#endif
+	) && hexX!=0 && hexY!=0);
+}
+*/
+bool checkTileData(uint16 hs_1, uint16 hs_2)
+{
+	return (hs_1!=0
+	#ifdef HS2_IS_ROOF
+	|| hs_2!=0
+	#endif
+	);
+}
+
+bool addTileData(int[]& data, uint16 hs_1, uint16 hs_2, uint16 hexX, uint16 hexY, uint8 layer)
+{
+	//if(!checkTileData(hs_1, hs_2, hexX, hexY)) return false;
+
+	uint16 p=data.length();
+	if(p%2!=0) return false;
+
+	data.resize(p+2);
+	data[p]=int(hs_1)&0xFFFF;
+	data[p++]|=(int(hs_2)&0xFFFF)<<16;
+	data[p]=int(hexX)&0xFFF;
+	data[p]|=(int(hexY)&0xFFF)<<12;
+	data[p++]|=(int(layer)&0xFF)<<24;
+
+	return true;
+}
+
+bool addTileData(int[]& data, int[]& data2)
+{
+	uint len=data.length();
+	uint len2=data2.length();
+
+	if(len%2!=0 || len2==0 || len2%2!=0) return false;	
+
+	data.grow(len2);
+	for(uint i=0; i<len2; i++)
+	{
+		data[len+i]=data2[i];
+	}
+	return true;
+}
+
+bool copyTileData(int[]& data, int[]& data2, uint16 tile)
+{
+	uint len=data.length();
+	uint len2=data2.length();
+
+	if(len%2!=0 || len2==0 || len2%2!=0 || len2<tile*2+2) return false;
+
+	data.grow(2);
+	for(uint i=0; i<2; i++)
+	{
+		data[len+i]=data2[tile*2+i];
+	}
+	return true;
+}
+
+bool setTileData(int[]& data, uint16 tile, uint16 hs_1, uint16 hs_2, int hexX, int hexY, int layer)
+{
+	if(tile==0 || (data.length()<(tile+1)*2)) return false;
+	if(hs_1==0
+	#ifdef HS2_IS_ROOF
+	&& hs_2==0
+	#endif
+	&& hexX<0 && hexY<0) return false;
+	if(hs_1!=0) {data[tile*2]&=0xFFFF0000; data[tile*2]|=hs_1;}
+	if(hs_2!=0) {data[tile*2]&=0x0000FFFF; data[tile*2]|=(hs_2)<<16;}
+	if(hexX>=0) {data[tile*2+1]&=0xFFFFFF00; data[tile*2+1]|=(hexX&0xFFF);}
+	if(hexY>=0) {data[tile*2+1]&=0xFF000FFF; data[tile*2+1]|=(hexY&0xFFF)<<12;}
+	if(layer>=0) {data[tile*2+1]&=0x00FFFFFF; data[tile*2+1]|=(layer&0xFF)<<24;}
+	return true;
+}
+
+int uint16ToInt(uint16 val1, uint16 val2)
+{
+	return (int(val1)&0xFFFF)|((int(val2)&0xFFFF)<<16);
+}
+
+int makeHex(uint16 hexX, uint16 hexY, uint8 layer)
+{
+	return (int(hexX)&0xFFF)|((int(hexY)&0xFFF)<<12)|((int(layer)&0xFF)<<24);
+}
+
+uint16 getHashNum(int[]& data, uint16 tile, bool hs_2)
+{
+	if(tile==0) return 0;
+	if(data.length()<(tile+1)*2) return 0;
+	if(!hs_2) return uint16(data[tile*2]&0xFFFF);
+	else return uint16((data[tile*2]>>16)&0xFFFF);
+}
+
+
+//===== функции вырезанные из класса ===//
+
+bool setTile(int[]& data, uint16 hs_1, uint16 hs_2, uint16 hexX, uint16 hexY, uint8 layer, bool rewrite)
+{
+	uint16 tile = findTile(data, hexX, hexY, layer);										//проверяем есть ли уже тайл с такими координатами
+
+	//int[] data;
+	//if(!addTileData(data, hs_1, hs_2, hexX, hexY)) return false;
+	
+
+	if(tile!=0)						//тайл с такими координатами уже есть
+	{
+		if(!rewrite) return false;						//если перезапись старых тайлов запрещена - выходим
+
+		if(!checkTileData(hs_1, hs_2)) {data.removeAt(tile*2); data.removeAt(tile*2);}	//если номер хэша нулевой, то удаляем тайл
+
+		else if(!setTileData(data, tile, hs_1, hs_2, -1, -1, -1)) return false;		//иначе изменяем номер хэша для тайла
+	}
+	else							//иначе пишем новый тайл
+	{
+			if(!checkTileData(hs_1, hs_2/*, hexX, hexY*/) 	//если номер хэша или одна из координат нулевая - выходим
+			|| !addTileData(data, hs_1, hs_2, hexX, hexY, layer))			//добавляем в массив новый тайл
+			return false; 
+	}
+
+	return true; 
+}
+
+bool setTiles(int[]& data, int[]& data2, bool rewrite)
+{
+	uint len=data.length(),
+	num = len>>1,
+	len2=data2.length();
+
+	if(len%2!=0 || len2==0 || len2%2!=0) return false;
+
+	uint16 tile=0, hs_1=0, hs_2=0;
+
+	for(uint16 i=0, l2=(len2>>1); i<l2; i++)
+	{
+		tile = findTile(data, data2[i*2+1], num);
+		
+		if(!getTileFromData(data, tile, hs_1, hs_2)) return false;
+
+		if(tile!=0)
+		{
+			if(!rewrite) continue;
+	
+			if(checkTileData(hs_1, hs_2)) {data.removeAt(tile*2); data.removeAt(tile*2); num--;}
+	
+			else if(setTileData(data, tile, hs_1, hs_2, -1, -1, -1)) return false;
+		}
+		else
+		{
+				if(!checkTileData(data2, i)
+				|| !copyTileData(data, data2, i))
+				return false; 
+		}
+	}
+	return true;
+}
+
+uint16 findTile(int[]& data, uint16 hexX, uint16 hexY, uint8 layer)
+{
+	int hex = makeHex(hexX, hexY, layer);
+
+	return findTile(data, hex);
+}
+
+uint16 findTile(int[]& data, int hex)
+{
+	if(hex==0) return 0;
+	for(uint16 i=1, len=(data.length()>>1); i<len; i++)
+	{
+		if(data[i*2+1]==hex) return i;
+	}
+	return 0;
+}
+
+uint16 findTile(int[]& data, int hex, uint end)
+{
+	if(hex==0) return 0;
+	for(uint16 i=1; i<end; i++)
+	{
+		if(data[i*2+1]==hex) return i;
+	}
+	return 0;
+}
+
+uint16 getHashNum(int[]& data, uint16 hexX, uint16 hexY, uint8 layer)
+{
+	uint16 tile = findTile(data, hexX, hexY, layer);
+	//if(tile==0) return 0; //проверка происходит внутри getHashNum(int[]& data, uint16 tile, bool hs_2)
+	return getHashNum(data, tile, false);
+}
+
+#endif //NEVAR
+
+#endif //__QMAP_H__

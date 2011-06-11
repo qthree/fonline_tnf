@@ -26,7 +26,7 @@ bool _Doc_use(Item& item, Critter& player, Critter@ onCritter, Item@ onItem, Sce
 
 	player.Say(SAY_NETMSG, "Вы заполнили почти все пункты документа, но остался еще один.");
 
-	player.ShowScreen(SCREEN_CLOSE,0,"");
+	//player.ShowScreen(SCREEN_CLOSE,0,"");
 	player.ShowScreen(SCREEN_SAY,0,"answer_doc");
 	player.Say(SAY_SAY_TITLE,"Ваш пропускной шифр");
 	player.Say(SAY_SAY_TEXT,"");
@@ -97,4 +97,57 @@ void answer_doc(Critter& player, uint answerI, string& answerS)
 	bool temp_b = setActivation(player.Id, ACT_CODE, null, doc, false);
 
 	if(temp_b) player.Say(SAY_NETMSG, "Документ готов.");
+}
+
+void unsafe_act(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	if(player.Param[ST_VAR5]>3) return;
+	
+	player.ParamBase[ST_VAR5]+=1;
+	
+	if(!player.IsLife() || param3 is null) return;
+
+	GameVar@ act = GetLocalVar(LVAR_activationStatus, player.Id);
+	if(!valid(act)) return;
+	if(act.GetValue ()==ACT_BLOCK)
+	{
+		player.Say(SAY_NETMSG, "Персонаж заблокирован.");
+		return;
+	}
+	else if(act.GetValue ()==ACT_DEAD)
+	{
+		player.Say(SAY_NETMSG, "Персонаж мертв.");
+		return;
+	}
+	else if(act.GetValue ()>ACT_DEACT)
+	{
+		player.Say(SAY_NETMSG, "Персонаж уже активирован.");
+		return;
+	}
+
+	if(param3.length()!=CODE_SIZE) 
+	{
+			player.Say(SAY_NETMSG, "Неверный код активации.");
+			return;
+	}
+
+	Item@ doc;
+
+	string code;
+
+	activation_get_code(player, code);
+
+	if(param3!=code)
+	{
+		activation_get_code(player, SUPER_ID, code);
+		if(param3!=code)
+		{
+			player.Say(SAY_NETMSG, "Неверный код активации.");
+			return;
+		}
+	}
+
+	bool temp_b = setActivation(player.Id, ACT_CODE, null, doc, false);
+
+	if(temp_b) player.Say(SAY_NETMSG, "Персонаж активирован. Приятной игры.");
 }

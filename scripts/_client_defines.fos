@@ -10,6 +10,56 @@
 #pragma globalvar "bool __IsHexAttack = false"
 //binyan - Timeouts
 #pragma globalvar "bool __ShowTimeouts = false"
+
+//qthree
+#pragma globalvar "bool __waiting = false"
+
+//@pm menu
+#pragma globalvar "bool __showLogin = false"
+//pm
+#pragma globalvar "bool __mouse3Use = false"
+
+#pragma globalvar "bool __isContMenuOpen = false"
+#pragma globalvar "uint __contMenuCrId = 0"
+#pragma globalvar "uint __contMenuItId = 0"
+#pragma globalvar "uint __lastWindowPosX = 0"
+#pragma globalvar "uint __lastWindowPosY = 0"
+#pragma globalvar "uint __itemHexX = 0"
+#pragma globalvar "uint __itemHexY = 0"
+#pragma globalvar "uint __itemPid = 0"
+#pragma globalvar "uint __pickType = 0"
+#pragma globalvar "uint __fastpanelButtNum = 0"
+#pragma globalvar "uint16 __skillIndex = 0"
+#pragma globalvar "bool __ctrlDown = false"
+#pragma globalvar "bool __fastPanelShow = true"
+#pragma globalvar "bool __fastPanel = false"
+#pragma globalvar "bool __f4Pressed = false"
+#pragma globalvar "string __tempFastText"
+//#pragma globalvar "string[]@ __critterHistoryInfo"
+string[] __critterHistoryInfo;
+//#pm menu
+
+#pragma globalvar "uint __sinf = 0"
+
+#define	SINF_LOGIN			(0x1)
+#define	SINF_CRID			(0x2)
+#define	SINF_CRID_ON_HEAD	(0x4)
+#define	SINF_CRID_CHAT		(0x8)
+#define	SINF_ITEMID			(0x10)
+#define	SINF_HEX			(0x20)
+#define	SINF_INSIGHT		(0x40)
+#define	SINF_GLOBAL			(0x80)
+#define	SINF_GRID			(0x100)
+#define	SINF_WORLDTEST		(0x200)
+#define	SINF_TOOLS			(0x1000)
+
+
+#pragma globalvar "uint __global = 0"
+
+#define	CONF_GLOB_GRID			(0x1)
+#define	CONF_GLOB_WILD			(0x2)
+
+
 /////////////////////////////////////////////////
 
 // Messages types in messbox
@@ -37,45 +87,8 @@
 #define CRITTER_LOOK_SHORT     (1)
 #define CRITTER_LOOK_FULL      (2)
 
-// Paths
-	// Client and mapper paths
-#define PT_ROOT                (0)
-#define PT_DATA                (1)
-#define PT_ART                 (2)
-#define PT_ART_CRITTERS        (3)
-#define PT_ART_INTRFACE        (4)
-#define PT_ART_INVEN           (5)
-#define PT_ART_ITEMS           (6)
-#define PT_ART_MISC            (7)
-#define PT_ART_SCENERY         (8)
-#define PT_ART_SKILLDEX        (9)
-#define PT_ART_SPLASH          (10)
-#define PT_ART_TILES           (11)
-#define PT_ART_WALLS           (12)
-#define PT_TEXTURES            (13)
-#define PT_EFFECTS             (14)
-#define PT_MAPS                (15)
-#define PT_TERRAIN             (16)
-#define PT_SND_MUSIC           (17)
-#define PT_SND_SFX             (18)
-#define PT_SCRIPTS             (19)
-#define PT_VIDEO               (20)
-#define PT_TEXTS               (21)
-#define PT_SAVE                (22)
-	// Server paths
-#define PT_SERVER_ROOT         (30)
-#define PT_SERVER_DATA         (31)
-#define PT_SERVER_TEXTS        (32)
-#define PT_SERVER_DIALOGS      (33)
-#define PT_SERVER_MAPS         (34)
-#define PT_SERVER_PRO_ITEMS    (35)
-#define PT_SERVER_PRO_CRITTERS (36)
-#define PT_SERVER_SCRIPTS      (37)
-#define PT_SERVER_SAVE         (38)
-#define PT_SERVER_CLIENTS      (39)
-#define PT_SERVER_BANS         (40)
-
 // Fonts
+	// Standart fonts, loaded automatically
 #define FONT_OLD_FO            (0)
 #define FONT_NUM               (1)
 #define FONT_BIG_NUM           (2)
@@ -85,12 +98,15 @@
 #define FONT_THIN              (6)
 #define FONT_FAT               (7)
 #define FONT_BIG               (8)
+	// User fonts, created in Bitmap Font Generator
+#define FONT_COURIER_NEW_SMALL (10)
 
 // Font flags
 #define FT_NOBREAK             (0x0001)
 #define FT_NOBREAK_LINE        (0x0002)
 #define FT_CENTERX             (0x0004)
 #define FT_CENTERY             (0x0008)
+#define FT_CENTERXY            (0x000C)
 #define FT_CENTERR             (0x0010)
 #define FT_BOTTOM              (0x0020)
 #define FT_UPPER               (0x0040)
@@ -136,8 +152,30 @@
 #define CLIENT_SCREEN_PERK               (32)
 #define CLIENT_SCREEN_TOWN_VIEW          (33)
 #define CLIENT_SCREEN_SAVE_LOAD          (34)
-	// New script screens
+	// User screens
 #define CLIENT_SCREEN_TEST               (40) // client_screen_test.fos
+#define CLIENT_SCREEN_RADIO              (41) // radio.fos
+
+//@pm menu
+#define CLIENT_SCREEN_CONTMENU			(42) //pm added
+#define CLIENT_SCREEN_FASTPANEL			(43) //pm added
+#define CLIENT_SCREEN_FASTPANEL_SKILLBOX	(44)//pm added
+#define CLIENT_SCREEN_FASTPANEL_TEXTBOX		(45)//pm added
+#define CLIENT_SCREEN_HISTORY_VIEW		(46)//pm added
+#define CLIENT_SCREEN_HISTORY_ALL		(47)//pm added
+#define CLIENT_SCREEN_CODEDOOR			(48)
+
+// Screen Elements //pm add
+#define SCREEN_ELEMENT_BUTTON		(0)
+#define SCREEN_ELEMENT_DESCRIPTION	(1)
+#define SCREEN_ELEMENT_FASTPANEL_BTN	(2)
+#define SCREEN_ELEMENT_FASTPANEL 	(3)
+// Screen Sub Menus //pm add
+#define SUBMENU_MAIN		(0)
+#define SUBMENU_ADMIN		(1)
+#define SUBMENU_ADV		(2)
+#define SUBMENU_FASTPANEL	(3)
+//#pm menu
 
 // Cursors
 #define CURSOR_DEFAULT         (0)
@@ -395,6 +433,51 @@
 // HIT = 4, CRIT = 2, AIMED = 1
 // DEAD = +4
 // any type of hit: >=4, <=11
+
+// Effect types and subtypes
+#define EFFECT_2D              (0)  // 2D_Default.fx
+#define EFFECT_2D_GENERIC       (1)
+#define EFFECT_2D_TILE          (2)
+#define EFFECT_2D_ROOF          (4)
+#define EFFECT_3D              (1)  // 3D_Default.fx
+#define EFFECT_INTERFACE       (2)  // Interface_Default.fx
+#define EFFECT_FONT            (3)  // Font_Default.fx
+	// Subtype for fonts used font type
+#define EFFECT_PRIMITIVE       (4)  // Primitive_Default.fx
+
+// Chosen actions
+// 6 uint parameters, separated by commas
+#define CHOSEN_NONE               (0)  //
+#define CHOSEN_MOVE               (1)  // HexX, HexY, Is run, Cut path, Wait double click, Double click tick
+#define CHOSEN_MOVE_TO_CRIT       (2)  // Critter id, None, Is run, Cut path, Wait double click, Double click tick
+#define CHOSEN_DIR                (3)  // 0 (CW) or 1 (CCW)
+#define CHOSEN_SHOW_ITEM          (4)  // Item id
+#define CHOSEN_HIDE_ITEM          (5)  // Item id
+#define CHOSEN_USE_ITEM           (6)  // Item id, Item pid, Target type (see below), Target id, Item mode (see below), Some param (timer)
+#define CHOSEN_MOVE_ITEM          (7)  // Item id, Item count, To slot
+#define CHOSEN_MOVE_ITEM_CONT     (8)  // From container, Item id, Count
+#define CHOSEN_TAKE_ALL           (9)  //
+#define CHOSEN_USE_SKL_ON_CRITTER (10) // Skill, Critter id
+#define CHOSEN_USE_SKL_ON_ITEM    (11) // Is inventory, Skill index (SK_*), Item id
+#define CHOSEN_USE_SKL_ON_SCEN    (12) // Skill, Pid, HexX, HexY
+#define CHOSEN_TALK_NPC           (13) // Critter id
+#define CHOSEN_PICK_ITEM          (14) // Pid, HexX, HexY
+#define CHOSEN_PICK_CRIT          (15) // Critter id, (loot - 0, push - 1)
+#define CHOSEN_WRITE_HOLO         (16) // Holodisk id
+
+// Item modes
+#define ITEM_MODE_PRIMARY         (0)
+#define ITEM_MODE_SECONDARY       (1)
+#define ITEM_MODE_THIRD           (2)
+#define ITEM_MODE_RELOAD          (3)
+#define ITEM_MODE_USE             (4)
+
+// Target types
+#define TARGET_SELF               (0)
+#define TARGET_SELF_ITEM          (1)
+#define TARGET_CRITTER            (2)
+#define TARGET_ITEM               (3)
+#define TARGET_SCENERY            (4)
 
 #endif // __CLIENT_DEFINES__
 

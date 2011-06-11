@@ -14,10 +14,14 @@ import IGUIScreenOpt@ GUI_CreateScreen(int screenIndex, string@ sprName) from "c
 import void GUI_DeleteScreen(int screenIndex) from "client_gui";
 // Add element on screen
 import IGUIElementOpt@ GUI_AddScreenElement(int screenIndex, string@ sprName, int x, int y) from "client_gui";
+// Get screen options
+import IGUIScreenOpt@ GUI_GetScreenOptions(int screenIndex) from "client_gui";
 // Get options for last created screen, valid only on IGUIScreenCallbackShow::OnShow callback
 import IGUIScreenOpt@ GUI_GetScreenOptions() from "client_gui";
 // Get options for last created element, valid only on IGUIElementCallbackInit::OnInit callback
 import IGUIElementOpt@ GUI_GetElementOptions() from "client_gui";
+
+import void GUI_DeleteScreenElements(int screenIndex) from "client_gui"; //@pm menu
 #endif
 
 //
@@ -27,6 +31,8 @@ import IGUIElementOpt@ GUI_GetElementOptions() from "client_gui";
 interface IGUIScreenCallbackShow { void OnShow(int p0, int p1, int p2); }
 interface IGUIScreenCallbackHide { void OnHide(int p0, int p1, int p2); }
 interface IGUIScreenCallbackMove { void OnMove(int posX, int posY); }
+
+interface IGUIScreenCallbackInit { void OnInit(); } //@pm menu
 
 interface IGUIScreenOpt
 {
@@ -38,10 +44,16 @@ interface IGUIScreenOpt
 	IGUIScreenOpt@ Modal(bool enabled);                                  // delault true
 	IGUIScreenOpt@ Multiinstance(bool enabled);                          // delault false
 	IGUIScreenOpt@ IgnoreBorders(bool enabled);                          // default false
+	IGUIScreenOpt@ CloseOnMiss(bool enabled);                            // default false
+	IGUIScreenOpt@ AutoCursor(bool enabled, int cursorType);             // default false
+	IGUIScreenOpt@ SetElementCount(int8 ElementCount); //@pm menu
+	
 
 	// Info
 	int GetPosX();
 	int GetPosY();
+	uint16 GetElementsLength(); //@pm menu
+	IGUIElementOpt@ GetElement(uint16 index); //@pm menu
 	// IGUIElementOpt@[]@ GetElements();
 }
 
@@ -61,14 +73,40 @@ interface IGUIElementOpt
 	IGUIElementOpt@ CallbackMouseClick(IGUIElementCallbackMouseClick@ callback);             // default null
 	IGUIElementOpt@ CallbackKeyPress(IGUIElementCallbackKeyPress@ callback);                 // default null
 	IGUIElementOpt@ Position(int x, int y);                                                  // default zeros
+	IGUIElementOpt@ Position(int x, int y, int w, int h);                                    // default zeros
+	IGUIElementOpt@ Position(string& iniKey);                                                // get borders from ini
 	IGUIElementOpt@ DownPic(string@ sprName);                                                // default picture off
 	IGUIElementOpt@ Text(string@ text, int font, uint color, uint downColor, int flags);     // default text disabled
 	IGUIElementOpt@ TextInput(bool enabled, uint maxLen, uint colorFocused);                 // deafult false
+	IGUIElementOpt@ Switch(bool enabled);                                                    // default false
+	
+	//@pm menu
+	IGUIElementOpt@ Visible(bool enabled);
+	IGUIElementOpt@ Realese();
+	IGUIElementOpt@ ElementType(uint8 type);
+	IGUIElementOpt@ Description(string desc);
+	IGUIElementOpt@ ElementBtnNum(uint8 btnNum);
+	IGUIElementOpt@ ElementFastPanelType(uint8 type);
+	IGUIElementOpt@ ElementFastPanelId(uint16 id);
+	IGUIElementOpt@ UpPic(string@ sprName);
+	IGUIElementOpt@ Layer(uint8 layer);
+	//#pm menu
+	
 
 	// Info
 	int GetPosX();
 	int GetPosY();
 	string@ GetText();
+
+	//@pm menu
+	bool IsVisible();
+	uint8 GetLayer();
+	uint8 GetType();
+	uint8 GetBtnNum();
+	uint8 GetFastPanelType();
+	uint16 GetFastPanelId();
+	string GetDescription();
+	//#pm menu
 }
 
 #endif // __CLIENT_GUI__

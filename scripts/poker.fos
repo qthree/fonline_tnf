@@ -1,4 +1,4 @@
-// Author: Tabloid
+// Author: Tab10id
 
 #include "_macros.fos"
 #include "poker_h.fos"
@@ -64,54 +64,54 @@ string DialStrPl="@msg dlg "+DLGSTR(DID,STR_PL)+"@ "; // Игрок
 
 void _PokermanInit(Critter& pokerMan, bool firstTime)
 {
-	add_element(Koloda);
-	add_element(GameCards);
-	add_element2(GameCards[GameCards.length()-1],PLAYERS_COUNT*CARD_COUNT);
-	add_element(ReplCards);
-	add_element2(ReplCards[ReplCards.length()-1],PLAYERS_COUNT);
-	add_element(PlState);
-	add_element2(PlState[PlState.length()-1],PLAYERS_COUNT);
-	add_element(PlBet);
-	add_element2(PlBet[PlBet.length()-1],PLAYERS_COUNT);
-	add_element(InGamePl);
-	add_element(GameAnyData);
-	add_element2(GameAnyData[GameAnyData.length()-1],GAMEVAR_COUNT);
-	add_element(AnyDataTemp);
-	add_element2(AnyDataTemp[AnyDataTemp.length()-1],GAMEVAR_COUNT);
-	add_element(MoneyForStartGame);
-	add_element(MinBet);
-	add_element(Raise_1);
-	add_element(Raise_2);
-	add_element(Raise_3);
-	add_element(MaxBet);
-	add_element(App);
-	add_element(PMLevel);
-	add_element(StartGameMoney);
-	add_element(StopGameMoney);
-	add_element(WaitForGame);
+	Koloda.grow(1);
+	GameCards.grow(1);
+	GameCards[GameCards.length()-1].grow(PLAYERS_COUNT*CARD_COUNT);
+	ReplCards.grow(1);
+	ReplCards[ReplCards.length()-1].grow(PLAYERS_COUNT);
+	PlState.grow(1);
+	PlState[PlState.length()-1].grow(PLAYERS_COUNT);
+	PlBet.grow(1);
+	PlBet[PlBet.length()-1].grow(PLAYERS_COUNT);
+	InGamePl.grow(1);
+	GameAnyData.grow(1);
+	GameAnyData[GameAnyData.length()-1].grow(GAMEVAR_COUNT);
+	AnyDataTemp.grow(1);
+	AnyDataTemp[AnyDataTemp.length()-1].grow(GAMEVAR_COUNT);
+	MoneyForStartGame.grow(1);
+	MinBet.grow(1);
+	Raise_1.grow(1);
+	Raise_2.grow(1);
+	Raise_3.grow(1);
+	MaxBet.grow(1);
+	App.grow(1);
+	PMLevel.grow(1);
+	StartGameMoney.grow(1);
+	StopGameMoney.grow(1);
+	WaitForGame.grow(1);
 
-	push_back(Stroy,0);
-	push_back(BetEnd,0);
-	push_back(Bank,0);
-	push_back(Bet,0);
-	push_back(GameStage,0);
-	push_back(FirstGame,false);
-	push_back(MHod,0);
-	push_back(InGame,false);
-	push_back(PlayerCardsInDial,false);
-	push_back(WinKoef,100);
-	push_back(DlgTxt,"");
-	push_back(DlgTxtNet,"");
-	push_back(DlgTxt2,"");
-	push_back(FraudMode,0);
-	push_back(OnCheat1,0);
-	push_back(OnCheat2,0);
-	push_back(OnCheat3,0);
-	push_back(CardInSleeve,0);
-	push_back(Fraud2Succ,0);
-	push_back(VarRiseSucc,0);
-	push_back(GameNum,0);
-	push_back(ModChFr,0);
+	Stroy.insertLast(0);
+	BetEnd.insertLast(0);
+	Bank.insertLast(0);
+	Bet.insertLast(0);
+	GameStage.insertLast(0);
+	FirstGame.insertLast(false);
+	MHod.insertLast(0);
+	InGame.insertLast(false);
+	PlayerCardsInDial.insertLast(false);
+	WinKoef.insertLast(100);
+	DlgTxt.insertLast("");
+	DlgTxtNet.insertLast("");
+	DlgTxt2.insertLast("");
+	FraudMode.insertLast(0);
+	OnCheat1.insertLast(0);
+	OnCheat2.insertLast(0);
+	OnCheat3.insertLast(0);
+	CardInSleeve.insertLast(0);
+	Fraud2Succ.insertLast(0);
+	VarRiseSucc.insertLast(0);
+	GameNum.insertLast(0);
+	ModChFr.insertLast(0);
 
 	pokerMan.StatBase[ST_VAR9]=NumOfNpc++;
 	if(IsAnyData("Poker_"+pokerMan.Id))
@@ -141,7 +141,7 @@ void InitGame(Critter& pokerMan,Critter& master) // запуск игры
 	{
 		Log("<Poker> Error: gameTime UVAR not loaded");
 	}
-	gameTime=__FullMinute;
+	gameTime=__FullSecond;
 	StartGameMoney[pokerMan.StatBase[ST_VAR9]] = master.CountItem(PID_BOTTLE_CAPS);
 	InGame[pokerMan.StatBase[ST_VAR9]]=true;
 	BetEnd[pokerMan.StatBase[ST_VAR9]]=0;
@@ -810,7 +810,7 @@ void dlg_ManyWins(Critter& player, Critter@ pokerMan, string@ lexems)
 	{
 		Log("<Poker> Error: manywins UVAR not loaded");
 	}
-	if(uint(__FullMinute-var.GetValue())<(WaitForGame[pokerMan.StatBase[ST_VAR9]]*24*60))
+	if(uint(__FullSecond-var.GetValue())<(WaitForGame[pokerMan.StatBase[ST_VAR9]]*24*60*60))
 	{
 		lexems="$manywins@msg dlg "+DLGSTR(DID,STR_MANYWINS_ON)+"@";
 	}
@@ -829,8 +829,7 @@ void r_Replace(Critter& master, Critter@ pokerMan) // замена карт
 	{
 		if(GetBit(Koloda[pokerMan.StatBase[ST_VAR9]],i)==1)
 		{
-			add_element(cardsInPack);
-			cardsInPack[cardsInPack.length()-1]=i;
+			cardsInPack.insertLast(i);
 		}
 	}
 	NpcReplaceCards(pokerMan);
@@ -998,7 +997,7 @@ void r_BetPass(Critter& master, Critter@ pokerMan) // Игрок спасовал
 	EndGame(master,pokerMan);
 }
 
-void r_StartNewGame(Critter& master, Critter@ pokerMan) // Начало новой игры
+uint r_StartNewGame(Critter& master, Critter@ pokerMan) // Начало новой игры
 {
 	GameVar@ winCash=GetUnicumVar(UVAR_poker_wincash,pokerMan.Id,master.Id);
 	if(!valid(winCash))
@@ -1007,8 +1006,7 @@ void r_StartNewGame(Critter& master, Critter@ pokerMan) // Начало новой игры
 	}
 	if(winCash.GetValue()>int(StopGameMoney[pokerMan.StatBase[ST_VAR9]]))
 	{
-		__ForceDialog=D_MANYWINS;
-		return;
+		return D_MANYWINS;
 	}
 	if(master.CountItem(PID_BOTTLE_CAPS)>=Raise_1[pokerMan.StatBase[ST_VAR9]])
 	{
@@ -1023,6 +1021,7 @@ void r_StartNewGame(Critter& master, Critter@ pokerMan) // Начало новой игры
 	InitGame(pokerMan,master);
 	EraseData(pokerMan);
 	PrintCards(master,pokerMan,0);
+	return 0;
 }
 
 void r_TermGame(Critter& master, Critter@ pokerMan)
@@ -1067,7 +1066,7 @@ void r_Fraud(Critter& master, Critter@ pokerMan)
 	FraudMode[pokerMan.StatBase[ST_VAR9]]=1;
 }
 
-void r_Fraud1(Critter& master, Critter@ pokerMan, int val)
+uint r_Fraud1(Critter& master, Critter@ pokerMan, int val)
 {
 	bool fraudSucc=false;
 	uint diffic,rand;
@@ -1103,10 +1102,11 @@ void r_Fraud1(Critter& master, Critter@ pokerMan, int val)
 		}
 		else
 		{
-			__ForceDialog=uint(-1);
 			RunCheatScript(OnCheat1[pokerMan.StatBase[ST_VAR9]],master,pokerMan);
+			return uint(-1);
 		}
 	}
+	return 0;
 }
 
 void r_Fraud2(Critter& master, Critter@ pokerMan)
@@ -1115,7 +1115,7 @@ void r_Fraud2(Critter& master, Critter@ pokerMan)
 	PrintFraud2Text(master,pokerMan);
 }
 
-void r_Fraud2(Critter& master, Critter@ pokerMan, int val)
+uint r_Fraud2(Critter& master, Critter@ pokerMan, int val)
 {
 	bool fraudSucc=false;
 	uint diffic,rand;
@@ -1147,10 +1147,11 @@ void r_Fraud2(Critter& master, Critter@ pokerMan, int val)
 		}
 		else
 		{
-			__ForceDialog=uint(-1);
 			RunCheatScript(OnCheat2[pokerMan.StatBase[ST_VAR9]],master,pokerMan);
+			return uint(-1);
 		}
 	}
+	return 0;
 }
 
 void r_FraudCancel(Critter& master, Critter@ pokerMan)
@@ -1167,9 +1168,9 @@ void r_FraudCheck(Critter& master, Critter@ pokerMan)
 	}
 	uint pf=var.GetValue();
 #ifdef __DEBUG__
-	Log("<poker> UVAR_poker_fraud: "+pf+" FM: "+__FullMinute);
+	Log("<poker> UVAR_poker_fraud: "+pf+" FM: "+__FullSecond);
 #endif
-	if(pf<=__FullMinute)
+	if(pf<=__FullSecond)
 	{
 		var=1;
 	}
@@ -1192,7 +1193,7 @@ void r_ManyWinsCheck(Critter& master, Critter@ pokerMan)
 	{
 		Log("<Poker> Error: winCash UVAR not loaded");
 	}
-	if(uint((__FullMinute-manyWins.GetValue()))>(WaitForGame[pokerMan.StatBase[ST_VAR9]])*24*60)
+	if(uint((__FullSecond-manyWins.GetValue()))>(WaitForGame[pokerMan.StatBase[ST_VAR9]])*24*60*60)
 	{
 		winCash=0;
 	}

@@ -37,6 +37,7 @@ class CombatRes
 void AddEff(Critter@ crit, uint[] eff, CombatRes[]& combatResults)
 {
   int ptr=0;
+  
   // find or create the node:
   if (combatResults.length() == 0)
   {
@@ -81,7 +82,6 @@ void AddEff(Critter@ crit, uint[] eff, CombatRes[]& combatResults)
     combatResults[ptr].Res[i+combatResults[ptr].Res[0]]=eff[i];
     
   combatResults[ptr].Res[0]+=len;
-
 }
 
 void runTree(CombatRes[]& combatResults, int ptr)

@@ -1,0 +1,53 @@
+#include "_macros.fos"
+
+
+
+void _MapInit(Map& map, bool firstTime)
+{
+	map.SetEvent(MAP_EVENT_OUT_CRITTER, "_crOut");
+	map.SetEvent(MAP_EVENT_IN_CRITTER, "_crIn");
+
+}
+
+void _KindmanInit(Critter& cr, bool firstTime)
+{
+	cr.ParamBase[MODE_UNLIMITED_AMMO]=1;
+	cr.ParamBase[MODE_INVULNERABLE]=1;
+	cr.ParamBase[MODE_NO_ENEMY_STACK]=1;
+	cr.ParamBase[ST_MELEE_DAMAGE]=9999;
+}
+
+void r_toHex(Critter& master, Critter@ slave, int val)
+{
+	Map@ map = master.GetMap();
+
+	if(map is null) return;
+
+	uint16 hexX=0, hexY=0;
+
+	if(!map.GetEntireCoords(val, 0, hexX, hexY)) return;
+
+	master.TransitToHex(hexX, hexY, 5);
+}
+
+void _crIn(Map& map, Critter& cr)
+{
+	cr.ParamBase[MODE_NO_PVP]=1;
+	cr.AddItem(PID_INFOPAD, 5);
+	cr.AddItem(PID_SKIN_CHANGER, 5);
+}
+
+void _crOut(Map& map, Critter& cr)
+{
+	cr.ParamBase[MODE_NO_PVP]=0;
+	Item@[] items;
+	cr.GetItems(SLOT_INV,items);
+	cr.GetItems(SLOT_HAND1,items);
+	cr.GetItems(SLOT_HAND2,items);
+	DeleteItems(items);
+}
+
+
+
+
+

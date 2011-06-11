@@ -27,7 +27,7 @@
 */
 const int[] termStats_ = {
 //  ТоМин   ТоМакс МОМин  МоМакс СЛ   ВН   АР     НР     РезМин  РезМакс
-    140,    150,   140,   160,   8,   8,    8,    300,   35,     40,
+    140,    190,   140,   160,   8,   8,    8,    300,   35,     40,
     150,    200,   160,   220,   9,   8,    8,    400,   60,     55,
     180,    220,   200,   230,   9,   9,   10,    500,   40,     60,
     220,    260,   230,   260,   10,  9,   12,    570,   60,     80,
@@ -201,7 +201,7 @@ TermPattern pattern; // Для наследников нужно определить _NoBaseInstance
 
 void SetTermStats(Critter & cr, uint8 lvl)
 {
-
+	if(lvl<1) return;
 	cr.StatBase[ST_PERCEPTION] = 8;
 	cr.StatBase[ST_STRENGTH] = T_ST(lvl);
 	cr.StatBase[ST_ENDURANCE] = T_EN(lvl);
@@ -223,7 +223,7 @@ void SetTermStats(Critter & cr, uint8 lvl)
 	cr.TraitBase[TRAIT_FAST_SHOT] = 1;
 
 	if(lvl>2) cr.PerkBase[PE_BONUS_RATE_OF_FIRE] = 1;
-	cr.PerkBase[PE_TERMINATOR] = 1;
+	if(lvl>2) cr.PerkBase[PE_TERMINATOR] = 1;
 	cr.PerkBase[PE_PYROMANIAC] = 1;
 	if(lvl>2) cr.PerkBase[PE_LIVING_ANATOMY] = 1;
 
@@ -302,7 +302,7 @@ Item @ GetCritterWeapon (Critter & cr, uint[] weapPids)
 			Item @ weapon = cr.GetItem(weapPids[i], -1);
 			if(!valid(weapon)) continue;
 
-			if(GetWearProcent(weapon)<100)
+			if(GetDeteriorationProcent(weapon)<100)
 			{
 				return weapon;
 			}
@@ -334,7 +334,7 @@ void TryCatchSneakers(Critter & term)
 			term.SetDir(GetDirection(term.HexX, term.HexY, player.HexX, player.HexY));
 			_CritAnimateThrow(term);
 			map.RunFlyEffect(4024 , term, player, term.HexX, term.HexY, player.HexX, player.HexY);
-			CreateTimeEvent(__FullMinute+1, "e_UnsneakPlayer", player, false);
+			CreateTimeEvent(__FullSecond+60, "e_UnsneakPlayer", player.Id, false);
 
 			return;
 		}
@@ -357,11 +357,11 @@ uint e_UnsneakPlayer(uint[]@ values)
 				Item @ flare = map.AddItem(player.HexX, player.HexY, PID_ACTIVE_FLARE, 1);
 				if(!valid(flare)) return 0;
 				flare.LightColor = 5;
-				flare.LightRadius = 5;
+				flare.LightDistance = 5;
 				flare.LightIntensity = 100;
 				SETFLAG(flare.Flags,ITEM_ALWAYS_VIEW);
 				player.TimeoutBase[TO_SNEAK] = SNEAK_TIMEOUT(player);
-				CreateTimeEvent(__FullMinute+10, "e_DeleteFlare", flare, false);
+				CreateTimeEvent(__FullSecond+10*60, "e_DeleteFlare", flare.Id, false);
 			}
 		}
 	}

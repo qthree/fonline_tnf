@@ -1,593 +1,580 @@
-TODO:
+# 17.10.2007 Cvet
 
-DONE: All
-# Заметки по переводу:
-# Принести Смитти ремонтный ключ, Яма - не понял, что именно имеется в виду - repair toolkit или wrench. Перевел как wrench.
-#{8105001}{}{Найдите способ как победить главного воина племени Мусковекуана.} - даже не представляю как это имя правильно транслитерировать на английский. Поменял в англоязычном варианте на Motelchiuh (по имени ацтекского царя).
-#{8103102}{}{Принесите Гоятлаю целебных порошков.} - написал как Gojatlah, не уверен, правильно ли. 
-
-
-# 17.10.2007 Cvet  
-# Last edited: – 07.10.2008 00:11 by fragboi
-# Added: 17.07.2009 by trueneutral
-# Added even more: 13.08.09 by trueneutral
-
-#
-#
-#
 
 {4}{}{%d. }
-{5}{}{Current progress: }
+{5}{}{Текущее состояние: }
 
 #
-# ID
-# Quest name
+# Номер
+# Название
 #
 
 #
-# Formulas are:
-#	ID * 1000 + %exp%. (1-100) - Text player sees with quest var equal to %exp%.
-#	ID * 1000 + 101 - Quest tab name.
-#	ID * 1000 + 102 - Overall quest description.
+# Формулы расчетов:
+#	Номер * 1000 + Значение (1-100) - Текст который появиться у игрока при данном значении переменной.
+#	Номер * 1000 + 101 - Название вкладки квеста.
+#	Номер * 1000 + 102 - Постоянное описание квеста.
 
 # 145
 # Найти журналы Кошачья Лапка.
 
 {145001}{}{Юра К. попросил вас принести ему 3 журнала "Кошачья лапка".}
-{145002}{}{Вы уговорили Куклачева принести ему всего 1 журнал "Кошачья лапка".}
-{145003}{}{Вы осчастливили Куклачева.}
+{145002}{}{Вы уговорили Юрасика принести ему всего 1 журнал "Кошачья лапка".}
+{145003}{}{Вы осчастливили Юрасика.}
 
-{145101}{}{Klamath}
+{145101}{}{Клэмат}
 {145102}{}{Найти журналы Кошачья Лапка.}
 
 # 152
-# Matt persuade his wife to move with him to live in the Klamath.
+# Уговорите жену Мэта перебраться вместе с ним жить в Кламат.
 
-{152001}{}{Emmy is on the South-East Den.}
-{152002}{}{You could not persuade his wife.}
-{152003}{}{Matt and Emmy thank you.}
+{152001}{}{Эмми находится на Юго-Востоке Ямы.}
+{152002}{}{Вы не смогли уговорить жену.}
+{152003}{}{Мэт и Эмми вам благодарны.}
 
-{152101}{}{Den}
-{152102}{}{Persuade Matts wife to the move.}
+{152101}{}{Яма}
+{152102}{}{Уговорите жену Мэта на переезд.}
 
 # 3040
-# Quest to locate an abandoned military depot.
+# Квест на поиск заброшенного склада.
 
-{3040001}{}{Locate an abandoned military depot.}
-{3040002}{}{You have found an abandoned military depot location.}
-{3040003}{}{You have found an abandoned military depot. You've told Old Man about this.}
-{3040004}{}{You've failed to find the location of an abandoned military depot.}
+{3040001}{}{Найдите склад.}
+{3040002}{}{Склад найден.}
+{3040003}{}{Склад найден. Вы рассказали об этом Старику.}
+{3040004}{}{Склад не найден.}
 
-{3040101}{}{Abandoned military depot's location}
-{3040102}{}{Locate abandoned military depot.}
+{3040101}{}{Поиск заброшенного склада}
+{3040102}{}{Найти старый заброшенный склад.}
 
 # 3041
-# Quest to locate an abandoned military depot. Sub-quest 1.
+# Квест на поиск заброшенного склада. Подквест1.
 
-{3041001}{}{Old Man asked you to find and bring back his daughter, she's somewhere in Den, in a junkies commune.}
-{3041002}{}{Old Man’s daughter asked you to find her beloved one. The guy’s probable name is Max.}
-{3041003}{}{Pass daughter's message to her father.}
-{3041004}{}{Completed. The military depot is now marked on the map.}
+{3041001}{}{Старик просил найти и привести его дочь, которая находится в Яме, в наркоманской общине.}
+{3041002}{}{Дочь просила найти её любимого. Предположительно его зовут Макс.}
+{3041003}{}{Передать слова дочери её отцу.}
+{3041004}{}{Выполнен. Склад отмечен на карте.}
 
-{3041101}{}{The abandoned military depot's location}
-{3041102}{}{Find the military depot location. Old Man will let you know it after you find his daughter.}
+{3041101}{}{Поиск заброшенного склада}
+{3041102}{}{Узнать местоположение склада. Старик расскажет вам о нем, когда вы найдете его дочь.}
 
 # 3042
-# Quest to locate an abandoned military depot. Sub-quest 2.
+# Квест на поиск заброшенного склада. Подквест2.
 
-{3042001}{}{Player's last job place is Golden Globos Porn.}
-{3042002}{}{You need to find a pretty girl for the new movie.}
-{3042003}{}{Find Player, trick him into giving you the key card.}
-{3042004}{}{Completed. You’ve found the key to military depot.}
+{3042001}{}{Последнее место работы Игрока - съемки в GoldenGlobosPorn.}
+{3042002}{}{Необходимо найти красотку для съемок в новом фильме.}
+{3042003}{}{Найдите Игрока, выманите у него ключ-карту.}
+{3042004}{}{Выполнен. Ключ от склада найден.}
 
-{3042101}{}{Abandoned military depot's location}
-{3042102}{}{Find a key card to the military depot entrance. Obtain it from former Old Man's partner, Player, in New-Reno.}
+{3042101}{}{Поиск заброшенного склада}
+{3042102}{}{Найти ключ-карту от входа в склад. Она находится у бывшего напарника Старика - Игрока в Нью-Рено.}
 
 # 3100
-# Quest to deliver condoms from Leanna, Becky's Bar. 
+# Квест на доставку презерватива от Леанны, Яма, бар Бекки
 
-{3100001}{}{Find Kitty in New Reno and speak with her about "something" for Leanna.}
-{3100002}{}{Bring red condom to Leanna.}
-{3100003}{}{Completed.}
+{3100001}{}{Найдите Китти в Нью-Рено и поговорите насчет "кое-чего" для Леанны.}
+{3100002}{}{Доставьте красный презерватив Леанне.}
+{3100003}{}{Выполнен.}
 
-{3100101}{}{Den}
-{3100102}{}{Leanna asked you to bring this. She promised a reward.}
+{3100101}{}{Яма}
+{3100102}{}{Леанна попросила вас принести это. Обещала вознаградить.}
 
 # 3101
-# Mom’s quest to get rid of Virginia, the Den.
+# Квест от Мамочки по избавлению от Вирджинии, Яма
 
-{3101001}{}{Mom wants this Virginia whore to stop hanging out near her place.}
-{3101002}{}{You persuaded Virginia to leave.}
-{3101003}{}{Mom will be happy to know this slut won’t be around for some time.}
+{3101001}{}{Мамочка хочет, чтобы шлюха Вирджиния около ее заведения ушла.}
+{3101002}{}{Вы уговорили Вирджинию уйти.}
+{3101003}{}{Мамочка очень рада, что этой шлюхи не будет около ее заведения хоть какое-нибудь время.}
 
-{3101101}{}{Den}
-{3101102}{}{Get rid of Virginia the whore for Mom.}
+{3101101}{}{Яма}
+{3101102}{}{Избавьте Мамочку от присутствия Вирджинии.}
 
 # 3102
-# Mom’s quest to deliver radscorpion tails, Den. 
+# Квест от Мамочки на доставку хвостов Редскорпиона, Яма
 
-{3102001}{}{Mom from Den wants you to bring her 4 radscorpion tails for her special dish.}
-{3102002}{}{You have delivered radscorpion tails to Mom.}
+{3102001}{}{Мамочке из Дена нужно достать 4 хвоста радскорпона для ее фирменного супа.}
+{3102002}{}{Вы достали хвосты радскорпионов для Мамочки.}
 
-{3102101}{}{Den}
-{3102102}{}{Bring 4 radscorpion tails to Mom.}
+{3102101}{}{Яма}
+{3102102}{}{Принесите Маме 4 хвоста скорпиона.}
 
 # 3103
-# Quest to get rid of the ghost, Den.
+# Квест на избавление города от призрака, Яма
 
-{3103001}{}{You had a talk with crazy guy. He told you about the ghost in the old abandoned house. Maybe you should check it out.}
-{3103002}{}{Ghost turned out to be a ruthless murderer. Find a way to kill him. Ask locals about the ghost.}
-{3103003}{}{Smitty got very scared when he heard about the ghost. He sent you to Mom.}
-{3103004}{}{Boy near Leanna’s bar said Leanna may know something.}
-{3103005}{}{Leanna said you should talk to Mom.}
-{3103006}{}{Lara said you should talk to Mom.}
-{3103007}{}{Fred said you should talk to Mom.}
-{3103008}{}{Mom sent you to father Cliff.}
-{3103009}{}{Father Cliff gave you a bottle of holy water. Use it to defeat the ghost.}
-{3103010}{}{You have exterminated the evil ghost of Den.}
-{3103011}{}{You have exterminated the evil ghost of Den, but were cursed.}
+{3103001}{}{Вы поговорили с обезумевшим человеком, он рассказал вам о призраке в старом разрушенном доме. Проверьте этот дом.}
+{3103002}{}{Призрак оказался беспощадным убийцей. Найдите способ убить его. Поспрашивайте у жителей Дена о призраке.}
+{3103003}{}{Смитти узнав про призрака очень испугался и отправил вас к Мамочке.}
+{3103004}{}{Мальчик у бара Лианны, отправил вас к Лианне.}
+{3103005}{}{Леанна посоветовала обратиться к Маме.}
+{3103006}{}{Лара посоветовала обратиться к Маме.}
+{3103007}{}{Фред предложил поговорить с Мамой.}
+{3103008}{}{Мама направила вас к отцу Клиффу.}
+{3103009}{}{Отец Клифф дал вам святой воды. Используйте ее на призрака.}
+{3103010}{}{Вы уничтожили призрака Дена.}
+{3103011}{}{Вы уничтожили призрака Дена, но были прокляты.}
 
-{3103101}{}{Den}
-{3103102}{}{Get rid of the ghost!}
+{3103101}{}{Яма}
+{3103102}{}{Избавтесь от призрака!}
 
 # 3104
-# Quest to fix robot Mr. Handy, Den.
+# Почините Мистера Хенди
 
-{3104001}{}{Smitty needs your help to fix Mr. Handy robot.}
-{3104002}{}{After inspecting the robot you've found that it needs some new parts and oil change. Also you’ll need tools to fix it.}
-{3104003}{}{Smitty will be happy to know his robot works perfectly.}
-{3104004}{}{You have fixed Mr. Handy.}
+{3104001}{}{Смитти нужна помощь в починке робота Мистера Хенди.}
+{3104002}{}{Осмотрев робота вы поняли, что он нуждается в некоторых деталях и замене масла. А также вам понадобится инструмент для ремонта.}
+{3104003}{}{Смитти будет рад, что его робот работает как часы.}
+{3104004}{}{Вы починили Мистера Хенди.}
 
-{3104101}{}{Den}
-{3104102}{}{Fix Mr. Handy.}
+{3104101}{}{Яма}
+{3104102}{}{Почините Мистера Хенди.}
 
 # 3105
-# Quest to deliver molotov cocktails, Den.
+# Квест на доставку коктейлей Молотова, Яма
 
-{3105001}{}{Lara asked you to get 5 molotov cocktails for James.}
-{3105002}{}{You brought the molotov cocktails to James. You should report to Lara about this.}
-{3105003}{}{You’ve delivered molotov cocktails and got your reward. You've contributed torwards anarchy. Vive L' Anarchie!}
+{3105001}{}{Доставьте Джеймсу пять бутылок с коктейлем Молотова по просьбе Лары.}
+{3105002}{}{Вы отнесли Джеймсу коктейли Молотова. Теперь неплохо бы отчитаться перед Ларой о выполнении задания.}
+{3105003}{}{Коктейли Молотова доставлены. Вознаграждение получено. Вы послужили делу анархии.}
 
-{3105101}{}{Den}
-{3105102}{}{Deliver molotov cocktails.}
+{3105101}{}{Яма}
+{3105102}{}{Доставьте коктейль Молотова.}
 
 # 3107
-# Give Joey a loan, Den.
+# Дать Джою денег на рост, Яма
 
-{3107001}{}{You’ve lent some money to Joey, don’t forget to pay him a visit.}
-{3107002}{}{You couldn’t get your money back.}
-{3107003}{}{Joey paid you back with interest.}
+{3107001}{}{Вы заняли Джою денег под проценты, не забудьте его навестить.}
+{3107002}{}{Вы не смогли вернуть свои деньги.}
+{3107003}{}{Джой вернул вам деньги с процентами.}
 
-{3107101}{}{Den}
-{3107102}{}{Give Joey a loan.}
+{3107101}{}{Яма}
+{3107102}{}{Дать Джою денег на рост.}
 
 # 3109
-# Get 3 combat knives for Joey, Den.
+# Достать 3 боевых ножа для Джоя, Яма
 
-{3109001}{}{Joey is looking for 3 good combat knives for his gang.}
-{3109002}{}{You refused to get knives for Joey.}
-{3109003}{}{You brought Joey the knives he wanted.}
+{3109001}{}{Джой ищет 3 хороших ножа для своей банды.}
+{3109002}{}{Вы послали Джоя с его просьбой раздобыть ножи.}
+{3109003}{}{Вы принесли ножи Джою.}
 
-{3109101}{}{Den}
-{3109102}{}{Get 3 combat knives for Joey.}
+{3109101}{}{Яма}
+{3109102}{}{Достать 3 боевых ножа для Джоя.}
 
 # 3110
-# Get a consignment of jet from Mordino, New Reno, (cycle) Den.
+# Принести партию джета из Рено у Мордино (цикл), Яма
 
-{3110001}{}{You agreed to buy a consignment of jet in New Reno for Joey.}
-{3110002}{}{You refused to work as a drug courier for Joey.}
-{3110003}{}{You got the jet.}
-{3110004}{}{You brought the jet Joey wanted.}
+{3110001}{}{Вы взялись купить партию наркоты для Джоя в Нью-Рено.}
+{3110002}{}{Вы отказались быть наркокурьером Джоя.}
+{3110003}{}{Вы забрали наркоту.}
+{3110004}{}{Вы принесли наркоту Джою.}
 
-{3110101}{}{Den}
-{3110102}{}{Get a consignment of jet for Joey.}
+{3110101}{}{Яма}
+{3110102}{}{Принести партию джета Джою.}
 
 # 3111
-# Talk to Lara about Joey, Den.
+# Поговорить с Ларой для Джоя, Яма
 
-{3111001}{}{Ask Lara if she's willing to cooperate with Joey.}
-{3111002}{}{You've failed to reach an agreement of cooperation between Joey and Lara.}
-{3111003}{}{You had a talk with Lara.}
-{3111004}{}{You successfully accomplished Joey's mission to negotiate with Lara.}
+{3111001}{}{Спросите Лару, хочет ли она сотрудничать с Джоем.}
+{3111002}{}{Вы не смогли договориться о сотрудничестве Лары с Джоем.}
+{3111003}{}{Вы поговорили с Ларой.}
+{3111004}{}{Вы успешно выполнили задание Джоя поговорить с Ларой.}
 
-{3111101}{}{Den}
-{3111102}{}{Talk to Lara about Joey.}
+{3111101}{}{Яма}
+{3111102}{}{Поговорить с Ларой за Джоя.}
 
 # 3112
-# Collect Joey's money from Flick.
+# Верните Джою должок ФЛика, Яма
 
-{3112001}{}{Flick owes Joey an awful lot of money. You should get that money back.}
-{3112002}{}{You couldn't get Joey's money back from Flick.}
-{3112003}{}{You got money from Flick.}
-{3112004}{}{You brought Joey his money.}
+{3112001}{}{Флик задолжал Джою кучу денег. И вы должны их вернуть.}
+{3112002}{}{Вы не смогли вернуть деньги Джою.}
+{3112003}{}{Вы взяли деньги деньги у Флика.}
+{3112004}{}{Вы вернули деньги Джою.}
 
-{3112101}{}{Den}
-{3112102}{}{Collect Joey's money from Flick.}
+{3112101}{}{Яма}
+{3112102}{}{Верните Джою должок Флика.}
 
 # 3113
-# Repair James' radios, Den. 
+# Почините рации Джеймса, Яма
 
-{3113001}{}{James gave you a bunch of malfunctioning radios. Maybe someone in Klamath could repair them.}
-{3113002}{}{You couldn't fix the radios.}
-{3113003}{}{You successfully repaired the radios.}
-{3113004}{}{You brought repaired radios back to James.}
+{3113001}{}{Джеймс дал вам кучу сломанных раций, возможно кто-то в Клэмате может помочь с их починкой.}
+{3113002}{}{Вы не смогли починить рации.}
+{3113003}{}{Вы починили рации.}
+{3113004}{}{Вы вернули рации.}
 
-{3113101}{}{Den}
-{3113102}{}{Fix James' radios.}
+{3113101}{}{Яма}
+{3113102}{}{Почините рации Джеймса.}
 
 # 3115
-# Get a hunting rifle for James, Den.
+# Достаньте охотничью винтовку для Джеймса, Яма
 
-{3115001}{}{James has lost his hunting rifle. He would be grateful if you could find him a new one.}
-{3115002}{}{You refused to get James a new hunting rifle.}
-{3115003}{}{You got James the hunting rifle he wanted.}
+{3115001}{}{Джеймс потерял свою охотничью винтовку и будет признателен, если вы достанете ему новую.}
+{3115002}{}{Вы отказались искать винтовку для Джеймса.}
+{3115003}{}{Вы достали охотничий карабин Джеймсу.}
 
-{3115101}{}{Den}
-{3115102}{}{Get a hunting rifle for James.}
+{3115101}{}{Яма}
+{3115102}{}{Достаньте охотничью винтовку для Джеймса.}
 
 # 3116
-# Get a Psycho, Buffout and Mentats for James, Den.
+# Достаньте психо, буффаута и ментат для Джеймса, Яма
 
-{3116001}{}{James is looking for psycho, buffout and mentats.}
-{3116002}{}{You refused to get drugs for James.}
-{3116003}{}{You bring the drugs to James.}
+{3116001}{}{Джеймс ищет упаковку психо, буффаута и ментата для торговли.}
+{3116002}{}{Вы отказались искать наркоту для Джеймса.}
+{3116003}{}{Вы принесли Джеймсу психо, буффаут и ментат.}
 
-{3116101}{}{Den}
-{3116102}{}{Get drugs for James.}
+{3116101}{}{Яма}
+{3116102}{}{Найдите наркоты для Джеймса.}
 
 # 3117
-# Collect James' money from traders, Den.
+# Соберите плату у торговцев за товары Джеймса, Яма
 
-{3117001}{}{Traders Fred, Leanna and Mom owe James some money.}
-{3117002}{}{You couldn't get James' money back.}
-{3117003}{}{You brought traders' money to James.}
+{3117001}{}{Фред, Леанна и Мамочка должны Джеймсу некоторую сумму за торговлю.}
+{3117002}{}{Вы не смогли вернуть Джеймсу деньги.}
+{3117003}{}{Вы вернули Джеймсу деньги торговцев.}
 
-{3117101}{}{Den}
-{3117102}{}{Collect traders' money for James.}
+{3117101}{}{Яма}
+{3117102}{}{Соберите плату у торговцев за товары Джеймса.}
 
 # 3121
-# Buy some meat jerky in Klamath for James, Den.
+# Купить мясо для Джеймса в Клэмате, Яма
 
-{3121001}{}{James needs a new supply of meat jerky.}
-{3121002}{}{You failed to deliver meat jerky to James.}
-{3121003}{}{You bought meat jerky.}
-{3121004}{}{You delivered meat jerky to James.}
+{3121001}{}{Джеймсу требуется новая поставка мяса из Клэмата.}
+{3121002}{}{Вы не смогли доставить мясо Джеймсу.}
+{3121003}{}{Вы купили мясо.}
+{3121004}{}{Вы доставили мясо Джеймсу.}
 
-{3121101}{}{Den}
-{3121102}{}{Meat from Dantons.}
+{3121101}{}{Яма}
+{3121102}{}{Мясо от Дантонов.}
 
 # 3122
-# Bring some booze for James from Klamath, Den. 
+# Принести самогон из Клэмата для Джеймса, Яма
 
-{3122001}{}{James' alcohol supply is running dry. Get him a pack of booze from Bob.}
-{3122002}{}{You failed to deliver booze to James.}
-{3122003}{}{You bought the alcohol.}
-{3122004}{}{You brought the booze to James.}
+{3122001}{}{Запас спиртного Джеймса совсем кончился. Принесите Джеймсу партию спиртного от Боба.}
+{3122002}{}{Вы не смогли доставить спиртное Джеймсу.}
+{3122003}{}{Вы купили спиртное.}
+{3122004}{}{Вы принесли Джеймсу партию спиртного.}
 
-{3122101}{}{Den}
-{3122102}{}{Booze from Whiskey Bob.}
+{3122101}{}{Яма}
+{3122102}{}{Самогон от Виски Боба}
 
 # 3123
-# Get James a fresh supply of stimpacks from Redding, Den.
-{3123001}{}{James needs a fresh supply of stimpacks. Get him some healing chems from Redding.}
-{3123002}{}{You failed to make an agreement with Doc about supplying James with stimpacks.}
-{3123003}{}{You have loaded up with stimpacks.}
-{3123004}{}{You delivered the healing chems to James.}
+# доставьте Джеймсу свежий запас стимуляторов из Реддинга, Ден
+{3123001}{}{Джеймс испытывает недостаток медпрепаратов, доставьте ему свежий запас стимуляторов из Реддинга.}
+{3123002}{}{Вы не смогли договориться с доком о доставке препаратов.}
+{3123003}{}{Вы затарились стимпаками.}
+{3123004}{}{Вы доставили химикалии дока для Джеймса.}
 
-{3123101}{}{Den}
-{3123102}{}{Redding Medical Aid.}
+{3123101}{}{Яма}
+{3123102}{}{Медпомощь из Реддинга.}
 
-# 3124
-# Deliver supply of weapons to James from New Reno, Den.
+# 124
+# ОРужие доставьте из Рено в Ден для Джеймса, Яма
 
-{3124001}{}{James needs to replenish his firearms supply, get the stuff for him from Eldridge, New Reno.}
-{3124002}{}{You failed to get weapons for James.}
-{3124003}{}{You got the weapons from Eldridge.}
-{3124004}{}{You delivered new guns to James.}
+{3124001}{}{Джеймс нуждается в пополнении оружейного арсенала, достаньте все у Эдриджа.}
+{3124002}{}{Вы не смогли достать оружие для Джеймса.}
+{3124003}{}{Вы получили оружейную партию для Джеймса.}
+{3124004}{}{Вы доставили Джеймсу партию оружия.}
 
-{3124101}{}{Den}
-{3124102}{}{Provide a supply of weapons for James.}
+{3124101}{}{Яма}
+{3124102}{}{Поставки оружия для Джеймса.}
 
 # 3125
-# Deliver a consignment of leather armors from Modoc, Den.
+# Доставить партию кожаной брони из Модока, Яма
 
-{3125001}{}{James' depot is almost empty. Purchase a bunch of leather armors for him in Modoc.}
-{3125002}{}{You refused to take a walk to Modoc.}
-{3125003}{}{You purchased a pack of leather armors.}
-{3125004}{}{You delivered a pack of leather armors.}
+{3125001}{}{Склад Джеймса практически пуст. Сделайте закупку партии кожаной брони в Модоке.}
+{3125002}{}{Вы отказались гулять до Модока.}
+{3125003}{}{Вы купили партию брони.}
+{3125004}{}{Вы доставили партию кожаной брони.}
 
-{3125101}{}{Den}
-{3125102}{}{James' leather armors from Modoc.}
+{3125101}{}{Яма}
+{3125102}{}{Джеймс ждет кожаную броню из Модока.}
 
 # 3128
-# Find a new pair of boots for Smitty, Den.
+# Найти буты для Смитти, Яма
 
-{3128001}{}{Smitty has lost his boots somewhere. Find him a new pair.}
-{3128002}{}{You got new boots for Smitty.}
-{3128003}{}{You refused to find new boots for Smitty.}
+{3128001}{}{Смитти посеял свои сапоги, найдите ему новую пару сапог.}
+{3128002}{}{Вы отказались искать сапоги для Смитти.}
+{3128003}{}{Вы достали сапоги для Смитти.}
 
-{3128101}{}{Den}
-{3128102}{}{Smitty's boots.}
+{3128101}{}{Яма}
+{3128102}{}{Кирзачи для Смитти.}
 
 # 3130
-# Befriend with Lara, Den.
+# Втереться в доверие Ларе, Яма
 
-{3130001}{}{Prove you're a real bad guy so that Lara could trust you.}
-{3130002}{}{You have proved yourself worthy. Now Lara trusts you.}
+{3130001}{}{Чтобы Лара могла доверять вам, докажите что вы злой.}
+{3130002}{}{Вы доказали что способны на что-то и Лара может вам доверять.}
 
-{3130101}{}{Den}
-{3130102}{}{Lara loves villains.}
+{3130101}{}{Яма}
+{3130102}{}{Лара любит негодяев.}
 
 # 3131
-# Deliver Lara's package to Joey, Den.
+# Передать посылку Лары для Джоя, Яма
 
-{3131001}{}{Lara asks you to deliver a package to Joey.}
-{3131002}{}{You refused to deliver a package.}
-{3131003}{}{You have delivered a package to Joey.}
-{3131004}{}{You have delivered Lara's package to Joey.}
+{3131001}{}{Лара просит передать посылку Джою.}
+{3131002}{}{Вы отказались быть посыльным Лары.}
+{3131003}{}{Вы передали посылку Джою.}
+{3131004}{}{Вы доставили Джою посылку Лары.}
 
-{3131101}{}{Den}
-{3131102}{}{Package for Joey.}
+{3131101}{}{Яма}
+{3131102}{}{Посылка для Джоя.}
 
 # 3132
-# Lara's spy, Den.
+# Шпион для Лары, Яма
 
-{3132001}{}{Lara wants you to gather information about Brotherhood's activity in town.}
-{3132002}{}{You failed to gather information about Brotherhood's activity in town.}
-{3132003}{}{You learned that the Brotherhood is keeping a look-out over the town.}
+{3132001}{}{Лара проявляет интерес к Братству Стали, узнайте, что делает Братство Стали в Дене.}
+{3132002}{}{Вы не смогли узнать ничего про Братство Стали в Дене.}
+{3132003}{}{Вы узнали, что Братство Стали ведет наблюдение за порядком в городе.}
 
-{3132101}{}{Den}
-{3132102}{}{Lara's spy.}
+{3132101}{}{Яма}
+{3132102}{}{Шпион Лары.}
 
 # 3134
-# Join Lara's gang, Den.
+# Вступить в банду Лары, Яма
 
-{3134001}{}{You could join Lara's gang, but you need to pass a loyalty test first.}
-{3134002}{}{You have refused to join Lara's gang.}
-{3134003}{}{You've passed the loyalty test and became a gang member.}
+{3134001}{}{Лара может принять вас в свою банду, но сначала надо пройти проверку.}
+{3134002}{}{Вы отказались вступать в банду Лары.}
+{3134003}{}{Вы успешно прошли проверку и теперь состоите в банде Лары.}
 
-{3134101}{}{Den}
-{3134102}{}{Join Lara's gang.}
+{3134101}{}{Яма}
+{3134102}{}{Вступить в банду Лары.}
 
 # 3135
-# Bring Flick a package of jet from NR, Den.
+# Принести джет Флику из НР, Яма
 
-{3135001}{}{Flick wants you to get him consignment of jet from Mordino, New Reno.}
-{3135002}{}{You failed to deliver jet to Flick.}
-{3135003}{}{You got the package of jet.}
-{3135004}{}{You brought the jet Flick wanted.}
+{3135001}{}{Задохлик Флик хочет, чтобы вы принесли ему партию джета от Мордино.}
+{3135002}{}{Вы не смогли доставить джет Флику.}
+{3135003}{}{Вы взяли товар для Флика.}
+{3135004}{}{Вы доставили Флику его джет.}
 
-{3135101}{}{Den}
-{3135102}{}{Dealer from Den.}
+{3135101}{}{Яма}
+{3135102}{}{Наркокурьер из Дена.}
 
 # 3136
-# Get weapons to Fred from Vic, Den.
+# Принести Фреду оружие от Вика, Яма
 
-{3136001}{}{Fred needs to replenish his firearms supply, get guns for him from Klamath.}
-{3136002}{}{You refused to get guns for Fred.}
-{3136003}{}{You bought weapons from Vic.}
-{3136004}{}{You delivered new guns to Fred.}
+{3136001}{}{Фред нуждается в пополнении торговых лавок оружием, приобретите партию оружия в Клэмате.}
+{3136002}{}{Вы отказались помогать Фреду с оружием.}
+{3136003}{}{Вы взяли оружие у Вика.}
+{3136004}{}{Вы доставили Фреду оружие.}
 
-{3136101}{}{Den}
-{3136102}{}{Weapons for Fred.}
+{3136101}{}{Яма}
+{3136102}{}{Оружие для Фреда.}
 
 # 3137
-# Get Fred a fresh supply of stimpacks, Den.
- 
-{3137001}{}{Fred needs to refill his healing chems supply.}
-{3137002}{}{You brought stimpacks to Fred.}
+# Принести Фреду стимпаки, Яма
 
-{3137101}{}{Den}
-{3137102}{}{Get a supply of stimpacks for Fred.}
+{3137001}{}{Фреду срочно нужно пополнить медицинский запас.}
+{3137002}{}{Вы принесли Фреду стимуляторы.}
+
+{3137101}{}{Яма}
+{3137102}{}{Пополнить запас стимпаков для Фреда.}
 
 # 3138
-# Find a thief in Becky's bar, Den.
+# Найти вора в баре Бекки, Яма
 
-{3138001}{}{Leanna's not happy about the pickpocketing in the bar. Find the thief.}
-{3138002}{}{You failed to find the thief.}
-{3138003}{}{You found the thief.}
-{3138004}{}{You found the thief in Becky's bar.}
+{3138001}{}{Леанна недовольна, кто-то из посетителей бара обшаривает чужие карманы. Найдите карманника.}
+{3138002}{}{Вы не смогли найти карманника.}
+{3138003}{}{Вы вычислили карманника}
+{3138004}{}{Вы смогли найти карманника в баре Бекки.}
 
-{3138101}{}{Den}
-{3138102}{}{Pickpocketing at Becky's.}
+{3138101}{}{Яма}
+{3138102}{}{Вор в баре.}
 
 # 3139
-# Find a micro fusion cell for Smitty, Den.
+# Принести Смитти большую батарейку, Яма
 
-{3139001}{}{Smitty is performing some chemistry experiments. Find him a micro fusion cell.}
-{3139002}{}{You refused to search for a micro fusion cell for Smitty.}
-{3139003}{}{You brought a micro fusion cell to Smitty.}
+{3139001}{}{Смитти проводит химические опыты и ему срочно понадобилась большая атомная батарея.}
+{3139002}{}{Вы отказались искать батарею.}
+{3139003}{}{Вы достали для Смитти большую атомную батарейку.}
 
-{3139101}{}{Den}
-{3139102}{}{Smitty's battery.}
+{3139101}{}{Яма}
+{3139102}{}{Батарея Смитти.}
 
 # 3140
-# Find a new wrench for Smitty, Den.
+# Принести Смитти ремонтный ключ, Яма
 
-{3140001}{}{Someone has stolen Smitty's wrench. Get him a new one.}
-{3140002}{}{You refused to find a new wrench for Smitty.}
-{3140003}{}{You found a new wrench for Smitty.}
+{3140001}{}{Кто-то спер ремонтный ключ Смитти, найдите ему новый ремонтный ключ.}
+{3140002}{}{Вы отказались искать ключ Смитти.}
+{3140003}{}{Вы нашли ключ для Смитти.}
 
-{3140101}{}{Den}
-{3140102}{}{Smitty's wrench.}
+{3140101}{}{Яма}
+{3140102}{}{Ремонтный ключ Смитти.}
 
 # 3141
-# Smitty wants you to find out how to make bullets, Den.
+# Узнать для Смитти как делать пули, Яма
 
-{3141001}{}{Gather information about bullet manufacturing method for Smitty.}
-{3141002}{}{You failed to gather information about bullet manufacturing method.}
-{3141003}{}{You gathered information for Smitty about bullet production.}
-{3141004}{}{Smitty is now able to produce 10mm ammunition.}
+{3141001}{}{Узнайте для Смитти способ изготовления пуль.}
+{3141002}{}{Вы не смогли узнать способ изготовления пуль.}
+{3141003}{}{Вы узнали для Смитти как изготавливаются пули.}
+{3141004}{}{Смитти теперь может изготовлять патроны 10мм.}
 
-{3141101}{}{Den}
-{3141102}{}{Smitty the gunsmith.}
+{3141101}{}{Яма}
+{3141102}{}{Оружейник Смитти.}
 
 # 3142
-# Buy some alcohol from Whiskey Bob for Leanna, Den.
+# Купить виски у Боба для Леанны, Яма
 
-{3142001}{}{Leanna is interested in Whiskey Bob's alcohol and asks you to buy a couple of bottles as samples.}
-{3142002}{}{You refused to buy alcohol from Bob.}
-{3142003}{}{You bought booze from Whiskey Bob for Leanna.}
-{3142004}{}{You gave booze to Leanna.}
+{3142001}{}{Леанна интересуется спиртным Виски Боба и просит купить у него пару бутылок.}
+{3142002}{}{Вы отказались покупать спиртное у Боба.}
+{3142003}{}{Спиртное для Леанны куплено у Боба.}
+{3142004}{}{Вы отдали спиртное Леанне.}
 
-{3142101}{}{Den}
-{3142102}{}{Taster for Leanna.}
+{3142101}{}{Яма}
+{3142102}{}{Дегустатор Леанны.}
 
 # 3143
-# Find out Whiskey Bob's secret of cheap alcohol production, Den.
+# Узнать у виски у Боба секрет производства, Яма
 
-{3143001}{}{Find out Whiskey Bob's secret of cheap alcohol production.}
-{3143002}{}{You failed to learn Bob's alcohol know-how.}
-{3143003}{}{You've learnt Bob's know-how.}
-{3143004}{}{Leanna now knows how to make cheaper booze.}
+{3143001}{}{Узнайте у Виски Боба способ удешевления производства спирта.}
+{3143002}{}{Вы не смогли узнать ничего от Боба о спирте.}
+{3143003}{}{Вы узнали секрет Виски Боба.}
+{3143004}{}{Леанна теперь знает, как оптимизировать производство спирта.}
 
-{3143101}{}{Den}
-{3143102}{}{Dry Law.}
+{3143101}{}{Яма}
+{3143102}{}{Сухой закон.}
 
 # 3144
-# Throw the drug dealer out of the church, Den.
+# Выгнать наркоторговца из церкви, Яма
 
-{3144001}{}{A drug dealer showed up in the church. Find a way to get rid of him.}
-{3144002}{}{You failed to get rid of the drug dealer.}
-{3144003}{}{You threw the drug dealer out.}
-{3144004}{}{You dealt with a drug dealer in the church.}
+{3144001}{}{В церкви завелся наркодилер, найдите способ избавиться от него.}
+{3144002}{}{Вы не смогли избавиться от наркодилера.}
+{3144003}{}{Вы выгнали наркоторговца из церкви.}
+{3144004}{}{Вы избавили церковь от наркодилера.}
 
-{3144101}{}{Den}
-{3144102}{}{Blasphemy in church.}
+{3144101}{}{Яма}
+{3144102}{}{Святотатство в церкви.}
 
 # 3145
-# Find Ananias a rubber sex doll, Den.
+# Принести куклу Ананиусу, Яма
 
-{3145001}{}{Ananias asks you to find him a rubber sex doll.}
-{3145002}{}{You refused to search for a rubber sex doll.}
-{3145003}{}{You brought the doll to Ananias.}
+{3145001}{}{Ананиус просит найти для него надувную куклу.}
+{3145002}{}{Вы отказались искать куклу для Ананиуса.}
+{3145003}{}{Вы принесли Ананиусу куклу.}
 
-{3145101}{}{Den}
-{3145102}{}{Master Of Puppets.}
+{3145101}{}{Яма}
+{3145102}{}{Кукольный работорговец.}
 
 # 3146
-# Find Ananias a rubber sex doll, (part 2) Den.
+# Принести куклу Ананиусу (повторно), Яма
 
-{3146001}{}{Ananias' visitors tore his doll into pieces. Find him a new one.}
-{3146002}{}{You refused to find a new doll for Ananias.}
-{3146003}{}{You brought the doll to Ananias.}
+{3146001}{}{Посетители Ананиуса изодрали в клочья его куклу, и он просит найти ему новую куклу.}
+{3146002}{}{Вы отказались искать куклу для Ананиуса.}
+{3146003}{}{Вы принесли Ананиусу куклу.}
 
-{3146101}{}{Den}
-{3146102}{}{Master Of Puppets 2.}
+{3146101}{}{Яма}
+{3146102}{}{Кукольный работорговец.}
 
 # 3201
-# Get distilled water from the Vault City for Whiskey Bob's factory, Klamath.
+# Достать дистиллированой воды для завода Виски Боба в Городе Убежище, Клэмат
 
-{3201001}{}{Bob needs distilled water for his alcohol production.}
-{3201002}{}{You got distilled water for Whiskey Bob.}
-{3201003}{}{You sold distilled water to Bob.}
+{3201001}{}{Бобу нужна особая кристаллизированная вода для его винного завода.}
+{3201002}{}{Вы достали кристаллизированной воды для Виски Боба.}
+{3201003}{}{Вы продали кристаллизированую воду Бобу.}
 
-{3201101}{}{Klamath}
-{3201102}{}{Get distilled water for Whiskey Bob.}
+{3201101}{}{Клэмат}
+{3201102}{}{найдите кристаллизированую воду для завода Виски Боба.}
 
 # 3206
-# Bring gecko pelts to Balthas, Modoc, Klamath.
+# Отнести шкуры гекко в Модок Балтасу, Клэмат
 
-{3206001}{}{Sell gecko pelts to Balthas, Modoc.}
-{3206002}{}{You sold gecko pelts.}
+{3206001}{}{Продайте шкуры гекко в Модок Балтасу.}
+{3206002}{}{Вы отнесли шкурки гекко.}
 
-{3206101}{}{Klamath}
-{3206102}{}{Gecko pelts sale.}
+{3206101}{}{Клэмат}
+{3206102}{}{Распродажа шкур.}
 
 # 3210
-# Geckos hunt, Klamath, Smiley
-{3210001}{}{Smiley asked you to kill a bunch of geckos somewhere near the city.}
-{3210002}{}{You have arrived to the place.}
-{3210003}{}{Yay! You've beaten the geckos. We did it!}
-{3210004}{}{Unluckily you died.}
-{3210005}{}{You didn't follow your friends and most likely let them down.}
-{3210006}{}{You fled from the battlefield.}
+# Клэмат, Смайли, Охота на Гекоо
 
-{3210101}{}{Klamath}
-{3210102}{}{Kill a bunch of geckos.}
+{3210001}{}{Смайли просил убить выводок Гекко где-то недалеко от города.}
+{3210002}{}{Вы прибыли на место.}
+{3210003}{}{Ура! Вы победили гекко. У нас все получилось!}
+{3210004}{}{Вам не повезло, вы умерли.}
+{3210005}{}{Вы не пошли со своими друзьями, и скорее всего подвели их.}
+{3210006}{}{Вы позорно сбежали с поля боя так и не завершив начатое.}
+
+{3210101}{}{Клэмат}
+{3210102}{}{Убить выводок Гекко.}
 
 # 3213
-# Brahmin wrangle, Klamath, Torr
+# Кламат. Торр.  Квест "Пасти браминов".
 
-{3213001}{}{You agreed to help Torr to defend brahmins. You should be at the pasture by midnight.}
-{3213002}{}{It's time to go to the pasture if you're not already there.}
-{3213003}{}{Herd is dead!}
-{3213004}{}{You successfully defended all the brahmins!}
-{3213005}{}{You defended brahmins. Unluckily some are dead.}
-{3213006}{}{You defended brahmins. Unluckily some are dead.}
-{3213007}{}{You defended brahmins. Unluckily some are dead.}
-{3213008}{}{You defended brahmins. Unluckily some are dead.}
-{3213009}{}{You defended brahmins. Unluckily some are dead.}
+{3213001}{}{Вы согласились помочь Торру охранять браминов. Вам необходимо явиться в полночь на пастбище.}
+{3213002}{}{Пришло время явиться на пастбище. Если конечно вы еще не сделали этого.}
+{3213003}{}{Стадо погибло!}
+{3213004}{}{Вы успешно защитили всех браминов!}
+{3213005}{}{Вы защитили браминов. К сожалению, часть стада погибла.}
+{3213006}{}{Вы защитили браминов. К сожалению, часть стада погибла.}
+{3213007}{}{Вы защитили браминов. К сожалению, часть стада погибла.}
+{3213008}{}{Вы защитили браминов. К сожалению, часть стада погибла.}
+{3213009}{}{Вы защитили браминов. К сожалению, часть стада погибла.}
 
-{3213101}{}{Klamath}
-{3213102}{}{Brahmin wrangle.}
+{3213101}{}{Клэмат}
+{3213102}{}{Пасти браминов}
 
 # 3215
-# Klamath. jo Sulivan. Quest "Teach Dunton a lesson".
+# Кламат. джо Салливан. Охотничьи земли.  Квест "Проучить Дантона".
 
-{3215001}{}{Thrash Dunton!}
-{3215002}{}{You've killed Dunton.}
-{3215003}{}{You've completed the task.}
+{3215001}{}{Задайте Дантону трепку.}
+{3215002}{}{Вы убили Дантона.}
+{3215003}{}{Вы выполнили это задание.}
 
-{3215101}{}{Klamath}
-{3215102}{}{Teach Dunton a lesson.}
+{3215101}{}{Клэмат}
+{3215102}{}{Проучить Дантона}
 
 # 3223
-# Saving trapper Jim.
+# Спасти траппера Джима.
 
-{3223001}{}{Hepl Emma to find her husband.}
-{3223002}{}{Jim asked to tell Emma everything is allright.}
-{3223003}{}{Trapper Jim asked to tell his wife everything is allright.}
-{3223004}{}{Completed. You calmed down Emma. It would be best if you let Jim know too.}
-{3223005}{}{Completed. You reported to Jim.}
-{3223006}{}{Failed. You broke Emma's hope.}
-{3223007}{}{Failed. You broke Emma's hope and even told Jim about it. What a bastard you are.}
-{3223008}{}{Completed. You calmed down Emma. It would be best if you let Jim know too.}
-{3223009}{}{Failed. You tried to trick Emma.}
-{3223010}{}{Completed. You tricked Jim}
+{3223001}{}{Помогите Эмме отыскать её мужа.}
+{3223002}{}{Джим попросил передать его Эмме, что всё в порядке.}
+{3223003}{}{Траппер Джим попросил передать его жене, что всё в порядке.}
+{3223004}{}{Выполнено. Вы успокоили Эмму. Неплохо было бы дать знать и Джиму.}
+{3223005}{}{Выполнено. Вы отчитались Джиму.}
+{3223006}{}{Провалено. Вы лишили Эмму надежды.}
+{3223007}{}{Провалено. Вы лишили Эмму надежды, да ещё и рассказали об этом её мужу.}
+{3223008}{}{Выполнено. Вы успокоили Эмму. Неплохо было бы дать знать и Джиму.}
+{3223009}{}{Провалено. Вы попытались обмануть Эмму.}
+{3223010}{}{Выполнено. Вы убедили Джима в том, что передали его слова жене. Главное сейчас не попадаться ему на глаза, если он выберется.}
 
-{3223101}{}{Klamath}
-{3223102}{}{Saving trapper Jim.}
+{3223101}{}{Клэмат}
+{3223102}{}{Спасти траппера Джима.}
 
 # 3300
-# Jose Ramirez quest to find 100 micro fusion cells and an engine, Modoc. 
+# Квест от Хосе Рамиреса, нужно найти 100 больших  батареек и мотор, Модок
 
-{3300001}{}{Jose Ramirez wants you to find 100 microfusion cells and an engine.}
-{3300002}{}{You have found the stuff Ramirez wants, return to his workshop.}
-{3300003}{}{You got your reward from Jose Ramirez.}
+{3300001}{}{Хосе Рамирес просит вас найти 100 больших ядерных батареек и мотор.}
+{3300002}{}{Вы нашли нужные вещи для Хосе, идите в мастерскую.}
+{3300003}{}{Хосе отблагодарил вас за выполненное задание.}
 
-{3300101}{}{Modoc}
-{3300102}{}{Find microfusion cells and an engine for Jose Ramirez.}
+{3300101}{}{Модок}
+{3300102}{}{Найдите батарейки и мотор для Хосе Рамиреса.}
 
 # 3302
-# Buy gecko pelts from Smiley for Balthas, Modoc. 
+# Купить шкур у Смайли для Балтаса, Модок
 
-{3302001}{}{Balthas asks you to bring him gecko pelts from Smiley.}
-{3302002}{}{You have bought gecko pelts.}
-{3302003}{}{You brought gecko pelts to Balthas.}
+{3302001}{}{Балтас просит принести партию шкурок гекко от Смайли.}
+{3302002}{}{Вы купили шкуры гекко.}
+{3302003}{}{Вы принесли шкуры гекко Балтасу.}
 
-{3302101}{}{Modoc}
-{3302102}{}{Gecko pelts for Balthas.}
+{3302101}{}{Модок}
+{3302102}{}{Шкуры гекко для Балтаса.}
 
 # 3303
-# Sell Balthas' armors in Den and Klamath, Den.
+# Продать броню Балтаса в Яме и Клэмате, Модок
 
-{3303001}{}{Balthas needs to sell his merchandise in Den and Klamath.}
-{3303002}{}{You have sold Balthas' leather armors.}
-{3303003}{}{You gave Balthas his money for sold merchandise.}
+{3303001}{}{Балтасу нужно продать свои изделия в Дене и Клэмате.}
+{3303002}{}{Вы продали кожаную броню Балтаса.}
+{3303003}{}{Вы отдали Балтасу выручку за проданную броню.}
 
-{3303101}{}{Modoc}
-{3303102}{}{Balthas' leather armors.}
+{3303101}{}{Модок}
+{3303102}{}{Кожанки от Балтаса.}
 
 # 3306
-# Collect a crop of cabbages for Jo, Modoc.
+# Собрать урожай капусты для Джо, Модок
 
-{3306001}{}{Joe needs your help with ingathering.}
-{3306002}{}{You have gathered cabbage.}
-{3306003}{}{You helped Joe with ingathering.}
+{3306001}{}{Джо необходимо помочь со сбором урожая.}
+{3306002}{}{Вы собрали капусту}
+{3306003}{}{Вы помогли Джо со сбором урожая.}
 
-{3306101}{}{Modoc}
-{3306102}{}{For the cabbage!}
+{3306101}{}{Модок}
+{3306102}{}{За капустой!}
+
 
 # 3600
 # Караван Брокен-Хиллс - Гекко
@@ -603,6 +590,7 @@ DONE: All
 {3600009}{}{Вы в составе каравана. Постарайтесь сохранить груз и защищайте проводника в течении всего маршрута.}
 {3600010}{}{Очередной успех! Караван в точке назначения. Бен Вейд оценит вашу работу.}
 {3600011}{}{Вы выполнили задание по сопровождению и охране каравана до Гекко.}
+
 
 {3600101}{}{Брокен Хиллс}
 {3600102}{}{Охрана каравана Брокен Хиллс - Гекко}
@@ -632,67 +620,68 @@ DONE: All
 # 3666
 # Убить игрока из списка рейнджеров
 
-{3666001}{}{Liquidate the outlaw.}
-{3666002}{}{You liquidated the outlaw. Report the brass.}
-{3666003}{}{You refused to work. Pay the fee.}
+{3666001}{}{Ликвидируйте преступника.}
+{3666002}{}{Вы ликвидировали преступника. Доложите начальству.}
+{3666003}{}{Вы отказались от работы, заплатите штраф.}
 
-{3666101}{}{NCR}
-{3666102}{}{Murder for rangers.}
+{3666101}{}{НКР}
+{3666102}{}{Совершите убийство для рейнджеров.}
 
 # 3701
-# Bring a package of 20 jets to Flick, Den, New Reno. 
+# Отнести Флику в Дене партию джета в кол-ве 20 штук, Нью-Рено
 
-{3701001}{}{Bring 20 pieces of jet to Flick.}
-{3701002}{}{You have delivered the package of drugs to Flick.}
-{3701003}{}{Jessy is impressed with your actions.}
+{3701001}{}{Отнесите Флику  упаковку джета.}
+{3701002}{}{Вы доставили упаковку джета для Флика.}
+{3701003}{}{Джесси впечатлен вашей активностью.}
 
-{3701101}{}{New Reno}
-{3701102}{}{Flick's jet.}
+{3701101}{}{Нью-Рено}
+{3701102}{}{Джет для Флика.}
 
 # 3702
-# Prove your toughness – make Father Tully drunk, New Reno.
+# Напоить старика Тулли, Нью-Рено
 
-{3702001}{}{To prove your toughness make father Tully drunk and check his pockets.}
-{3702002}{}{You made father Tully drunk.}
-{3702003}{}{You have dealt with drunk father Tully.}
+{3702001}{}{Чтобы доказать свою крутость напоите Тулли и проверьте его карманы.}
+{3702002}{}{Вы напоили Тулли.}
+{3702003}{}{Вы успешно справились с Тулли.}
 
-{3702101}{}{New Reno}
-{3702102}{}{Drunk hypocrite.}
+{3702101}{}{Нью-Рено}
+{3702102}{}{Споить святошу.}
 
 # 3703
-# Foist off the pistol to Eldridge, New Reno.
+# Впарить Элдриджу пистолет за космическую сумму, Нью-Рено
 
-{3703001}{}{Eldridge has gone too far, make him buy a pistol for 2 grand.}
-{3703002}{}{Eldridge’s spirit is broken. He agreed to do everything you told him.}
-{3703003}{}{You reported James about the job.}
-{3703004}{}{You failed. James will be furious.}
+{3703001}{}{Торговец Элдридж совсем зарвался, заставьте его купить пушку за 2 косаря.}
+{3703002}{}{Элдридж сломлен и сделал все что вы сказали.}
+{3703003}{}{Вы отчитались Джеймсу о проделанной работе.}
+{3703004}{}{Вы провалили дело. Джеймс будет в ярости.}
 
-{3703101}{}{New Reno}
-{3703102}{}{“Protection” for El.}
+{3703101}{}{Нью-Рено}
+{3703102}{}{Крыша Эла.}
 
 # 3705
-# Sell jet to 5 junkies in NR, New Reno.
+# Продать джет 5 наркоманам в НР, Нью-Рено
 
-{3705001}{}{Sell jet to 5 junkies.}
-{3705002}{}{4 clients left.}
-{3705003}{}{3 clients left.}
-{3705004}{}{2 clients left.}
-{3705005}{}{1 client left.}
-{3705006}{}{You have successfully sold jet to addicts.}
-{3705007}{}{You succeeded in selling jet to addicts.}
+{3705001}{}{Толкните джет в Рено нескольким наркоманам}
+{3705002}{}{Осталось 4 клиента.}
+{3705003}{}{Осталось 3 клиента.}
+{3705004}{}{Осталось 2 клиента.}
+{3705005}{}{Остался последний клиент.}
+{3705006}{}{Вы успешно загнали джет наркоманам.}
+{3705007}{}{Вы выполнили свою грязную работу.}
 
-{3705101}{}{New Reno}
-{3705102}{}{Drug dealer.}
+{3705101}{}{Нью-Рено}
+{3705102}{}{Наркодилер.}
 
 # 4001
-# Crack Carlos’ safe, NCR.
-{4001001}{}{Crack vice-president Carlos' safe.}
-{4001002}{}{You've successfully cracked the safe. Bring back to Merc what was inside.}
-{4001003}{}{Merc is pleased with your job.}
-{4001004}{}{You failed the mission. Merc will be furious.}
+# Обчистить сейф Карлоса, НКР
 
-{4001101}{}{NCR}
-{4001102}{}{Like a shadow.}
+{4001001}{}{Обчистите сейф вице-президента НКР Карслона.}
+{4001002}{}{Вы успешно справились с сейфом вице-мэра. Осталось отнести его содержимое Мерку.}
+{4001003}{}{Мерк доволен результатами вашей работы.}
+{4001004}{}{Вы провалили задание и Мерк будет в ярости.}
+
+{4001101}{}{НКР}
+{4001102}{}{Как тень.}
 
 # 4218
 # Встретимся у Дасти!
@@ -702,7 +691,7 @@ DONE: All
 {4218003}{}{Охрана на входе в город разрешила Смиту пройти. Найдите вашего нового приятеля в центре города, в баре Дасти.}
 {4218004}{}{Вы помогли Смиту пройти в НКР без оформления пропуска. Интересно, к чему такая скрытность?}
 
-{4218101}{}{NCR}
+{4218101}{}{НКР}
 {4218102}{}{Встретимся у Дасти!}
 
 # 4220
@@ -713,12 +702,13 @@ DONE: All
 {4220003}{}{Вы благополучно отвлекли охранника на входе, и Смит пробрался на территорию Ранчо. Чем он там будет заниматься, одному богу известно. Дождитесь его возвращения в баре Дасти.}
 {4220004}{}{Смит "припугнул" Вейстина с вашей помощью. Кого может интересовать, что стало с советником?}
 {4220005}{}{Вы рассказали шерифу о планах Смита. Дюмонт пообещал принять меры, но вам почему-то кажется, что он не очень вам поверил.}
+{4220006}{}{Вы не смогли отвлечь охранника на входе. Смит был замечен.}
 
-{4220101}{}{NCR}
+{4220101}{}{НКР}
 {4220102}{}{"Припугнуть" Вейстина.}
 
 # 4228
-# Lost Dappo's caravan
+# Найти потерянный караван Даппо с грузом Бастера
 
 {4228001}{}{Нужно выяснить, почему Бастер зол на Даппо.}
 {4228002}{}{Караван Даппо с грузом для Бастера пропал. Нужно уточнить у Даппо, что случилось с грузом.}
@@ -726,8 +716,8 @@ DONE: All
 {4228004}{}{Остатки каравана найдены. В ящике, который везли для Бастера, хранился боевой робот. По каким-то причинам он активировался и уничтожил всех караванщиков. Можно возвращаться к Даппо.}
 {4228005}{}{Караван Даппо найден.}
 
-{4228101}{}{NCR}
-{4228102}{}{Lost Dappo's caravan.}
+{4228101}{}{НКР}
+{4228102}{}{Потерянный караван Даппо.}
 
 # 4231
 # Советнику требуется лекарство для сердца. Найти нужные таблетки можно только в Городе-Убежище.
@@ -738,18 +728,18 @@ DONE: All
 {4231004}{}{Таблетки для сердца получены. Нужно вернуться к советнику Вейстина.}
 {4231005}{}{Таблетки для сердца переданы советнику.}
 
-{4231101}{}{NCR}
-{4231102}{}{Westin heart pills.}
+{4231101}{}{НКР}
+{4231102}{}{Лекарство для Вейстина.}
 
 # 4232
 # Патрульный Кесс хочет вступить в рейнджеры но не может пройти медкомиссию у доктора Клауса.
 
 {4232001}{}{Патрульный Кесс хочет вступить в рейнджеры но не может пройти медкомиссию у доктора Клауса.}
 {4232002}{}{Клаус согласился закрыть глаза на Кесса. Тот пройдет медкомиссию. Нужно вернуться к Кессу.}
-{4232003}{}{ВКлаус может пройти медкомиссию. Еще один раз.}
+{4232003}{}{Клаус может пройти медкомиссию. Еще один раз.}
 
-{4232101}{}{NCR}
-{4232102}{}{Kess Medical Comission.}
+{4232101}{}{НКР}
+{4232102}{}{Медкомиссия для патрульного Кесса.}
 
 # 4242
 # Принести Ретчу суперинструменты, мотор, масленку, 10 тыщ монет и голодиск со съерры чтобы получить через игровую неделю багги
@@ -761,35 +751,42 @@ DONE: All
 {4242005}{}{Ретч приступил к сбору багги. Нужно навестить его через неделю.}
 {4242006}{}{Удивительно, но Ретч действительно способен из кучи мусора сделать что-то работающее. Ваш новенький багги - прекрасное тому подтверждение!}
 
-{4242101}{}{NCR}
-{4242102}{}{Buggy}
+{4242101}{}{НКР}
+{4242102}{}{Багги!}
 
 # 4244
 # охрана каравана Даппо из НКР в Реддинг
 
-{4244001}{}{Даппо нанял вас для охраны каравана в Реддинг. Нужно найти проводника Абдалхи на входе в НКР до 14:00 15 числа.}
+{4244001}{}{Даппо нанял вас для охраны каравана в Реддинг. Нужно найти начальника каравана Хэла у входа в ранчо Вейстина до 14:00 15 числа.}
 {4244002}{}{Вы в составе каравана. Двигаемся по Пустоши. Необходимо сохранить жизнь проводника.}
-{4244003}{}{Караван успешно достиг точки назначения. Нужно найти Джеймса Хоффи, чтобы получить награду."}
-{4244004}{}{Караван Даппо из НКР в Рейдинг успешно сопровожден.}
-{4244005}{}{Проводник Абдалхи погиб в Пустоши. Миссия провалена.}
-{4244006}{}{Вы были убиты во время сопровождения каравана. Миссия провалена.}
+{4244003}{}{Вы напали на караван Даппо, следующий из НКР в Реддинг. Вероятно, Даппо никогда не наймет вас для охраны своих грузов."}
+{4244004}{}{Провал: Вы бросили караван Даппо в Пустоши. Награды вы не получите.}
+{4244005}{}{Провал: Вы не выполнили задачи по охране каравана в Реддинг. Вы погибли во время маршрута.}
+{4244006}{}{Провал: Хэл погиб в Пустоши. Вы не смогли защитить начальника каравана Даппо.}
+{4244007}{}{Вы убили проводника каравана НКР - Реддинг. Вряд ли Даппо пожелает иметь с вами дело.}
+{4244008}{}{Великолепно! Караван благополучно достиг точки назначения. Заберите плату у Хоффи в Реддинге.}
+{4244009}{}{Вы в составе каравана. Постарайтесь сохранить груз и защищайте проводника в течении всего маршрута.}
+{4244010}{}{Очередной успех! Караван в точке назначения. Энрико Савинелли оценит вашу работу.}
+{4244011}{}{Вы выполнили задание по и охране каравана с браминами из НКР в Реддинг.}
 
-{4244101}{}{NCR}
-{4244102}{}{NCR-Redding caravan.}
+
+
+{4244101}{}{НКР}
+{4244102}{}{Охрана каравана НКР-Реддинг}
 
 # 4246
 # Охота на охотников, НКР: убейте по заданию Элизы из НКР 20 работорговцев в окрестностях ЯМЫ
 
 {4246001}{}{Элиза из НКР просит вас уничтожить банду работорговцев в окрестностях Дена. Необходимо найти место, где скрываются бандиты.}
 {4246002}{}{Вы нашли базу работорговцев. Убейте 20 работорговцев и вернитесь к Элизе в НКР.}
-{4246003}{}{Вы нашли базу работорговцев. Убито работорговцев: 5. Осталось убить: 15."}
+{4246003}{}{Вы нашли базу работорговцев. Убито работорговцев: 5. Осталось убить: 15.}
 {4246004}{}{Вы нашли базу работорговцев. Убито работорговцев: 10. Осталось убить: 10.}
 {4246005}{}{Вы нашли базу работорговцев. Убито работорговцев: 15. Осталось убить: 5.}
 {4246006}{}{Банда работорговцев ликвидирована. Убито 20 работорговцев. Вернитесь к Элизе в НКР и получите награду.}
 {4246007}{}{Вы расправились с работорговцами из Ямы по заданию Элизы.}
 
-{4246101}{}{NCR}
-{4246102}{}{Slavers Hunting.}
+{4246101}{}{НКР}
+{4246102}{}{Охота на охотников. }
 
 # 4248
 # Почтальон - доставка письма случайному адресату.
@@ -798,8 +795,8 @@ DONE: All
 {4248002}{}{Вы потеряли письмо. Доставка сорвалась.}
 {4248003}{}{Вы доставили письмо по адресу.}
 
-{4248101}{}{NCR}
-{4248102}{}{Postman.}
+{4248101}{}{НКР}
+{4248102}{}{Почтальон.}
 
 # 4263
 # Уничтожить один из лагерей рейдеров вокруг НКР
@@ -808,8 +805,8 @@ DONE: All
 {4263002}{}{Лагерь рейдеров уничтожен. Вернитесь в НКР, чтобы получить заслуженную награду у сержанта Кайла в тренировочном лагере.}
 {4263003}{}{Вы уничтожили один из лагерей рейдеров.}
 
-{4263101}{}{NCR}
-{4263102}{}{NCR Siege.}
+{4263101}{}{НКР}
+{4263102}{}{Осада НКР}
 
 # 4265
 # Атака рейдеров. НКР
@@ -818,10 +815,8 @@ DONE: All
 {4265002}{}{Вы приняли участие в отражении атаки на НКР. Необходимо уничтожить всех нападающих и восстановить порядок в столице.}
 {4265003}{}{Вторжение рейдеров остановлено! Вернитесь к Элизе за наградой.}
 {4265004}{}{Вы помогли отстоять столицу Новокалифорнийской Республики. }
-
-{4265101}{}{NCR}
-{4265102}{}{Raiders attack.}
-
+{4265101}{}{НКР}
+{4265102}{}{Атака рейдеров.}
 
 
 # 4266
@@ -837,8 +832,8 @@ DONE: All
 {4266008}{}{Вы отдали пистолет сержанту. Нужно вернуться к президенту Карлсону.}
 {4266009}{}{Вы выполнили просьбу Карлсона.}
 
-{4266101}{}{NCR}
-{4266102}{}{Karlson Son}
+{4266101}{}{НКР}
+{4266102}{}{Сынишка.}
 
 # 4269
 # Дипломатическая миссия - обмен нотами протеста между НКР и братством стали
@@ -851,8 +846,8 @@ DONE: All
 {4269006}{}{Задание Шеймана выполнено. Вы доставили протест паладинам Братства Стали и передали письмо с официальным ответом Братства Шейману.}
 {4269007}{}{Вы доставили ноту протеста в Братство Стали, но не смогли добиться от них ответа. Задание провалено.}
 
-{4269101}{}{NCR}
-{4269102}{}{Diplomatic Mission}
+{4269101}{}{НКР}
+{4269102}{}{Дипломатическая миссия.}
 
 # 4270
 # Разведка территории для сержанта Кайла
@@ -860,8 +855,8 @@ DONE: All
 {4270001}{}{Исследуйте окрестности Реддинга по заданию сержанта Кайла. После того, как, по вашему мнению задача будет выполнена, вернитесь в НКР.}
 {4270002}{}{Вы выполнили задание сержанта Кайла по разведке территорий вокруг Реддинга.}
 
-{4270101}{}{NCR}
-{4270102}{}{Redding Recon}
+{4270101}{}{НКР}
+{4270102}{}{Разведка Реддинга}
 
 # 4271 Шпионская миссия в ГУ
 
@@ -872,21 +867,21 @@ DONE: All
 {4271020}{}{Вы записали весь доклад советника МакКлюра. Возврашайтесь к Сантьяго!}
 {4271021}{}{Вы выполнили задание Сантьяго.}
 
-{4271101}{}{NCR}
+{4271101}{}{НКР}
 {4271102}{}{Шпионская миссия в Городе Убежища}
 
 #4273 Найти шпиона для Сантьяго
 
 {4273001}{}{По заданию начальника агентства контрразведки Сантьяго найдите подозрительных людей. Ничего конкретно неизвестно, кроме того, что эти люди появились в городе недавно.}
 {4273002}{}{Дороти сообщила о странных радиопереговорах. Источник сигнала где-то в НКР. Сеанс связи начинается каждый день в 01:00 или чуть позже на 17 радиоканале.}
-{4273002}{}{Найдите тех, кто занимает 17ый радиоканал каждую ночь в 01:00. Постарайтесь, чтобы злоумышленники вас не заметили.}
+{4273003}{}{Найдите тех, кто занимает 17ый радиоканал каждую ночь в 01:00. Постарайтесь, чтобы злоумышленники вас не заметили.}
 {4273017}{}{Вы выяснили, кто ведет загадочные радиопереговоры. Это Смит. Необходимо дослушать разговор до конца.}
 {4273018}{}{Смит заметил, что вы за ним наблюдаете. Не удалось дослушать переговоры до конца.}
 {4273019}{}{Вы не дослушали переговоры до конца, но очевидно, что Смит - тот, кто нужен Сантьяго.}
 {4273020}{}{Шпионом Бишопа оказался некто Смит. Необходимо срочно доложить Сантьяго, что на советника Вейстина готовится покушение.}
 {4273021}{}{Задание выполнено. Шпионом оказался Смит.}
 
-{4273101}{}{NCR}
+{4273101}{}{НКР}
 {4273102}{}{Найти шпиона для Сантьяго}
 
 # 4274
@@ -896,9 +891,8 @@ DONE: All
 {4274002}{}{Поборов отвращение, вы "изъяли" из брамина ту дрянь, что он сожрал. Возвращайтесь к Феликсу за наградой.}
 {4274003}{}{Вы спасли жизнь брамину! Ведь это главное, правда? И не важно, каким способом пришлось это сделать.}
 
-{4274101}{}{NCR}
+{4274101}{}{НКР}
 {4274102}{}{Грязная работа}
-
 
 # 4276
 # Настоящий ковбой
@@ -907,7 +901,7 @@ DONE: All
 {4276002}{}{Вы поймали брамина. Возвращайтесь к Феликсу. Постарайтесь, чтобы брамин не отстал.}
 {4276003}{}{Вы привели брамина Феликсу.}
 
-{4276101}{}{NCR}
+{4276101}{}{НКР}
 {4276102}{}{Настоящий ковбой}
 
 # 4284
@@ -937,7 +931,7 @@ DONE: All
 {4286014}{}{Вы рассказали Даппо о проделке Джима. Можно вернуться к Бастеру.}
 {4286015}{}{Вы выяснили, что произошло с караваном Даппо, во время нападения рейдеров. В следующий раз Даппо более осторожно подойдет к найму охраны для своих грузов.}
 
-{4286101}{}{NCR}
+{4286101}{}{НКР}
 {4286102}{}{Проблема со стволами}
 
 # 4287
@@ -950,8 +944,8 @@ DONE: All
 {4287020}{}{Убито мятежников: 20 из 20. Задание выполнено, нужно вернуться к Элизе за наградой}
 {4287021}{}{Вы выполнили задание Элизабет и расправились с мятежниками.}
 
-{4287101}{}{NCR}
-{4287102}{}{Rebels}
+{4287101}{}{НКР}
+{4287102}{}{Мятеж}
 
 # 4292
 # Патруль рейнджеров
@@ -966,7 +960,7 @@ DONE: All
 {4292008}{}{Задание выполнено. Обратитесь к капралу Хейту за наградой. И поспешите, он не будет долго ждать.}
 {4292009}{}{Еще один патруль. Удачи!}
 {4292010}{}{Очередной патруль завершен. Обратитесь к капралу за наградой.}
-{4292011}{}{Вы успешно выполнили задание капрала Хейта и получили награду. Ваш ранг среди Рейнджеров растет.}
+{4292011}{}{Вы успешно выполнили задание капрала Хейта и получили награду. Следующий патруль будет через месяц.}
 
 {4292101}{}{НКР}
 {4292102}{}{Патруль рейнджеров}
@@ -1050,7 +1044,6 @@ DONE: All
 
 # 4310
 # Медикаменты для доктора
-
 {4310001}{}{У доктора Джонсона в Реддинге закончились медикаменты. Необходимо забрать комплект лекарственных препаратов в пункте снабжения Внутреннего Города.}
 {4310002}{}{Медикаменты для доктора Джонсона у вас. Вернитесь во Внешний город.}
 {4310003}{}{Вы доставили для доктора Джонсона медикаменты из Внутреннего Города Реддинга.}
@@ -1072,7 +1065,7 @@ DONE: All
 # Чокнутый компьютер, Сан-Франциско
 
 {4402001}{}{С компьютером Братства Стали происходит что-то странное. Нужно найти кого-то, кто сможет объяснить его странное поведение.}
-{4402002}{}{Суперкомпьютер Братства, Zax 366, по всей видимости, сходит с ума. Нужно найти способ "прочистить мозги" компьютеру.}
+{4402002}{}{Суперкомпьютер Братства, Zax 366, по всей видимости, сходит с ума. Писец Братства Стали, Ева, попросила вас разобраться, что с ним можно сделать.}
 {4402003}{}{Используя свой неотразимый дар красноречия вы убедили Zax 366 в том, что он должен продолжать выполнять свое предназначение и служить человеку.}
 {4402004}{}{Одно ваше неосторожное высказывание привело к тому, что личность Zax 366 была разрушена.}
 {4402005}{}{Суперкомпьютер Братства Стали сломан. Вместо операционной системы запущена некая игра. Чтобы восстановить работу системы, нужно пройти игру до конца.}
@@ -1185,12 +1178,14 @@ DONE: All
 # Нэнси и Сид. Сан-Франциско
   
 {4424001}{}{Бармен Слим с танкера просит вас найти панков Нэнси и Сида, которые исчезли в неизвестном направлении.}
-{4424002}{}{Вы услышали радиосообщение Нэнси. Она находится на побережье, в палатке наркоторговцев.}
-{4424003}{}{Вы не успели к Нэнси. Когда вы нашли палатку, девушка уже была мертва. Сид исчез.}
-{4424004}{}{Вы сообщили Слиму, что не смогли найти Сида. Тело Нэнси было найдено в палатке на побережье.}
+{4424002}{}{Найдите хижину наркодилеров на побережье рядом с Сан-Франциско. Нэнси должна быть там. Она расскажет, где Сид и что с ними случилось.}
+{4424003}{}{Вы нашли лачугу наркодилеров. К сожалению, вы пришли слишком поздно, Нэнси умерла от потери крови. Когда вы нашли палатку, девушка уже была мертва. Сид исчез.}
+{4424004}{}{Вы сообщили Слиму, что не смогли найти Сида. Нэнси мертва. По всем признакам выходит, прикончил ее дружок.}
+{4424005}{}{Нэнси мертва. Скорее всего ее пырнул ножом один из наркодилеров, палатку которых вы нашли на побережье недалеко от Сан-Франциско.}
+{4424006}{}{По всей видимости, Нэнси покончила жизнь самооубийством, после передозировки джетом. Сид пропал в неизвестном направлении.}
 
 {4424101}{}{Сан-Франциско}
-{4424102}{}{Нэнси и Сид}
+{4424102}{}{Нэнси и Сид.}
 
 # 4427
 # Логово болотников. Сан-Франциско
@@ -1203,82 +1198,82 @@ DONE: All
 {4427102}{}{Логово болотников.}
 
 # 4508
-# Deliver iguanas for Sindy, Rangers
+# Доставить игуан для Синди, Рейнджеры
 
-{4508001}{}{Go to NCR, find Mike.}
-{4508002}{}{Return to Sindy.}
-{4508003}{}{You refused to return the iguanas.}
-{4508004}{}{You gave the iguanas to Sindy.}
+{4508001}{}{Сходите в НКР к Майки.}
+{4508002}{}{Вернитесь к Синди.}
+{4508003}{}{Вы отказались отдавать игуан.}
+{4508004}{}{Вы отдали игуан Синди.}
 
-{4508101}{}{Rangers}
-{4508102}{}{Deliver the iguanas to Sindy.}
+{4508101}{}{Рейнджеры}
+{4508102}{}{Принесите Синди игуан.}
 
 # 4601
-# Manota's quest for jewelry, Primitive Tribe.
+# Квест для доставки Маноте драгоценного ожерелья, Примитивное Племя
 
-{4601001}{}{Find a precious necklace for Manota.}
-{4601002}{}{You refused to look for a necklace for Manota.}
-{4601003}{}{You got the necklace for Manota.}
+{4601001}{}{Достаньте драгоценное ожерелье, которое так хочет получить Манота.}
+{4601002}{}{Вы отказались найти для Маноты ожерелье.}
+{4601003}{}{Вы достали Маноте драгоценное ожерелье.}
 
-{4601101}{}{Primal Tribe}
-{4601102}{}{Find a necklace for Manota.}
+{4601101}{}{Примитивное Племя}
+{4601102}{}{Найдите ожерелье для Маноты.}
 
 # 4602
-# Help Sulik find some items for tribe, Primitive Tribe.
+# Квест для помощи Сулику достать вещи для племени, Примитивное Племя
 
-{4602001}{}{Primal Tribe needs several gecko pelts and a couple of antidotes.}
-{4602002}{}{You refused to help the tribe.}
-{4602003}{}{You brought the items to Sulik.}
+{4602001}{}{Примитивному племени требуется гуманитарная помощь в виде полдюжины шкурок гекко и пары бутылок противоядий.}
+{4602002}{}{Вы отказали Сулику в помощи для Примитивному племени.}
+{4602003}{}{Вы принесли Сулику шкурки гекко и бутылки противоядия.}
 
-{4602101}{}{Primal Tribe.}
-{4602102}{}{Find gecko pelts and antidote for Sulik.}
+{4602101}{}{Примитивное Племя}
+{4602102}{}{Достаньте шкурки гекко и противоядия для Сулика.}
 
 # 4603
-# Find 3 healing powders for Gojatlah the shaman, Primitive Tribe. 
+# Квест для доставки Шаману 3 целебных порошков, Примитивное Племя
 
-{4603001}{}{Shaman needs 3 healing powders for his ritual.}
-{4603002}{}{You refused to help the shaman.}
-{4603003}{}{You brought the healing powders to Gojatlah.}
+{4603001}{}{Шаману требуется 3 мешка с целебной травой для ритуала.}
+{4603002}{}{Вы расстроили шамана, отказавшись выполнить его просьбу.}
+{4603003}{}{Вы принесли шаману Гоятлаю нужное количество целебных мешков.}
 
-{4603101}{}{Primal Tribe}
-{4603102}{}{Bring healing powders to Gojatlah.}
+{4603101}{}{Примитивное Племя}
+{4603102}{}{Принесите Гоятлаю целебных порошков.}
 
 # 4604
-# Bring big book of science to Mayara.
+# Квест для помощи Сулику достать вещи для племени, Примитивное Племя
 
-{4604001}{}{Mayara, Keeper of wisdom, is looking for a big book of science. Bring it to her.}
-{4604002}{}{You refused to help Mayara. Your reputation within the tribe is lowered.}
-{4604003}{}{Mayara gladly accepted your book and shared her wisdom with you.}
+{4604001}{}{Хранительница мудростей племени Майара ищет новых знаний, принесите ей научную книгу.}
+{4604002}{}{Вы отказались помочь Майаре и получили дурную репутацию у дикого племени.}
+{4604003}{}{Хранительница мудростей с радостью приняла от вас книгу и поделилась своими знаниями.}
 
-{4604101}{}{Primal Tribe}
-{4604102}{}{Mayara's new wisdom, big book of science.}
+{4604101}{}{Примитивное Племя}
+{4604102}{}{Майаре нужна новая мудрость, найдите ей книгу.}
 
 # 4605
-# Dick-measuring contest with tribe's toughest warrior, Primitive Tribe. 
+# Квест меряние силами с главным воином племени, Примитивное Племя
 
-{4605001}{}{Find a way to defeat the tribe's toughest warrior, Motelchiuh.}
-{4605002}{}{Being grateful for your help, Mayara told you a secret to defeat Motelchiuh.}
-{4605003}{}{You have used your wits to defeat the tribe's toughest warrior.}
+{4605001}{}{Найдите способ как победить главного воина племени Мусковекуана.}
+{4605002}{}{Взамен на вашу помощь Майара поделилась секретом как можно одолеть Мусковекуана в его хитром испытании.}
+{4605003}{}{Вы хитростью победили главного воина племени.}
 
-{4605101}{}{Primal Tribe}
-{4605102}{}{Defeat Motelchiuh.}
+{4605101}{}{Примитивное Племя}
+{4605102}{}{Одолейте Мусковекуана в сложном состязании.}
 
 # 4606
-# Protect the Primitive tribe.
+# Квест на спасение племени от рейдеров
 
-{4606001}{}{Raiders are preparing to attack! Hurry up!}
-{4606002}{}{You have helped the tribe in destroying the raiders.}
-{4606003}{}{Mission failed. You ran away from the battlefield.}
-{4606004}{}{Mission failed. You got killed.}
-{4606005}{}{Mission failed. Tribe drove off raiders without your help.}
-{4606006}{}{You helped the tribe to defend against raiders' attack.}
-{4606007}{}{You have earned the tribe's respect.}
-{4606008}{}{Mission failed. You were late.}
-{4606009}{}{Mission failed. Raiders have left.}
-{4606010}{}{Raiders are attacking the tribe, hepl them!}
+{4606001}{}{Рейдеры готовятся к нападению, торопитесь!}
+{4606002}{}{Вы помогли деревне уничтожить рейдеров.}
+{4606003}{}{Задание провалено. Вы трусливо сбежали с поля боя.}
+{4606004}{}{Задание провалено. Вас убили.}
+{4606005}{}{Задание провалено. Племя само справилось с рейдерами.}
+{4606006}{}{Вы помогли племени разобраться с рейдерами.}
+{4606007}{}{За помощь вы получили уважение дикого племени.}
+{4606008}{}{Задание провалено. Вы опоздали.}
+{4606009}{}{Задание провалено. Рейдеры ушли.}
+{4606010}{}{Рейдеры напали, спасите племя!}
 
-{4606101}{}{Primal Tribe}
-{4606102}{}{Help the tribe, they are under raider attack!}
+{4606101}{}{Примитивное Племя}
+{4606102}{}{Помогите племени, на них напали рейдеры!}
 
 # 4900 - q_v13_deathclaw
 # Квест "Добыть самку", Убежище 13
@@ -1291,6 +1286,34 @@ DONE: All
 
 {4900101}{}{Убежище 13}
 {4900102}{}{Добыть самку смертокогта}
+
+
+# 4901 - q_v13_fugitive
+# Квест "Беглец", Убежище 13
+
+#{4901001}{}{Один из жителей попросил вас помочь сбежать из убежища.}
+#{4901002}{}{Вы вывели жителя из убежища, теперь нужно помочь ему добраться до какого-нибудь города.}
+#{4901004}{}{Выполнено. Вы вывели беженца из убежища.}
+#{4901004}{}{Выполнено. Вы помогли беженцу добраться.}
+#{4901005}{}{Провалено. Вы отказались помогать беженцу.}
+#{4901005}{}{Провалено. Вы не смогли вывести беженца.}
+
+#{4901101}{}{Убежище 13}
+#{4901102}{}{Беглец}
+
+# 4902 - q_v13_dclaweggs
+# Квест "Беглец", Убежище 13
+
+{4902001}{}{Горис попросил вас вынести из убежища и доставить в Брокен Хиллс Профессору одно из яиц.}
+{4902002}{}{Выполнено. Вы доставили яйцо разумного смертокогта Профессору.}
+{4902003}{}{Выполнено. Вы доставили яйцо и убедили Профессора вырастить и воспитать разумного смертокогта.}
+{4902004}{}{Провалено. Вы отказались помогать Горису.}
+{4902005}{}{Провалено. Вы потеряли яйцо разумного смертокогта.}
+{4902006}{}{Провалено. Вы съели яйцо разумного смертокогта.}
+{4902007}{}{Провалено. Вы разбили яйцо, что бы изучить его содержимое.}
+
+{4902101}{}{Убежище 13}
+{4902102}{}{Яйца смерти}
 
 # 5117 
 # Убить Троя Хармонта
@@ -1332,58 +1355,56 @@ DONE: All
 {5121101}{}{Убить Рамиреза}
 {5121102}{}{Бункер}
 
-
-
 # 5387 
-# Wanamingos hunt, Redding, Marion.
+# Квест "Охота на ванаминго", Реддинг
 
-{5387001}{}{Redding's sherrif gave you a task: destroy the wanamingo cave.}
-{5387002}{}{You have arrived. It's dark and humid here.}
-{5387003}{}{You destroyed the wanamingos, cowboys. Yeeeeehaaaah!}
-{5387004}{}{Unluckily, you died.}
-{5387005}{}{You didn't follow your friends and most likely let them down.}
-{5387006}{}{You fled from the battlefield.}
-{5387007}{}{Mission complete.}
+{5387001}{}{По заданию шерифа Мариона вы должны уничтожить выводок ванаминго в пещере на северо-запад от Реддинга. Поторопитесь, у вас есть только сутки на то, чтобы справиться с чудовищами.}
+{5387002}{}{Вы в пещере Ванаминго. Пришло время разобраться с этими тварями.}
+{5387003}{}{Поздравляем! Вы выполнили задание Мариона. Все ванаминго из пещер мертвы.}
+{5387004}{}{Миссия провалена: вы погибли во время охоты на ванаминго.}
+{5387005}{}{Миссия провалена: вы не успели добраться до пещеры с ванаминго в течение суток.}
+{5387006}{}{Миссия провалена: вы с позором бежали с поля боя.}
+{5387007}{}{Миссия выполнена: вы уничтожили всех ванаминго из шахты и получили награду Мариона.}
 
-{5387101}{}{Redding}
-{5387102}{}{Wanamingo hunting}
+{5387101}{}{Реддинг}
+{5387102}{}{Охота на ванаминго}
 
 # 7061
-# Underground troubles.
+# Подземные проблемы.
 
-{7061001}{}{Find out why ghoul operative are not working.}
-{7061002}{}{Ghoul told deathclaws are sabotaging their work. Try to sort this out or report back.}
-{7061003}{}{AHS still wants you to sort the problem out.}
-{7061004}{}{Retrieve your bonus.}
-{7061005}{}{Completed. All problems with ghouls are sorted out, you received your pay.}
+{7061001}{}{Выясните, по какой причине перестали работать гули на нижнем уровне.}
+{7061002}{}{Вы выяснили, что работу гулей саботируют когти смерти.}
+{7061003}{}{АХС хочет, чтобы вы попробовали разрешить проблему до конца.}
+{7061004}{}{Получите своё дополнительное вознаграждение со склада.}
+{7061005}{}{Выполнено. Гулей больше никто не беспокоит, хабологи довольны, а вы - получили достойную награду.}
 
-{7061101}{}{Hell}
-{7061102}{}{Underground troubles.}
+{7061101}{}{Ад}
+{7061102}{}{Подземные проблемы.}
 
 # 7071
-# Badgers-badgers!
+# Сбор значков.
 
-{7071001}{}{You agreed to retrieve sect's badges from sinisters on the lower level.}
-{7071002}{}{You brought 1 badge to Rolf.}
-{7071003}{}{You brought 2 badges to Rolf.}
-{7071004}{}{You brought 3 badges to Rolf.}
-{7071005}{}{You brought 4 badges to Rolf.}
-{7071006}{}{You brought 5 badges to Rolf.}
-{7071007}{}{You brought 6 badges to Rolf.}
-{7071008}{}{You brought 7 badges to Rolf.}
-{7071009}{}{You brought 8 badges to Rolf.}
-{7071010}{}{You brought 9 badges to Rolf.}
-{7071011}{}{You brought 10 badges to Rolf.}
-{7071012}{}{Completed. You were blessed for helping the Sect. May the power of the Reactor be with you.}
+{7071001}{}{Вы согласились пособирать символы секты Реактора с грешников на нижнем уровне.}
+{7071002}{}{Вы принесли 1 значок Рольфу.}
+{7071003}{}{Вы принесли 2 значка Рольфу.}
+{7071004}{}{Вы принесли 3 значка Рольфу.}
+{7071005}{}{Вы принесли 4 значка Рольфу.}
+{7071006}{}{Вы принесли 5 значка Рольфу.}
+{7071007}{}{Вы принесли 6 значка Рольфу.}
+{7071008}{}{Вы принесли 7 значка Рольфу.}
+{7071009}{}{Вы принесли 8 значков Рольфу.}
+{7071010}{}{Вы принесли 9 значков Рольфу.}
+{7071011}{}{Вы принесли 10 значков Рольфу.}
+{7071012}{}{Выполнено. Вы получили благословление за принесённые значки. Сила Реактора с вами!}
 
-{7071101}{}{Hell}
-{7071102}{}{Gathering badges.}
+{7071101}{}{Ад}
+{7071102}{}{Сбор значков.}
 
 # 8802
-# Город-убежище, Счастливчик Чарли. Принести Combat shotgun и 2 shotgun shells
+# Город-убежище, Чарли. Принесите для чарли дробовик и два патрона, или отговорите его от самоубийства.
 
-{8802001}{}{Вы отказались помогать Чарли в самоубийстве.}
-{8802002}{}{Вы решили помочь Чарли застрелиться. Принесите ему армейский дробовик  и 2 патрона.}
+{8802001}{}{Вы отказались помогать Чарли в самоубийстве. }
+{8802002}{}{Вы решили  помочь Чарли застрелиться. Принесите ему армейский дробовик и 2 патрона.}
 {8802003}{}{Вы подарили Чарли новый смысл жизни.}
 {8802004}{}{Вы достали для Чарли дробовик. Теперь он может стреляться, сколько захочет.}
 
@@ -1410,7 +1431,7 @@ DONE: All
 {8805102}{}{Натуральные продукты.}
 
 # 8808
-# Город-убежище, Доктор Трой. Свежая кровь
+# Город-убежище, Доктор Трой. Свежая кровь.
 
 {8808001}{}{Не ради славы, а всего лишь в качестве добровольной помощи, вы пообещали доктору Трою принять участие в эксперименте по прямому оплодотворению. Найдите трех горожанок, и выполните просьбу доктора.}
 {8808002}{}{Задача выполнена. Вы осчастливили трех горожанок Города-Убежища. Вы помогли городу с решением  демографических проблем. Зайдите к доктору для отчёта.}
@@ -1424,15 +1445,15 @@ DONE: All
 {8808101}{}{Город-Убежище}
 {8808102}{}{Свежая кровь.}
 
-# 8810
+# 8811
 # Город-убежище, Вэлери. Семья.
-{8810001}{}{Отнесите письмо от дочери Вику в Кламат. Постарайтесь его не потерять.}
-{8810002}{}{Вы доставили письмо Вику от Вэлери.}
-{8810003}{}{Вы отчитались о доставке письма.}
-{8810004}{}{Вы передали Вэлери ответ Вика.}
+{8811001}{}{Отнесите письмо от дочери Вику в Кламат. Постарайтесь его не потерять.}
+{8811002}{}{Вы доставили письмо Вику от Вэлери.}
+{8811003}{}{Вы отчитались о доставке письма.}
+{8811004}{}{Вы передали Вэлери ответ Вика.}
 
-{8810101}{}{Город-Убежище}
-{8810102}{}{Семья.}
+{8811101}{}{Город-Убежище}
+{8811102}{}{Семья.}
 
 # 8813 
 # Город-убежище. Хелен Трой
@@ -1479,17 +1500,15 @@ DONE: All
 {9926101}{}{Арройо}
 {9926102}{}{Помочь Арройо ибавиться от рейдеров.}
 
-
 # 16000
-# Wanamingos hunt, Redding, Marion.
+# Реддинг. Марион. Квест Охота на Ванаминго.
 
-{16000001}{}{Redding's sherrif gave you a task: destroy the wanamingo cave.}
-{16000002}{}{You have arrived. It's dark and humid here.}
-{16000003}{}{You destroyed the wanamingos, cowboys. Yeeeeehaaaah!}
-{16000004}{}{Unluckily, you died.}
-{16000005}{}{You didn't follow your friends and most likely let them down.}
-{16000006}{}{You fled from the battlefield.}
+{16000001}{}{Шериф Реддинга дал задание уничтожить пещеру с ванаминго.}
+{16000002}{}{Вы прибыли на место. Это темная и сырая пещера.}
+{16000003}{}{Вы уничтожили ванаминго, ковбои. Иииха!}
+{16000004}{}{Вам не повезло, вы умерли.}
+{16000005}{}{Вы не пошли со своими друзьями, и скорее всего подвели их.}
+{16000006}{}{Вы позорно сбежали с поля боя так и не завершив начатое.}
 
-{16000101}{}{Redding}
-{16000102}{}{Hunt them wanamingos down!}
-
+{16000101}{}{Реддинг}
+{16000102}{}{Охота на ванаминго!}

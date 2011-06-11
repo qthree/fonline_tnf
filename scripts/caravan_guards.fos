@@ -32,16 +32,16 @@
 /* ---------------------- imports ----------------------*/
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
 import bool AddAttackPlane(Critter& npc, uint priority, uint critId) from "npc_planes";
-import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint8 cut) from "npc_planes";
-import bool AddMiscPlane(Critter& npc, uint priority, uint waitMinute, string@ funcName) from "npc_planes";
-import bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint8 cut) from "npc_planes";
+import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";
+import bool AddMiscPlane(Critter& npc, uint priority, uint waitSecond, string@ funcName) from "npc_planes";
+import bool AddWalkPlane(Critter& npc, uint priority, int identifier, uint identifierExt, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";
 /*---------------------- получение нескольких нпц-охранников ----------------------*/
 /*
 CaravanGuardInfo [] GetNpcGuards(uint guardsNum)
 {
 	CaravanGuardInfo[] availableGuards;
 	 // Отец Петреску
-	push_back(availableGuards, CaravanGuardInfo(
+	availableGuardsю.insertLast(CaravanGuardInfo(
 			NPC_PID_ElronologistMale//NPC_PID_HolyMan //Pid
 		,	DIALOG_crvg_petresku	//dialogId
 		,	"caravan@_PetreskuInit" //scriptId
@@ -53,7 +53,7 @@ CaravanGuardInfo [] GetNpcGuards(uint guardsNum)
 		,	0//isNervous
 	));//
 		 // Mazzy
-	push_back(availableGuards, CaravanGuardInfo(
+	availableGuards.insertLast(CaravanGuardInfo(
 			NPC_PID_Nightkin //Pid
 		,	DIALOG_crvg_mazzy	//dialogId
 		,	"caravan@_MazzyInit" //scriptId
@@ -65,7 +65,7 @@ CaravanGuardInfo [] GetNpcGuards(uint guardsNum)
 		,	0//isNervous
 	));//
 		 // Бомбермен
-	push_back(availableGuards, CaravanGuardInfo(
+	availableGuards.insertLast(CaravanGuardInfo(
 			NPC_PID_ToughMaleThug//NPC_PID_MaleTrapper //Pid
 		,	DIALOG_crvg_bomberman	//dialogId
 		,	"caravan@_BomberInit" //scriptId
@@ -77,7 +77,7 @@ CaravanGuardInfo [] GetNpcGuards(uint guardsNum)
 		,	3//isNervous
 	));//
 			 // Анаферон
-	push_back(availableGuards, CaravanGuardInfo(
+	availableGuards.insertLast(CaravanGuardInfo(
 			NPC_PID_FemaleHunter//NPC_PID_PrimitiveFemale //Pid
 		,	DIALOG_crvg_anaferon	//dialogId
 		,	"caravan@_AnaferonInit" //scriptId
@@ -90,7 +90,7 @@ CaravanGuardInfo [] GetNpcGuards(uint guardsNum)
 	));//
 
 		 // Находчивый Василий
-	push_back(availableGuards, CaravanGuardInfo(
+	availableGuards.insertLast(CaravanGuardInfo(
 			NPC_PID_ToughMaleThug//NPC_PID_MaleTrapper //Pid
 		,	DIALOG_crvg_vasiliy	//dialogId
 		,	"caravan@_VasyaInit" //scriptId
@@ -103,7 +103,7 @@ CaravanGuardInfo [] GetNpcGuards(uint guardsNum)
 	));//
 
 		 // Киллелпролол
-	push_back(availableGuards, CaravanGuardInfo(
+	availableGuards.insertLast(CaravanGuardInfo(
 			NPC_PID_NCRRangerMale //Pid
 		,	DIALOG_crvg_killerlolpro	//dialogId
 		,	"caravan@_KillerInit" //scriptId
@@ -116,7 +116,7 @@ CaravanGuardInfo [] GetNpcGuards(uint guardsNum)
 	));//
 
 		 // Зомби
-	push_back(availableGuards, CaravanGuardInfo(
+	availableGuards.insertLast(CaravanGuardInfo(
 			NPC_PID_ToughGhoul //Pid
 		,	DIALOG_crvg_zombie	//dialogId
 		,	"caravan@_ZombieInit" //scriptId
@@ -128,7 +128,7 @@ CaravanGuardInfo [] GetNpcGuards(uint guardsNum)
 		,	0//isNervous
 	));//
 		 // Рэт
-	push_back(availableGuards, CaravanGuardInfo(
+	availableGuards.insertLast(CaravanGuardInfo(
 			NPC_PID_ToughFemaleThug//NPC_PID_PressGangFemale //Pid
 		,	DIALOG_crvg_rat	//dialogId
 		,	"caravan@_RatInit" //scriptId
@@ -146,9 +146,8 @@ CaravanGuardInfo [] GetNpcGuards(uint guardsNum)
 	for (uint i = 1; i<=guardsNum; i++)
 	{
 		chosenOne = Random(0, availableGuards.length()-1);
-		push_back(chosenGuards,availableGuards[chosenOne]);
-		remove_from_array(availableGuards, chosenOne);
-
+		chosenGuardsю.insertLast(availableGuards[chosenOne]);
+		availableGuards.removeAt(chosenOne);
 	}
 	return chosenGuards;
 }*/
@@ -233,9 +232,9 @@ void _GuardOnMessage(Critter& guard, Critter& fromCr, int message, int value)
 	{
 		if((fromCr.NpcRole == NPC_ROLE_CARAVAN_GUIDE) && (fromCr.CrvId == guard.CrvId))
 		{
-			//import bool AddMiscPlane(Critter& npc, uint priority, uint waitMinute, string@ funcName) from "npc_planes";
+			//import bool AddMiscPlane(Critter& npc, uint priority, uint waitSecond, string@ funcName) from "npc_planes";
 			guard.IdleCount = 0;
-			AddMiscPlane(guard,AI_PLANE_MISC_PRIORITY,guard.Reaction, "caravan@plane_MiscGoHomePos");
+			AddMiscPlane(guard,AI_PLANE_MISC_PRIORITY,guard.Reaction*60, "caravan@plane_MiscGoHomePos");
 
 		}
 	}
@@ -262,7 +261,7 @@ int _GuardPlaneEnd(Critter& guard, NpcPlane& plane, int reason, Critter@ someCr,
 			reason==REASON_POSITION_NOT_FOUND||
 			reason==REASON_FIND_PATH_ERROR)
 		{
-			AddMiscPlane(guard, AI_PLANE_MISC_PRIORITY, guard.Reaction, "caravan@plane_MiscGoHomePos");
+			AddMiscPlane(guard, AI_PLANE_MISC_PRIORITY, guard.Reaction*60, "caravan@plane_MiscGoHomePos");
 		}
 	}
 
@@ -293,6 +292,7 @@ bool _GuardAttacked(Critter& guard, Critter& attacker)
 
 	return false;
 }
+
 // охранник обворован
 void _GuardStealing(Critter& cr, Critter& thief, bool success, Item& item, uint count)
 {
@@ -300,6 +300,28 @@ void _GuardStealing(Critter& cr, Critter& thief, bool success, Item& item, uint 
 	{
 		AddAttackPlane(cr,0,thief);
 		if(!cr.CheckEnemyInStack(thief.Id)) cr.AddEnemyInStack(thief.Id);
+	}
+}
+
+// убит патрульный ГУ
+void _VCPatrolDead (Critter& cr, Critter@ killer)
+{
+	CaravanInfo@ ci = _GetCaravan(cr.CrvId);
+	if(valid(ci))
+	{
+		if(ci.CaravanStatus==CRV_STATUS_ON_ENCOUNTER)
+		{
+			for(uint i=0, l=ci.Caravaneers.length(); i<l; i++)
+			{
+				Critter@ player = GetCritter(ci.Caravaneers[i]);
+				if(valid(player) && player.IsPlayer())
+				{
+					GameVar@ counter = GetLocalVar(LVAR_vc_dead_patrollers, player.Id);
+					if(valid(counter))
+						counter = counter.GetValue() + 1;
+				}
+			}
+		}
 	}
 }
 /*-------------------------специфические обработки-------------------------*/
@@ -337,9 +359,9 @@ void _DefaultGuardInit(Critter& guard, bool firstTime)
 	  {
 			DL("Critter on global. Trying transit to home pos");
 			uint mapId=0;
-			uint x=0;
-			uint y=0;
-			uint dir=0;
+			uint16 x=0;
+			uint16 y=0;
+			uint8 dir=0;
 			guard.GetHomePos (mapId, x, y, dir);
 			guard.TransitToMap(mapId, x, y, dir);
 			DL("kill guard");
@@ -361,26 +383,23 @@ void _DefaultGuardInit(Critter& guard, bool firstTime)
 	guard.ModeBase[MODE_NO_STEAL]=1;
 	// торговать они не будут
 	guard.ModeBase[MODE_NO_BARTER]=1;
-	guard.ModeBase[MODE_NO_LOOT] = 1;
+	guard.ModeBase[MODE_NO_LOOT] = 0;
 	// из мертвых не встанут
 	guard.StatBase[ST_REPLICATION_TIME]=-1;
-	//CRITTER_EVENT_IDLE
-	//CRITTER_EVENT_DEAD
-	//CRITTER_EVENT_ATTACKED
-	//CRITTER_EVENT_STEALING
-	//CRITTER_EVENT_ATTACK
-	//CRITTER_EVENT_SHOW_CRITTER - Вызывается при появлении нового криттера в поле зрения.
-	//CRITTER_EVENT_HIDE_CRITTER - Вызывается при пропаже криттера из поля зрения.
-	//CRITTER_EVENT_SMTH_DEAD - Вызывается, когда криттер в области видимости умирает. См. CRITTER_EVENT_DEAD.
-	//CRITTER_EVENT_SMTH_DROP_ITEM - Вызывается, когда криттер в области видимости выкидывает итем. См. CRITTER_EVENT_DROP_ITEM.
-
-	//CRITTER_EVENT_PLANE_END - Вызывается перед удалением плана (который ещё присутствует в списках планов). Если возвратить false, то план станет последним по текущей приоритетности; если true, то удалится.
 }
+
 // тоже, но бесконечные патроны
 void _DefaultGuardInitUnlimAmmo(Critter& guard, bool firstTime)
 {
 	guard.ModeBase[MODE_UNLIMITED_AMMO] = 1;
 	_DefaultGuardInit(guard, firstTime);
+}
+
+void _VCPatrolInit(Critter& guard, bool firstTime)
+{
+	guard.ModeBase[MODE_UNLIMITED_AMMO] = 1;
+	_DefaultGuardInit(guard, firstTime);
+	guard.SetEvent(CRITTER_EVENT_DEAD, "_VCPatrolDead");
 }
 
 // Патрульные для квеста Патруль Рейнджеров
@@ -391,6 +410,11 @@ void _NcrRangerPatrolInit(Critter& guard, bool firstTime)
 	{
 		qVar = 2;
 	}
+
+	guard.StatBase[ST_MAX_LIFE] = Random(150,250);
+	guard.StatBase[ST_CURRENT_HP] = guard.Stat[ST_MAX_LIFE];
+	guard.StatBase[ST_EXPLODE_RESIST] = Random(50,90);
+	guard.StatBase[ST_NORMAL_RESIST] = Random(20,50);
 	guard.ModeBase[MODE_UNLIMITED_AMMO] = 1;
 	_DefaultGuardInit(guard, firstTime);
 }
@@ -691,7 +715,7 @@ bool e_CowardAttacked(Critter& cr, Critter& attacker)
 		if (GetFreeHex(cr.GetMap(), 25, hx, hy))
 		{
 			AddWalkPlane(cr, AI_PLANE_WALK_PRIORITY*10,  hx, hy, Random(1,5), true, 1);
-			AddMiscPlane(cr,AI_PLANE_WALK_PRIORITY*10-1,__FullMinute+Random(0,1),"caravan@plane_MiscWaitInAttack");
+			AddMiscPlane(cr,AI_PLANE_WALK_PRIORITY*10-1,__FullSecond+Random(0,1)*60,"caravan@plane_MiscWaitInAttack");
 		}
 
 

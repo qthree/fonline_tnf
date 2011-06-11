@@ -28,9 +28,9 @@
 */
 const int[] sniperStats_ = {
 // Level SGMin SGMax SnMin SnMax PE ResMin ResMax AP  HPMin
-   1,    80,   100,  150,   180, 7, 35,    50,     8, 100,
-   2,    100,  185,  180,   240, 8, 35,    60,    10, 120,
-   3,    120,  250,  190,   250, 9, 35,    70,    16, 180,
+   1,    120,  190,  150,   180, 7, 25,    30,    10, 170,
+   2,    100,  185,  180,   240, 8, 35,    60,    12, 220,
+   3,    120,  250,  190,   250, 9, 35,    70,    16, 280,
    4,    200,  300,  250,   300, 10,35,    120,   20, 400
 };
 #define S_COUNT                      (4)
@@ -85,10 +85,12 @@ class SniperPattern : CommonPattern
 		if(target.IsNpc()) return false;
 		if(target.IsKnockout()) return false;
 		cr.SendMessage(MSG_ATTACK_TARGET, target.Id, MESSAGE_TO_I_SEE );
+
 		// В активном слоте - оружие?
-		ProtoItem @ weapon = cr.GetSlotProto(SLOT_HAND1);
+		uint8 mode = 0;
+		ProtoItem @ weapon = cr.GetSlotProto(SLOT_HAND1, mode);
 		if(!valid(weapon)) return false;
-		if(weapon.GetType()!=ITEM_WEAPON||weapon.Weapon_Skill!=SK_SMALL_GUNS) return false;
+		if(weapon.Type!=ITEM_WEAPON || _WeaponSkill(weapon,_WeaponModeUse(mode))!=SK_SMALL_GUNS) return false;
 
 		Item @ weap = _CritGetItemHand(cr);
 		if(!valid(weap)) return false;
@@ -98,8 +100,8 @@ class SniperPattern : CommonPattern
 
 
 		// Скопировано из основного обработчика
-		cr.TimeoutBase[TO_AGGRESSOR]=__FullMinute+__TimeMultiplier;
-		CombatAttack(cr, target, weapon, ammo, HIT_LOCATION_EYES, 0, 0);
+		cr.TimeoutBase[TO_AGGRESSOR]=__FullSecond+REAL_MINUTE(1);
+		CombatAttack(cr, target, weapon, _WeaponModeMake(0, HIT_LOCATION_EYES), ammo);
 		this._SetOnAfterAttackEvent(cr, target);
 		return true;
 	}
@@ -109,7 +111,7 @@ class SniperPattern : CommonPattern
 	{
 		if(!target.IsPlayer()) return;
 		uint[] values = {sniper.Id, target.Id};
-		CreateTimeEvent(__FullMinute+1, "pattern_sniper@e_OnAfterAttack", values, false);
+		CreateTimeEvent(__FullSecond+60, "pattern_sniper@e_OnAfterAttack", values, false);
 
 	}
 
@@ -118,7 +120,7 @@ class SniperPattern : CommonPattern
 	{
 		uint16 x = sniper.HexX;
 		uint16 y = sniper.HexY;
-		uint16 dir = sniper.Dir;
+		uint8 dir = sniper.Dir;
 		if (!_GetRunAwayPoint(sniper, x, y, dir)) return;
 		AddWalkPlane(sniper, RUNAWAY_PRIORITY, PLANE_ID_RUNAWAY, 0, x, y, dir, true, 0);
 	}
@@ -210,13 +212,14 @@ class SniperPattern : CommonPattern
 		// Игрок жив, ранен, осталось мало здоровья или хватает АП на выстрел
 		if(player.IsLife()&&!player.IsKnockout())
 		{
-			ProtoItem @ weapon = sniper.GetSlotProto(SLOT_HAND1);
+			uint8 mode = 8;
+			ProtoItem @ weapon = sniper.GetSlotProto(SLOT_HAND1, mode);
 			if(valid(weapon))
 			{
-				if(weapon.GetType()==ITEM_WEAPON)
+				if(weapon.Type==ITEM_WEAPON)
 				{
-					if(player.Stat[ST_CURRENT_HP]>30&&
-					   sniper.Stat[ST_CURRENT_AP]<weapon.Weapon_ApCost&&
+					if(player.Stat[ST_CURRENT_HP]>30 &&
+					   sniper.Stat[ST_CURRENT_AP]<int(_WeaponApCost(weapon, _WeaponModeUse(mode))) &&
 					   player.Stat[ST_MAX_LIFE]>player.Stat[ST_CURRENT_HP])
 					{
 						return true;
@@ -254,8 +257,8 @@ SniperPattern pattern; // Для наследников нужно определить _NoBaseInstance
 void SetSniperStats(Critter & cr, uint8 lvl)
 {
 	lvl = CLAMP(lvl, 0, S_COUNT-1);
-
-	cr.PerkBase[PE_SNIPER] = 1;
+	if(lvl<1) return;
+	if(lvl>2) cr.PerkBase[PE_SNIPER] = 1;
 	cr.PerkBase[PE_SHARPSHOOTER] = 1;
 	if(lvl>2) cr.PerkBase[PE_BETTER_CRITICALS] = 1;
 	cr.PerkBase[PE_BONUS_RANGED_DAMAGE] = lvl;
@@ -380,7 +383,7 @@ bool _GetRunAwayPoint(Critter & sniper, uint16& x, uint16&y, uint8 &dir)
 	{
 		if(enemies[dir]==min)
 		{
-			ArrayPushBack(safeDirs, dir);
+			safeDirs.insertLast(dir);
 		}
 	}
 	uint[] distances(safeDirs.length());

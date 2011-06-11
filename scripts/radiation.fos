@@ -10,10 +10,9 @@ import bool IsMutant(Critter& cr) from "races";
 import bool IsGhoul(Critter& cr) from "races";
 import void ApplyGhoul(Critter& cr) from "morphes";
 
-#define RADIATION_IDENTIFIER       (2)
 #define RADIATION_STAGES           (6)
 #define RADIATION_STATS            (8)
-#define RADIATION_DURATION         (10080)
+#define RADIATION_DURATION         (10080*60)
 #define RADIATION_DAMAGE_VALUE     (66)
 #define RADIATION_HIGH_DOSE        (66)
 #define RADIATION_DEAD_DOSE        (1800)
@@ -55,7 +54,7 @@ void AffectRadiation(Critter& cr, int value) // Export
 	
 	uint[] indexes;
 	uint[] rates;
-	bool isActive=cr.GetTimeEvents(RADIATION_IDENTIFIER,indexes,null,rates)!=0;
+	bool isActive=cr.GetTimeEvents(CTE_RADIATION,indexes,null,rates)!=0;
 	int levelVal=cr.Stat[ST_RADIATION_LEVEL];
 	int resistVal=cr.Stat[ST_RADIATION_RESISTANCE];
 
@@ -96,24 +95,24 @@ void AffectRadiation(Critter& cr, int value) // Export
 	else // Try start new event
 	{
 		int stage1Val=TABLE_STAGE_VALUE(1);
-		if(levelVal>=stage1Val) cr.AddTimeEvent("cte_Radiation",0,RADIATION_IDENTIFIER);
+		if(levelVal>=stage1Val) cr.AddTimeEvent("cte_Radiation",0,CTE_RADIATION);
 	}
 
 	if(levelVal>=RADIATION_DEAD_DOSE)
 	{
-		cr.ToDead(COND_DEAD_FUSED,null);
+		cr.ToDead(ANIM2_DEAD_FUSED,null);
 		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_RADIATION_DIE);
 	}
 }
 
 void DropRadiation(Critter& cr) // Export
 {
-	bool isActive=cr.GetTimeEvents(RADIATION_IDENTIFIER,null,null,null)!=0;
+	bool isActive=cr.GetTimeEvents(CTE_RADIATION,null,null,null)!=0;
 	if(isActive)
 	{
 		uint stage=GetRadiationStage(cr.Stat[ST_RADIATION_LEVEL]);
 		ChangeStage(cr,stage,false);
-		cr.EraseTimeEvents(RADIATION_IDENTIFIER);
+		cr.EraseTimeEvents(CTE_RADIATION);
 	}
 	cr.StatBase[ST_RADIATION_LEVEL]=0;
 	if(cr.Damage[DAMAGE_RADIATED]!=0) cr.DamageBase[DAMAGE_RADIATED]=0;
@@ -122,7 +121,7 @@ void DropRadiation(Critter& cr) // Export
 uint cte_Radiation(Critter& cr, int identifier, uint& stage)
 {
 	int body=cr.Stat[ST_BASE_CRTYPE];
-	if(cr.IsDead()) return 100;
+	if(cr.IsDead()) return REAL_MINUTE(5);
 	if(cr.Stat[ST_RADIATION_LEVEL]>450 && (body==0 || body==CRTYPE_DW_JUMPSUIT_M || body==CRTYPE_LHD_JUMPSUIT))
 	{
 		int crType=cr.CrType;
@@ -193,7 +192,7 @@ void ChangeStage(Critter& cr, uint stage, bool gain)
 				else if(statIndex==ST_CURRENT_HP)
 				{
 					cr.StatBase[ST_CURRENT_HP]+=statAmount;
-					if(cr.Stat[ST_CURRENT_HP]<=0) cr.ToDead(COND_DEAD_FUSED,null);
+					if(cr.Stat[ST_CURRENT_HP]<=0) cr.ToDead(ANIM2_DEAD_FUSED,null);
 				}
 			}
 			else // Reduce effect

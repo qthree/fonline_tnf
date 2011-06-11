@@ -2,7 +2,7 @@
 #include "_macros.fos"
 #include "trader_table.fos"
 
-import void SetWear(Item& item, int wearProcent) from "repair";
+import void SetDeterioration(Item& item, int deteriorationProcent) from "repair";
 
 //#define TABLE_TRADERS_COUNT                          (TradersCount)
 //#define TABLE_ITEMS_COUNT                            (ItemsCount)
@@ -72,8 +72,12 @@ uint UpdateItems(Critter& trader)
 
 	// Delete all
 	Item@[] items;
-	trader.GetItems(SLOT_INV,items);
-	DeleteItems(items);
+	uint count = trader.GetItems(SLOT_INV,items);
+	if(count!=0)
+	{
+		DeleteItems(items);
+		return REAL_SECOND(2);
+	}
 
 	// Add new
 	GenerateItemsForTrader(trader, traderIndex);
@@ -94,8 +98,8 @@ uint UpdateItems(Critter& trader)
 
 	// Calculate next update time
 	//int hour=TABLE_REFRESH_HOUR(traderIndex);
-	int hour=10;
-	if(hour<=0) return 0;
-	return hour*(60+Random(-30,30))*60;
+//	int hour=10;
+//	if(hour<=0) return 0;
+	return REAL_HOUR(2);
 }
 

@@ -34,31 +34,55 @@ AIs:
 #include "_bags.fos"
 
 #define GuardPID (128)
+#define CRITTER_TEAM (128)
 
-import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
+import bool AddAttackPlane(Critter& npc, uint priority, Critter& target, bool run) from "npc_planes";
 import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";  
 
 uint attackTarget = 0;
 //temp
+
 void sendAttack(Critter& player, int param0, int param1, int param2)
 {
-	
-	//Log("sendAttack init, player map = " +player.GetMapProtoId());
-	uint toMap = 18;
-	int mobGroup = param1, mobLevel = param2;
-	Map@ map = GetMapByPid(toMap, 0);
-	//Log("Map+");
-	spawnMobs(map, param0);
-	//Log("SpawnMob+");
-	sendWave(map);		
+	if(!valid(player)) return;
+	Map @ map = player.GetMap();
+	spawnMobs(map, 1, param0, param1, param2);
+	sendWave(map);
 }
 
-//temp
+void sendAttack2(Critter& player, int param0, int param1, int param2)
+{
+	if(!valid(player)) return;
+	Map @ map = player.GetMap();
+	spawnMobs(map, 1, param0, param1, param2);
+	sendWave2(map);
+}
+
+void sendMob(Critter& player, int param0, int param1, int param2)
+{
+	if(!valid(player)) return;
+	Map @ map = player.GetMap();
+	spawnMobs(map, 1, param0, param1, param2);
+}
+
+void sendAttack3(Critter& player, int param0, int param1, int param2)
+{
+	if(!valid(player)) return;
+	Map @ map = player.GetMap();
+	spawnMobs3(player, map, param0, param1, param2);
+}
+
+void spawnNPC(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	if(!valid(player)) return;
+	Map @ map = player.GetMap();
+	spawnMobs4(player, map, param0, param1, param2);
+}
 
 void _OnDeadEvent (Critter& dead, Critter@ killer)
 {
 	//Log("Raider: Critter is dead");
-	dead.AddTimeEvent("cte_deleteCorpse",60*60*6,0);
+	dead.AddTimeEvent("cte_deleteCorpse",60*6,0);
 	//e_deleteCorpse (dead, killer);   
 }
 
@@ -69,31 +93,185 @@ uint cte_deleteCorpse (Critter& dead, int identifier, uint& rate)
    return 0;
 }
 
-/*
-bool sendAttack(uint toMap, int mobGroup, int mobLevel)
+void spawnMobs3(Critter& player, Map& map, int type, uint16 hexX, uint16 hexY)
 {
-	Map@ map = GetMap(toMap);
-	spawnMobs(map, mobGroup, mobLevel);
-	sendWave(map);	
-	return true;	
-}*/
+	Critter@ cr = map.AddNpc(type, hexX, hexY, Random(0,5), null, null, null);
+	if (valid(cr))
+		{
+		//Log("Critter valid");
+		cr.SetEvent(CRITTER_EVENT_DEAD,"_OnDeadEvent");
+		cr.StatBase[ST_AI_ID]=207; 
+		cr.StatBase[ST_BAG_ID]=BAG_Empty;
+		cr.StatBase[ST_TEAM_ID]=TEAM_Mob6;
+		cr.StatBase[ST_REPLICATION_TIME] = 0;
+		cr.ModeBase[MODE_NO_HOME] = 1;
+		cr.ModeBase[MODE_UNLIMITED_AMMO] = 1;
 
-void spawnMobs(Map& map, int count)
+		Critter@[] players;
+		if(map.GetCritters(0, FIND_LIFE_AND_KO|FIND_ONLY_PLAYERS, players)>0)
+			{
+				for(uint j=0,jj=players.length();j<jj;j++) 
+				{	
+					if (players[j].Id==player.Id) continue;
+					AddAttackPlane(cr,0,players[j],__RunOnCombat);
+					cr.AddEnemyInStack(players[j].Id);
+				}
+			}
+		}
+}
+
+void spawnMobs4(Critter& player, Map& map, int type, uint16 hexX, uint16 hexY)
 {
-	//Log("spawnMobs init");
-	uint16 x = 0, y = 0, totalEnt = 0;
-	totalEnt = map.CountEntire(70);
-	//Log("totalEnt = " +totalEnt);
-	//Log("x and y = "+x+" "+y);
-	map.GetEntireCoords(70, Random(0,totalEnt-1), x, y);
-	//Log("After GetEntireCoords x and y = "+x+" "+y);
+	Critter@ cr = map.AddNpc(type, hexX, hexY, Random(0,5), null, null, null);
+	if (valid(cr))
+		{
+		//Log("Critter valid");
+		cr.SetEvent(CRITTER_EVENT_DEAD,"_OnDeadEvent");
+		cr.StatBase[ST_AI_ID]=207; 
+		cr.StatBase[ST_BAG_ID]=BAG_Empty;
+		cr.StatBase[ST_TEAM_ID]=TEAM_Mob6;
+		cr.StatBase[ST_REPLICATION_TIME] = 0;
+		cr.ModeBase[MODE_NO_HOME] = 1;
+		cr.ModeBase[MODE_UNLIMITED_AMMO] = 1;
+		if (valid(player)) controlMob(player, cr.Id, 0, 0, null, null);
+		}
+}
+
+void controlMob(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item@ item = player.GetItem(PID_MINDCONTROL, SLOT_HAND2);
+	if (!valid(item)) return;
+	Critter@ controlled = GetCritter(param0);
+	bool exclude=false;
+	uint[] vals = {item.Val1, item.Val2, item.Val3, item.Val4, item.Val5, 0};
+	if (valid(player) && valid(controlled))
+	{
+	for(uint i=0,ii=vals.length()-1;i<ii;i++)
+		{
+		if (vals[i] == controlled.Id) {vals.removeAt(i); exclude=true;}
+		}
+	if (exclude==true)
+		{
+		item.Val1=vals[0];
+		item.Val2=vals[1];
+		item.Val3=vals[2];
+		item.Val4=vals[3];
+		item.Val5=vals[4];
+		}
+	else
+		{
+		item.Val1=controlled.Id;
+		item.Val2=vals[0];
+		item.Val3=vals[1];
+		item.Val4=vals[2];
+		item.Val5=vals[3];
+		}
+	}
+}
+
+void moveMob(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item@ item = player.GetItem(PID_MINDCONTROL, SLOT_HAND2);
+	if (!valid(item)) return;
+	uint[] vals = {item.Val1, item.Val2, item.Val3, item.Val4, item.Val5};
+
+	for(uint i=0,ii=vals.length();i<ii;i++)
+		{
+		Critter@ controlled = GetCritter(vals[i]);
+		if (valid(player) && valid(controlled)) AddWalkPlane(controlled, 1, param1, param2, Random(0,5), true, 0);
+		}
+}
+
+void attackMob(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item@ item = player.GetItem(PID_MINDCONTROL, SLOT_HAND2);
+	if (!valid(item)) return;
+	Critter@ target = GetCritter(param0);
+	uint[] vals = {item.Val1, item.Val2, item.Val3, item.Val4, item.Val5};
+
+	for(uint i=0,ii=vals.length();i<ii;i++)
+		{
+		Critter@ controlled = GetCritter(vals[i]);
+		if (valid(player) && valid(controlled) && valid(target))
+			{
+			AddAttackPlane(controlled,0,target,__RunOnCombat);
+			controlled.AddEnemyInStack(target.Id);
+			}
+		}
+}
+
+void chaseMob(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item@ item = player.GetItem(PID_MINDCONTROL, SLOT_HAND2);
+	if (!valid(item)) return;
+	Critter@ target = GetCritter(param0);
+	uint[] vals = {item.Val1, item.Val2, item.Val3, item.Val4, item.Val5};
+
+	for(uint i=0,ii=vals.length();i<ii;i++)
+		{
+		Critter@ controlled = GetCritter(vals[i]);
+		if (valid(player) && valid(controlled) && valid(target)) {controlled.ModeBase[MODE_NO_HOME] = 1; controlled.StatBase[ST_KILLER_PERSON]=target.Id; controlled.AddTimeEvent("follow",30,9);}
+		}
+}
+
+uint follow(Critter& cr, int master, uint& rate)
+{
+	int8 y=0;
+	cr.ClearEnemyStack();
+	Critter@ daddy=GetCritter(cr.Stat[ST_KILLER_PERSON]);
+	Map@ daddymap=null;
+	Map@ crmap=cr.GetMap();
+	if(valid(daddy)) @daddymap=daddy.GetMap();
+	else return 0;
+	cr.ErasePlane(-1, true);
+
+		if((!valid(daddymap)) && (valid(crmap)))
+			{
+			cr.TransitToGlobalGroup(daddy.Id);
+			}
+		else if((valid(daddymap)) && (valid(crmap)) && (daddymap.Id==crmap.Id))
+			{
+				AddWalkPlane(cr, 0, daddy.HexX, daddy.HexY, Random(0,5),false,1);
+			}
+		else if((valid(daddymap)) && (valid(crmap)) && (crmap.Id!=daddymap.Id) )
+		{
+			uint8 findPos=1;
+			while(findPos!=10)
+			{
+				if(daddymap.IsHexPassed(daddy.HexX+findPos, daddy.HexY+findPos))
+				{
+					cr.TransitToMap(daddymap.Id, daddy.HexX+findPos, daddy.HexY+findPos, Random(0,5)); 
+					findPos=10;
+				}
+			findPos++;
+			}
+		}
+return 30;
+}
+
+
+void spawnMobs(Map& map, int count, int type, uint16 hexX, uint16 hexY)
+{
 	for (int i = 0; i<count; i++)
 	{
-	//if (map.IsHexPassed(x,y)) //проверяем можно ли заспауниться в данной клетке
+	//if (map.IsHexPassed(hexY,hexY)) //проверяем можно ли заспауниться в данной клетке
 		//{
-			//Log("X and Y passed.");
-			Critter@ cr = map.AddNpc(NPC_PID_RaiderMale, x, y, Random(0,5), null, null, null);
-			if (valid(cr)) {
+		int NPC1 = NPC_PID_RaiderMale;
+			if(type==1) NPC1=NPC_PID_RaiderMale;
+			else if(type==2) NPC1=NPC_PID_RaiderFemale;
+			else if(type==3) NPC1=NPC_PID_MaleCannibal;
+			else if(type==4) NPC1=NPC_PID_FemaleCannibal;
+			else if(type==5) NPC1=NPC_PID_ToughGhoul;
+			else if(type==6) NPC1=NPC_PID_ToughNightkin;
+			else if(type==7) NPC1=NPC_PID_Centaur;
+			else if(type==8) NPC1=NPC_PID_RegularRat;
+			else if(type==9) NPC1=NPC_PID_SmDeathclaw;
+			else if(type==10) NPC1=NPC_PID_Alien;
+			else if(type==11) NPC1=NPC_PID_Deathclaw;
+			else if(type==12) NPC1=NPC_PID_MirelurkWeak;
+			Critter@ cr = map.AddNpc(NPC1, hexX+Random(0,5), hexY+Random(0,5), Random(0,5), null, null, null);
+			if (valid(cr))
+				{
 				//Log("Critter valid");
 				cr.SetEvent(CRITTER_EVENT_DEAD,"_OnDeadEvent");
 				cr.StatBase[ST_AI_ID]=207; 
@@ -104,14 +282,84 @@ void spawnMobs(Map& map, int count)
 				//cr.AddItem(PID_223_FMJ, 20);
 				cr.ModeBase[MODE_NO_HOME] = 1;
 				cr.ModeBase[MODE_UNLIMITED_AMMO] = 1;
-				int weaponSelector = Random(0,3);
-				switch(weaponSelector)
-				{
-					case 0:	cr.AddItem(PID_10MM_PISTOL,1); break;
-					case 1: cr.AddItem(PID_HUNTING_RIFLE,1); break;
-					case 2: cr.AddItem(PID_14MM_PISTOL, 1); break;
-					case 3: cr.AddItem(PID_SPEAR, 1); break;
-					default: break;
+				int weaponSelector = Random(0,5);
+					if(type==1) 
+					{
+						switch(weaponSelector)
+						{
+						case 0:	cr.AddItem(PID_SNIPER_GUN_LOW,1); break;
+						case 1: cr.AddItem(PID_PISTOL_LOW,1); break;
+						case 2: cr.AddItem(PID_DRUM_GUN_LOW, 1); break;
+						case 3: cr.AddItem(PID_REVOLVER_LOW, 1); break;
+						case 4: cr.AddItem(PID_SMOKE_GUN_LOW, 1); break;
+						case 5: cr.AddItem(PID_WOOD_PLANK, 1); break;
+						default: break;
+						}
+					}
+					if(type==2) 
+					{
+						switch(weaponSelector)
+						{
+						case 0:	cr.AddItem(PID_PLASMA_SMG_LOW, 1); break;
+						case 1: cr.AddItem(PID_DRUM_GUN_LOW, 1); break;
+						case 2: cr.AddItem(PID_DRUM_GUN_LOW, 1); break;
+						case 3: cr.AddItem(PID_SPEAR, 1); break;
+						case 4:	cr.AddItem(PID_DRUM_GUN_LOW, 1); break;
+						case 5:	cr.AddItem(PID_SPEAK_P, 1); break;
+						default: break;
+						}
+					}
+					if(type==3) 
+					{
+						switch(weaponSelector)
+						{
+						case 0:	cr.AddItem(PID_REVKNIFE1,1); break;
+						case 1: cr.AddItem(PID_REVKNIFE2,1); break;
+						case 2: cr.AddItem(PID_REVFIST1, 1); break;
+						case 3: cr.AddItem(PID_SPEAK_P, 1); break;
+						case 4: cr.AddItem(PID_REV_BALL1, 1); break;
+						case 5: cr.AddItem(PID_CHAIN, 1); break;
+						default: break;
+						}
+					}
+					if(type==4) 
+					{
+						switch(weaponSelector)
+						{
+						case 0:	cr.AddItem(PID_REVKNIFE1,1); break;
+						case 1: cr.AddItem(PID_SPEAK_P, 1); break;
+						case 2: cr.AddItem(PID_REVFIST1, 1); break;
+						case 3: cr.AddItem(PID_REVKNIFE2,1); break;
+						case 4: cr.AddItem(PID_REV_BALL1, 1); break;
+						case 5: cr.AddItem(PID_CHAIN, 1); break;
+						default: break;
+						}
+					}
+					if(type==5) 
+					{
+						switch(weaponSelector)
+						{
+						case 0:	cr.AddItem(PID_SNIPER_GUN_LOW,1); break;
+						case 1: cr.AddItem(PID_REV_RIFLE_LOW,1); break;
+						case 2: cr.AddItem(PID_REV_RIFLE_LOW, 1); break;
+						case 3: cr.AddItem(PID_SPEAR, 1); break;
+						case 4: cr.AddItem(PID_SPEAK_P, 1); break;
+						case 5: cr.AddItem(PID_AUTOGUN_LOW, 1); break;
+						default: break;
+						}
+					}
+					if(type==6) 
+					{
+						switch(weaponSelector)
+						{
+						case 0:	cr.AddItem(PID_LASER_RIFLE_LOW, 1); break;
+						case 1: cr.AddItem(PID_BIGGUN_LOW, 1); break;
+						case 2: cr.AddItem(PID_SAWGUN_LOW, 1); break;
+						case 3: cr.AddItem(PID_GATLING_LOW, 1); break;
+						case 4: cr.AddItem(PID_CHAIN, 1); break;
+						case 5: cr.AddItem(PID_BIGGUN_LOW, 1); break;
+						default: break;
+						}
 					}
 				}
 		//}
@@ -121,14 +369,58 @@ void spawnMobs(Map& map, int count)
 void sendWave(Map& map)
 {
 	Critter@[] raiders, players, guards;
-	if(map.GetCritters(0, FIND_LIFE_AND_KO|FIND_ONLY_PLAYERS, players)>0 && map.GetCritters(NPC_PID_RaiderMale, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders)>0)
+	if(map.GetCritters(0, FIND_LIFE_AND_KO|FIND_ONLY_PLAYERS, players)>0 && (map.GetCritters(NPC_PID_RaiderMale, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_RaiderFemale, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_MaleCannibal, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_FemaleCannibal, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_ToughGhoul, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_ToughNightkin, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders))>0)
+	{
+		for(uint i=0,ii=raiders.length();i<ii;i++)
+		{
+			Critter@ raider=raiders[i];
+			raider.StatBase[ST_VAR7] =  CRITTER_TEAM;
+			for(uint j=0,jj=players.length();j<jj;j++) 
+			{
+				if(players[j].StatBase[ST_VAR7] != raider.StatBase[ST_VAR7]) //add if for identificate sender or attacker player
+				{
+					AddAttackPlane(raider,0,players[j],__RunOnCombat);
+					raider.AddEnemyInStack(players[j].Id);
+				}
+				//raider.AddWalkPlane(
+			}
+		}
+	}
+	if(map.GetCritters(GuardPID,FIND_LIFE_AND_KO|FIND_ONLY_NPC, guards) > 0)
+	{
+		for(uint i=0,ii=guards.length();i<ii;i++)
+		{
+			Critter@ guard=guards[i];
+			for(uint j=0,jj=raiders.length();j<jj;j++) 
+			{
+				AddAttackPlane(guard,0,raiders[j],__RunOnCombat);
+				guard.AddEnemyInStack(raiders[j].Id);
+			}
+		}
+		
+		for(uint i=0,ii=raiders.length();i<ii;i++)
+		{
+			Critter@ raider=raiders[i];
+			for(uint j=0,jj=guards.length();j<jj;j++) 
+			{
+				AddAttackPlane(raider,0,guards[j],__RunOnCombat);
+				raider.AddEnemyInStack(guards[j].Id);
+			}
+		}
+	}
+}
+
+void sendWave2(Map& map)
+{
+	Critter@[] raiders, players, guards;
+	if(map.GetCritters(0, FIND_LIFE_AND_KO|FIND_ONLY_PLAYERS, players)>0 && (map.GetCritters(NPC_PID_Centaur, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_RegularRat, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_SmDeathclaw, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_Alien, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_Deathclaw, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders) + map.GetCritters(NPC_PID_MirelurkWeak, FIND_LIFE_AND_KO|FIND_ONLY_NPC, raiders))>0)
 	{
 		for(uint i=0,ii=raiders.length();i<ii;i++)
 		{
 			Critter@ raider=raiders[i];
 			for(uint j=0,jj=players.length();j<jj;j++) 
 			{
-				AddAttackPlane(raider,0,players[j]);
+				AddAttackPlane(raider,0,players[j],__RunOnCombat);
 				raider.AddEnemyInStack(players[j].Id);
 				//raider.AddWalkPlane(
 			}
@@ -141,7 +433,7 @@ void sendWave(Map& map)
 			Critter@ guard=guards[i];
 			for(uint j=0,jj=raiders.length();j<jj;j++) 
 			{
-				AddAttackPlane(guard,0,raiders[j]);
+				AddAttackPlane(guard,0,raiders[j],__RunOnCombat);
 				guard.AddEnemyInStack(raiders[j].Id);
 			}
 		}
@@ -151,7 +443,7 @@ void sendWave(Map& map)
 			Critter@ raider=raiders[i];
 			for(uint j=0,jj=guards.length();j<jj;j++) 
 			{
-				AddAttackPlane(raider,0,guards[j]);
+				AddAttackPlane(raider,0,guards[j],__RunOnCombat);
 				raider.AddEnemyInStack(guards[j].Id);
 			}
 		}

@@ -43,6 +43,7 @@ void act_var_check(Critter& player, int playerId, int val, int param2)
 	case 1:	status = " активирован кодом."; break;
 	case 2:	status = " активирован ГМом."; break;
 	case 3:	status = " заблокирован."; break;
+	case 4:	status = " в загробной жизни."; break;
 	}
 	
 	player.Say(SAY_NETMSG, "Персонаж #"+cr.Id+status);
@@ -88,7 +89,7 @@ void redeact(Critter& player, int playerId, int param1, int param2)
 
 void act_login(Critter& player, int playerId, int param1, int param2)
 {
-	player.ShowScreen(SCREEN_CLOSE,0,"");
+	//player.ShowScreen(SCREEN_CLOSE,0,"");
 	player.ShowScreen(SCREEN_SAY,0,"answer_act_login");
 	player.Say(SAY_SAY_TITLE,"Введите логин персонажа, которого нужно активировать.");
 }
@@ -108,7 +109,7 @@ void answer_act_login(Critter& player, uint answerI, string& answerS)
 
 void block_login(Critter& player, int playerId, int param1, int param2)
 {
-	player.ShowScreen(SCREEN_CLOSE,0,"");
+	//player.ShowScreen(SCREEN_CLOSE,0,"");
 	player.ShowScreen(SCREEN_SAY,0,"answer_act_block");
 	player.Say(SAY_SAY_TITLE,"Введите логин персонажа, которого нужно заблокировать.");
 }

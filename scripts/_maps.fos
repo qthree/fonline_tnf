@@ -9,38 +9,56 @@
 #define LOCATION_IS_CITY #(locPid)                  ((locPid)>=LOCATION_Den && (locPid)<=LOCATION_Vault13 && (locPid)!=LOCATION_Cathedral && (locPid)!=LOCATION_MilitaryBase && (locPid)!=LOCATION_Sierra && (locPid)!=LOCATION_ReplicationHell)
 */
 
+//#define LOCATION_IS_OCEAN #(locPid)                 ((locPid)>=LOCATION_Den && (locPid)<=LOCATION_OceanTrader) //q tla water
+
+#define LOCATION_Lakecity							(1)
+#define LOCATION_Junkyard							(2)
+#define LOCATION_Modoc								(3)
+#define LOCATION_Bridge								(5)
+#define LOCATION_Heaven								(6)
+#define LOCATION_BanditCave							(7)
+#define LOCATION_Phoenix							(8)
+#define LOCATION_Sacramento							(20)
+#define LOCATION_StartMap							(50)
+#define LOCATION_Ghostfarm							(60)
+
+#define LOCATION_TechBunker							(21)
+
+
 //для roleplay сервера
-#define LOCATION_IS_CITY #(locPid)                  ((locPid)==LOCATION_Modoc || (locPid)==LOCATION_Sacramento || (locPid)==LOCATION_ghostfarm)
+#define LOCATION_IS_CITY #(locPid)                  (LocIsCity((locPid)))
 
-#define LOCATION_Den                                (1)
-#define LOCATION_Klamath                            (2)
-#define LOCATION_Modoc                              (3)
-#define LOCATION_VaultCity                          (4)
-#define LOCATION_Gecko                              (5)
-#define LOCATION_BrokenHills                        (6)
-#define LOCATION_NewReno                            (7)
-#define LOCATION_Sierra                             (8)
-#define LOCATION_Vault15                            (9)
-#define LOCATION_NCR                                (10)
-#define LOCATION_Cathedral                          (11)
-#define LOCATION_MilitaryBase                       (12)
-#define LOCATION_Redding                            (13)
-#define LOCATION_SanFrancisco                       (14)
-#define LOCATION_Navarro                            (15)
-#define LOCATION_Arroyo                             (16)
-#define LOCATION_PrimalTribe                        (17)
-#define LOCATION_Rangers                            (18)
-#define LOCATION_Vault13                            (19)
-#define LOCATION_Sacramento                       (20)
-#define LOCATION_TechBunker                         (21)
-#define LOCATION_Replication1                       (40)
-#define LOCATION_Replication2                       (41)
-#define LOCATION_Replication3                       (42)
-#define LOCATION_Replication4                       (43)
-#define LOCATION_ReplicationHell                    (44)
-#define LOCATION_GeckCity                           (45)
+uint[] CityPids = {LOCATION_Lakecity, LOCATION_Junkyard, LOCATION_Modoc, LOCATION_Sacramento, LOCATION_Ghostfarm};
 
-#define LOCATION_ghostfarm                    (60)
+bool LocIsCity(uint locPid)
+{
+	for(uint i=0, j=CityPids.length(); i<j; i++)
+	{
+		if(CityPids[i]==locPid) return true;
+	}
+	return false;
+}
+
+uint[] MaskedPids = {LOCATION_Phoenix};
+bool LocIsMasked(uint locPid)
+{
+	for(uint i=0, j=MaskedPids.length(); i<j; i++)
+	{
+		if(MaskedPids[i]==locPid) return true;
+	}
+	return false;
+}
+
+uint[] HiddenPids = {LOCATION_BanditCave};
+
+bool LocIsHidden(uint locPid)
+{
+	for(uint i=0, j=HiddenPids.length(); i<j; i++)
+	{
+		if(HiddenPids[i]==locPid) return true;
+	}
+	return false;
+}
 
 #define LOCATION_SpecialFirstSpecial                (50) // Todo
 #define LOCATION_SpecialToxicEncounter              (51)
@@ -116,74 +134,17 @@
 #define LOCATION_OceanEncounter3                    (195)
 #define LOCATION_OceanEncounter4                    (196)
 #define LOCATION_OceanEncounter5                    (197)
+//#define LOCATION_OceanRaft                          (196) //q tla water
+//#define LOCATION_OceanTrader                        (197) //q tla water
 
-//#define LOCATION_BessDead                         (201)
-#define LOCATION_Wanamingo_Cavern                   (202)
 #define LOCATION_Quest_Dappo_Lost_Caravan           (203)
-#define LOCATION_Quest_NCR_SIEGE1                   (205)
-#define LOCATION_Quest_NCR_SIEGE2                   (206)
-#define LOCATION_Quest_NCR_SIEGE3                   (207)
-#define LOCATION_Quest_NCR_SIEGE4                   (208)
-#define LOCATION_Quest_NCR_SIEGE5                   (209)
-#define LOCATION_arroyo_mynoc_defence1              (210)
-#define LOCATION_arroyo_mynoc_defence2              (211)
 #define LOCATION_Quest_Sid_And_Nancy                (212)
-#define LOCATION_Quest_MirelurksLair                (213)
-
-#define LOCATION_Warehouse                          (220)
-#define LOCATION_Warehouse1                         (221)
-#define LOCATION_Warehouse2                         (222)
-#define LOCATION_Warehouse3                         (223)
-#define LOCATION_Warehouse4                         (224)
-#define LOCATION_Warehouse5                         (225)
-#define LOCATION_Warehouse6                         (226)
-#define LOCATION_Warehouse_First                    (LOCATION_Warehouse)
-#define LOCATION_Warehouse_Last                     (LOCATION_Warehouse6)
-
-#define LOCATION_IntroMartin                        (263)
-#define LOCATION_IntroInit                          (264)
 
 //************************************************************************/
 //* Maps                                                                 */
 //************************************************************************/
 
-#define MAP_vcity_courtyard							(15)
-#define MAP_Modoc									(18)
-#define MAP_barter_ground                           (24)
-#define MAP_sad_enter                               (25)
-#define MAP_sad_powersub                            (26)
-#define MAP_sad_level1                              (27)
-#define MAP_sad_level2                              (28)
-#define MAP_sad_level3                              (29)
-#define MAP_sad_level4                              (30)
-#define MAP_gecko_settlement                        (31)
-#define MAP_v15_village                             (34)
-#define MAP_ncr_downtown                            (42)
-#define MAP_ncr_ranch                               (44)
-#define MAP_ncr_bazaar                              (45)
-#define MAP_mariposa_enter                          (49)
-#define MAP_mariposa_level1                         (50)
-#define MAP_mariposa_level2                         (51)
-#define MAP_mariposa_level3                         (52)
-#define MAP_mariposa_level4                         (53)
-#define MAP_newr1                                   (54)
-#define MAP_redding_outer                           (62)
-#define MAP_redding_miners                          (65)
-#define MAP_redding_mine                            (66)
-#define MAP_cath_enter                              (75)
-#define MAP_cath_main                               (76)
-#define MAP_cath_level1                             (77)
-#define MAP_cath_level2                             (78)
-#define MAP_cath_level3                             (79)
-#define MAP_broken                                  (115)
-#define MAP_sf_dock                                 (136)
-#define MAP_sf_china                                (137)
-
-#define MAP_replication1                            (221)
-#define MAP_replication2                            (222)
-#define MAP_replication3                            (223)
-#define MAP_replication4                            (224)
-#define MAP_replication_hell                        (225)
+#define MAP_Modoc				    (18)
 
 #define MAP_e_cave0_in                              (349)
 #define MAP_e_cave1_in                              (351)

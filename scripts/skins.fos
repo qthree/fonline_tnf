@@ -4,6 +4,8 @@
 
 #define PID_ITEM_CLOTH (905)
 
+import void ChangeCritterSpeed(Critter& cr) from "speed"; //pm add
+
 bool[] skins_toggled;
 
 void skins_setup_start(Critter& player, int param0, int param1, int param2)
@@ -62,7 +64,8 @@ void skins_setup_load(uint fileIndex)  //import
 	for(uint i=0; i<result.length(); i++)
 	{
 		bool bb = ((result[i]=='1')?true:false);
-		push_back(skins_toggled,bb);
+		//push_back(skins_toggled,bb);
+		skins_toggled.insertLast(bb);
 	}
 
 	skins_file.close();
@@ -119,7 +122,7 @@ void ask_next_setup(Critter@ player)
 {
 	if(!valid(player) || !player.IsLife() || player.Param[ST_VAR0]<1 || player.Param[ST_VAR0]>=MAX_SKINS_COUNT) return;
 	player.ChangeCrType(player.Param[ST_VAR0]);
-	player.ShowScreen(SCREEN_CLOSE,0,"");
+	//player.ShowScreen(SCREEN_CLOSE,0,"");
 	player.ShowScreen(SCREEN_DIALOGBOX,2,"answer_next_setup");
 	player.Say(SAY_DIALOGBOX_TEXT,"Позволить skin #"+player.Param[ST_VAR0]+"?");
 	player.Say(SAY_DIALOGBOX_BUTTON(0),"Включить");
@@ -130,7 +133,8 @@ void ask_next_setup(Critter@ player)
 void answer_next_setup(Critter& player, uint answerI, string& answerS)
 {
 	bool bb = ((answerI==0)?true:false);
-	push_back(skins_toggled,bb);
+	//push_back(skins_toggled,bb);
+	skins_toggled.insertLast(bb);
 
 	player.ParamBase[ST_VAR0]+=1;
 	ask_next_setup(player);
@@ -185,7 +189,7 @@ void ask_next_viewer(Critter@ player)
 
 	player.SetEvent(CRITTER_EVENT_IDLE, "_CrIdleClearSkin");
 
-	player.ShowScreen(SCREEN_CLOSE,0,"");
+	//player.ShowScreen(SCREEN_CLOSE,0,"");
 	player.ShowScreen(SCREEN_DIALOGBOX,4,"answer_next_viewer");
 	player.Say(SAY_DIALOGBOX_TEXT,"Skin #"+n);
 	player.Say(SAY_DIALOGBOX_BUTTON(0),"Следующий");
@@ -219,6 +223,8 @@ void answer_next_viewer(Critter& player, uint answerI, string& answerS)
 		player.StatBase[ST_BASE_CRTYPE]=result;
 	
 		player.DeleteItem(PID_ITEM_CLOTH, 1);
+		
+		ChangeCritterSpeed(player);
 	}
 	else if(answerI==3)
 	{
@@ -226,6 +232,7 @@ void answer_next_viewer(Critter& player, uint answerI, string& answerS)
 
 		player.ChangeCrType(player.Stat[ST_GENDER]==GENDER_MALE?CRTYPE_DEFAULT_M:CRTYPE_DEFAULT_F);
 		player.StatBase[ST_BASE_CRTYPE]=0;
+		ChangeCritterSpeed(player);
 	}
 }
 
@@ -236,7 +243,8 @@ bool canUseCloth(Critter& player)
 
 	if(player.CountItem(PID_ITEM_CLOTH)<1) return false;
 
-	if(player.GetSlotProto(SLOT_ARMOR).GetProtoId ()!=1100)
+	uint8 mode = 0;
+	if(player.GetSlotProto(SLOT_ARMOR, mode).ProtoId!=1100)
 	{
 		player.Say(SAY_NETMSG, "Ваша броня мешает вам сменить обличие.");
 		return false;
@@ -283,7 +291,7 @@ bool _cloth_use(Item& item, Critter& player, Critter@ onCritter, Item@ onItem, S
 void answer_cloth_main(Critter& player, uint answerI, string& answerS)
 {
 	if(answerI==0){
-		player.ShowScreen(SCREEN_CLOSE,0,"");
+		//player.ShowScreen(SCREEN_CLOSE,0,"");
 		player.ShowScreen(SCREEN_SAY,1,"answer_cloth_get");
 		player.Say(SAY_SAY_TITLE,"Какой облик получить?");
 		player.Say(SAY_SAY_TEXT,"0");
@@ -293,7 +301,8 @@ void answer_cloth_main(Critter& player, uint answerI, string& answerS)
 */
 void answer_cloth_get(Critter& player, uint answerI, string& answerS)
 {
-	if(player.GetSlotProto(SLOT_ARMOR).GetProtoId ()!=1100)
+	uint8 mode = 0;
+	if(player.GetSlotProto(SLOT_ARMOR, mode).ProtoId!=1100)
 	{
 		player.Say(SAY_NETMSG, "Ваша броня мешает вам сменить обличие.");
 		return;
@@ -338,7 +347,13 @@ void skin(Critter& player, int playerId, int crType, int param2)
 	else @cr=@player;
 
 	if(!valid(cr)) return;
-
+	
+	skin(cr, crType);
+	
+}
+	
+void skin(Critter& cr, int crType)
+{
 	int lastBody=cr.CrType;
 	if(lastBody==51||lastBody==60||lastBody==100||lastBody==81)
 	{
@@ -946,6 +961,9 @@ void skin(Critter& player, int playerId, int crType, int param2)
 	cr.StatBase[ST_BODY_TYPE]=BT_FLOATER;
 	}
 	else if(crType==65) cr.StatBase[ST_BODY_TYPE]=BT_PLANT;
-	else cr.StatBase[ST_BODY_TYPE]=0;
+	else if(cr.Stat[ST_BODY_TYPE]!=BT_ZOMBIE) cr.StatBase[ST_BODY_TYPE]=0;
+	
 	cr.StatBase[ST_BASE_CRTYPE]=crType;
+	
+	ChangeCritterSpeed(cr);
 }

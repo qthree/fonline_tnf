@@ -135,7 +135,7 @@ int16 FreeRoomNumber(Critter@ npc, bool sale)
 Item@ ValidDoor(Map& map, uint16 hexX, uint16 hexY) //search needed proto 4 door
 {
   string doorNum;
-  uint16 temp = 0;
+  int temp = 0;
   for(uint8 i = 0; i < DOOR_COUNT; i++)
   {
     doorNum = "DOOR_"+i;
@@ -260,11 +260,13 @@ uint e_RoomRentaOver(uint[]@ values)
 {
   Item @ door = GetItem(values[0]);
   Item @ key = GetItem(values[1]);
+  if(door is null) return 0;
   CloseDoor(door);
   door.Val3 = 0;
   door.LockerId = 0;
   door.Val4 = 0;
   door.LockerCondition = LOCKER_ISOPEN;
+  if(key is null) return 0;
   key.LockerId  = 0;
   return 0;
 }

@@ -13,7 +13,7 @@ return GetDirection(cr.HexX, cr.HexY, crit.HexX, crit.HexY);
 
 bool IsNotHuman(Critter& cr)
 {
-	if(cr.Param[ST_BODY_TYPE]<BT_BRAHMIN) return false;
+	if(cr.StatBase[ST_BODY_TYPE]<BT_BRAHMIN) return false;
 	else return true; 
 }
 
@@ -23,47 +23,65 @@ void _ItemInit(Item& item, bool FirstTime)
 	item.SetLexems("$number"+item.Val1);
 	item.SetEvent(ITEM_EVENT_USE, "_tie");
 }
+
+void _InitRope(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "_tie");
+}
+
+
+void _InitUsedHandcuffs(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_SKILL, "_unlock");
+	item.SetEvent(ITEM_EVENT_MOVE, "_hellno1");
+	item.SetEvent(ITEM_EVENT_DROP, "_hellno3");
+}
+
+void _InitHandcuffsKey(Item& item, bool firstTime)
+{
+      item.SetEvent(ITEM_EVENT_USE, "_release");
+}
  
 bool _tie(Item& item, Critter& crit, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
 {
 
 	bool onSelf=(!valid(onCritter) && !valid(onItem) && !valid(onScenery));
-
-	if(IsNotHuman(crit))
+	bool isRope = (item.GetProtoId() == PID_ROPE);
+	if(IsNotHuman(crit) && !isRope)
 	{
 	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12952);
 	return true;
 	}
 	
-	if((valid(onCritter)) && (IsNotHuman(onCritter)))
+	if((valid(onCritter)) && (IsNotHuman(onCritter)) && !isRope)
 	{
 	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12951);
 	return true;
 	}
 
 
-	if(onSelf && crit.Param[HANDCUFFS]==0 && (!IsNotHuman(crit)))
+	if(onSelf && crit.StatBase[HANDCUFFS]==0 && (!IsNotHuman(crit)))
 	{
-	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12943);
+	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME, !isRope ? 12943 : 12990);
 	TieUp(item,crit,crit);
 	return true;
 	}
 
-	if(( valid(onCritter) )&& (((onCritter.Param[HANDCUFFS]>>29)&0x1)!=0) && (!IsNotHuman(onCritter)))
+	if(( valid(onCritter) )&& (((onCritter.StatBase[HANDCUFFS]>>29)&0x1)!=0) && (!IsNotHuman(onCritter)))
 	{
-	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12940);
+	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME, !isRope ? 12940 : 12993);
 	return true;
 	}
-	if((valid(onCritter)) && (onCritter.Param[HANDCUFFS]==0))
+	if((valid(onCritter)) && (onCritter.StatBase[HANDCUFFS]==0))
 	{
-		if(onCritter.Param[ST_CURRENT_HP]<0 || onCritter.IsKnockout())
+		if(onCritter.StatBase[ST_CURRENT_HP]<0 || onCritter.IsKnockout())
 		{
 		TieUp(item, crit, onCritter);
 		return true;
 		}
 		if(onCritter.Timeout[TO_BATTLE]!=0 || onCritter.IsNpc())
 		{
-			if((crit.Param[ST_STRENGTH]+crit.Param[ST_LUCK]+crit.Param[ST_AGILITY]+Random(0,10))>(onCritter.Param[ST_STRENGTH]+onCritter.Param[ST_LUCK]+onCritter.Param[ST_AGILITY]+Random(1,15)))
+			if((crit.Stat[ST_STRENGTH]+crit.Stat[ST_LUCK]+crit.Stat[ST_AGILITY]+Random(0,10))>(onCritter.Stat[ST_STRENGTH]+onCritter.Stat[ST_LUCK]+onCritter.Stat[ST_AGILITY]+Random(1,15)))
 			{
 			TieUp(item, crit, onCritter);
 			return true;
@@ -71,7 +89,7 @@ bool _tie(Item& item, Critter& crit, Critter@ onCritter, Item@ onItem, Scenery@ 
 			else 
 			{
 			if(onCritter.IsNpc()) onCritter.AddEnemyInStack(crit.Id);
-			crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12949);
+			crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME, !isRope ? 12949 : 12989);
 			return true;
 			}
 		}
@@ -81,6 +99,7 @@ bool _tie(Item& item, Critter& crit, Critter@ onCritter, Item@ onItem, Scenery@ 
 		return true;
 		}
 	}
+	else if ((valid(onCritter)) && (onCritter.StatBase[HANDCUFFS]!=0) && isRope && !onCritter.IsNpc()) onCritter.AddItem(PID_PUTI, 1);
 	
 return false;
 }
@@ -90,14 +109,14 @@ void _hellno1(Item& item, Critter& crit, uint8 fromSlot)
 	if(item.CritSlot!=SLOT_HAND1)
 	{
 	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12945); 
-	crit.MoveItem(item.Id, 1,SLOT_HAND1);
+	crit.MoveItem(item.Id, 1,item.Val1 == 0 ? SLOT_HAND1 : SLOT_HAND2);
 	item.Update();
 	}
 }
  
  
  void _hellno2(Item& item, Critter& crit, uint8 fromSlot)
-{
+{	
 	if(item.CritSlot!=SLOT_HAND2) 
 	{
 	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12945); 
@@ -109,8 +128,11 @@ void _hellno1(Item& item, Critter& crit, uint8 fromSlot)
 void _hellno3(Item& item, Critter& crit)
 {
 	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12945);
+	//Item @ handCheck = crit.GetItem(item.GetProtoId(), SLOT_HAND1);
+	//bool check = (@handCheck == null);
+	//crit.Say(SAY_NORM, "drop "+check+" slot "+item.CritSlot);
 	MoveItem(item, 1, crit);
-	crit.MoveItem(item.Id, 1,SLOT_HAND1);
+	crit.MoveItem(item.Id, 1, item.Val1 == 0 ? SLOT_HAND1 : SLOT_HAND2);
 	item.Update();
 }
 
@@ -124,9 +146,9 @@ void _hellno4(Item& item, Critter& crit)
 
 bool _kickme(Critter& cr, Critter& attacker)
 {
-uint cuffs=cr.Param[HANDCUFFS];
+uint cuffs=cr.StatBase[HANDCUFFS];
 uint8 escape=(cuffs>>29)&0x1;
-	if(cr.Param[HANDCUFFS]!=0 && escape==0)
+	if(cr.StatBase[HANDCUFFS]!=0 && escape==0)
 	{
 	cr.ClearEnemyStack();
 	return true; 
@@ -141,9 +163,9 @@ uint8 escape=(cuffs>>29)&0x1;
 	int keynum;
 	int nohome;
 	
-	if(valid(onCritter) && onCritter.Param[HANDCUFFS]!=0)
+	if(valid(onCritter) && onCritter.StatBase[HANDCUFFS]!=0)
 	{
-	cuffs_state=onCritter.Param[HANDCUFFS];
+	cuffs_state=onCritter.StatBase[HANDCUFFS];
 	keynum=(cuffs_state>>16)&0x1FFF;
 	nohome=(cuffs_state>>30)&0x1;
 	Item@ [] items;
@@ -154,7 +176,7 @@ uint8 escape=(cuffs>>29)&0x1;
 		if( onCritter.IsPlayer() ) name=GetPlayerName(onCritter.Id);else name="жертву";
 		crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12948, "$name"+name); 
 		onCritter.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12946); 
-		onCritter.ParamBase[HANDCUFFS]=0;
+		onCritter.StatBase[HANDCUFFS]=0;
 		onCritter.GetItems(SLOT_HAND1, items);
 		onCritter.GetItems(SLOT_HAND2, items);
 		DeleteItems(items);
@@ -165,22 +187,22 @@ uint8 escape=(cuffs>>29)&0x1;
 			if(onCritter.IsNpc())
 			{
 			onCritter.EraseTimeEvents(EVENT_ID);
-			onCritter.ParamBase[MODE_NO_HOME]=nohome;
-			onCritter.ParamBase[MODE_NO_FAVORITE_ITEM]=0;
+			onCritter.StatBase[MODE_NO_HOME]=nohome;
+			onCritter.StatBase[MODE_NO_FAVORITE_ITEM]=0;
 			}
 		}
 	return true;
 	}
 	
-	if(onSelf && crit.Param[HANDCUFFS]!=0)
+	if(onSelf && crit.StatBase[HANDCUFFS]!=0)
 	{
-	cuffs_state=crit.Param[HANDCUFFS];
+	cuffs_state=crit.StatBase[HANDCUFFS];
 	keynum=(cuffs_state>>16)&0x1FFF;
 	nohome=(cuffs_state>>30)&0x1;
 		if(item.Val1==keynum)
 		{
 		crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12947); 
-		crit.ParamBase[HANDCUFFS]=0;
+		crit.StatBase[HANDCUFFS]=0;
 		crit.DeleteItem(PID_HANDCUFFS_USED,2);
 		Item@ cuffs=crit.AddItem(PID_HANDCUFFS,1);
 		cuffs.Val1=keynum;
@@ -196,12 +218,18 @@ void TieUp(Item& item, Critter& crit, Critter@ onCritter)
 {
 		uint8 follow=1;
 		uint8 escape=0;
-		if(crit.Id!=onCritter.Id)onCritter.ParamBase[HANDCUFFS]=crit.Id|(item.Val1<<16)|(escape<<29)|(onCritter.Param[MODE_NO_HOME]<<30)|(follow<<31); 
-		else onCritter.ParamBase[HANDCUFFS]=onCritter.Param[HANDCUFFS]|(item.Val1<<16)|(escape<<29)|(onCritter.Param[MODE_NO_HOME]<<30)|(follow<<31); 
+		if(crit.Id!=onCritter.Id)onCritter.StatBase[HANDCUFFS]=crit.Id|(item.Val1<<16)|(escape<<29)|(onCritter.StatBase[MODE_NO_HOME]<<30)|(follow<<31); 
+		else onCritter.StatBase[HANDCUFFS]=onCritter.StatBase[HANDCUFFS]|(item.Val1<<16)|(escape<<29)|(onCritter.StatBase[MODE_NO_HOME]<<30)|(follow<<31); 
+		bool handCuffs = (item.GetProtoId() == PID_HANDCUFFS);
 		
-		Item@ key=crit.AddItem(PID_CUFFS_KEY,1);
-		key.Val1=item.Val1;
-		key.SetLexems("$keynum"+key.Val1);
+		Item@ key;
+		if(handCuffs)
+		{
+			@key=crit.AddItem(PID_CUFFS_KEY,1);
+			key.Val1=item.Val1;
+			key.SetLexems("$keynum"+key.Val1);
+		}
+		
 		DeleteItem(item);
 
 				
@@ -219,27 +247,37 @@ void TieUp(Item& item, Critter& crit, Critter@ onCritter)
 			{
 			onCritter.MoveItem(items0[0].Id,itemscount0,SLOT_INV);
 			}
-		Item@ usedcuffs1=onCritter.AddItem(PID_HANDCUFFS_USED, 1);
-		Item@ usedcuffs2=onCritter.AddItem(PID_HANDCUFFS_USED, 1);
+			
+		
+		Item@ usedcuffs1=onCritter.AddItem(handCuffs ? PID_HANDCUFFS_USED : PID_ROPE_USED, 1);
+		Item@ usedcuffs2=onCritter.AddItem(handCuffs ? PID_HANDCUFFS_USED : PID_ROPE_USED, 1);
+		
 		onCritter.MoveItem(usedcuffs1.Id, 1,SLOT_HAND1);
 		onCritter.MoveItem(usedcuffs2.Id, 1,SLOT_HAND2);
+		usedcuffs1.Val1 = 1;
+		usedcuffs2.Val1 = 0;
 		usedcuffs1.Update();
 		usedcuffs2.Update();
 		if(crit.Id!=onCritter.Id)
 		{
 		string name;
 		if(onCritter.IsPlayer())name=GetPlayerName(onCritter.Id);else name="жертву";
-		crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12941, "$victim"+name); 
-		onCritter.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12942);
+		crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME, handCuffs ? 12941 : 12991, "$victim"+name); 
+		onCritter.SayMsg(SAY_NETMSG,TEXTMSG_GAME, handCuffs ? 12942 : 12992);
 		}
 		
 		usedcuffs1.SetEvent(ITEM_EVENT_SKILL, "_unlock");
 		usedcuffs2.SetEvent(ITEM_EVENT_SKILL, "_unlock");
 		usedcuffs1.SetEvent(ITEM_EVENT_MOVE, "_hellno1");
-		usedcuffs2.SetEvent(ITEM_EVENT_MOVE, "_hellno2");
+		usedcuffs2.SetEvent(ITEM_EVENT_MOVE, "_hellno1");
 		usedcuffs1.SetEvent(ITEM_EVENT_DROP, "_hellno3");
-		usedcuffs2.SetEvent(ITEM_EVENT_DROP, "_hellno4");
-		key.SetEvent(ITEM_EVENT_USE, "_release");
+		usedcuffs2.SetEvent(ITEM_EVENT_DROP, "_hellno3");
+		
+		if(handCuffs)
+		{
+			key.SetEvent(ITEM_EVENT_USE, "_release");
+		}
+		
 		onCritter.SetEvent(CRITTER_EVENT_DEAD, "_drop");
 		
 		if(onCritter.IsNpc())
@@ -248,27 +286,120 @@ void TieUp(Item& item, Critter& crit, Critter@ onCritter)
 		onCritter.AddTimeEvent("come_to_daddy",30,EVENT_ID);
 		onCritter.SetEvent(CRITTER_EVENT_ATTACKED, "_kickme");
 		onCritter.SetEvent(CRITTER_EVENT_RESPAWN, "_respawn");
-		onCritter.ParamBase[MODE_NO_FAVORITE_ITEM]=1;
+		onCritter.StatBase[MODE_NO_FAVORITE_ITEM]=1;
 		onCritter.ModeBase[MODE_GECK]=1;
 		onCritter.ErasePlane(-1, true);
 		onCritter.ClearEnemyStack();
-		onCritter.ParamBase[MODE_NO_HOME]=1;
+		onCritter.StatBase[MODE_NO_HOME]=1;
 		}
 }
  
  
 void _drop(Critter& cr, Critter@ killer)
 {
-	if(cr.Param[HANDCUFFS]!=0)
+	if(cr.StatBase[HANDCUFFS]!=0)
 	{
-	cr.ParamBase[HANDCUFFS]=0;
+	cr.StatBase[HANDCUFFS]=0;
 	cr.DeleteItem(PID_HANDCUFFS_USED,2);
 	cr.AddItem(PID_BROKEN_CUFFS,1);
 	}
 }
 
+#include "_ltp.fos"
+
+bool ltp_ropecuffs_inited=false;
+void ltp_ropecuffs_init()
+{
+	LTPREG(LTP_ROPECUFFS,process_unlock)
+	ltp_ropecuffs_inited=true;
+}
+
+bool unlock(Critter& cr, Critter& targetCr, uint16 pid) //export in main.fos -> critter_use_item
+{
+	bool isKnife = (pid == PID_COMBAT_KNIFE 	||
+			pid == PID_KNIFE		||
+			pid == PID_LIL_JESUS_WEAPON 	||
+			pid == PID_SWITCHBLADE		||
+			pid == PID_WAKIZASHI_BLADE	);
+	
+	if(!isKnife) return false;
+	
+	targetCr.DeleteItem(PID_ROPE_USED,2);
+	cr.AddItem(PID_ROPE,1);
+	targetCr.StatBase[HANDCUFFS]=0;
+	targetCr.SayMsg(SAY_NETMSG, TEXTMSG_GAME, 12988);
+	return true;
+}
+
+uint process_unlock(Critter@ cr, int& param0, int& param1, int& param2)
+{
+	LTPROCESSD(LTP_ROPECUFFS)
+	
+	if(param0 == 0) cr.TimeoutBase[TO_SK_LOCKPICK]=LOCKPICK_TIMEOUT(cr);
+	int16 xp=(Random(60,400)-cr.Skill[SK_LOCKPICK]);
+	cr.DeleteItem(param0 == 0 ? PID_HANDCUFFS_USED : PID_ROPE_USED,2);
+	cr.AddItem(param0 == 0 ? PID_BROKEN_CUFFS : PID_ROPE,1);
+	cr.StatBase[HANDCUFFS]=0;
+	cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,param0 == 0 ? 12947 : 12988);
+	if(param0 == 0) xp<0 ? cr.StatBase[ST_EXPERIENCE]+=20 : cr.StatBase[ST_EXPERIENCE]+=xp;
+	
+	return 0;
+}
+
 bool _unlock(Item& item, Critter& crit, int skill)
 {
+	if(!ltp_ropecuffs_inited) ltp_ropecuffs_init();
+	
+	if(item.GetProtoId() == PID_ROPE_USED)
+	{
+	  
+	  uint16 time = 0;
+	  
+	    if(skill == SK_REPAIR)
+	    {
+		Item @ lighter = crit.GetItem(PID_LIGHTER, -1);
+		if(@lighter == null) {crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12985); return true;}
+		
+		time = Random(crit.Stat[ST_LUCK], 15) * 1000;
+	    }else
+	
+	    if(skill == SK_TRAPS)
+	    {
+		bool succ = false;
+		uint8 count = 0;
+		uint16[] knifePids = {PID_WAKIZASHI_BLADE, PID_LIL_JESUS_WEAPON, PID_COMBAT_KNIFE,PID_SWITCHBLADE, PID_KNIFE};
+		for(count = 0; count < knifePids.length(); count++)
+		{
+		  Item @knife = crit.GetItem(knifePids[count], -1);
+		  if(@knife != null) {succ = true; break;}
+		}
+		if(!succ) {crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12986); return true;}
+	    
+		
+		switch(knifePids[count])
+		{
+		  case PID_KNIFE : time = 10000; break;
+		  case PID_SWITCHBLADE : time = 9000; break;
+		  case PID_COMBAT_KNIFE : time = 7000; break;
+		  case PID_LIL_JESUS_WEAPON : time = 6000; break;
+		  case PID_WAKIZASHI_BLADE : time = 5000; break;
+		  default : time -1; break;
+		}
+	    
+		if(time == -1) {crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12987); return true;}
+	    
+		time -= (crit.Skill[SK_MELEE_WEAPONS] * 20) + (crit.Stat[ST_AGILITY] * 300);
+		if(time <= 0) time = 1000;
+	    
+
+	    }
+	    
+	    if(time <= 0) return false;
+	    
+	    StartProcess(crit, LTP_ROPECUFFS, 1, 0, 0, time);
+	    return true;
+	}
+	    
 	if(skill==SK_LOCKPICK)
 	{
 		if(crit.Timeout[TO_SK_LOCKPICK]>0)
@@ -276,15 +407,9 @@ bool _unlock(Item& item, Critter& crit, int skill)
 		crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,3401);
 		return true;
 		}
-		if((crit.Param[SK_LOCKPICK]+Random(0,150))>300-Random(0,50))
+		if((crit.Skill[SK_LOCKPICK]+Random(0,150))>300-Random(0,50))
 		{
-		crit.TimeoutBase[TO_SK_LOCKPICK]=LOCKPICK_TIMEOUT(crit);
-		int16 xp=(Random(60,400)-crit.Param[SK_LOCKPICK]);
-		crit.DeleteItem(PID_HANDCUFFS_USED,2);
-		crit.AddItem(PID_BROKEN_CUFFS,1);
-		crit.ParamBase[HANDCUFFS]=0;
-		crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12947);
-		if(xp<0)crit.ParamBase[ST_EXPERIENCE]+=20; else crit.ParamBase[ST_EXPERIENCE]+=xp;
+		StartProcess(crit, LTP_ROPECUFFS, 0, 0, 0, 1000);
 		return true;
 		}
 		else
@@ -296,7 +421,7 @@ bool _unlock(Item& item, Critter& crit, int skill)
 	}
 	if(skill==SK_SCIENCE)
 	{
-	uint number=(crit.Param[HANDCUFFS]>>16)&0x1FFF;
+	uint number=(crit.StatBase[HANDCUFFS]>>16)&0x1FFF;
 	crit.SayMsg(SAY_NETMSG,TEXTMSG_GAME,12950, "$number"+number);
 	return true;
 	}
@@ -305,19 +430,19 @@ return false;
 
 uint come_to_daddy(Critter& cr, int identifier, uint& rate)
 {
-int8 y=0;
-cr.ClearEnemyStack();
-uint cuffs_state=cr.Param[HANDCUFFS];
-uint16 master=(cuffs_state)&0xFFFF;
-uint16 keynum=(cuffs_state>>16)&0x1FFF;
-uint8 escape=(cuffs_state>>29)&0x1;
-uint8 nohome=(cuffs_state>>30)&0x1;
-uint8 follow=(cuffs_state>>31)&0x1;
-uint8 leavemealone=Random(0,300);
-Critter@ daddy=GetCritter(master);
-Map@ daddymap=null;
-if(valid(daddy)) @daddymap=daddy.GetMap(); else if(!valid(daddy) && escape==0) SelfRelease(cr);
-Map@ crmap=cr.GetMap();
+	int8 y=0;
+	cr.ClearEnemyStack();
+	uint cuffs_state=cr.StatBase[HANDCUFFS];
+	uint16 master=(cuffs_state)&0xFFFF;
+	uint16 keynum=(cuffs_state>>16)&0x1FFF;
+	uint8 escape=(cuffs_state>>29)&0x1;
+	uint8 nohome=(cuffs_state>>30)&0x1;
+	uint8 follow=(cuffs_state>>31)&0x1;
+	uint8 leavemealone=Random(0,300);
+	Critter@ daddy=GetCritter(master);
+	Map@ daddymap=null;
+	if(valid(daddy)) @daddymap=daddy.GetMap(); else if(!valid(daddy) && escape==0) SelfRelease(cr);
+	Map@ crmap=cr.GetMap();
 	if( (escape==0) && (leavemealone!=10) )
 	{
 	cr.ErasePlane(-1, true);
@@ -333,10 +458,10 @@ Map@ crmap=cr.GetMap();
 				cr.GetCritters(true,FIND_LIFE, friends);
 				while(y!=int(friends.length())-1)
 				{
-				if(valid(friends[y]) && (friends[y].Stat[ST_TEAM_ID]==cr.Stat[ST_TEAM_ID] || friends[y].Stat[ST_TEAM_ID]==5)) friends[y].AddEnemyInStack(daddy.Id);
+				if(valid(friends[y]) && cr.Param[ST_BODY_TYPE]!=BT_BRAHMIN && (friends[y].Stat[ST_TEAM_ID]==cr.Stat[ST_TEAM_ID] || friends[y].Stat[ST_TEAM_ID]==5)) friends[y].AddEnemyInStack(daddy.Id);
 				y++;
 				}
-			AddWalkPlane(cr, 0, daddy.HexX, daddy.HexY, GetDir(cr, daddy),false,1);
+				AddWalkPlane(cr, 0, daddy.HexX, daddy.HexY, GetDir(cr, daddy),false,1);
 			}
 			else if((valid(daddymap)) && (valid(crmap)) && (crmap.Id!=daddymap.Id) )
 			{
@@ -345,34 +470,37 @@ Map@ crmap=cr.GetMap();
 			{
 				if(daddymap.IsHexPassed(daddy.HexX+findPos, daddy.HexY+findPos))
 				{
-				cr.TransitToMap(daddymap.Id, daddy.HexX+findPos, daddy.HexY+findPos, GetDir(cr, daddy)); 
-				findPos=10;
+					cr.TransitToMap(daddymap.Id, daddy.HexX+findPos, daddy.HexY+findPos, GetDir(cr, daddy)); 
+					findPos=10;
 				}
 			findPos++;
 			}
 			}
 		}
 	}
-	else if( (escape==0) && (leavemealone==10) )
+	else if( (escape==0) && (leavemealone==10) && cr.Param[ST_BODY_TYPE]!=BT_BRAHMIN )
 	{
 	SelfRelease(cr);
 	}
 	else if(escape==1)
 	{
-	uint homemap=0;
-	uint8 homedir=0;
-	uint16 homex=0;
-	uint16 homey=0;
-	uint16 EntX=0;
-	uint16 EntY=0;
-	uint16 ExitDist=0;
-	cr.GetHomePos(homemap, homex, homey, homedir);
+		uint homemap=0;
+		uint8 homedir=0;
+		uint16 homex=0;
+		uint16 homey=0;
+		uint16 EntX=0;
+		uint16 EntY=0;
+		uint16 ExitDist=0;
+		cr.GetHomePos(homemap, homex, homey, homedir);
+		
+		Map@ homemap0 = GetMap(homemap);
+		
 		if (valid(crmap))
 		{
-		if(!crmap.GetEntireCoords(0,0,EntX, EntY)) EntX=cr.HexX; EntY=cr.HexY;
-		ExitDist=GetDistantion(cr.HexX, cr.HexY, EntX, EntY);
+			if(!crmap.GetEntireCoords(0,0,EntX, EntY)) EntX=cr.HexX; EntY=cr.HexY;
+			ExitDist=GetDistantion(cr.HexX, cr.HexY, EntX, EntY);
 		}
-		else cr.TransitToMap(homemap, homex, homey, homedir);
+		else if(homemap0 !is null) cr.TransitToMap(homemap, homex, homey, homedir);
 		
 		if( valid(daddymap) && valid(crmap) && (daddymap.Id==crmap.Id) )
 		{
@@ -380,13 +508,13 @@ Map@ crmap=cr.GetMap();
 			{
 				if (cr.Timeout[TO_BATTLE]==0 && ExitDist<4) 
 				{
-				cr.TransitToMap(homemap, homex, homey, homedir); 
-				cr.ParamBase[HANDCUFFS]=0;
-				return 0;
+					if(homemap0 !is null) cr.TransitToMap(homemap, homex, homey, homedir); 
+					cr.StatBase[HANDCUFFS]=0;
+					return 0;
 				}
 				else
 				{
-				AddWalkPlane(cr, 0, EntX, EntY, 0,true,1);
+					AddWalkPlane(cr, 0, EntX, EntY, 0,true,1);
 				}
 			}
 		}
@@ -395,13 +523,13 @@ Map@ crmap=cr.GetMap();
 			
 			if(cr.Timeout[TO_BATTLE]==0 && ExitDist<4)
 			{
-			cr.TransitToMap(homemap, homex, homey, homedir); 
-			cr.ParamBase[HANDCUFFS]=0;
-			return 0;
+				if(homemap0 !is null) cr.TransitToMap(homemap, homex, homey, homedir); 
+				cr.StatBase[HANDCUFFS]=0;
+				return 0;
 			}
 			else
 			{
-			AddWalkPlane(cr, 0, EntX, EntY, 0,true,1);
+				AddWalkPlane(cr, 0, EntX, EntY, 0,true,1);
 			}
 		}
 	}
@@ -413,7 +541,7 @@ void ToAsk(Item& item, Critter& crit, Critter@ onCritter)
 {
 string player;
 if(crit.IsPlayer()) player=GetPlayerName(crit.Id); else player="Кто-то";
-	if((crit.Param[ST_STRENGTH]+crit.Param[ST_LUCK]+crit.Param[ST_AGILITY]+Random(0,10))>(onCritter.Param[ST_STRENGTH]+onCritter.Param[ST_LUCK]+onCritter.Param[ST_AGILITY]+Random(1,15)))
+	if((crit.Stat[ST_STRENGTH]+crit.Stat[ST_LUCK]+crit.Stat[ST_AGILITY]+Random(0,10))>(onCritter.Stat[ST_STRENGTH]+onCritter.Stat[ST_LUCK]+onCritter.Stat[ST_AGILITY]+Random(1,15)))
 	{
 	TieUp(item, crit, onCritter);
 	}
@@ -442,7 +570,7 @@ void AnswerMe(Critter& cr, uint answerI, string& answerS)
 
 void SelfRelease(Critter& cr)
 {
-uint cuffs_state=cr.Param[HANDCUFFS];
+uint cuffs_state=cr.StatBase[HANDCUFFS];
 uint16 master=(cuffs_state)&0xFFFF;
 uint16 keynum=0;
 uint8 escape=1;
@@ -457,7 +585,7 @@ cr.AddItem(PID_BROKEN_CUFFS,1);
 if (valid(bastard))
 bastard.SayMsg(SAY_NETMSG, TEXTMSG_GAME, 12957);
 cr.AddEnemyInStack(master);
-cr.ParamBase[HANDCUFFS]=master|(keynum<<16)|(escape<<29)|(nohome<<30)|(follow<<31);
+cr.StatBase[HANDCUFFS]=master|(keynum<<16)|(escape<<29)|(nohome<<30)|(follow<<31);
 }
 
 void _respawn(Critter& cr)
@@ -474,23 +602,203 @@ void _respawn(Critter& cr)
 	cr.TransitToMap(homemap, homex, homey, homedir);
 }
 
+//create Harpoon hook
+void HookAttack(Critter& cr, Critter@ target, uint8 force, uint8 pull)
+{
+  if(valid(target) && !target.IsDead())
+  {
+	  Map@ map=cr.GetMap();
+	  uint8 dist = GetDistantion (cr.HexX, cr.HexY, target.HexX, target.HexY);
+	  uint crit = cr.Id;
+	  Item@ Hook;
+		  @Hook = map.GetItem(target.HexX, target.HexY, PID_GRAPPLE_HOOK);
+		  if(!valid(Hook))
+		  {
+		  @Hook = map.AddItem(target.HexX, target.HexY, PID_GRAPPLE_HOOK, 1);
+		  Hook.Val0 = dist;
+		  Hook.Val1 = cr.Id;
+		  Hook.Val5 = pull;
+		  SETFLAG(Hook.Flags,ITEM_TRAP);
+		  Hook.SetScript("_HookWalkInit");
+		  }
+			  else if (Hook.Val1 != crit)
+			  {
+		  	  Hook.Val0 = dist;
+			  Hook.Val1 = crit;
+			  Hook.Val5 = pull;
+			  Hook.SetScript("_HookWalkInit");
+			  }
+				  else if (force + cr.Stat[ST_CURRENT_HP]/20 - target.Stat[ST_CURRENT_HP]/20 + cr.Stat[ST_STRENGTH] - target.Stat[ST_STRENGTH]> Random(0, 15))
+				  {
+				cr.Say(SAY_EMOTE_ON_HEAD,"" + crit);
+				  uint16 targetHx=cr.HexX;
+				  uint16 targetHy=cr.HexY;
+				  map.GetHexCoordWall(target.HexX, target.HexY, targetHx, targetHy, 0.0f, 4);
+				  target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0, 1) == 1?true:false)), 2, targetHx, targetHy);
+				  MoveItem (Hook, 1, map, targetHx, targetHy);
+				  }
+  }
+}
+
+void _HookWalkInit(Item& item, bool firstTime)
+{
+	if(item.GetProtoId()==PID_GRAPPLE_HOOK) item.SetEvent(ITEM_EVENT_WALK,"_HookWalk");
+}
+
+void _HookWalk(Item& Hook, Critter& cr, bool entered, uint8 dir)
+{
+	if(!entered)
+	{
+	Critter@ Hooker=GetCritter(Hook.Val1);
+	if (!valid(Hooker)) DeleteItem(Hook);
+	uint8 dist = GetDistantion (cr.HexX, cr.HexY, Hooker.HexX, Hooker.HexY);
+	uint8 distMax = Hook.Val0;
+	Map@ map=cr.GetMap();
+	uint crit = cr.Id;
+	Item @ Hook1 = map.GetItem(Hooker.HexX, Hooker.HexY, PID_GRAPPLE_HOOK);
+
+			if (!valid(Hook1)) DeleteItem(Hook);
+			else if (cr.GetMapId()!=Hooker.GetMapId() || Hooker.IsDead() || Hook1.Val1!=crit) DeleteItem(Hook);
+			else if (valid(Hook))
+			{
+				if (dist>distMax)
+				{
+					uint16 HookHx=Hooker.HexX;
+					uint16 HookHy=Hooker.HexY;
+					map.GetHexCoordWall(cr.HexX, cr.HexY, HookHx, HookHy, 0.0f, 2);
+					cr.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0, 1) == 1?true:false)), 3, HookHx, HookHy);
+					cr.Say(SAY_NETMSG, "Вас отбрасывает назад");
+					MoveItem (Hook, 1, map, cr.HexX, cr.HexY);
+					cr.Say(SAY_EMOTE_ON_HEAD,"" + crit);
+				}
+				else
+				{
+					if (Hook.Val5 != 0) Hook.Val0 = dist;
+					MoveItem (Hook, 1, map, cr.HexX, cr.HexY);
+				}
+			}
+	}
+}
+
+//create Melee hook
+void HookMeleeAttack(Critter& cr, Critter@ target)
+{
+  if(valid(target) && !target.IsDead())
+  {
+ 	Map@ map=cr.GetMap();
+	uint crit = cr.Id;
+	Item @ Hook = map.GetItem(target.HexX, target.HexY, PID_MELEE_HOOK);
+		  if(!valid(Hook))
+		  {
+		  @ Hook = map.AddItem(target.HexX, target.HexY, PID_MELEE_HOOK, 1);
+		  Hook.Val1 = crit;
+		  SETFLAG(Hook.Flags,ITEM_TRAP);
+		  Hook.SetScript("_HookMeleeInit");
+		  }
+			  else if (Hook.Val1 != crit)
+			  {
+			  Hook.Val1 = crit;
+			  Hook.SetScript("_HookMeleeInit");
+			  }
+  }
+}
+
+void _HookMeleeInit(Item& item, bool firstTime)
+{
+	if(item.GetProtoId()==PID_MELEE_HOOK) item.SetEvent(ITEM_EVENT_WALK,"_HookMelee");
+}
+
+void _HookMelee(Item& Hook, Critter& cr, bool entered, uint8 dir)
+{
+	if(!entered)
+	{
+	Critter@ Hooker=GetCritter(Hook.Val1);
+	uint crit = cr.Id;
+	Map@ map=cr.GetMap();
+	Item @ Hook1 = map.GetItem(Hooker.HexX, Hooker.HexY, PID_MELEE_HOOK);
+
+			if (!valid(Hooker) || !valid(Hook1)) DeleteItem(Hook);
+			else if (cr.GetMapId()!=Hooker.GetMapId() || Hooker.IsDead() || Hook1.Val1!=crit) DeleteItem(Hook);
+			else if (0<Random(0,20) && ((Random(0, 100) + cr.Stat[ST_CURRENT_HP] - Hooker.Stat[ST_CURRENT_HP] > 70) || (Random(0, 100) + cr.Skill[SK_UNARMED] - Hooker.Skill[SK_UNARMED] + cr.Skill[SK_MELEE_WEAPONS] - Hooker.Skill[SK_MELEE_WEAPONS] + 10*cr.Stat[ST_STRENGTH] - 10*Hooker.Stat[ST_STRENGTH] > 30)))
+				{
+				DeleteItem(Hook);
+				cr.Say(SAY_NETMSG, "Вы вырвались из захвата");
+				cr.Say(SAY_EMOTE_ON_HEAD,"вырывается");
+				}
+			else if (valid(Hook))
+			{
+				uint16 HookHx=cr.HexX;
+				uint16 HookHy=cr.HexY;
+				uint8 revDir;
+				revDir = dir+3;
+				if(revDir > 5) revDir = revDir - 6;
+				map.MoveHexByDir (HookHx, HookHy, revDir, 1);
+				cr.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0, 1) == 1?true:false)), 3, HookHx, HookHy);
+				cr.Say(SAY_NETMSG, "Вы не смогли вырваться из захвата");
+				Hooker.Say(SAY_EMOTE_ON_HEAD,"хватает");
+			}
+	}
+}
 
 
+//create Hold hook
+void HookHoldAttack(Critter@ target, uint8 hardness)
+{
+  if(valid(target) && !target.IsDead())
+  {
+ 	Map@ map=target.GetMap();
+	uint targ = target.Id;
+	Item @ Hook = map.GetItem(target.HexX, target.HexY, PID_HOLD_HOOK);
+		  if(!valid(Hook))
+		  {
+		  Item @ Hook = map.AddItem(target.HexX, target.HexY, PID_HOLD_HOOK, 1);
+		  Hook.Val1 = targ;
+		  Hook.Val5 = hardness;
+		  SETFLAG(Hook.Flags,ITEM_TRAP);
+		  Hook.SetScript("_HookHoldInit");
+		  }
+			  else if ((Hook.Val1 != targ))
+			  {
+			  Hook.Val1 = targ;
+			  Hook.Val5 = hardness;
+			  Hook.SetScript("_HookHoldInit");
+			  }
+  }
+}
 
+void _HookHoldInit(Item& item, bool firstTime)
+{
+	if(item.GetProtoId()==PID_HOLD_HOOK) item.SetEvent(ITEM_EVENT_WALK,"_HookHold");
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
+void _HookHold(Item& Hook, Critter& cr, bool entered, uint8 dir)
+{
+	if(!entered)
+	{
+	uint crit = cr.Id;
+ 	Map@ map=cr.GetMap();
+		if (valid(Hook) && Hook.Val1 == crit)
+		{
+			if(20>Random(1,20) && (cr.Stat[ST_STRENGTH] + cr.Stat[ST_AGILITY] + cr.Stat[ST_ENDURANCE] - 10*Hook.Val5 < Random(5, 35)))
+			{
+			cr.Say(SAY_EMOTE_ON_HEAD,"не может вырваться");
+			cr.Say(SAY_NETMSG, "Вы не смогли вырваться");
+			uint16 HookHx=cr.HexX;
+			uint16 HookHy=cr.HexY;
+			uint8 revDir;
+			revDir = dir+3;
+			if(revDir > 5) revDir = revDir - 6;
+			map.MoveHexByDir (HookHx, HookHy, revDir, 1);
+			cr.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0, 1) == 1?true:false)), 3, HookHx, HookHy);
+			if(Hook.Val5 > 0) Hook.Val5-=1;
+			}
+			else
+			{
+			DeleteItem(Hook);
+			cr.Say(SAY_EMOTE_ON_HEAD,"вырывается");
+			cr.Say(SAY_NETMSG, "Вы освободились");
+			}
+		}
+		else DeleteItem(Hook);
+	}
+}
