@@ -187,9 +187,8 @@
 // void    Resize(uint16 width, uint16 height)
 
 #include "_mapper_defines.fos"
-#include "_macros.fos"
+#include "_defines.fos"
 #include "_itempid.fos"
-#include "_colors.fos"
 
 import void InitializeGame() from "config";
 
@@ -202,39 +201,12 @@ bool new_instance(string commandLine)
 	return false;
 }
 
-uint[] sand_hashes;
-string@[] sand_names;
-uint[] sand_nums;
-uint[] sand_colors;
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on mapper loaded.
 void start()
 {
 	InitializeGame();
 	InitializeTabs();
-	
-	string dir="art/tiles/",
-	edg="edg",
-	frm=".frm";
-	
-	sand_names.resize(0);
-	sand_nums.resize(0);
-	uint i=0;
-	for(i=1000; i<=1003; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
-	for(i=2000; i<=2003; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
-	for(i=3000; i<=3001; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
-	for(i=4000; i<=4008; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
-	for(i=5000; i<=5008; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
-	for(i=6000; i<=6011; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
-	for(i=7000; i<=7003; i++) {sand_names.insertLast(edg+i); sand_nums.insertLast(i);}
-	for(i=0; i<=4; i++) {sand_names.insertLast("edgs00"+i); sand_nums.insertLast(i);}
-	
-	sand_hashes.resize(sand_names.length());
-	for(uint j=0; j<sand_names.length(); j++) sand_hashes[j]=GetStrHash(dir+sand_names[j]+frm);
-	
-	uint[] temp = {COLOR_WHITE, COLOR_RED, COLOR_BLUE, COLOR_GREEN, COLOR_BLACK, COLOR_LBLUE, COLOR_GREEN_RED, COLOR_LRED};
-	sand_colors = temp;
 }
 
 void InitializeTabs()
@@ -358,55 +330,6 @@ bool console_message(string& message)
 //    5
 void render_iface(uint layer)
 {
-	if(layer!=1) return;
-	
-	MapperMap@ map = GetActiveMap();
-	if(map is null) return;	
-	
-	//Message("1");
-	
-	uint16 hexX0=0, hexY0=0, hexX=0, hexY=0;
-	if(!GetMonitorHex(10, 10, hexX0, hexY0)) return;
-	/*Message("2");
-	if(!GetMonitorHex(__ScreenWidth-10, __ScreenHeight-10, hexX, hexY)) return;
-	Message("3");*/
-	hexX=hexX0+20;
-	hexY=hexY0+20;
-	hexX0-=20;
-	hexY0-=20;
-	
-	hexX = MIN(hexX, map.Width);
-	hexY = MIN(hexY, map.Height);
-	//Message("x0: "+hexX0+" y0: "+hexY0+"x: "+hexX+" y: "+hexY);
-	
-	uint tlen=0, hash=0, hlen=sand_hashes.length();
-	int sx=0, sy=0;
-	
-	for(uint16 x=hexX0; x<hexX; x++)
-	{
-		for(uint16 y=hexY0; y<hexY; y++)
-		{
-			//Message("4");
-			tlen = map.GetTilesCount(x, y, false);
-			if(tlen<1) continue;
-			//Message("5");
-			hash = map.GetTile(x, y, false, tlen-1);
-			if(hash==0) continue;
-			//Message("6");
-			
-			if(!GetHexPos(x, y, sx, sy)) continue;
-			//Message("7");
-						
-			for(uint i=0; i<hlen; i++)
-			{
-				if(hash!=sand_hashes[i]) continue;
-				
-				uint color = sand_colors[sand_nums[i]/1000];				
-				
-				DrawText(sand_names[i], sx-50, sy, 120, 60, color, FONT_FALLOUT, FT_NOBREAK|FT_COLORIZE|FT_BORDERED);
-			}
-		}
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

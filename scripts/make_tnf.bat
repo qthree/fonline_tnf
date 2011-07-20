@@ -9,17 +9,21 @@
 @set INCLUDE=C:\Program Files\Microsoft Visual Studio 9.0\VC\include;%INCLUDE%
 @set INCLUDE=.\StlPort;%INCLUDE%
 
+cl.exe /nologo /MT /W3 /O2 /Gd /Fo".\\" /Fd".\\scriptarray.obj" /FD /c ".\\scriptarray.cpp"
+
 @: Server
 @del ".\\fonline_tnf.dll"
 cl.exe /nologo /MT /W3 /O2 /Gd /D "__SERVER" /Fo".\\" /Fd".\\fonline_tnf.obj" /FD /c ".\\fonline_tnf.cpp"
-link.exe /nologo /dll /incremental:no /machine:I386 ".\\fonline_tnf.obj" /out:".\\fonline_tnf.dll"
+link.exe /nologo /dll /incremental:no /machine:I386 ".\\fonline_tnf.obj" ".\\scriptarray.obj" /out:".\\fonline_tnf.dll"
 
 @: Client
 @del ".\\fonline_tnf_client.dll"
 cl.exe /nologo /MT /W3 /O2 /Gd /D "__CLIENT" /Fo".\\fonline_tnf_client.obj" /Fd".\\" /FD /c ".\\fonline_tnf.cpp"
-link.exe /nologo /dll /incremental:no /machine:I386 ".\\fonline_tnf_client.obj" /out:".\\fonline_tnf_client.dll"
+link.exe /nologo /dll /incremental:no /machine:I386 ".\\fonline_tnf_client.obj" ".\\scriptarray.obj" /out:".\\fonline_tnf_client.dll"
 
 @: Delete unnecessary stuff
+@del ".\\scriptarray.obj"
+@del ".\\scriptarray.idb"
 @del ".\\fonline_tnf.obj"
 @del ".\\fonline_tnf.exp"
 @del ".\\fonline_tnf.lib"

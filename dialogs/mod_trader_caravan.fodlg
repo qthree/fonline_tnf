@@ -16,11 +16,14 @@ lang=russ engl
 2 2000 None 0 #
 65506 2010 #
 0 2020 #
-3 2030 @
+3 2030 #
+19 2040 D _var p work = 0 #
+21 2050 D _var p work > 0 #
+21 2060 D _var p work = 0 D _item p PID_PACKAGE_CHEK > 0 @
 3 3000 None 0 #
-16 3010 D _var p modoc_citizenship = 2 #
-18 3020 D _param p SK_SPEECH > 119 D _var p modoc_citizenship = 0 #
-16 3030 D _param p SK_SPEECH < 119 D _var p modoc_citizenship = 0 @
+16 3010 D _var p activationStatus = 2 D _var p modoc_citizenship > 0 #
+18 3020 D _param p SK_SPEECH > 119 D _var p activationStatus = 0 #
+16 3030 D _param p SK_SPEECH < 119 D _var p activationStatus = 0 @
 4 4000 None 0 #
 0 4010 #
 65506 4020 #
@@ -68,7 +71,26 @@ lang=russ engl
 18 18000 None 0 #
 4 18010 #
 0 18020 #
-65506 18030 &
+65506 18030 @
+19 19000 None 0 #
+0 19010 #
+20 19020 #
+23 19030 D _script dialog@d_NotTimeoutCheck 1 1 D _script dialog@d_NotTimeoutCheck 1 2 D _script dialog@d_NotTimeoutCheck 1 3 D _script dialog@d_NotTimeoutCheck 1 4 @
+20 20000 None 0 #
+0 20010 D _script dialog@d_TimeoutCheck 1 1 D _script factions@FactionInGame 2 2 1 D _var p faction ! 3 D _var p faction ! 6 R _script dialog@give_Package 1 1 R _var p work = 1 R _script dialog@r_TimeoutSet 2 1 15 R _script dialog@r_SetUniqTO 1 60 #
+0 20020 D _script dialog@d_TimeoutCheck 1 2 D _var p faction ! 3 D _var p faction ! 6 R _script dialog@give_Package 1 2 R _var p work = 1 R _script dialog@r_TimeoutSet 2 2 15 R _script dialog@r_SetUniqTO 1 60 #
+0 20030 D _script dialog@d_TimeoutCheck 1 3 D _script factions@FactionInGame 2 4 1 D _var p faction ! 6 D _var p faction ! 3 R _script dialog@r_TimeoutSet 2 1 1 R _script dialog@give_Package 1 3 R _var p work = 1 R _script dialog@r_TimeoutSet 2 3 40 R _script dialog@r_SetUniqTO 1 60 #
+0 20040 D _script dialog@d_TimeoutCheck 1 4 D _script factions@FactionInGame 2 5 1 D _var p faction ! 3 D _var p faction ! 6 R _script dialog@r_TimeoutSet 2 1 1 R _script dialog@give_Package 1 4 R _var p work = 1 R _script dialog@r_TimeoutSet 2 4 60 R _script dialog@r_SetUniqTO 1 60 #
+0 20050 @
+21 21000 None 0 #
+0 21010 D _item p PID_PACKAGE_CHEK > 0 D _script dialog@d_TimeoutOk 0  R _var p work = 0 R _script dialog@get_Package_chek 1 1 #
+0 21020 D _script dialog@d_NotTimeoutOk 0  D _item p PID_PACKAGE_CHEK > 0 R _var p work = 0 R _script dialog@get_Package_chek 1 0 #
+22 21030 D _item p PID_PACKAGE = 0 D _var p work > 0 R _var p mod_trader_caravan_loan = 2 R _var p checkLoan = 1 R _var p work = 0 #
+0 21040 D _item p PID_PACKAGE > 0 R _item p PID_PACKAGE - 1 R _var p work = 0 #
+0 21050 @
+22 22000 None 0 @
+23 23000 None 0 #
+0 23010 &
 
 [russ]
 {100}{}{Караванщик}
@@ -85,6 +107,9 @@ lang=russ engl
 {2010}{}{Отлично, мне как раз нужно что-то особенное.}
 {2020}{}{Спасибо, в другой раз.}
 {2030}{}{А ты не мог бы занять мне денег?}
+{2040}{}{Слушай, а у теюя нет какой-нибудь работенки не пыльной?}
+{2050}{}{Нассчет работы}
+{2060}{}{У меня тут расписка...}
 {3000}{}{Хм? Я мог бы дать тебе ссуду, но у тебя есть гражданство? А то сдохнешь где-нибудь и прощай мои деньги.}
 {3010}{}{[Сказать правду] Да, у меня есть гражданство.}
 {3020}{}{[Соврать] Да, у меня есть гражданство.}
@@ -137,6 +162,25 @@ lang=russ engl
 {18010}{}{[Сколько ты можешь занять мне?}
 {18020}{}{Я передумал. Пока}
 {18030}{}{Лучше покажи свой товар.}
+{19000}{}{Нужно грузы кой-куда относить. За работу плачу, но только почле того, как принесешь расписку о доставке груза. Но смотри - потеряешь груз - будешь должен мне 200 монет.}
+{19010}{}{Не, мне это не подхожит. Всякие ящики таскать, ну его.}
+{19020}{}{Хм. Какие варианты?}
+{19030}{}{Сейчас работа есть?}
+{20000}{}{Ну ящиков много. Нужно в Модок, на ферму, на свалку или в Форт Саттер. Ну, ясное дело - чем опсаней путь - тем больше плачу. Ну что, берешься?}
+{20010}{}{Тогда до Модока донесу. Благо недалеко.[Взять ящик]}
+{20020}{}{Ну до фермы могу сбегать.[Взять ящик]}
+{20030}{}{Давай, на свалку так уж и быть, сгоняю.[Взять ящик]}
+{20040}{}{Я могу и на юг пройтись, давай посылку в Форт.[Взять ящик]}
+{20050}{}{Нет, спасибо}
+{21000}{}{Ну что, отнес?}
+{21010}{}{Ага, вот расписка}
+{21020}{}{Ага, вот расписка}
+{21030}{}{Тут такое едло. Я ящик потерял}
+{21040}{}{Хочу сдать ящик обратно. Не удалось унести}
+{21050}{}{Нет еще.}
+{22000}{}{Теперь ты должен мне 200 монет.}
+{23000}{}{Пока все заказы разобраны, приходи попозже.}
+{23010}{}{Пока}
 
 [engl]
 {100}{}{none}
@@ -151,6 +195,9 @@ lang=russ engl
 {2010}{}{Отлично, мне как раз нужно что-то особенное.}
 {2020}{}{Спасибо, в другой раз.}
 {2030}{}{А ты не мог бы занять мне денег?}
+{2040}{}{Слушай, а у теюя нет какой-нибудь работенки не пыльной?}
+{2050}{}{error}
+{2060}{}{У меня тут ящик}
 {3000}{}{Текст диалога}
 {3010}{}{[Сказать правду] Да, у меня есть гражданство.}
 {3020}{}{[Соврать] Да, у меня есть гражданство.}
@@ -203,4 +250,23 @@ lang=russ engl
 {18010}{}{[Сколько ты можешь занять мне?}
 {18020}{}{Я передумал. Пока}
 {18030}{}{Лучше покажи свой товар.}
+{19000}{}{Текст диалога}
+{19010}{}{Не, мне это не пожхожит. всякие ящики таскать, ну его.}
+{19020}{}{Хм. А куда нести?}
+{19030}{}{Хм. А куда нести?}
+{20000}{}{Текст диалога}
+{20010}{}{Тогда до Модока донесу. Благо недалеко.[Взять ящик]}
+{20020}{}{Ну до фермы могу сбегать.[Взять ящик]}
+{20030}{}{Давай, на свалку так уж и быть, сгоняю.[Взять ящик]}
+{20040}{}{Я могу и на юг пройтись, давай посылку в Форт.[Взять ящик]}
+{20050}{}{Нет, спасибо}
+{21000}{}{Текст диалога}
+{21010}{}{Ага, вот расписка}
+{21020}{}{Ага, вот расписка}
+{21030}{}{Тут такое едло. Я ящик потерял}
+{21040}{}{хочу сдать ящик обратно. Не удалось унести}
+{21050}{}{Нет еще.}
+{22000}{}{Текст диалога}
+{23000}{}{Пока все заказы разобраны, приходи попозже.}
+{23010}{}{Пока}
 

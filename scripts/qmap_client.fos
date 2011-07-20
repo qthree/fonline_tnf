@@ -1,3 +1,5 @@
+//Dynamic Map Objects 64 - client side
+
 #include "_client_defines.fos"
 #include "_macros.fos"
 #include "sprite.fos"
@@ -375,17 +377,19 @@ class MapTileData
 			
 			if(layer<2) {hexX = (hexX<<1); hexY = (hexY<<1);}
 			else if(layer==2) {field.IsNotPassed=true; field.IsNoLight=true; field.IsNotRaked=true; field.IsWall=true;}
-			else continue;
+			else if(layer==3) {field.IsNotPassed=true; field.IsNoLight=true; /*field.IsNotRaked=true;*/ field.IsScen=true;}
+			else if(layer>4) continue;
 			
 			//if(layer==0) {hexX = (hexX<<1)+2; hexY = (hexY<<1)+1;}
 			//else if(layer==1) {hexX = (hexX<<1)+2; hexY = (hexY<<1)+2;}
 			
 			//Message("draw "+hexX+" "+hexY);
 			
-			if(hs==0) continue;
+			if(hs==0 || hs==0xFFFF) continue;
 			
 			if(!GetHexPos(hexX, hexY, x, y) || x<-100 || y<-100 || x>__ScreenWidth+100 || y>__ScreenHeight+100) continue;
 			
+			if(TileSprites.length()<=hs) continue;
 			ts=TileSprites[hs];
 			if(ts==uint(-1) || sprites.length()<=ts) {/*ReloadSprite(hs);*/ continue;}
 			spriteId=sprites[ts].Id;
@@ -428,9 +432,23 @@ class MapTileData
 				NativeSprite@ sprite = AddMapSprite(hexX, hexY, spriteId, 0, __MapHexWidth>>1, __MapHexHeight>>1, 23, 0);
 				sprite.EggType = 5;
 			}
+			else if(layer==3)
+			{
+				//DrawMapSprite(hexX, hexY, 5001, spriteId, 0, 0, 0);
+				
+				NativeSprite@ sprite = AddMapSprite(hexX, hexY, spriteId, 0, __MapHexWidth>>1, __MapHexHeight>>1, 23, 0);
+				//sprite.EggType = 5;
+			}
+			else if(layer==4)
+			{
+				//DrawMapSprite(hexX, hexY, 5001, spriteId, 0, 0, 0);
+				
+				NativeSprite@ sprite = AddMapSprite(hexX, hexY, spriteId, 0, __MapHexWidth>>1, __MapHexHeight>>1, 24, 0);
+				//sprite.EggType = 5;
+			}
 		}
 		
-		SortSprites();
+		//SortSprites();
 		
 		Selected=0;
 		
@@ -494,11 +512,11 @@ class MapTileData
 		return true;
 	}
 	
-	bool Draw_iface()
-	{
+	void Draw_iface()
+	{	
 		CritterCl@ chosen = GetChosen();
 
-		if(chosen is null) return false;
+		if(chosen is null) return;
 		
 		int x=0, y=0; uint16 hs=0, val=0, hexX=0, hexY=0; uint ts=0, spriteId=0;
 		uint8 layer = 0;
@@ -575,7 +593,7 @@ class MapTileData
 			if(!DropSelection()) Message("Can't drop selection. (2)");
 		}
 		
-		return true;
+		return;
 	}
 }
 
@@ -773,7 +791,7 @@ void qmap_loop()
 
 void qmap_iface()
 {
-	if(!(currMTD is null) && currMTD.Id!=0)
+	if((__sinf&SINF_SPRITES)!=0 && (currMTD !is null) && currMTD.Id!=0)
 	{
 		bool ck= (currMTD.Id==uint(-1));
 

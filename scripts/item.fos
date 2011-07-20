@@ -1,6 +1,6 @@
 // Author: rifleman17
 #include "_macros.fos"
-
+#include "_npc_pids.fos"
 
 /* from old lite
 
@@ -1106,7 +1106,7 @@ void SignUseScreen(Critter& player, uint answerI, string& answerS)
 if(answerS.length() != 0)
 	{
 	Item @ item = GetItem(player.StatBase[ST_VAR0]);
-	item.SetLexems("$SignLex"+ answerS);
+	item.SetLexems(""+ answerS);
 	item.Val0 = 1;
 	item.Update();
 	}
@@ -1124,6 +1124,7 @@ void _TestTrapInit(Item& item, bool firstTime)
 bool e_TestTrapUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
 {
   if(@cr == null || @item == null || @onItem == null) return false;
+  //if(onItem.LockerCondition == LOCKER_ELECTRO) return false;
   if(SetTrapOnItem(cr, item, onItem))	 {onItem.SetEvent(ITEM_EVENT_SKILL, "trap@UseSkillOnTrappedItem"); return true;}
   return false;
 }
@@ -1180,7 +1181,81 @@ bool e_fleitaUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scen
 	else if(Random(1, 5)>1) map.PlaySound("flute4.wav", cr.HexX, cr.HexY, cr.Stat[ST_ENDURANCE] * 5);
 	else if(Random(1, 5)>0) map.PlaySound("flute5.wav", cr.HexX, cr.HexY, cr.Stat[ST_ENDURANCE] * 5);
 	cr.Say(SAY_EMOTE_ON_HEAD, "Играет на флейте.");
+	Location @ loc = map.GetLocation();
+	if ((loc.WorldX <= 50) || (loc.WorldX >= 150) || (loc.WorldY <= 50) || (loc.WorldY >= 150))
+		{
+		cr.Say(SAY_NETMSG, "Вы слишком далеко от фермы.");
+		return true;
+		}
+	if ((loc.WorldX >= item.Val2 - 20) && (loc.WorldX <= item.Val2 + 20) && (loc.WorldY >= item.Val3 - 20) && (loc.WorldY <= item.Val3 + 20))
+		{
+		cr.Say(SAY_NETMSG, "Тут брамины уже паслись.");
+		return true;
+		}
+	if (loc.Id >= 100 && loc.Id <= 139)
+		{
+		cr.Say(SAY_NETMSG, "Начинаете пасти стадо.");
+		item.Val1 = map.Id;
+		item.Val2 = loc.WorldX;
+		item.Val3 = loc.WorldY;
+		cr.AddTimeEvent("cte_BrahminEat", (60*3)*__TimeMultiplier, CTE_WORK, 0);
+		}
 	return true;
+}
+
+uint cte_BrahminEat(Critter& cr, int identifier, uint& rate)
+{
+	Critter@[] brahmins;
+	Item@ flute = cr.GetItem(PID_FLUTE, SLOT_HAND1);
+	Map @ map = cr.GetMap();
+	if(!valid(flute) || !valid(map)) return 0;
+	if((map.GetCritters(NPC_PID_Brahmin, FIND_LIFE_AND_KO|FIND_ONLY_NPC, brahmins)>0 ||
+		map.GetCritters(NPC_PID_Brahmin2, FIND_LIFE_AND_KO|FIND_ONLY_NPC, brahmins)>0 ||
+		map.GetCritters(NPC_PID_Brahmin3, FIND_LIFE_AND_KO|FIND_ONLY_NPC, brahmins)>0 ||
+		map.GetCritters(NPC_PID_WeakBrahmin, FIND_LIFE_AND_KO|FIND_ONLY_NPC, brahmins)>0 ||
+		map.GetCritters(NPC_PID_WildBrahmin, FIND_LIFE_AND_KO|FIND_ONLY_NPC, brahmins)>0) && map.Id == flute.Val1)
+		{
+			for(uint i=0,ii=brahmins.length();i<ii;i++)
+			{
+				brahmins[i].StatBase[ST_VAR5] += 1;
+			}
+		cr.Say(SAY_NETMSG, "Брамины кажется насытились тут");
+		}
+return 0;
+}
+
+void _dosimetr(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_dosimetrUse");
+}
+
+bool e_dosimetrUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	Map @ map = cr.GetMap();
+	cr.Say(SAY_EMOTE_ON_HEAD, "Производит замер.");
+	Location @ loc = map.GetLocation();
+	if ((loc.WorldX >= item.Val1 - 20) && (loc.WorldX <= item.Val1 + 20) && (loc.WorldY >= item.Val2 - 20) && (loc.WorldY <= item.Val2 + 20))
+		{
+		cr.Say(SAY_NETMSG, "Кажется место правильное, остается только подождать несколько минут.");
+		item.Val3 = map.Id;
+		cr.AddTimeEvent("cte_dosimetrUse", 60*3, CTE_WORK, 0);
+		}
+	return true;
+}
+
+uint cte_dosimetrUse(Critter& cr, int identifier, uint& rate)
+{
+	Item@ dosimetr = cr.GetItem(PID_DOSIMETR, SLOT_HAND1);
+	Map @ map = cr.GetMap();
+	if(!valid(dosimetr) || !valid(map)) return 0;
+	if(map.Id == dosimetr.Val3)
+		{
+		cr.Say(SAY_NETMSG, "Индикатор изменил цвет на желтый, можно возвращаться.");
+		DeleteItem(dosimetr);
+		cr.AddItem(PID_DOSIMETR_USED, 1);
+		}
+	else cr.Say(SAY_NETMSG, "Время прошло, но индикатор не сменил цвет, кажется мы сделали что-то неправильно.");
+return 0;
 }
 
 void _TraderBadge(Item& item, bool firstTime)
@@ -1215,8 +1290,18 @@ bool e_kosakUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scene
 	Map @ map = cr.GetMap();
 	if(Random(0, 1)>0) map.PlaySound("drugs1.wav", cr.HexX, cr.HexY, 1);
 	else map.PlaySound("drugs2.wav", cr.HexX, cr.HexY,  1);
-	cr.Say(SAY_EMOTE_ON_HEAD, "Раскуривает косяк.");
-	if(cr.Stat[ST_POISONING_LEVEL]==0) {cr.StatBase[ST_EXPERIENCE]+=Random(0, 50); cr.StatBase[ST_POISONING_LEVEL]+=2;}
+	cr.Say(SAY_EMOTE_ON_HEAD, "Раскуривает косяк");
+	if(cr.Stat[ST_POISONING_LEVEL]==0)
+		{
+		cr.StatBase[ST_EXPERIENCE]+=Random(0, 50);
+		cr.StatBase[ST_POISONING_LEVEL]+=2;
+		if(cr.Stat[ST_POISON_RESISTANCE]<=30)
+			{
+			cr.StatBase[ST_EXPERIENCE]+=Random(0, 200);
+			if(Random(0, 3)>0) cr.StatBase[ST_POISON_RESISTANCE]+=1;
+			if(Random(0, 2)==0) cr.StatBase[ST_MAX_LIFE]-=1;
+			}
+		}
 	cr.DeleteItem(PID_KOSYAK,1);
 	return true;
 }
@@ -1224,6 +1309,7 @@ bool e_kosakUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scene
 void _InitGmPistol(Item& item, bool firstTime)
 {
 item.SetEvent(ITEM_EVENT_USE, "e_GmPistolUse");
+item.SetEvent(ITEM_EVENT_SKILL, "e_GmPistolPick");
 }
 
 bool e_GmPistolUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
@@ -1235,6 +1321,15 @@ bool e_GmPistolUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Sc
 	}
 	return true;
 }
+
+bool e_GmPistolPick(Item& item, Critter& cr, int skill)
+{
+	if((skill == SKILL_PICK_ON_GROUND) && (item.Accessory == ACCESSORY_HEX))
+	{
+	DeleteItem(item);
+	}
+	return false;
+}
  
 void GmPistolUseScreen(Critter& player, uint answerI, string& answerS)
 {
@@ -1244,27 +1339,6 @@ void GmPistolUseScreen(Critter& player, uint answerI, string& answerS)
 		int number=0;
 		StrToInt (answerS, number);
 		item.Val1 = number;
-		if (number == 100) {item.Val2 = 0; player.Say(SAY_NETMSG, "притягивание");}
-		else if (number == 200) {item.Val2 = 1; player.Say(SAY_NETMSG, "прыжок к");}
-		else if (number == 300) {item.Val2 = 2; player.Say(SAY_NETMSG, "обезвоживание");}
-		else if (number == 400) player.RunClientScript("client_main@_showId", 1, 1, 1, null, null);
-		Critter@ target=GetCritter(number);
-		if (not valid(target) || item.Val2>1) return;
-
-		Critter@ daddy=((item.Val2!=0)?target:player);
-		Critter@ child=((item.Val2==0)?target:player);
-
-		Map@ map=daddy.GetMap();
-		if (not valid(map)) return;
-		uint8 temp_dir = Random(0, 5);
-		for(uint i=0; i<6; i++)
-			{
-			uint16 hexX = daddy.HexX, hexY = daddy.HexY;
-			map.MoveHexByDir (hexX, hexY, (temp_dir+i)%6, 1);
-			if(not map.IsHexPassed(hexX, hexY)) continue;
-			child.TransitToMap(map.Id, hexX, hexY, 0);
-			break;	
-			}
 	}
 }
 
@@ -1322,21 +1396,621 @@ void e_PutiDrop(Item& item, Critter& cr)
 	DeleteItem(item);
 }
 
+//depracated
 void _InitCodeDoor(Item& item, bool firstTime)
 {
-	item.SetEvent(ITEM_EVENT_SKILL, "e_CodeDoorSkill");
-	item.LockerCondition = LOCKER_ELECTRO;
+	Log("Depracated function item@_InitCodeDoor at item.Id "+item.Id);
+	//item.SetEvent(ITEM_EVENT_SKILL, "e_CodeDoorSkill");
+	//item.LockerCondition = LOCKER_ELECTRO;
 }
-
+/*
 bool e_CodeDoorSkill(Item& item, Critter& cr, int skill)
 {
 	if(skill == SKILL_PICK_ON_GROUND)
 	{
 		if(_LockerIsClose(item))
 		{
-			cr.RunClientScript("client_screen_codedoor@ShowScreen", item.Id, 0, 0, "", null);
+		  
+			cr.RunClientScript("client_screen_codedoor@ShowScreen", item.Id, item.Val1, 0, "Введите код", null);
 			return true;
 		}
 	}
 return false;
+}*/
+
+void _InitAidKit(Item& item, bool firstTime)
+{
+	item.SetLexems("Медикаментов там "+SetupAidLeX(item.Indicator)+".");
+}
+
+string SetupAidLeX(uint8 aidValue)
+{
+	string resultTemp = "";
+			
+	if(aidValue == 100) resultTemp = "полная сумка"; 
+	  else if(aidValue > 80) resultTemp = "достаточно"; 
+	    else if(aidValue > 60) resultTemp = "чуть больше половины";
+	      else if(aidValue > 40) resultTemp = "немного меньше половины";
+		else if(aidValue > 20) resultTemp = "совсем не много";
+		  else if(aidValue > 10) resultTemp = "на дне";
+		    else if(aidValue > 0) resultTemp = "практически нет";
+		      else if(aidValue == 0) resultTemp = "нет";
+			
+	return resultTemp;
+}
+
+void _AutoDoorInit(Item& item, bool firstTime)
+{
+	if(item.GetProtoId()==PID_AUTODOOR) item.SetEvent(ITEM_EVENT_WALK,"e_AutoDoorWalk");
+}
+
+void e_AutoDoorWalk(Item& item, Critter& cr, bool entered, uint8 dir)
+{
+	Item@ door = GetItem(item.Val1);
+	if (!valid(door)) {DeleteItem(item); return;}
+	if(entered)
+	{
+		if (valid(cr) && cr.IsPlayer() && cr.StatBase[ST_BODY_TYPE]<BT_BRAHMIN && !FLAG(door.LockerCondition, LOCKER_ISOPEN))
+		{
+		if (item.Val2==1 && cr.Karma[KARMA_SEPARATED]==0) return;
+		door.LockerOpen();
+		}
+	}
+	if(!entered)
+	{
+		if (valid(cr) && cr.IsPlayer() && cr.StatBase[ST_BODY_TYPE]<BT_BRAHMIN)
+		{
+		uint16 x = 0;
+		uint16 y = 0;
+		Map@ map = door.GetMapPosition(x, y);
+		if(not valid(map)) return;
+		Critter@[] persons;
+		if (map.GetCrittersHex(x, y, 1, FIND_LIFE, persons)>0) return;
+		door.LockerClose();
+		}
+	}
+}
+
+void _PillsInit(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_PillsUse");
+}
+
+bool e_PillsUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	cr.Say(SAY_EMOTE_ON_HEAD, "принимает таблетки");
+	if(item.GetProtoId()==PID_HEART_PILLS)
+		{
+		cr.StatBase[ST_POISONING_LEVEL]+=1;
+		cr.DeleteItem(PID_HEART_PILLS,1);
+		return true;
+		}
+	else if(item.GetProtoId()==PID_PILLS)
+		{
+		cr.StatBase[ST_RADIOACTIVE]=4;
+		cr.StatBase[ST_POISONING_LEVEL]+=1;
+		cr.DeleteItem(PID_PILLS,1);
+		return true;
+		}
+	return true;
+}
+
+void _MercsSignInit(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_MercsSign");
+}
+
+bool e_MercsSign(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	cr.Say(SAY_EMOTE_ON_HEAD, "показывает плакат");
+	return true;
+}
+
+void _MercsSign2Init(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_MercsSign2");
+}
+
+bool e_MercsSign2(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	cr.Say(SAY_EMOTE_ON_HEAD, "показывает нашивку Черной Стаи");
+	return true;
+}
+
+void _InitEmptyHypo(Item& item, bool firstTime)
+{
+item.SetEvent(ITEM_EVENT_USE, "e_EmptyHypoUse");
+}
+
+bool e_EmptyHypoUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	bool onSelf=(!valid(onCritter) && !valid(onItem) && !valid(onScenery));
+	if(onSelf)
+		{
+		Item @ hypo = cr.AddItem(PID_HYPO_BLOOD, 1);
+		hypo.Val1 = cr.Id;
+		hypo.Val2 = cr.Stat[ST_TOXIC];
+		hypo.Val3 = cr.StatBase[ST_DESEASE];
+		hypo.Val4 = cr.Param[ST_BODY_TYPE];
+		hypo.Val5 = cr.Stat[ST_POISONING_LEVEL];
+		hypo.Val6 = cr.Stat[ST_RADIATION_LEVEL];
+		cr.StatBase[ST_VAR0] = hypo.Id;
+		cr.ShowScreen(SCREEN_SAY , 0, "item@HypoUseScreen");
+		hypo.Update();
+		cr.DeleteItem(PID_HYPODERMIC_NEEDLE,1);
+		cr.Say(SAY_NETMSG, "Вы взяли у себя образец крови.");
+		cr.Say(SAY_EMOTE_ON_HEAD, "Берет образец крови");
+		return true;
+		}
+	else if(cr.IsPlayer() && valid(cr) && valid(onCritter))
+		{
+		if (cr.Timeout[TO_BATTLE]>0 || onCritter.Timeout[TO_BATTLE]>0) {cr.Say(SAY_NETMSG, "Это неуместно"); return true;}
+		Item @ hypo = cr.AddItem(PID_HYPO_BLOOD, 1);
+		hypo.Val1 = onCritter.Id;
+		hypo.Val2 = onCritter.Stat[ST_TOXIC];
+		hypo.Val3 = onCritter.StatBase[ST_DESEASE];
+		hypo.Val4 = onCritter.Param[ST_BODY_TYPE];
+		hypo.Val5 = onCritter.Stat[ST_POISONING_LEVEL];
+		hypo.Val6 = onCritter.Stat[ST_RADIATION_LEVEL];
+		cr.StatBase[ST_VAR0] = hypo.Id;
+		cr.ShowScreen(SCREEN_SAY , 0, "item@HypoUseScreen");
+		hypo.Update();
+		cr.DeleteItem(PID_HYPODERMIC_NEEDLE,1);
+		cr.Say(SAY_NETMSG, "Вы взяли образец крови.");
+		cr.Say(SAY_EMOTE_ON_HEAD, "Берет образец крови");
+		return true;
+		}
+	else cr.Say(SAY_NETMSG, "Это неуместно");
+	return true;
+}
+
+void HypoUseScreen(Critter& player, uint answerI, string& answerS)
+{
+  if(answerS.length() != 0)
+  {
+    Item @ Hypo = GetItem(player.StatBase[ST_VAR0]);
+    Hypo.SetLexems("$HypoLex"+ answerS);
+    Hypo.Update();
+  }
+}
+
+void _InitBloodHypo(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_USE, "e_BloodHypoUse");
+	item.SetEvent(ITEM_EVENT_SKILL, "e_BloodHypoSkill");
+}
+
+import void ApplyDesease(Critter& player, int param0, int param1) from "morphes";
+
+bool e_BloodHypoUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	bool onSelf=(!valid(onCritter) && !valid(onItem) && !valid(onScenery));
+	if(onSelf)
+		{
+		if(item.Val3 != 0)
+			{
+			if(item.Val1 == 0 && cr.StatBase[ST_DESEASE]<=item.Val3)
+				{
+				if (cr.GetTimeEvents(7, null, null, null)>0 && cr.Stat[ST_TOXIC]>0) {cr.EraseTimeEvents(7); cr.StatBase[ST_TOXIC]=0;}
+				cr.StatBase[ST_DESEASE]=item.Val3;
+				}
+			else if(item.Val2 != 0 || Random(0, 1)>0) ApplyDesease(cr, cr.Id, item.Val3);
+			else if(cr.StatBase[ST_DESEASE]<item.Val3) cr.StatBase[ST_DESEASE]=item.Val3;
+			}
+		cr.Say(SAY_NETMSG, "Вы вкололи шприц себе.");
+		cr.Say(SAY_EMOTE_ON_HEAD, "Вкалывает шприц");
+		DeleteItem(item);
+		return true;
+		}
+	else if(cr.IsPlayer() && valid(cr) && valid(onCritter))
+		{
+		if (cr.Timeout[TO_BATTLE]>0 || onCritter.Timeout[TO_BATTLE]>0) {cr.Say(SAY_NETMSG, "Это неуместно"); return true;}
+		if(item.Val3 != 0 && onCritter.IsPlayer())
+			{
+			if(item.Val1 == 0 && onCritter.StatBase[ST_DESEASE]<=item.Val3)
+				{
+				if (onCritter.GetTimeEvents(7, null, null, null)>0 && onCritter.Stat[ST_TOXIC]>0) {onCritter.EraseTimeEvents(7); onCritter.StatBase[ST_TOXIC]=0;}
+				onCritter.StatBase[ST_DESEASE]=item.Val3;
+				}
+			else if(item.Val2 != 0 || Random(0, 1)>0) ApplyDesease(cr, onCritter.Id, item.Val3);
+			else if(onCritter.StatBase[ST_DESEASE]<item.Val3) onCritter.StatBase[ST_DESEASE]=item.Val3;
+			}
+		cr.Say(SAY_NETMSG, "Вы вкололи шприц.");
+		cr.Say(SAY_EMOTE_ON_HEAD, "Вкалывает шприц");
+		DeleteItem(item);
+		return true;
+		}
+	else cr.Say(SAY_NETMSG, "Это неуместно");
+	return true;
+}
+
+bool e_BloodHypoSkill(Item& item, Critter& cr, int skill)
+{
+	if(skill == SK_SCIENCE)
+	{
+	int body=item.Val4;
+		if (_CritCountItem(cr,PID_DOCTORS_BAG)==0) {cr.Say(SAY_NETMSG, "Вам нужны соответствующие инструменты для анализа крови."); return true;}
+		else if (cr.Skill[SK_SCIENCE]>50 || cr.Skill[SK_SCIENCE]>50)
+		{
+		switch(body)
+			{
+			case 0: cr.Say(SAY_NETMSG, "Это кровь человека."); break;
+			case 1: cr.Say(SAY_NETMSG, "Это кровь человека."); break;
+			case 2: cr.Say(SAY_NETMSG, "Это кровь человека."); break;
+			case 3: cr.Say(SAY_NETMSG, "Это кровь супермутанта."); break;
+			case 4: cr.Say(SAY_NETMSG, "Это кровь гуля."); break;
+			case 5: cr.Say(SAY_NETMSG, "Это кровь брамина."); break;
+			case 6: cr.Say(SAY_NETMSG, "Это кровь скорпиона"); break;
+			case 7: cr.Say(SAY_NETMSG, "Это кровь крысы"); break;
+			case 8: cr.Say(SAY_NETMSG, "Это кровь летуна"); break;
+			case 9: cr.Say(SAY_NETMSG, "Это кровь кентавра"); break;
+			case 10: cr.Say(SAY_NETMSG, "Это гидравлическая жидкость, непонятно как она попала в шприц."); break;
+			case 11: cr.Say(SAY_NETMSG, "Это кровь собаки"); break;
+			case 12: cr.Say(SAY_NETMSG, "Это жидкость мантиса"); break;
+			case 13: cr.Say(SAY_NETMSG, "Это кровь смертокогтя"); break;
+			case 14: cr.Say(SAY_NETMSG, "Это жидкость из растения"); break;
+			case 15: cr.Say(SAY_NETMSG, "Это кровь гекко"); break;
+			case 16: cr.Say(SAY_NETMSG, "Это кровь чужого"); break;
+			}
+		if (cr.Skill[SK_SCIENCE]>100 && body<=4)
+			{
+			if(item.Val2==0) cr.Say(SAY_NETMSG, "Уровень лейкоцитов в норме.");
+			else if(item.Val2<=50) cr.Say(SAY_NETMSG, "В крови присутствуют следы воздействия какого-то вируса.");
+			else cr.Say(SAY_NETMSG, "Заметны образования в крови, видимо воздействие вируса было довольно продолжительным.");
+			}
+		}		
+		return true;
+	}
+	return false;
+}
+
+
+void _InitTutorial(Item& item, bool firstTime)
+{
+item.SetEvent(ITEM_EVENT_USE, "e_TutorialUse");
+item.SetEvent(ITEM_EVENT_SKILL, "e_TutorialPick");
+}
+
+
+bool e_TutorialPick(Item& item, Critter& cr, int skill)
+{
+	if((skill == SKILL_PICK_ON_GROUND) && (item.Accessory == ACCESSORY_HEX))
+	{
+	Map @ map = cr.GetMap();
+		switch(item.Val1)
+			{
+			case 0: cr.Say(SAY_NETMSG, "Обучение не назначенно."); break;
+			case 1: cr.Say(SAY_SOCIAL, "Голопроектор vAULT-TEC - что делать если встретил огнегекко."); if(cr.GetTimeEvents(CTE_WORK, null, null, null)==0) {cr.ModeBase[MODE_NO_WALK] = 1;cr.ModeBase[MODE_NO_RUN] = 1;cr.StatBase[ST_VAR1] = 0; cr.AddTimeEvent("cte_firegecko", 5, CTE_WORK, 0);} break;
+			case 2: cr.Say(SAY_NETMSG, "Это кровь человека."); break;
+			case 3: cr.Say(SAY_NETMSG, "Это кровь супермутанта."); break;
+			case 4: cr.Say(SAY_NETMSG, "Это кровь гуля."); break;
+			case 5: cr.Say(SAY_NETMSG, "Это кровь брамина."); break;
+			case 6: cr.Say(SAY_NETMSG, "Это кровь скорпиона"); break;
+			case 7: cr.Say(SAY_NETMSG, "Это кровь крысы"); break;
+			case 8: cr.Say(SAY_NETMSG, "Это кровь летуна"); break;
+			case 9: cr.Say(SAY_NETMSG, "Это кровь кентавра"); break;
+			case 10: cr.Say(SAY_NETMSG, "Это гидравлическая жидкость, непонятно как она попала в шприц."); break;
+			case 11: cr.Say(SAY_NETMSG, "Это кровь собаки"); break;
+			case 12: cr.Say(SAY_NETMSG, "Это жидкость мантиса"); break;
+			case 13: cr.Say(SAY_NETMSG, "Это кровь смертокогтя"); break;
+			case 14: cr.Say(SAY_NETMSG, "Это жидкость из растения"); break;
+			case 15: cr.Say(SAY_NETMSG, "Это кровь гекко"); break;
+			case 16: cr.Say(SAY_NETMSG, "Это кровь чужого"); break;
+			}
+	}
+	return true;
+}
+ 
+bool e_TutorialUse(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scenery@ onScenery)
+{
+	cr.ShowScreen(SCREEN_SAY , 0, "item@TutorialUseScreen");
+	cr.StatBase[ST_VAR0] = item.Id;
+	return true;
+}
+
+void TutorialUseScreen(Critter& player, uint answerI, string& answerS)
+{
+	Item @ item = GetItem(player.StatBase[ST_VAR0]);
+	if(answerS.length() >0)
+	{
+		int number=0;
+		StrToInt (answerS, number);
+		item.Val1 = number;
+	}
+	switch(item.Val1)
+		{
+		case 0: item.SetLexems("нет обучения"); break;
+		case 1: item.SetLexems("Что делать если встретил огнегекко"); break;
+		}
+}
+
+import bool AddAttackPlane(Critter& npc, uint priority, Critter& target, bool run) from "npc_planes";
+import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";
+
+uint cte_firegecko(Critter& cr, int identifier, uint& rate)
+{
+	int event = cr.Stat[ST_VAR1];
+	if (event==0)
+		{
+		cr.Say(SAY_SOCIAL, "безоружный человек встретил огнегекко.");
+		cr.SetDir(0);
+		Map @ map = cr.GetMap();
+		Critter@[] mobs;
+		map.GetCritters(0, FIND_ALL, mobs);
+		for(uint j=0,jj=mobs.length();j<jj;j++) 
+			{
+			if(mobs[j].StatBase[ST_VAR1] == 100) DeleteNpc(mobs[j]);
+			}
+		Critter@ gecko =map.AddNpc(NPC_PID_FireGecko, cr.HexX - 5, cr.HexY, 0, null, null, null);
+		cr.StatBase[ST_VAR2] = gecko.Id;
+		Critter@ newby =map.AddNpc(92, cr.HexX - 10, cr.HexY-2, 3, null, null, null);
+		cr.StatBase[ST_VAR3] = newby.Id;
+		newby.ModeBase[MODE_NO_WALK] = 1;
+		newby.ModeBase[MODE_NO_RUN] = 1;
+		cr.StatBase[ST_VAR1]++;
+		}
+	else if (event==1)
+		{
+		cr.Say(SAY_SOCIAL, "человек говорит гекко *привет*.");
+		Critter@ newby = GetCritter(cr.Stat[ST_VAR3]);
+		newby.Say(SAY_NORM, "Привет.");
+		cr.StatBase[ST_VAR1]++;
+		}
+	else if (event==2)
+		{
+		cr.Say(SAY_SOCIAL, "гекко отвечает.");
+		Critter@ gecko = GetCritter(cr.Stat[ST_VAR2]);
+		Critter@ newby = GetCritter(cr.Stat[ST_VAR3]);
+		gecko.StatBase[ST_MELEE_DAMAGE]=200;
+		AddAttackPlane(gecko,0,newby,true);
+		cr.StatBase[ST_VAR1]++;
+		return 10;
+		}
+	else if (event==3)
+		{
+		Critter@ gecko = GetCritter(cr.Stat[ST_VAR2]);
+		Critter@ newby = GetCritter(cr.Stat[ST_VAR3]);
+		DeleteNpc(gecko);
+		DeleteNpc(newby);
+		cr.Say(SAY_SOCIAL, "мораль - не стоит разговаривать с гекко, лучше убегать");
+		cr.StatBase[ST_VAR1]++;
+		return 10;
+		}
+	else if (event==4)
+		{
+		cr.Say(SAY_SOCIAL, "человек с пистолетом встретил огнегекко");
+		Map @ map = cr.GetMap();
+		Critter@ gecko =map.AddNpc(NPC_PID_FireGecko, cr.HexX - 5, cr.HexY, 0, null, null, null);
+		cr.StatBase[ST_VAR2] = gecko.Id;
+		Critter@ newby =map.AddNpc(92, cr.HexX - 10, cr.HexY-2, 3, null, null, null);
+		Item@ weapon=newby.AddItem(PID_SMOKE_GUN_LOW, 1);
+		newby.MoveItem(weapon.Id, 1, SLOT_HAND1);
+		weapon.Update();
+		newby.ModeBase[MODE_NO_WALK] = 1;
+		newby.ModeBase[MODE_NO_RUN] = 1;
+		cr.StatBase[ST_VAR3] = newby.Id;
+		cr.StatBase[ST_VAR1]++;
+		}
+	else if (event==5)
+		{
+		cr.Say(SAY_SOCIAL, "человек нападает");
+		Critter@ gecko = GetCritter(cr.Stat[ST_VAR2]);
+		Critter@ newby = GetCritter(cr.Stat[ST_VAR3]);
+		newby.SkillBase[SK_SMALL_GUNS]=300;
+		gecko.StatBase[ST_MELEE_DAMAGE]=100;
+		gecko.SkillBase[SK_UNARMED]=300;
+		AddAttackPlane(newby,0,gecko,true);
+		cr.StatBase[ST_VAR1]++;
+		return 10;
+		}
+	else if (event==6)
+		{
+		Critter@ gecko = GetCritter(cr.Stat[ST_VAR2]);
+		Critter@ newby = GetCritter(cr.Stat[ST_VAR3]);
+		DeleteNpc(gecko);
+		DeleteNpc(newby);
+		cr.Say(SAY_SOCIAL, "мораль - не стоит нападать на гекко в одиночку, лучше убегать");
+		cr.StatBase[ST_VAR1]++;
+		}
+	else if (event==7)
+		{
+		cr.Say(SAY_SOCIAL, "вооруженный человек встретил огнегекко");
+		Map @ map = cr.GetMap();
+		Critter@ gecko =map.AddNpc(NPC_PID_FireGecko, cr.HexX - 5, cr.HexY, 0, null, null, null);
+		cr.StatBase[ST_VAR2] = gecko.Id;
+		Critter@ newby =map.AddNpc(48, cr.HexX - 10, cr.HexY-2, 3, null, null, null);
+		Item@ weapon=newby.AddItem(PID_HUNTING_RIFLE, 1);
+		newby.MoveItem(weapon.Id, 1, SLOT_HAND1);
+		weapon.Update();
+		cr.StatBase[ST_VAR3] = newby.Id;
+		cr.StatBase[ST_VAR1]++;
+		}
+	else if (event==8)
+		{
+		cr.Say(SAY_SOCIAL, "и даже будучи вооруженным, стоит позвать подмогу");
+		Map @ map = cr.GetMap();
+		Critter@ newby = GetCritter(cr.Stat[ST_VAR3]);
+		newby.Say(SAY_NORM, "Хренасе");
+		AddWalkPlane(newby, 1, cr.HexX - 20, cr.HexY-7, 3, true, 0);
+		cr.StatBase[ST_VAR1]++;
+		}
+	else if (event==9)
+		{
+		cr.Say(SAY_SOCIAL, "хотя бы одного или даже лучше двух");
+		Map @ map = cr.GetMap();
+		Critter@ gecko = GetCritter(cr.Stat[ST_VAR2]);
+		Critter@ newby = GetCritter(cr.Stat[ST_VAR3]);
+		Critter@ newby2 =map.AddNpc(48, cr.HexX - 20, cr.HexY-5, 3, null, null, null);
+		Critter@ newby3 =map.AddNpc(48, cr.HexX - 20, cr.HexY-8, 3, null, null, null);
+		newby2.StatBase[ST_VAR1] = 100;
+		newby3.StatBase[ST_VAR1] = 100;
+		Item@ weapon2=newby2.AddItem(PID_HUNTING_RIFLE, 1);
+		newby2.MoveItem(weapon2.Id, 1, SLOT_HAND1);
+		weapon2.Update();
+		Item@ weapon3=newby3.AddItem(PID_HUNTING_RIFLE, 1);
+		newby3.MoveItem(weapon3.Id, 1, SLOT_HAND1);
+		weapon3.Update();
+		newby.Say(SAY_NORM, "Помогите");
+		newby.SkillBase[SK_SMALL_GUNS]=300;
+		newby2.SkillBase[SK_SMALL_GUNS]=300;
+		newby3.SkillBase[SK_SMALL_GUNS]=300;
+		newby.StatBase[305]=80;
+		newby2.StatBase[305]=80;
+		newby3.StatBase[305]=80;
+		AddAttackPlane(newby,0,gecko,true);
+		AddAttackPlane(newby2,0,gecko,true);
+		AddAttackPlane(newby3,0,gecko,true);
+		cr.StatBase[ST_VAR1]++;
+		return 20;
+		}
+	else if (event==10)
+		{
+		Map @ map = cr.GetMap();
+		cr.Say(SAY_SOCIAL, "запомните, только в группе вы можете гарантировать себе выживание");
+		Critter@ gecko = GetCritter(cr.Stat[ST_VAR2]);
+		Critter@ newby = GetCritter(cr.Stat[ST_VAR3]);
+		DeleteNpc(gecko);
+		DeleteNpc(newby);
+		Critter@[] mobs;
+		map.GetCritters(0, FIND_ALL, mobs);
+		for(uint j=0,jj=mobs.length();j<jj;j++) 
+			{
+			if(mobs[j].Stat[ST_VAR1] == 100) DeleteNpc(mobs[j]);
+			}
+		cr.StatBase[ST_VAR1]++;
+		}
+	else if (event==11)
+		{
+		cr.Say(SAY_SOCIAL, "этих животных вы, вооружившись и при некотором везении, вероятно сможете убить и сами");
+		Map @ map = cr.GetMap();
+		Critter@ mob1 =map.AddNpc(11, cr.HexX - 7, cr.HexY-6, 3, null, null, null);
+		Critter@ mob2 =map.AddNpc(12, cr.HexX - 7, cr.HexY-4, 3, null, null, null);
+		Critter@ mob3 =map.AddNpc(16, cr.HexX - 7, cr.HexY-2, 3, null, null, null);
+		Critter@ mob4 =map.AddNpc(112, cr.HexX - 7, cr.HexY, 3, null, null, null);
+		Critter@ mob5 =map.AddNpc(355, cr.HexX - 7, cr.HexY+2, 3, null, null, null);
+		mob1.StatBase[ST_VAR1] = 100;
+		mob2.StatBase[ST_VAR1] = 100;
+		mob3.StatBase[ST_VAR1] = 100;
+		mob4.StatBase[ST_VAR1] = 100;
+		mob5.StatBase[ST_VAR1] = 100;
+		cr.StatBase[ST_VAR1]++;
+		return 12;
+		}
+	else if (event==12)
+		{
+		Map @ map = cr.GetMap();
+		cr.Say(SAY_SOCIAL, "но не лезьте в бой без причины, опыт за убийства все равно не дается");
+		Critter@[] mobs;
+		map.GetCritters(0, FIND_ALL, mobs);
+		for(uint j=0,jj=mobs.length();j<jj;j++) 
+			{
+			if(mobs[j].StatBase[ST_VAR1] == 100) DeleteNpc(mobs[j]);
+			}
+		cr.StatBase[ST_VAR1]++;
+		}
+	else if (event==13)
+		{
+		cr.Say(SAY_SOCIAL, "эти животные при некотором везении могут убить вас и сами");
+		Map @ map = cr.GetMap();
+		Critter@ mob1 =map.AddNpc(6, cr.HexX - 7, cr.HexY-6, 3, null, null, null);
+		Critter@ mob2 =map.AddNpc(86, cr.HexX - 7, cr.HexY-4, 3, null, null, null);
+		Critter@ mob3 =map.AddNpc(82, cr.HexX - 7, cr.HexY-2, 3, null, null, null);
+		Critter@ mob4 =map.AddNpc(110, cr.HexX - 7, cr.HexY, 3, null, null, null);
+		Critter@ mob5 =map.AddNpc(7, cr.HexX - 7, cr.HexY+2, 3, null, null, null);
+		mob1.StatBase[ST_VAR1] = 100;
+		mob2.StatBase[ST_VAR1] = 100;
+		mob3.StatBase[ST_VAR1] = 100;
+		mob4.StatBase[ST_VAR1] = 100;
+		mob5.StatBase[ST_VAR1] = 100;
+		cr.StatBase[ST_VAR1]++;
+		return 12;
+		}
+	else if (event==14)
+		{
+		Map @ map = cr.GetMap();
+		cr.Say(SAY_SOCIAL, "но помните, что лучшее средство самообороны - это бег");
+		Critter@[] mobs;
+		map.GetCritters(0, FIND_ALL, mobs);
+		for(uint j=0,jj=mobs.length();j<jj;j++) 
+			{
+			if(mobs[j].StatBase[ST_VAR1] == 100) DeleteNpc(mobs[j]);
+			}
+		cr.StatBase[ST_VAR1]++;
+		}
+	else if (event==15)
+		{
+		cr.Say(SAY_SOCIAL, "от этих животных вы при некотором везении сможете убежать");
+		Map @ map = cr.GetMap();
+		Critter@ mob1 =map.AddNpc(8, cr.HexX - 7, cr.HexY-6, 3, null, null, null);
+		Critter@ mob2 =map.AddNpc(177, cr.HexX - 7, cr.HexY-4, 3, null, null, null);
+		Critter@ mob3 =map.AddNpc(240, cr.HexX - 7, cr.HexY-2, 3, null, null, null);
+		Critter@ mob4 =map.AddNpc(242, cr.HexX - 7, cr.HexY, 3, null, null, null);
+		Critter@ mob5 =map.AddNpc(248, cr.HexX - 7, cr.HexY+2, 3, null, null, null);
+		mob1.StatBase[ST_VAR1] = 100;
+		mob2.StatBase[ST_VAR1] = 100;
+		mob3.StatBase[ST_VAR1] = 100;
+		mob4.StatBase[ST_VAR1] = 100;
+		mob5.StatBase[ST_VAR1] = 100;
+		cr.StatBase[ST_VAR1]++;
+		return 12;
+		}
+	else if (event==16)
+		{
+		Map @ map = cr.GetMap();
+		cr.Say(SAY_SOCIAL, "на этом обучающее видео заканчивается");
+		Critter@[] mobs;
+		map.GetCritters(0, FIND_ALL, mobs);
+		for(uint j=0,jj=mobs.length();j<jj;j++) 
+			{
+			if(mobs[j].StatBase[ST_VAR1] == 100) DeleteNpc(mobs[j]);
+			}
+		cr.ModeBase[MODE_NO_WALK] = 0;
+		cr.ModeBase[MODE_NO_RUN] = 0;
+		return 0;
+		}
+return 4;
+}
+
+void _InitPackage(Item& item, bool firstTime)
+{
+item.SetEvent(ITEM_EVENT_DROP, "e_PackageDrop");
+item.SetEvent(ITEM_EVENT_MOVE, "e_PackageMove");
+item.SetEvent(ITEM_EVENT_SKILL, "e_PackagePick");
+}
+ 
+void e_PackageDrop(Item& item, Critter& cr)
+{
+	cr.ModeBase[MODE_NO_WALK] = 0;
+	cr.ModeBase[MODE_NO_RUN] = 0;
+}
+
+void e_PackageMove(Item& item, Critter& crit, uint8 fromSlot)
+{
+	if(item.CritSlot==SLOT_HAND1)
+	{
+	crit.ModeBase[MODE_NO_WALK] = 0;
+	crit.ModeBase[MODE_NO_RUN] = 1;
+	}
+	if(fromSlot==SLOT_HAND1)
+	{
+	crit.ModeBase[MODE_NO_WALK] = 1;
+	crit.ModeBase[MODE_NO_RUN] = 1;
+	crit.Say(SAY_NETMSG, "Мешок слишком громоздок для рюкзака, нужно взять в руки, чтобы нести.");
+	}
+}
+
+bool e_PackagePick(Item& item, Critter& cr, int skill)
+{
+	if((skill == SKILL_PICK_ON_GROUND) && (item.Accessory == ACCESSORY_HEX))
+	{
+	if (_CritCountItem(cr,PID_PACKAGE)==0)
+		{
+		cr.ModeBase[MODE_NO_WALK] = 1;
+		cr.ModeBase[MODE_NO_RUN] = 1;
+		cr.Say(SAY_NETMSG, "Мешок слишком громоздок для рюкзака, нужно взять в руки, чтобы нести.");
+		return false;
+		}
+	return true;
+	}
+	return true;
 }

@@ -46,6 +46,11 @@ void agm_check(Critter& cr)
 }
 */
 
+void GM_getItemsByPid(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	getItemsByPid(player, param0, param1, param2);
+}
+
 void getItemsByPid(Critter& player, int pid, int param1, int param2)
 {
 	Item@[] items;
@@ -138,6 +143,11 @@ class Replic
 }
 
 Replic[] replics;
+
+void GM_say(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	say(player, param0, param1, param2);
+}
 
 void say(Critter& player, int param0, int param1, int param2)
 {
@@ -537,10 +547,22 @@ void _private(Critter& player, int param0, int param1, int param2, string@ param
 	player.Say(SAY_NETMSG, "Отправлено.");
 }
 
+void GM_name(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	if(param0<1) return;
+	player.Say(SAY_NETMSG, "Id: "+param0+" Login: "+GetPlayerName(param0));
+}
+
 void name(Critter& cr, int crId, int num, int val)
 {
 	if(crId<1) return;
 	cr.Say(SAY_NETMSG, "Id: "+crId+" Login: "+GetPlayerName(crId));
+}
+
+
+void GM_showVal(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	showVal(player, param0, param1, param2);
 }
 
 void showVal(Critter& cr, int itemId, int num, int val)

@@ -1660,7 +1660,7 @@ struct SpriteInfo
 	void*  Effect;			//0x1C
 	void*  Anim3d; 			//0x20		// If Anim3d != NULL than this is pure 3d animation
 };
- 
+
 /*struct WTFS
 {
 	int SprId;

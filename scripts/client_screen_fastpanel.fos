@@ -84,6 +84,7 @@ class FastButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
 	void OnInit()
 	{
 		@button = GUI_GetElementOptions();
+		if(fastPanelBtns.length() > 9) fastPanelBtns.resize(0); 
 		fastPanelBtns.insertLast(button);
 		if(button.GetLayer() != 0)
 		{
@@ -272,7 +273,7 @@ class FastPanelTextboxButton : IGUIElementCallbackInit, IGUIElementCallbackMouse
 		string text = Instance.Text;
 		string desc = Instance.Desc;
 		uint8 sayType = Instance.SayType;
-		uint color = 0;
+		uint color = GetColor(sayType);
 		if(text == "") {Message(GetMsgStr(TEXTMSG_GAME,STR_FAST_SAY+7)); return;}
 		if(desc == "") {Message(GetMsgStr(TEXTMSG_GAME,STR_FAST_SAY+8)); return;}
 		if(Instance.SayType == -1) {Message(GetMsgStr(TEXTMSG_GAME,STR_FAST_SAY+9)); return;}
@@ -285,8 +286,10 @@ class FastPanelTextboxButton : IGUIElementCallbackInit, IGUIElementCallbackMouse
 		//Message(""+sayType);
 		
 		SaveFastPanel(false);
-		//GetPic(Button);
+		GetPic(Button);
 		::HideScreen(CLIENT_SCREEN_FASTPANEL_TEXTBOX,0,0,0);
+		
+		//RunServerScriptUnsafe("client_unsafe@unsafe_send_fastpanel", 1, 0, 0, "", null);
 // 		GetFastButtons();
 	}
 }
@@ -610,8 +613,8 @@ void SaveFastPanel(bool local)
 	/*
 	if(save)
 	{*/
-		if(f.open(FILE_NAME,"w")==0)
-		{
+		//if(f.open(FILE_NAME,"w")==0)
+		//{
 			//f.setPos(FindFilePosition(choo.Id));
 			//line = ID_TOKEN+choo.Id+"\n";
 			
@@ -629,13 +632,14 @@ void SaveFastPanel(bool local)
 			//info[1] = line;
 			//line = info[0]+info[1]+info[2];
 			
-			f.writeString(line);
+			//f.writeString(line);
 			if(!local) RunServerScriptUnsafe("client_unsafe@unsafe_fastpanel_save", 0, 0, 0, line, null);
-			f.close();
+			//f.close();
 			
+			__tempFastText = line;
 			Message("save");
 			return;
-		} else Message("Can't open "+FILE_NAME);
+		//} else Message("Can't open "+FILE_NAME);
 		/**/ 
 		 
 		  //Message("save");
@@ -693,6 +697,7 @@ uint GetColor(uint8 sayType)
 	  case 2 : color = COLOR_LRED; break;
 	  case 3 : color = COLOR_LGREEN; break;
 	  case 4 : color = COLOR_LBLUE; break;
+	  case 5 : color = COLOR_LGRAY; break;
 	  default: color = COLOR_SAND; break;
 	}
   return color;
@@ -726,7 +731,7 @@ return 0;
 
 void GetServerFileSize(int size, int p1, int p2, string@ word2, int[]@ p4)
 {
-	if(LoadPanelTempFile(true) != size) RunServerScriptUnsafe("client_unsafe@unsafe_send_fastpanel", 1, 0, 0, "", null); else {LoadPanel(1, 0, 0, "", null); /*Message("Load Temp File");*/}
+	if(/*LoadPanelTempFile(true)*/__tempFastText.length() != size) RunServerScriptUnsafe("client_unsafe@unsafe_send_fastpanel", 1, 0, 0, "", null); else {LoadPanel(1, 0, 0, "", null); /*Message("Load Temp File");*/}
 }
 
 void LoadPanel(int p0, int p1, int p2, string@ word2, int[]@ p4) //p0 - 0 from server, 1 - from client
@@ -734,12 +739,15 @@ void LoadPanel(int p0, int p1, int p2, string@ word2, int[]@ p4) //p0 - 0 from s
 			uint8 count = 1;
 			uint8 count1 = 0;
 			uint color = 0;
-			
-
+			/*
+			for(uint8 i = 0; i < fastPanelBtns.length(); i++)
+			{
+				Message(""+i);
+			}*/
 			
 			IGUIElementOpt @ fastBtn;
 			
-			if(p0 != 0) {word2 = __tempFastText; Message("load local");} else {SaveFastPanel(true); Message("load server");}
+			if(p0 != 0) {word2 = __tempFastText; if(p0 < 2) Message("load local");} else {SaveFastPanel(true); Message("load server"); __tempFastText = word2;}
 			string@[]@ layer = split(word2, LINE_TOKEN);
 			uint8 length = layer.length();
 			//Message(""+layer.length());
@@ -785,7 +793,7 @@ void LoadPanel(int p0, int p1, int p2, string@ word2, int[]@ p4) //p0 - 0 from s
 					Message(""+layerData[1]+"\n"+layerData[2]+"\n"+layerData[3]+"\n"+layerData[4]);*/
 				}
 			}
-			Message("panel load successful");
+			if(p0 < 2) Message("panel load successful");
 }
 
 void SavePanelUnsafe(int p0, int p1, int p2, string@ p3, int[]@ p4)
@@ -810,8 +818,15 @@ void GetPic(IGUIElementOpt& fastBtn)
 	  case 1 : fastBtn.UpPic("skilln.frm");
 		   fastBtn.DownPic("skillh.frm"); 
 		   break;
-	  case 2 : fastBtn.UpPic("talkn.frm"); 
-		   fastBtn.DownPic("talkh.frm");
+	  case 2 : if(fastBtn.GetFastPanelId() != 5)
+		   {
+			fastBtn.UpPic("talkn.frm"); 
+			fastBtn.DownPic("talkh.frm");
+		   }else
+		   {
+			fastBtn.UpPic("usegetn.frm"); 
+			fastBtn.DownPic("usegeth.frm");
+		   }
 		   break;
 	  default: fastBtn.UpPic("fastpanel_btblank_up.png"); 
 		   fastBtn.DownPic("fastpanel_btblank_dn.png");
@@ -866,14 +881,14 @@ void GetPanelButtons(IGUIElementOpt@[]@ panelBtns)
 	panelBtns.insertLast(fastPanelBtns[i]);
 }
 
-void HidePanel()
+void HidePanel(bool show)
 {
 	
 	for(uint8 i = 0; i < fastPanelBtns.length(); i++)
 	{
-		fastPanelBtns[i].Visible(__fastPanelShow);
+		fastPanelBtns[i].Visible(show ? show : __fastPanelShow);
 	}
-__fastPanelShow = __fastPanelShow ? false : true;
+if(!show) __fastPanelShow = __fastPanelShow ? false : true;
 //	__fastPanelShow = __fastPanelShow == hide ? !hide : hide;
 //	__fastPanelShow = __fastPanelShow ? false : true;
 }

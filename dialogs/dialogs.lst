@@ -45,6 +45,8 @@ $   90  speter
 $   91  replicator
 $   92  replicator_energy
 
+$	93	all_jukebox
+
 $	100	lake_bar
 $	101	lake_fish
 $	102	lake_general
@@ -107,6 +109,7 @@ $	356 mod_comm_caravanneer
 $	357	mod_comm_whore
 $	358	mod_comm_trapper
 
+$	369	mod_trader_maintenance
 $	370	mod_trader_guns
 $	371	mod_trader_general
 $	372	mod_trader_rose

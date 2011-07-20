@@ -113,7 +113,7 @@ void NpcMessageEmo(Critter& npc, uint strNum)
 	npc.SayMsg(SAY_EMOTE_ON_HEAD, TEXTMSG_DLG, DLGSTR(npc.Stat[ST_DIALOG_ID], strNum));
 }
 
-void TimeoutSet(Critter& npc, int timeoutNumber, uint gameHours)
+void TimeoutSet(Critter& npc, int timeoutNumber, uint gameMinutes)
 {
 	int variable = 0;
 	switch(timeoutNumber)
@@ -129,19 +129,19 @@ void TimeoutSet(Critter& npc, int timeoutNumber, uint gameHours)
 		case 8: variable = LVAR_timeout8; break;
 	}
 	GameVar@ t = GetLocalVar(variable, npc.Id);
-	t = __FullSecond + gameHours * 60 * 60;
+	t = __FullSecond + gameMinutes * 60;
 }
 
-void TimeoutSub(Critter& npc, uint gameHoursSub)
+void TimeoutSub(Critter& npc, uint gameMinutesSub)
 {
 	GameVar@ t = GetLocalVar(LVAR_timeout, npc.Id);
-	t -= gameHoursSub * 60 * 60;
+	t -= gameMinutesSub * 60;
 }
 
-void TimeoutAdd(Critter& npc, uint gameHoursAdd)
+void TimeoutAdd(Critter& npc, uint gameMinutesAdd)
 {
 	GameVar@ t = GetLocalVar(LVAR_timeout, npc.Id);
-	t += gameHoursAdd * 60 * 60;
+	t += gameMinutesAdd * 60;
 }
 
 void GroupSetVar(Critter& player, uint16 varId, int value)

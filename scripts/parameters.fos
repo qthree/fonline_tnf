@@ -226,7 +226,7 @@ void CritterGenerate(int[]& data) // Export to client_main@player_data_generate
 #ifdef __CLIENT
 	// Runtime calculations, only for client registration
 	_param_[ST_ARMOR_CLASS]+=_param_[ST_AGILITY]*5;
-	_param_[ST_MAX_LIFE]+=_param_[ST_STRENGTH]+_param_[ST_ENDURANCE]*2; //Roleplay
+//	_param_[ST_MAX_LIFE]+=_param_[ST_STRENGTH]+_param_[ST_ENDURANCE]*2; //Roleplay
 //	_param_[ST_MAX_LIFE]+=_param_[ST_ENDURANCE]*22; //combat system
 	_param_[ST_MAX_LIFE]+=_param_[ST_STRENGTH]*4+_param_[ST_ENDURANCE]*8; //qthree
 	_param_[ST_ACTION_POINTS]+=_param_[ST_AGILITY]/2;
@@ -248,6 +248,8 @@ void CritterGenerate(int[]& data) // Export to client_main@player_data_generate
 
 #ifdef __CLIENT
 #include "_msgstr.fos"
+
+#define STR_WRONG_GENDER		(324)
 // Check valid of input data
 bool CritterGenerateCheck(int[]& data) // Export to client_main@player_data_check
 {
@@ -276,6 +278,28 @@ bool CritterGenerateCheck(int[]& data) // Export to client_main@player_data_chec
 		Message(GetMsgStr(TEXTMSG_GAME,STR_NET_WRONG_TAGSKILL));
 		return false;
 	}
+	
+		//girl
+	//33 34 35 36 37 38 61 63 73 74 83 94
+	if(data[ST_GENDER] == 0)
+	{
+		if(((data[ST_BODY_TYPE] >= 33 && data[ST_BODY_TYPE] <= 38) || data[ST_BODY_TYPE] == 61 || data[ST_BODY_TYPE] == 63 || data[ST_BODY_TYPE] == 73 || data[ST_BODY_TYPE] == 74 || data[ST_BODY_TYPE] == 83 || data[ST_BODY_TYPE] == 94)) 
+		{
+			Message(GetMsgStr(TEXTMSG_GAME,STR_WRONG_GENDER));
+			return false;
+		}
+	}else
+	{
+		if(data[ST_BODY_TYPE] == 31 || (data[ST_BODY_TYPE] >= 39 && data[ST_BODY_TYPE] <= 45) || data[ST_BODY_TYPE] == 48 || data[ST_BODY_TYPE] == 56 || data[ST_BODY_TYPE] == 57 || data[ST_BODY_TYPE] == 62 || data[ST_BODY_TYPE] == 64 || data[ST_BODY_TYPE] == 72  || data[ST_BODY_TYPE] == 77
+		|| data[ST_BODY_TYPE] == 78 || data[ST_BODY_TYPE] == 82 || data[ST_BODY_TYPE] == 84 || data[ST_BODY_TYPE] == 87 || data[ST_BODY_TYPE] == 88 || data[ST_BODY_TYPE] == 89 || data[ST_BODY_TYPE] == 91 || data[ST_BODY_TYPE] == 92 || data[ST_BODY_TYPE] == 93 || data[ST_BODY_TYPE] == 96 || data[ST_BODY_TYPE] == 98)
+		{
+			Message(GetMsgStr(TEXTMSG_GAME,STR_WRONG_GENDER));
+			return false;
+		}
+	}
+	//guys
+	//98 96 93 92 91 89 88 87 84 82 78 77 72 64 62 57 56 48 45 44 43 42 41 40 39 31
+	
 	return true;
 }
 #endif

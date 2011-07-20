@@ -1,6 +1,8 @@
 // Author: cvet
 // Client GUI header
 
+//#include "sprite.fos"
+
 #ifndef __CLIENT_GUI__
 #define __CLIENT_GUI__
 
@@ -20,6 +22,7 @@ import IGUIScreenOpt@ GUI_GetScreenOptions(int screenIndex) from "client_gui";
 import IGUIScreenOpt@ GUI_GetScreenOptions() from "client_gui";
 // Get options for last created element, valid only on IGUIElementCallbackInit::OnInit callback
 import IGUIElementOpt@ GUI_GetElementOptions() from "client_gui";
+import void GUI_HideScreen(int screenIndex, int p0, int p1, int p2) from "client_gui";
 
 import void GUI_DeleteScreenElements(int screenIndex) from "client_gui"; //@pm menu
 #endif
@@ -89,6 +92,7 @@ interface IGUIElementOpt
 	IGUIElementOpt@ ElementFastPanelType(uint8 type);
 	IGUIElementOpt@ ElementFastPanelId(uint16 id);
 	IGUIElementOpt@ UpPic(string@ sprName);
+	IGUIElementOpt@ Pic(string@ sprName, int path);
 	IGUIElementOpt@ Layer(uint8 layer);
 	//#pm menu
 	
@@ -106,6 +110,8 @@ interface IGUIElementOpt
 	uint8 GetFastPanelType();
 	uint16 GetFastPanelId();
 	string GetDescription();
+	uint16 GetSurfaceHeight();
+	uint16 GetSurfaceWidth();
 	//#pm menu
 }
 

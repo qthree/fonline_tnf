@@ -1,7 +1,6 @@
 #ifndef __FONLINE_TNF__
 #define __FONLINE_TNF__
 
-
 // Script constants
 #define SKIP_PRAGMAS
 #include "_defines.fos"
@@ -14,6 +13,19 @@
 
 // AngelScript
 #include "angelscript.h"
-//EXPORT extern asIScriptEngine* ASEngine;
+EXPORT extern asIScriptEngine* ASEngine;
+
+// Script global variables
+struct _GlobalVars
+{
+	int*  CurX;
+	int*  CurY;
+	uint* HitAimEyes;
+	uint* HitAimHead;
+	uint* HitAimGroin;
+	uint* HitAimTorso;
+	uint* HitAimArms;
+	uint* HitAimLegs;
+} extern GlobalVars;
 
 #endif // __FONLINE_TNF__

@@ -1,4 +1,6 @@
 save/
 *.log
 *.dmp
+Error_FOnlineServer_*
+fastpanel/
 

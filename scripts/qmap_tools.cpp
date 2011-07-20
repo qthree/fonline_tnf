@@ -191,24 +191,24 @@ uint DMO64_makeHex(uint16 hexX, uint16 hexY, uint8 layer)
 
 int DMO64_search(CScriptArray* array, uint hex)
 {
-	uint8* p = array->buffer->data + 4;
+	uint* p = (uint*)(array->buffer->data + 4);
 	
 	for(uint i=0, len=(array->GetSize()*array->elementSize)/8; i<len; i++)
 	{
 		if((*p)==hex) return i;
-		p+=8;
+		p+=2;
 	}
 	return -1;
 }
 
 int DMO64_search(CScriptArray* array, uint hex, uint begin, uint end)
 {
-	uint8* p = array->buffer->data + begin*8 + 4;
+	uint* p = (uint*)(array->buffer->data + begin*8 + 4);
 	
 	for(uint i=begin; i<end; i++)
 	{
 		if((*p) == hex) return i;
-		p+=8;
+		p+=2;
 	}
 	return -1;
 }
@@ -230,9 +230,9 @@ bool DMO64_set(CScriptArray* array, uint16 hs, uint16 val, uint hex, bool rewrit
 	}
 	else							//иначе пишем новый тайл
 	{
-			if(hs==0 || 	//если номер хэша или одна из координат нулевая - выходим
-			!DMO64_insertLast(array, hs, val, hex))		//добавляем в массив новый тайл
-			return false; 
+		if(hs==0 || 	//если номер хэша или одна из координат нулевая - выходим
+		!DMO64_insertLast(array, hs, val, hex))		//добавляем в массив новый тайл
+		return false; 
 	}
 
 	return true; 

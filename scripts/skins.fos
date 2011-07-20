@@ -340,6 +340,11 @@ void _InitCloth (Item& item, bool firstTime)
 	item.SetEvent(ITEM_EVENT_USE, "_cloth_use");
 }
 
+void GM_skin(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	skin(player, param0, param1, param2);
+}
+
 void skin(Critter& player, int playerId, int crType, int param2)
 {
 	Critter@ cr;
@@ -393,7 +398,7 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_PLASMA_ABSORB]=0;
 	cr.StatBase[ST_ELECTRO_ABSORB]=0;
 	cr.StatBase[ST_EXPLODE_ABSORB]=0;
-	
+	/*
 	if(lastBody==25)																			
 	{
 	cr.StatBase[ST_RADIATION_RESISTANCE]-=14;
@@ -562,14 +567,14 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_HEALING_RATE]-=10;
 	cr.StatBase[ST_MAX_LIFE]-=120;
 	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
-	}
+	}*/
 	
 	cr.ChangeCrType(result);
 ////////////////////////////////////////////////Присвоение статов и бодитайпа//////////////////////////////////////////////////////////////////////////	
 	if(crType==20||crType==21||crType==114) cr.StatBase[ST_BODY_TYPE]=BT_SUPER_MUTANT;			
 	else if(crType==25)																			
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=650;
+	cr.StatBase[ST_KILL_EXPERIENCE]=650;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=20;
 	cr.StatBase[ST_LASER_RESIST]+=20;
 	cr.StatBase[ST_FIRE_RESIST]+=20;
@@ -587,12 +592,12 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_ARMOR_CLASS]+=24;
 	cr.StatBase[ST_MAX_LIFE]+=40;
 	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_CENTAUR;														
 	}
 	else if(crType==15)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=150;
+	cr.StatBase[ST_KILL_EXPERIENCE]=150;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=25;
 	cr.StatBase[ST_LASER_RESIST]+=20;
 	cr.StatBase[ST_FIRE_RESIST]+=15;
@@ -604,13 +609,13 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_POISON_RESISTANCE]+=45;
 	cr.StatBase[ST_MELEE_DAMAGE]+=5;
 	cr.StatBase[ST_ARMOR_CLASS]+=5;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_BRAHMIN;
 	}
 	else if(crType==28||crType==29||crType==79)cr.StatBase[ST_BODY_TYPE]=BT_GHOUL;
 	else if(crType==16)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=80;
+	cr.StatBase[ST_KILL_EXPERIENCE]=80;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=20;
 	cr.StatBase[ST_LASER_RESIST]+=20;
 	cr.StatBase[ST_FIRE_RESIST]+=20;
@@ -621,12 +626,12 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_RADIATION_RESISTANCE]+=12;
 	cr.StatBase[ST_MELEE_DAMAGE]+=4;
 	cr.StatBase[ST_ARMOR_CLASS]+=14;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_DOG;
 	}
 	else if(crType==19)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=120;
+	cr.StatBase[ST_KILL_EXPERIENCE]=120;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=20;
 	cr.StatBase[ST_LASER_RESIST]+=25;
 	cr.StatBase[ST_FIRE_RESIST]+=10;
@@ -637,22 +642,22 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_POISON_RESISTANCE]+=6;
 	cr.StatBase[ST_MELEE_DAMAGE]+=4;
 	cr.StatBase[ST_ARMOR_CLASS]+=15;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_RAT;
 	}
 	else if(crType==24)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=80;
+	cr.StatBase[ST_KILL_EXPERIENCE]=80;/*
 	cr.StatBase[ST_RADIATION_RESISTANCE]+=5;
 	cr.StatBase[ST_POISON_RESISTANCE]+=2;
 	cr.StatBase[ST_MELEE_DAMAGE]+=1;
 	cr.StatBase[ST_ARMOR_CLASS]+=4;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_RAT;
 	}
 	else if(crType==76)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=250;
+	cr.StatBase[ST_KILL_EXPERIENCE]=250;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=25;
 	cr.StatBase[ST_LASER_RESIST]+=20;
 	cr.StatBase[ST_FIRE_RESIST]+=20;
@@ -664,22 +669,22 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_RADIATION_RESISTANCE]+=10;
 	cr.StatBase[ST_MELEE_DAMAGE]+=2;
 	cr.StatBase[ST_ARMOR_CLASS]+=22;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_RAT;
 	}
 	else if(crType==55)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=80;
+	cr.StatBase[ST_KILL_EXPERIENCE]=80;/*
 	cr.StatBase[ST_RADIATION_RESISTANCE]+=10;
 	cr.StatBase[ST_POISON_RESISTANCE]+=4;
 	cr.StatBase[ST_MELEE_DAMAGE]+=2;
 	cr.StatBase[ST_ARMOR_CLASS]+=5;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_RAT;
 	}
 	else if(crType==22)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=60;
+	cr.StatBase[ST_KILL_EXPERIENCE]=60;/*
 	cr.StatBase[ST_LASER_RESIST]+=30;
 	cr.StatBase[ST_FIRE_RESIST]+=10;
 	cr.StatBase[ST_PLASMA_RESIST]+=10;
@@ -689,12 +694,12 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_LASER_ABSORB]+=2;
 	cr.StatBase[ST_MELEE_DAMAGE]+=2;
 	cr.StatBase[ST_ARMOR_CLASS]+=3;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_RADSCORPION;
 	}
 	else if(crType==59)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=110;
+	cr.StatBase[ST_KILL_EXPERIENCE]=110;/*
 	cr.StatBase[ST_LASER_RESIST]+=50;
 	cr.StatBase[ST_FIRE_RESIST]+=10;
 	cr.StatBase[ST_PLASMA_RESIST]+=10;
@@ -708,7 +713,7 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_EXPLODE_ABSORB]+=2;
 	cr.StatBase[ST_MELEE_DAMAGE]+=3;
 	cr.StatBase[ST_ARMOR_CLASS]+=5;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_RADSCORPION;
 	}
 	else if(crType==60)
@@ -723,7 +728,7 @@ void skin(Critter& cr, int crType)
 	Item@ weapon=cr.AddItem(PID_CLAW_EXT, 1);
 	cr.MoveItem(weapon.Id, 1, SLOT_HAND1);
 	weapon.Update();
-	cr.StatBase[ST_KILL_EXPERIENCE]=250;
+	cr.StatBase[ST_KILL_EXPERIENCE]=250;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=15;
 	cr.StatBase[ST_LASER_RESIST]+=15;
 	cr.StatBase[ST_FIRE_RESIST]+=15;
@@ -738,7 +743,7 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_EXPLODE_ABSORB]+=2;
 	cr.StatBase[ST_MELEE_DAMAGE]+=4;
 	cr.StatBase[ST_ARMOR_CLASS]+=14;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_DEADCLAW;
 	}
 	else if(crType==51)
@@ -753,7 +758,7 @@ void skin(Critter& cr, int crType)
 	Item@ weapon=cr.AddItem(PID_CLAW_EXT, 1);
 	cr.MoveItem(weapon.Id, 1, SLOT_HAND1);
 	weapon.Update();
-	cr.StatBase[ST_KILL_EXPERIENCE]=1000;
+	cr.StatBase[ST_KILL_EXPERIENCE]=1000;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=25;
 	cr.StatBase[ST_LASER_RESIST]+=10;
 	cr.StatBase[ST_FIRE_RESIST]+=20;
@@ -772,7 +777,7 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_ARMOR_CLASS]+=10;
 	cr.StatBase[ST_HEALING_RATE]+=10;
 	cr.StatBase[ST_MAX_LIFE]+=120;
-	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
+	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];*/
 	cr.StatBase[ST_BODY_TYPE]=BT_DEADCLAW;
 	}
 	else if(crType==100)
@@ -787,7 +792,7 @@ void skin(Critter& cr, int crType)
 	Item@ weapon=cr.AddItem(PID_CLAW_EXT, 1);
 	cr.MoveItem(weapon.Id, 1, SLOT_HAND1);
 	weapon.Update();
-	cr.StatBase[ST_KILL_EXPERIENCE]=1250;
+	cr.StatBase[ST_KILL_EXPERIENCE]=1250;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=35;
 	cr.StatBase[ST_LASER_RESIST]+=20;
 	cr.StatBase[ST_FIRE_RESIST]+=25;
@@ -806,7 +811,7 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_ARMOR_CLASS]+=10;
 	cr.StatBase[ST_HEALING_RATE]+=10;
 	cr.StatBase[ST_MAX_LIFE]+=120;
-	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
+	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];*/
 	cr.StatBase[ST_BODY_TYPE]=BT_DEADCLAW;
 	}
 	else if(crType==81)
@@ -821,7 +826,7 @@ void skin(Critter& cr, int crType)
 	Item@ weapon=cr.AddItem(PID_FIREBREATH, 1);
 	cr.MoveItem(weapon.Id, 1, SLOT_HAND1);
 	weapon.Update();
-	cr.StatBase[ST_KILL_EXPERIENCE]=1000;
+	cr.StatBase[ST_KILL_EXPERIENCE]=1000;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=40;
 	cr.StatBase[ST_LASER_RESIST]+=60;
 	cr.StatBase[ST_FIRE_RESIST]+=500;
@@ -838,13 +843,13 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_EXPLODE_ABSORB]+=6;
 	cr.StatBase[ST_MELEE_DAMAGE]+=6;
 	cr.StatBase[ST_ARMOR_CLASS]+=28;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_GECKO;
 	}
 	else if(crType==80)
 	{
 	cr.StatBase[ST_KILL_EXPERIENCE]=500;
-	cr.StatBase[ST_NORMAL_RESIST]+=40;
+	cr.StatBase[ST_NORMAL_RESIST]+=40;/*
 	cr.StatBase[ST_LASER_RESIST]+=40;
 	cr.StatBase[ST_FIRE_RESIST]+=5;
 	cr.StatBase[ST_PLASMA_RESIST]+=50;
@@ -861,13 +866,13 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_ARMOR_CLASS]+=33;
 	cr.StatBase[ST_HEALING_RATE]+=10;
 	cr.StatBase[ST_MAX_LIFE]+=20;
-	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
+	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];*/
 	cr.StatBase[ST_BODY_TYPE]=BT_ALIEN;
 	}
 	else if(crType==86)
 	{
 	cr.StatBase[ST_KILL_EXPERIENCE]=1000;
-	cr.StatBase[ST_NORMAL_RESIST]+=40;
+	cr.StatBase[ST_NORMAL_RESIST]+=40;/*
 	cr.StatBase[ST_LASER_RESIST]+=50;
 	cr.StatBase[ST_FIRE_RESIST]+=10;
 	cr.StatBase[ST_PLASMA_RESIST]+=50;
@@ -884,12 +889,12 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_ARMOR_CLASS]+=10;
 	cr.StatBase[ST_HEALING_RATE]+=10;
 	cr.StatBase[ST_MAX_LIFE]+=120;
-	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];
+	cr.StatBase[ST_CURRENT_HP]=cr.Stat[ST_MAX_LIFE];*/
 	cr.StatBase[ST_BODY_TYPE]=BT_ALIEN;
 	}
 	else if(crType==67)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=60;
+	cr.StatBase[ST_KILL_EXPERIENCE]=60;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=20;
 	cr.StatBase[ST_LASER_RESIST]+=20;
 	cr.StatBase[ST_FIRE_RESIST]+=10;
@@ -900,12 +905,12 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_RADIATION_RESISTANCE]+=6;
 	cr.StatBase[ST_MELEE_DAMAGE]+=2;
 	cr.StatBase[ST_ARMOR_CLASS]+=14;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_GECKO;
 	}
 	else if(crType==68)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=135;
+	cr.StatBase[ST_KILL_EXPERIENCE]=135;/*
 	cr.StatBase[ST_NORMAL_RESIST]+=25;
 	cr.StatBase[ST_LASER_RESIST]+=20;
 	cr.StatBase[ST_FIRE_RESIST]+=20;
@@ -917,33 +922,34 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_RADIATION_RESISTANCE]+=6;
 	cr.StatBase[ST_MELEE_DAMAGE]+=2;
 	cr.StatBase[ST_ARMOR_CLASS]+=22;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_GECKO;
 	}
 	else if(crType==70||crType==17||crType==53||crType==54||crType==66||crType==101) cr.StatBase[ST_BODY_TYPE]=BT_ROBOT;
 	else if(crType==52)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=70;
+	cr.StatBase[ST_KILL_EXPERIENCE]=70;/*
 	cr.StatBase[ST_POISON_RESISTANCE]+=25;
 	cr.StatBase[ST_RADIATION_RESISTANCE]+=10;
 	cr.StatBase[ST_MELEE_DAMAGE]+=2;
 	cr.StatBase[ST_ARMOR_CLASS]+=4;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_MANTI;
 	}
 	else if(crType==97)
 	{
-	cr.StatBase[ST_KILL_EXPERIENCE]=30;
+	cr.StatBase[ST_KILL_EXPERIENCE]=30;/*
 	cr.StatBase[ST_POISON_RESISTANCE]+=5;
 	cr.StatBase[ST_RADIATION_RESISTANCE]+=2;
 	cr.StatBase[ST_MELEE_DAMAGE]+=2;
 	cr.StatBase[ST_ARMOR_CLASS]+=4;
-	cr.StatBase[ST_HEALING_RATE]+=10;
+	cr.StatBase[ST_HEALING_RATE]+=10;*/
 	cr.StatBase[ST_BODY_TYPE]=BT_GIANT_ANT;
 	}
 	else if(crType==23)
 	{
 	cr.StatBase[ST_KILL_EXPERIENCE]=85;
+	/*
 	cr.StatBase[ST_NORMAL_RESIST]+=40;
 	cr.StatBase[ST_LASER_RESIST]+=40;
 	cr.StatBase[ST_PLASMA_RESIST]+=50;
@@ -958,6 +964,7 @@ void skin(Critter& cr, int crType)
 	cr.StatBase[ST_MELEE_DAMAGE]+=2;
 	cr.StatBase[ST_ARMOR_CLASS]+=22;
 	cr.StatBase[ST_HEALING_RATE]+=10;
+	*/
 	cr.StatBase[ST_BODY_TYPE]=BT_FLOATER;
 	}
 	else if(crType==65) cr.StatBase[ST_BODY_TYPE]=BT_PLANT;

@@ -4,10 +4,12 @@
 #define ENTRANCE_SOUTH     (0)
 #define ENTRANCE_NORTH     (1)
 
+import int act_var_get(Critter& player) from "activation";
 import uint EraseAttackPlane(Critter& npc, Critter& target) from "npc_planes";
 
 void _MapInit(Map& map, bool firstTime)
 {
+	map.SetEvent(MAP_EVENT_IN_CRITTER, "_crIn");
 	map.SetEvent(MAP_EVENT_OUT_CRITTER, "_imLeaving");
 	GameVar@ cant_dig = GetLocalVar(LMVAR_cant_dig, map.Id);
 	cant_dig=1;
@@ -19,6 +21,25 @@ bool entrance_Modoc(Location& loc, Critter@[]& critters, uint8 entrance)
 	if(entrance==ENTRANCE_NORTH) return leader.Skill[SK_OUTDOORSMAN]>=50;
 	return true;
 }
+
+void _crIn(Map& map, Critter& cr)
+{
+ 	int ck = act_var_get(cr);
+	if (cr.Perk[PE_EXPERT_EXCREMENT]<=1 && ck!=ACT_CODE && ck!=ACT_GM && cr.Timeout[TO_SK_LOCKPICK]==0 && cr.HexY<=217 && cr.IsPlayer())
+	{
+	if(cr.HexX>=120 && cr.HexX<=130 && cr.HexY>=193 && cr.HexY<=201) return;
+	cr.PerkBase[PE_EXPERT_EXCREMENT]=0;
+	cr.AddTimeEvent("cte_leave", 5, CTE_WORK, 0);
+	}
+}
+
+uint cte_leave(Critter& cr, int identifier, uint& rate)
+{
+	cr.TransitToHex(140 + Random(-5,5), 257 + Random(-5,5), 5);
+	cr.Say(SAY_NETMSG, "Вас выкинули из города.");
+	return 0;
+}
+
 
 void _imLeaving(Map& map, Critter& cr)
 {

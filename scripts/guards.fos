@@ -43,6 +43,39 @@ import void AttackAndCatch(Critter& cr) from "gateway";
 //Найм охраны в город
 //params: location, number, level
 
+void GM_InitGuard(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(param0);
+	if(cr is null) return;
+	else if(cr.IsNpc())
+		{
+		_InitGuard(cr, true);
+		player.Say(SAY_NETMSG, "Криттер " + cr.Param[208] + " назначен охранником");
+		}
+}
+
+void GM_InitCommonGuard(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(param0);
+	if(cr is null) return;
+	else if(cr.IsNpc())
+		{
+		cr.StatBase[ST_AI_ID]=12;
+		cr.StatBase[ST_TEAM_ID]=5;
+		cr.StatBase[ST_PERCEPTION] = 10;
+		for(uint i=ST_NORMAL_ABSORB; i<=ST_EXPLODE_ABSORB; i++) cr.ParamBase[i]=10;
+		cr.ModeBase[MODE_UNLIMITED_AMMO] = 1;
+		cr.StatBase[ST_BAG_ID]=BAG_Empty;
+		cr.StatBase[ST_HEALING_RATE]+=50;
+		cr.ParamBase[PE_BONUS_RANGED_DAMAGE] = 2;
+		cr.StatBase[ST_LUCK]+=5;
+		cr.ShowCritterDist1=15;
+		cr.SetEvent(CRITTER_EVENT_SHOW_CRITTER_1, "_checkEnemy");
+		cr.SetEvent(CRITTER_EVENT_ATTACKED, "_wrongMove");
+		player.Say(SAY_NETMSG, "Криттер " + cr.Param[208] + " назначен охранником");
+		}
+}
+
 void _InitGuard(Critter& cr, bool firstTime)
 {
 	cr.StatBase[ST_AI_ID]=12; 

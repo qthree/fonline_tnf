@@ -1,9 +1,10 @@
 #include <new>
 
-#define DISABLE_NEW
+//#define DISABLE_NEW
 
 typedef vector<Sprite*> SprVec;
 typedef vector<Sprite*>::iterator SprVecIt;
+
 
 struct SAnim
 {

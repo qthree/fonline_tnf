@@ -7,6 +7,7 @@
 #include "_client_defines.fos"
 #include "sprite.fos"
 #include "_colors.fos"
+#include "_msgstr.fos"
 
 #define IS_COLLISION #(x1,y1,x2,y2,w,h)  ((x1)>=(x2) && (x1)<=(x2)+(w) && (y1)>=(y2) && (y1)<=(y2)+(h))
 
@@ -14,7 +15,7 @@
 import void ShowContScreen(uint8 screenType, uint8 actionType) from "client_screen_contmenu";
 import void GetActiveLayer(IGUIElementOpt@[]@ activeBtnLayer) from "client_screen_fastpanel";
 import int8 ChangeLayer(int8 layer) from "client_screen_fastpanel";
-import void HidePanel() from "client_screen_fastpanel";
+import void HidePanel(bool show) from "client_screen_fastpanel";
 import void GetPanelButtons(IGUIElementOpt@[]@ panelBtns) from "client_screen_fastpanel";
 //#pm menu
 
@@ -32,6 +33,18 @@ import int to_hit_hex() from "client_main";
 import bool CharClick(CritterCl@ target) from "client_names";
 import bool NameClick(CritterCl@ target, int click) from "client_names";
 
+int[] controlled = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+uint8 current_group;
+string name0;
+string name1;
+string name2;
+string name3;
+string name4;
+string name5;
+string name6;
+string name7;
+string name8;
+string name9;
 
 GUIScreen@[] AllScreens;
 GUIScreen@[] ActiveScreens;
@@ -90,9 +103,9 @@ class GUIElement : IGUIElementOpt
 
 	bool MouseDown(int click)
 	{
-		if(DownSpr.Id!=0 || not (CallbackMouseClick is null) || IsTextInput)
-	{
-		MousePressed[click]=true;
+		if(Visible && (DownSpr.Id!=0 || not (CallbackMouseClick is null) || IsTextInput))
+		{
+			MousePressed[click]=true;
 			return true;
 		}
 		return false;
@@ -255,6 +268,19 @@ class GUIElement : IGUIElementOpt
 		return this;
 	}
 	
+	IGUIElementOpt@ Pic(string@ sprName, int path)
+	{
+		if(@sprName!=null) Surface.Load(sprName,path);
+		else Surface.Id=0;
+
+		if(Surface.Id!=0 && Surface.Width==0 && Surface.Height==0)
+		{
+			Surface.Width=Surface.Width;
+			Surface.Height=Surface.Height;
+		}
+		return this;
+	}
+	
 	IGUIElementOpt@ UpPic(string@ sprName) //pm add
 	{
 		if(@sprName!=null) Surface.Load(sprName,DefaultPath);
@@ -288,6 +314,8 @@ class GUIElement : IGUIElementOpt
 	uint8 GetFastPanelType() { return ElementFastPanelType; } //pm add
 	uint16 GetFastPanelId() { return ElementFastPanelId; } //pm add
 	string GetDescription() { return Description; } //pm add
+	uint16 GetSurfaceHeight() { return Surface.Height; }
+	uint16 GetSurfaceWidth() { return Surface.Width; }
 	//void  SetType(uint8 type) { ElementType = type; } //pm add
 	
 	//pm add
@@ -370,6 +398,19 @@ class GUIScreen : IGUIScreenOpt
 				GetMonitorHex(x, y, hexX, hexY);
 				DrawText(hexX+":"+hexY, __MouseX+22, __MouseY-18, 50 , 10, COLOR_RED, FONT_FALLOUT, 0);
 			}
+			if((__sinf&SINF_HEX)!=0)
+			{
+			if (controlled[0+current_group*10]!=0) DrawText("" + controlled[0+current_group*10] + " " + name0, 10 , 10, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			if (controlled[1+current_group*10]!=0) DrawText("" + controlled[1+current_group*10] + " " + name1, 10 , 20, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			if (controlled[2+current_group*10]!=0) DrawText("" + controlled[2+current_group*10] + " " + name2, 10 , 30, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			if (controlled[3+current_group*10]!=0) DrawText("" + controlled[3+current_group*10] + " " + name3, 10 , 40, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			if (controlled[4+current_group*10]!=0) DrawText("" + controlled[4+current_group*10] + " " + name4, 10 , 50, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			if (controlled[5+current_group*10]!=0) DrawText("" + controlled[5+current_group*10] + " " + name5, 10 , 60, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			if (controlled[6+current_group*10]!=0) DrawText("" + controlled[6+current_group*10] + " " + name6, 10 , 70, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			if (controlled[7+current_group*10]!=0) DrawText("" + controlled[7+current_group*10] + " " + name7, 10 , 80, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			if (controlled[8+current_group*10]!=0) DrawText("" + controlled[8+current_group*10] + " " + name8, 10 , 90, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			if (controlled[9+current_group*10]!=0) DrawText("" + controlled[9+current_group*10] + " " + name9, 10 , 100, 100, 10, COLOR_RED, FONT_FALLOUT, 0);
+			}
 		}
 	}
 
@@ -379,6 +420,15 @@ class GUIScreen : IGUIScreenOpt
 		if(IsHardcoded && Index==CLIENT_MAIN_SCREEN_GAME)
 		{
 			if(__waiting) return true;
+			if(GetCurrentCursor()==CURSOR_USE_SKILL && __getExpToPlayer)
+			{
+				__getExpToPlayer = false;
+				ChangeCursor(CURSOR_DEFAULT);
+				CritterCl@ target = GetMonitorCritter(x, y);
+				if(target is null) return false;
+				RunServerScriptUnsafe("client_unsafe@unsafe_teach", __getExpToPlayerCount, 1, target.Id, "", null);
+				return true;
+			}
 			if(GetCurrentCursor()==CURSOR_USE_SKILL && __fastPanel)
 			{
 			  
@@ -641,7 +691,33 @@ class GUIScreen : IGUIScreenOpt
 			if(not (CallbackMove is null) && (lastPosX!=PosX || lastPosY!=PosY)) CallbackMove.OnMove(PosX,PosY);
 		}
 
-		for(uint i=0,j=Elements.length();i<j;i++) Elements[i].MouseMove(x,y);
+		for(uint i=0,j=Elements.length();i<j;i++) 
+		{
+			Elements[i].MouseMove(x,y);
+			if(Index==CLIENT_SCREEN_CONTMENU && i != 0) //[0] is description element pm added
+			{
+				IGUIElementOpt @ e = Elements[i];
+				
+				if(IS_COLLISION(x,y,PosX+e.GetPosX(),PosY+e.GetPosY(),e.GetSurfaceWidth(),e.GetSurfaceHeight()))
+				{
+					if(e.IsVisible()) 
+					{
+						Elements[0].Text(""+e.GetDescription(),FONT_FALLOUT,COLOR_GREEN, COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+						e.Switch(true);
+						__elementActive = true;
+					}
+				}
+				else
+				{
+					if(__elementActive) 
+					{
+						//Elements[0].Text("",FONT_FALLOUT,COLOR_GREEN, COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+						e.Switch(false);
+						
+					}
+				}
+			}
+		}
 	}
 
 	bool KeyPress(uint8 key)
@@ -654,7 +730,7 @@ class GUIScreen : IGUIScreenOpt
 				if(__fastPanel)
 				
 				  //if(!__f4Pressed)
-				    HidePanel(); 
+				    HidePanel(false); 
 				  else __f4Pressed = (__f4Pressed ? false : true);
 				
 			}
@@ -662,15 +738,20 @@ class GUIScreen : IGUIScreenOpt
 //@pm menu
 	  if(Index == CLIENT_MAIN_SCREEN_GAME)
 	  {
+		if(key==DIK_ESCAPE && __getExpToPlayer)
+		{
+			__getExpToPlayer = false;
+			return true;
+		}
 	    
-//		   Message("screen game"+"\n"+"key pressed = "+key);
- 		if(key>=DIK_1 && key<=DIK_9 && __fastPanel  && !__ConsoleActive)
+		   //Message("screen game"+"\n"+"key pressed = "+key);
+ 		if(key>=DIK_1 && key<=DIK_0 && __fastPanel  && !__ConsoleActive)
 		  {
 			 
 			 IGUIElementOpt@[] panelBtns;
 			 //activeLayerBtn.resize(9);
-			 //GetActiveLayer(activeLayerBtn);
-			 GetPanelButtons(panelBtns);
+			 GetActiveLayer(panelBtns);
+			 //GetPanelButtons(panelBtns);
 			 uint8 length = panelBtns.length();
 			 if(length == 0) {Message("ziro length"); return false;}
 			 panelBtns[key-2].Realese();
@@ -702,6 +783,196 @@ class GUIScreen : IGUIScreenOpt
 	 else
 	    return false;
 	}
+//ErlKing Hotkeys
+	if(__mobhotkeys)
+		{
+	  	if(key==DIK_T && KeyPressed[DIK_LCONTROL])
+			{
+			CritterCl@ chosen=GetChosen();
+			uint16 x=0, y=0, hexX=0, hexY=0;
+			GetMonitorHex(x, y, hexX, hexY);
+			RunServerScript("debug@GM_tel",  chosen.Id, hexX, hexY, null, null);
+			return false;
+			}
+		else if(key==DIK_1 && KeyPressed[DIK_LCONTROL])
+			{
+			current_group=0;
+			name0 = "";
+			name1 = "";
+			name2 = "";
+			name3 = "";
+			name4 = "";
+			name5 = "";
+			name6 = "";
+			name7 = "";
+			name8 = "";
+			name9 = "";
+			return false;
+			}
+		else if(key==DIK_2 && KeyPressed[DIK_LCONTROL])
+			{
+			current_group=1;
+			name0 = "";
+			name1 = "";
+			name2 = "";
+			name3 = "";
+			name4 = "";
+			name5 = "";
+			name6 = "";
+			name7 = "";
+			name8 = "";
+			name9 = "";
+			return false;
+			}
+		else if(key==DIK_3 && KeyPressed[DIK_LCONTROL])
+			{
+			current_group=2;
+			name0 = "";
+			name1 = "";
+			name2 = "";
+			name3 = "";
+			name4 = "";
+			name5 = "";
+			name6 = "";
+			name7 = "";
+			name8 = "";
+			name9 = "";
+			return false;
+			}
+		else if(key==DIK_C && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			SetControlCritters(target.Id);
+			return false;
+			}
+		else if(key==DIK_A && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			if(target!=null) RunServerScript("raiders@attackMob",  target.Id, current_group, 0, null, controlled);
+			else {uint16 hexX=0, hexY=0; string run=1; GetMonitorHex(x, y, hexX, hexY); RunServerScript("raiders@moveMob", current_group, hexX, hexY, run, controlled);}
+			return false;
+			}
+		else if(key==DIK_W && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY, hexX=0, hexY=0;
+			GetMonitorHex(x, y, hexX, hexY);
+			RunServerScript("raiders@moveMob", current_group, hexX, hexY, null, controlled);
+			return false;
+			}
+		else if(key==DIK_Q && KeyPressed[DIK_LCONTROL])
+			{
+			controlled[0+current_group*10] = 0;
+			controlled[1+current_group*10] = 0;
+			controlled[2+current_group*10] = 0;
+			controlled[3+current_group*10] = 0;
+			controlled[4+current_group*10] = 0;
+			controlled[5+current_group*10] = 0;
+			controlled[6+current_group*10] = 0;
+			controlled[7+current_group*10] = 0;
+			controlled[8+current_group*10] = 0;
+			controlled[9+current_group*10] = 0;
+			return false;
+			}
+		else if(key==DIK_X && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY, hexX=0, hexY=0;
+			GetMonitorHex(x, y, hexX, hexY);
+			RunServerScript("raiders@stopMob", current_group, hexX, hexY, null, controlled);
+			return false;
+			}
+		else if(key==DIK_S && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			RunServerScript("gm@GM_say",  target.Id, 1, 0, null, null);
+			return false;
+			}
+		else if(key==DIK_E && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			RunServerScript("gm@GM_say",  target.Id, 5, 0, null, null);
+			return false;
+			}
+		}
+	else if(__usermobhotkeys)
+		{
+		if(key==DIK_1 && KeyPressed[DIK_LCONTROL])
+			{
+			current_group=0;
+			return false;
+			}
+		else if(key==DIK_2 && KeyPressed[DIK_LCONTROL])
+			{
+			current_group=1;
+			return false;
+			}
+		else if(key==DIK_3 && KeyPressed[DIK_LCONTROL])
+			{
+			current_group=2;
+			return false;
+			}
+		else if(key==DIK_C && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			SetControlCritters(target.Id);
+			return false;
+			}
+		else if(key==DIK_A && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			if(target!=null) RunServerScriptUnsafe("client_unsafe@unsafe_attackMob",  target.Id, current_group, 0, null, controlled);
+			else {uint16 hexX=0, hexY=0; string run=1; GetMonitorHex(x, y, hexX, hexY); RunServerScriptUnsafe("client_unsafe@unsafe_moveMob", current_group, hexX, hexY, run, controlled);}
+			return false;
+			}
+		else if(key==DIK_W && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY, hexX=0, hexY=0;
+			GetMonitorHex(x, y, hexX, hexY);
+			RunServerScriptUnsafe("client_unsafe@unsafe_moveMob", current_group, hexX, hexY, null, controlled);
+			return false;
+			}
+		else if(key==DIK_Q && KeyPressed[DIK_LCONTROL])
+			{
+			controlled[0+current_group*10] = 0;
+			controlled[1+current_group*10] = 0;
+			controlled[2+current_group*10] = 0;
+			controlled[3+current_group*10] = 0;
+			controlled[4+current_group*10] = 0;
+			controlled[5+current_group*10] = 0;
+			controlled[6+current_group*10] = 0;
+			controlled[7+current_group*10] = 0;
+			controlled[8+current_group*10] = 0;
+			controlled[9+current_group*10] = 0;
+			return false;
+			}
+		else if(key==DIK_X && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY, hexX=0, hexY=0;
+			GetMonitorHex(x, y, hexX, hexY);
+			RunServerScriptUnsafe("client_unsafe@unsafe_stopMob", current_group, hexX, hexY, null, controlled);
+			return false;
+			}
+		else if(key==DIK_S && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			RunServerScriptUnsafe("client_unsafe@unsafe_say",  target.Id, 1, 0, null, null);
+			return false;
+			}
+		else if(key==DIK_E && KeyPressed[DIK_LCONTROL])
+			{
+			uint16 x=__MouseX, y=__MouseY;
+			CritterCl@ target = GetMonitorCritter (x, y);
+			RunServerScriptUnsafe("client_unsafe@unsafe_say",  target.Id, 5, 0, null, null);
+			return false;
+			}
+		}
+
 	////////////////////////////////////////////////
 	
 	
@@ -1240,8 +1511,91 @@ bool ProcessKey(uint8 key, string& text, uint8& letter)
 	return false;
 }
 
+void _SetControlCritters(int Id, int p1, int p2, string@+ p3, int[]@+ p4)
+{
+	SetControlCritters(Id);
+}
 
+void SetControlCritters(int Id)
+{
+	CritterCl@ chosen=GetChosen();
+	uint8 Ex=0;
+	for(uint i=current_group*10,ii=10+current_group*10;i<ii;i++)
+		{ 
+		if (controlled[i] == Id) {Message("Снят контроль с криттера " + Id); Ex=i-current_group*10+10;}
+		if (Ex!=0)
+			{
+			if (i!=9) controlled[i] = controlled[i+1];
+			else controlled[i] = 0;
+			}
+		}
+	if (Ex==0)
+		{
+		for(uint i=current_group*10,ii=10+current_group*10;i<ii;i++)
+			{ 
+			if (controlled[i] == 0)
+				{
+				controlled[i]=Id; Message("Взят под контроль криттер " + Id);
+				CritterCl@ Cont = GetCritter(controlled[i]);
+				if(Cont.IsPlayer())
+					{
+						switch(i-current_group*10)
+						{
+						case 0: name0 = Cont.Name;
+						case 1: name1 = Cont.Name;
+						case 2: name2 = Cont.Name;
+						case 3: name3 = Cont.Name;
+						case 4: name4 = Cont.Name;
+						case 5: name5 = Cont.Name;
+						case 6: name6 = Cont.Name;
+						case 7: name7 = Cont.Name;
+						case 8: name8 = Cont.Name;
+						case 9: name9 = Cont.Name;
+						}
+					}
+					else
+					{
+						uint dlgId=Cont.Stat[ST_DIALOG_ID];
+						uint16 npcPid=Cont.Pid;
+						switch(i-current_group*10)
+						{
+						case 0: name0 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						case 1: name1 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						case 2: name2 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						case 3: name3 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						case 4: name4 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						case 5: name5 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						case 6: name6 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						case 7: name7 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						case 8: name8 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						case 9: name9 = GetMsgStr(TEXTMSG_DLG,STR_NPC_NAME(dlgId,npcPid));
+						}
+					}
+				return;
+				}
+			}
+		}
+	else
+		{
+		if (Ex <=10) name0 = name1;
+		if (Ex <=11) name1 = name2;
+		if (Ex <=12) name2 = name3;
+		if (Ex <=13) name3 = name4;
+		if (Ex <=14) name4 = name5;
+		if (Ex <=15) name5 = name6;
+		if (Ex <=16) name6 = name7;
+		if (Ex <=17) name7 = name8;
+		if (Ex <=18) name8 = name9;
+		if (Ex <=19) name9 = "";
+		}
+}
 
+int[] control()
+{
+	return controlled;
+}
 
-
-
+uint8 current()
+{
+	return current_group;
+}

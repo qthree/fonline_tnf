@@ -287,6 +287,11 @@
 #define CTE_SLOWRELOAD              (10)
 #define CTE_CHOOSESKIN				(11)
 #define CTE_DELETECORPSE            (12)
+#define CTE_TEST		(39)
+#define CTE_STUDY		(40)
+#define CTE_HEAL		(41)
+#define CTE_DOC			(42)
+#define CTE_WORK		(43)
 // Drugs time events                40 (PID_STIMPAK) .. 1000
 
 // Parameters
@@ -430,6 +435,9 @@
 #define ST_ACCESS_LEVEL		(137)
 //#pm menu
 
+#define ST_STUDY_EXP		(138)
+#define ST_STUDY_EXP_MAX	(139)
+
 // 132..139
 #define ST_LTP_TYPE_DIR_HEX         (140)
 #define ST_LTP_MAP		   		    (141)
@@ -449,7 +457,7 @@
 #define ARCADE_MODE                 (184) //Аркадный режим.
 #define LAST_ATTACKED				(185) // Id последнего атакованного игрока.
 #define ST_BLOCK				(186) // находится ли игрок в режиме блока
-#define ST_ARCADE_ATTACKED				(187) // находится ли игрок в режиме блока
+#define ST_DESEASE				(187) // уровень болезни (также для контроля атаковался ли моб аркадой и освежован ли уже)
 #define ST_KILLER_PERSON				(188) // ID убийцы персонажа
 #define ST_QMAP			(189) //q3: с какой картой синхронизирован
 // 190..199
@@ -1146,6 +1154,7 @@
 #define CRTYPE_DW_METAL_ARMOR_M     (14)
 #define CRTYPE_DW_TRIBAL_F          (63)
 #define CRTYPE_DW_TRIBAL_M          (64)
+#define CRTYPE_DW_LEATHERBLUE_M     (124)
 	// Vault citizen
 #define CRTYPE_VAULT_M              (69)
 #define CRTYPE_VAULT_F              (74)
@@ -1157,12 +1166,14 @@
 #define CRTYPE_LHD_LEATHER_JACKET   (108)
 #define CRTYPE_LHD_METAL_ARMOR      (109)
 #define CRTYPE_LHD_TRIBAL           (110)
+#define CRTYPE_LHD_LEATHERBLUE      (125)
 	//Bald dude
 #define CRTYPE_BLD_JUMPSUIT         (116)
 #define CRTYPE_BLD_LEATHER_ARMOR    (117)
 #define CRTYPE_BLD_LEATHER_JACKET   (118)
 #define CRTYPE_BLD_METAL_ARMOR      (119)
 #define CRTYPE_BLD_TRIBAL           (120)
+#define CRTYPE_BLD_LEATHERBLUE      (126)
 
 	// Other
 #define CRTYPE_VAULT_BOY            (249)
@@ -1389,18 +1400,18 @@
 #ifdef __SERVER
 #pragma bindfield "uint Critter::GlobalMapMoveCounter -> 0"
 
-#pragma bindfunc "bool Critter::IsInjured()    -> fonline_tla.dll Critter_IsInjured   "
-#pragma bindfunc "bool Critter::IsDmgEye()     -> fonline_tla.dll Critter_IsDmgEye    "
-#pragma bindfunc "bool Critter::IsDmgLeg()     -> fonline_tla.dll Critter_IsDmgLeg    "
-#pragma bindfunc "bool Critter::IsDmgTwoLeg()  -> fonline_tla.dll Critter_IsDmgTwoLeg "
-#pragma bindfunc "bool Critter::IsDmgArm()     -> fonline_tla.dll Critter_IsDmgArm    "
-#pragma bindfunc "bool Critter::IsDmgTwoArm()  -> fonline_tla.dll Critter_IsDmgTwoArm "
-#pragma bindfunc "bool Critter::IsAddicted()   -> fonline_tla.dll Critter_IsAddicted  "
-#pragma bindfunc "bool Critter::IsOverweight() -> fonline_tla.dll Critter_IsOverweight"
+#pragma bindfunc "bool Critter::IsInjured()    -> fonline_tnf.dll Critter_IsInjured   "
+#pragma bindfunc "bool Critter::IsDmgEye()     -> fonline_tnf.dll Critter_IsDmgEye    "
+#pragma bindfunc "bool Critter::IsDmgLeg()     -> fonline_tnf.dll Critter_IsDmgLeg    "
+#pragma bindfunc "bool Critter::IsDmgTwoLeg()  -> fonline_tnf.dll Critter_IsDmgTwoLeg "
+#pragma bindfunc "bool Critter::IsDmgArm()     -> fonline_tnf.dll Critter_IsDmgArm    "
+#pragma bindfunc "bool Critter::IsDmgTwoArm()  -> fonline_tnf.dll Critter_IsDmgTwoArm "
+#pragma bindfunc "bool Critter::IsAddicted()   -> fonline_tnf.dll Critter_IsAddicted  "
+#pragma bindfunc "bool Critter::IsOverweight() -> fonline_tnf.dll Critter_IsOverweight"
 
-#pragma bindfunc "bool Item::Weapon_IsHtHAttack(uint8 mode)    -> fonline_tla.dll Item_Weapon_IsHtHAttack   "
-#pragma bindfunc "bool Item::Weapon_IsGunAttack(uint8 mode)    -> fonline_tla.dll Item_Weapon_IsGunAttack   "
-#pragma bindfunc "bool Item::Weapon_IsRangedAttack(uint8 mode) -> fonline_tla.dll Item_Weapon_IsRangedAttack"
+#pragma bindfunc "bool Item::Weapon_IsHtHAttack(uint8 mode)    -> fonline_tnf.dll Item_Weapon_IsHtHAttack   "
+#pragma bindfunc "bool Item::Weapon_IsGunAttack(uint8 mode)    -> fonline_tnf.dll Item_Weapon_IsGunAttack   "
+#pragma bindfunc "bool Item::Weapon_IsRangedAttack(uint8 mode) -> fonline_tnf.dll Item_Weapon_IsRangedAttack"
 
 #pragma bindfunc "uint Map::GetTile(uint16 tx, uint16 ty) -> fonline_tnf.dll Map_GetTile"
 #pragma bindfunc "uint Map::GetRoof(uint16 tx, uint16 ty) -> fonline_tnf.dll Map_GetRoof"
@@ -1410,18 +1421,18 @@
 #endif
 
 #ifdef __CLIENT
-#pragma bindfunc "bool CritterCl::IsInjured()    -> fonline_tla_client.dll Critter_IsInjured  "
-#pragma bindfunc "bool CritterCl::IsDmgEye()     -> fonline_tla_client.dll Critter_IsDmgEye   "
-#pragma bindfunc "bool CritterCl::IsDmgLeg()     -> fonline_tla_client.dll Critter_IsDmgLeg   "
-#pragma bindfunc "bool CritterCl::IsDmgTwoLeg()  -> fonline_tla_client.dll Critter_IsDmgTwoLeg"
-#pragma bindfunc "bool CritterCl::IsDmgArm()     -> fonline_tla_client.dll Critter_IsDmgArm   "
-#pragma bindfunc "bool CritterCl::IsDmgTwoArm()  -> fonline_tla_client.dll Critter_IsDmgTwoArm"
-#pragma bindfunc "bool CritterCl::IsAddicted()   -> fonline_tla_client.dll Critter_IsAddicted "
-#pragma bindfunc "bool CritterCl::IsOverweight() -> fonline_tla_client.dll Critter_IsOverweight"
+#pragma bindfunc "bool CritterCl::IsInjured()    -> fonline_tnf_client.dll Critter_IsInjured  "
+#pragma bindfunc "bool CritterCl::IsDmgEye()     -> fonline_tnf_client.dll Critter_IsDmgEye   "
+#pragma bindfunc "bool CritterCl::IsDmgLeg()     -> fonline_tnf_client.dll Critter_IsDmgLeg   "
+#pragma bindfunc "bool CritterCl::IsDmgTwoLeg()  -> fonline_tnf_client.dll Critter_IsDmgTwoLeg"
+#pragma bindfunc "bool CritterCl::IsDmgArm()     -> fonline_tnf_client.dll Critter_IsDmgArm   "
+#pragma bindfunc "bool CritterCl::IsDmgTwoArm()  -> fonline_tnf_client.dll Critter_IsDmgTwoArm"
+#pragma bindfunc "bool CritterCl::IsAddicted()   -> fonline_tnf_client.dll Critter_IsAddicted "
+#pragma bindfunc "bool CritterCl::IsOverweight() -> fonline_tnf_client.dll Critter_IsOverweight"
 
-#pragma bindfunc "bool ItemCl::Weapon_IsHtHAttack(uint8 mode)    -> fonline_tla_client.dll Item_Weapon_IsHtHAttack   "
-#pragma bindfunc "bool ItemCl::Weapon_IsGunAttack(uint8 mode)    -> fonline_tla_client.dll Item_Weapon_IsGunAttack   "
-#pragma bindfunc "bool ItemCl::Weapon_IsRangedAttack(uint8 mode) -> fonline_tla_client.dll Item_Weapon_IsRangedAttack"
+#pragma bindfunc "bool ItemCl::Weapon_IsHtHAttack(uint8 mode)    -> fonline_tnf_client.dll Item_Weapon_IsHtHAttack   "
+#pragma bindfunc "bool ItemCl::Weapon_IsGunAttack(uint8 mode)    -> fonline_tnf_client.dll Item_Weapon_IsGunAttack   "
+#pragma bindfunc "bool ItemCl::Weapon_IsRangedAttack(uint8 mode) -> fonline_tnf_client.dll Item_Weapon_IsRangedAttack"
 #endif
 
 ///

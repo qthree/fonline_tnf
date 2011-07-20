@@ -25,7 +25,7 @@ bool _ValidForTrap(Item & onItem)
 {
 	bool isValid=false;
 	uint8 iType = onItem.GetType();
-	isValid = ((iType==ITEM_DOOR||iType==ITEM_CONTAINER) && onItem.LockerCondition >= LOCKER_LOCKED);// && !_IsItemTrapped(onItem));
+	isValid = ((iType==ITEM_DOOR||iType==ITEM_CONTAINER) && !FLAG(onItem.LockerCondition, LOCKER_ELECTRO));// && !_IsItemTrapped(onItem));
 
 	return isValid;
 }

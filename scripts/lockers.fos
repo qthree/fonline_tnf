@@ -20,6 +20,11 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 
 	if(skill==SKILL_PICK_ON_GROUND)
 	{
+		if(FLAG(locker.LockerCondition, LOCKER_ELECTRO) && !FLAG(locker.LockerCondition, LOCKER_ISOPEN) && (locker.GetType() == ITEM_DOOR || locker.GetType() == ITEM_CONTAINER))
+		{
+			cr.RunClientScript("client_screen_codedoor@ShowScreen", locker.Id, locker.Val1, 0, "Введите код", null);
+			return true;
+		}
 		if(locker.GetType()==ITEM_DOOR)
 		{
 			// NoOpen
@@ -121,6 +126,12 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 	}
 	else if(skill==SK_LOCKPICK)
 	{
+		if(FLAG(locker.LockerCondition,LOCKER_ISOPEN))
+		{
+			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_USE_NOTHING);
+			return true;
+		}
+		
 		// NoOpen
 		if(FLAG(locker.LockerCondition,LOCKER_NOOPEN))
 		{
@@ -157,9 +168,9 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 		bool validLockPick = (activePid == PID_LOCKPICKS || activePid == PID_EXP_LOCKPICK_SET);
 		switch(locker.Val0)
 		{
-		  case 2: if(validLockPick) {break;} else {cr.Say(SAY_NETMSG, "need lockpick"); return false;}
-		  case 3: if(activePid == PID_EXP_LOCKPICK_SET) {break;} else {cr.Say(SAY_NETMSG, "need exp lockpicks"); return false;}
-		  case 4: if(activePid == PID_ELECTRONIC_LOCKPICKS) {break;} else {cr.Say(SAY_NETMSG, "need electro lockpicks"); return false;}
+		  case 2: if(validLockPick) {break;} else {cr.Say(SAY_NETMSG, "Нужны отмычки."); return false;}
+		  case 3: if(activePid == PID_EXP_LOCKPICK_SET) {break;} else {cr.Say(SAY_NETMSG, "Нужен большой набор отмычек."); return false;}
+		  case 4: if(activePid == PID_ELECTRONIC_LOCKPICKS) {break;} else {cr.Say(SAY_NETMSG, "Нужна электроная отмычка."); return false;}
 		}
 		  /*
 		if(locker.Val0 > 1)	//only lockpick unlock
@@ -172,6 +183,7 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 		 }
 		 else return true;
 		*/
+		  /*
 		if(activePid==PID_LOCKPICKS)
 		{
 			base+=25;
@@ -186,34 +198,55 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 		{
 			base+=50;
 			if(Random(0,80)==0) cr.DeleteItem(PID_ELECTRONIC_LOCKPICKS,1);
-		}
+		}*/
 		// Todo: PID_ELECTRONIC_LOCKPICKS +, PID_ELEC_LOCKPICK_MKII
 
 		if(cr.GetAccess()!=ACCESS_ADMIN) base=CLAMP(base,0,95);
 		
 		if (locker.LockerComplexity == 300 && cr.GetAccess()!=ACCESS_ADMIN) cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_SKILL_LOCKPICK_FAIL); //постоянный замок
+		else if(locker.LockerCondition == LOCKER_ELECTRO/* locker.Val0 == 4*/) //pm added if block
+		{
+			uint16 complex = locker.LockerComplexity;
+			uint16 exp = complex * 2;
+			
+			string tempCode = locker.Val4;
+			uint8 codeLength = tempCode.length();
+			uint16 skillLock = cr.Skill[SK_LOCKPICK];
+			uint8 count = complex / codeLength;
+			
+			bool changeCode = true;
+			
+			for(uint8 i = 0; i < codeLength; i++)
+			{
+				//cr.Say(SAY_NETMSG, ""+complex+" "+count+" "+skillLock+" "+exp);
+				
+				skillLock = (skillLock >= count ? (skillLock-count) : 0);
+				if(complex >= skillLock)
+				{
+					tempCode[i] = '*';
+					exp = (exp >= count * 4 ? exp-(count * 4) : 0);
+					
+					changeCode = false;
+				}
+			}
+				
+			cr.Say(SAY_NETMSG, "Код двери : "+/*locker.Val4*/tempCode);
+				
+			if(changeCode && complex / 2 <= cr.Skill[SK_SCIENCE])
+			{
+				exp += complex;
+				cr.RunClientScript("client_screen_codedoor@ShowScreen", locker.Id, locker.Val1, 1, "Введите новый код.\nДлинна "+(locker.Val1+1), null);
+			}
+				
+			cr.StatBase[ST_EXPERIENCE]+=exp;
+			//return true;
+				
+				
+		}
 		else if(base>=Random(1,100))
 		{
 			locker.LockerOpen();
 			if(locker.GetType()==ITEM_CONTAINER) cr.ShowContainer(null,locker,locker.Proto.GroundLevel?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
-			if(/*locker.LockerCondition == LOCKER_ELECTRO*/ locker.Val0 == 4) //pm added if block
-			{
-				uint16 complex = locker.LockerComplexity;
-				uint16 exp = complex * 2;
-				
-				cr.Say(SAY_NETMSG, "Код двери : "+locker.Val4);
-				
-				if(complex / 2 <= cr.Skill[SK_SCIENCE])
-				{
-					exp += complex;
-					cr.RunClientScript("client_screen_codedoor@ShowScreen", locker.Id, 0, 1, "", null);
-				}
-				
-				cr.StatBase[ST_EXPERIENCE]+=exp;
-				return true;
-				
-				
-			}
 			if(activePid == PID_EXP_LOCKPICK_SET) //break door if dont heve lockpicks
 			{
 			  cr.Say(SAY_NETMSG, "Вы успешно вскрыли замок. Осторожно, дверь может захлонуться.");

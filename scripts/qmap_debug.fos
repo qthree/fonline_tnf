@@ -41,10 +41,19 @@ class TextMapWall
 	//}
 }
 
+class TextMapItem
+{
+	uint16 Pid;
+	uint16 HexX;
+	uint16 HexY;
+	uint16 Count;
+}
+
 class TextMap
 {
 	string parsedFileName;
 	int[] data;
+	TextMapItem[] items;
 	
 	TextMapTile[] tiles;
 	TextMapTile[] roofs;
@@ -236,8 +245,10 @@ class TextMap
 		if((tiles.length()<1) && (roofs.length()<1) && (walls.length()<1)) return 0;
 	
 		data.resize(0);
-	
 		uint j=0;
+		
+		items.resize(0);
+		uint Ii=0;
 	
 		data.resize((tiles.length()+roofs.length()+walls.length())*2);
 		
@@ -253,19 +264,39 @@ class TextMap
 			data[j++] = int(AddOneHash(map, roofs[i].Hash));
 			data[j++] =  makeHex(roofs[i].HexX>>1, roofs[i].HexY>>1, 1);
 		}
+		
+		uint8 lvl = 0;
+		
 		for(uint i=0, len=walls.length(); i<len; i++)
 		{
 			if(walls[i].HexX>=0xFFF || walls[i].HexY>=0xFFF) continue;
 			
 			ProtoItem@ proto = GetProtoItem(walls[i].Pid);
 			if(proto is null) {Log("Некорректный pid: "+walls[i].Pid); continue;}
-			if(proto.ProtoId != 5621) {data[j++] = int(AddOneHash(map, proto.PicMap));}
-			else {data[j++] = int(AddOneHash(map, 10));}
 			
-			data[j++] =  makeHex(walls[i].HexX, walls[i].HexY, 2);
+			if(proto.Type>ITEM_NONE && proto.Type<=ITEM_DOOR)
+			{
+				if(items.length()<=Ii) items.resize(Ii+10);
+				items[Ii].Pid = walls[i].Pid;
+				items[Ii].HexX = walls[i].HexX;
+				items[Ii].HexY = walls[i].HexY;
+				items[Ii++].Count=1;
+				continue;
+			}
+			
+			lvl=2;
+			if((proto.Flags&ITEM_SHOOT_THRU)!=0)
+			{
+				if((proto.Flags&ITEM_NO_BLOCK)!=0) lvl=4;
+				else lvl=3;
+			}
+			
+			data[j++] = (((proto.Flags&ITEM_HIDDEN)==0)?int(AddOneHash(map, proto.PicMap)):0xFFFF);
+			data[j++] =  makeHex(walls[i].HexX, walls[i].HexY, lvl);
 		}
 		
 		data.resize(j);
+		items.resize(Ii);
 		
 		return data.length()>>1;
 	}
@@ -299,15 +330,13 @@ void build(Critter& player, int var, int param1, int param2)
 
 	if(var==0)
 	{
+		uint8 l = uint8(param2);
 		for(int i=-param1; i<=param1; i++)
 		{
 			for(int k=-param1; k<=param1; k++)
-			{	
-				for(int l=0; l<=param2; l++)
-				{
-					if(l<2) SetTile(map, 0, uint16(k+tX), uint16(i+tY), uint8(l));
-					else SetTile(map, 0, uint16(k+hexX), uint16(i+hexY), uint8(l));
-				}
+			{
+				if(l<2) SetTile(map, 0, uint16(tX+k), uint16(tY+i), l);
+				else SetTile(map, 0, uint16(hexX+k), uint16(hexY+i), l);
 			}
 		}
 	}
@@ -364,14 +393,24 @@ void build(Critter& player, int var, int param1, int param2)
 		TextMap myMap;
 		string fileName = "maps/";
 		
-		switch(param1)
+		if(param1<0) {player.Say(SAY_NETMSG, "Неверный номер карты."); return;}
+		
+		if(param1<100)
 		{
-		case 0: fileName+="q3.fomap"; break;
-		case 1: fileName+="SlaversCave.fomap"; break;
-		case 2: fileName+="phoenix0.fomap"; break;
-		case 3: fileName+="modoc.fomap"; break;
-		default: player.Say(SAY_NETMSG, "Неверный номер карты."); return;
-		}		
+			fileName+="pattern_"+param1+".fomap";
+		}
+		else
+		{
+			switch(param1)
+			{
+			case 100: fileName+="anuri_testbunker.fomap"; break;
+			case 101: fileName+="anuri_testbunker_door.fomap"; break;
+			case 110: fileName+="SlaversCave.fomap"; break;
+			case 111: fileName+="phoenix0.fomap"; break;
+			case 112: fileName+="modoc.fomap"; break;
+			default: player.Say(SAY_NETMSG, "Неверный номер карты."); return;
+			}		
+		}
 		
 		player.Say(SAY_NETMSG, "Открываем и парсим карту... ");
 		
@@ -408,7 +447,7 @@ void build(Critter& player, int var, int param1, int param2)
 		
 		player.Say(SAY_NETMSG, "Генерируем данные... ");
 		uint len = Map2.GenerateData(map);
-		if(len>0) player.Say(SAY_NETMSG, "Получено "+len+" объекта(ов).");
+		if(len>0 || Map2.items.length()>0) player.Say(SAY_NETMSG, "Получено "+len+" динамических объекта(ов) и "+Map2.items.length()+" итемов.");
 		else {player.Say(SAY_NETMSG, "Fail."); return;}
 	}
 	else if(var==8)
@@ -421,6 +460,20 @@ void build(Critter& player, int var, int param1, int param2)
 
 		if(SetTiles(map, Map2.data)) player.Say(SAY_NETMSG, "Готово.");
 		else {player.Say(SAY_NETMSG, "Fail."); return;}
+		
+		player.Say(SAY_NETMSG, "Спавним итемы...");
+		
+		uint count = 0, len=Map2.items.length();
+		for(uint i=0; i<len; i++)
+		{
+			Item@ item = map.AddItem(Map2.items[i].HexX, Map2.items[i].HexY, Map2.items[i].Pid, Map2.items[i].Count);
+			if(item !is null)
+			{
+				count++;
+				if(item.GetType()==ITEM_DOOR || item.GetType()==ITEM_CONTAINER) {item.LockerOpen(); item.LockerClose();}
+			}
+		}
+		player.Say(SAY_NETMSG, "Добалены "+count+" из "+len+" итемов.");
 	}
 }
 

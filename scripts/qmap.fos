@@ -1,3 +1,5 @@
+//Dynamic Map Objects 64 - server side
+
 #include "_macros.fos"
 
 //#include "qmap_h.fos"
@@ -283,8 +285,8 @@ MapTileData@ getMTD(uint mapId)
 	Map@ map=GetMap(mapId);
 	if(!(map is null)) map.SetEvent(MAP_EVENT_FINISH, "_MapFinish");
 
-	if(IsAnyData("qmap_hash_"+mtd.Id)) GetAnyData("qmap_hash_"+mtd.Id, mtd.TileHashs);
-	if(IsAnyData("qmap_tile_"+mtd.Id)) GetAnyData("qmap_tile_"+mtd.Id, mtd.Tiles);
+	if(IsAnyData("dmo64_hash_"+mtd.Id)) GetAnyData("dmo64_hash_"+mtd.Id, mtd.TileHashs);
+	if(IsAnyData("dmo64_obj_"+mtd.Id)) GetAnyData("dmo64_obj_"+mtd.Id, mtd.Tiles);
 	mtd.ApplyBlockers();
 
 	return mtd;
@@ -325,19 +327,19 @@ void qmap_save_all()
 			{
 				if(mtd.TileHashCount()>1)
 				{
-					SetAnyData("qmap_hash_"+mtd.Id, mtd.TileHashs);
+					SetAnyData("dmo64_hash_"+mtd.Id, mtd.TileHashs);
 					ckH=true;
 
 					if(mtd.TileCount()>1)
 					{
-						SetAnyData("qmap_tile_"+mtd.Id, mtd.Tiles);
+						SetAnyData("dmo64_obj_"+mtd.Id, mtd.Tiles);
 						ckT=true;
 					}
 				}
 			}
 
-			if(!(ckH&&ckT)&&IsAnyData("qmap_tile_"+mtd.Id)) EraseAnyData("qmap_tile_"+mtd.Id);	//если тайлов или хэшей меньше двух
-			if(!ckH&&IsAnyData("qmap_hash_"+mtd.Id)) EraseAnyData("qmap_hash_"+mtd.Id);		//если хэшей меньше двух		
+			if(!(ckH&&ckT)&&IsAnyData("dmo64_obj_"+mtd.Id)) EraseAnyData("dmo64_obj_"+mtd.Id);	//если тайлов или хэшей меньше двух
+			if(!ckH&&IsAnyData("dmo64_hash_"+mtd.Id)) EraseAnyData("dmo64_hash_"+mtd.Id);		//если хэшей меньше двух		
 			
 			if(valid(GetMap(mtd.Id))) continue;			
 		}
@@ -355,8 +357,8 @@ void _MapFinish(Map& map, bool deleted)
 	uint ind = findMTDi(map.Id);
 	if(ind == uint(-1)) return;
 
-	if(IsAnyData("qmap_tile_"+map.Id)) EraseAnyData("qmap_tile_"+map.Id);
-	if(IsAnyData("qmap_hash_"+map.Id)) EraseAnyData("qmap_hash_"+map.Id);
+	if(IsAnyData("dmo64_obj_"+map.Id)) EraseAnyData("dmo64_obj_"+map.Id);
+	if(IsAnyData("dmo64_hash_"+map.Id)) EraseAnyData("dmo64_hash_"+map.Id);
 
 	MapTileDatabase.removeAt(ind);
 }
@@ -374,7 +376,7 @@ bool SetTile(Map& map, uint hash, uint hash2, uint16 hexX, uint16 hexY, uint8 la
 	MapTileData@ mtd = findMTD(map.Id);
 	if(mtd is null) return false;
 
-	return mtd.Set(mtd.AddOneHash(int(hash)), mtd.AddOneHash(int(hash2)), DMO64_makeHex(hexX, hexY, layer), true);
+	return mtd.Set(mtd.AddOneHash(int(hash)), hash2, DMO64_makeHex(hexX, hexY, layer), true);
 }
 
 uint16 AddOneHash(Map& map, uint hash)

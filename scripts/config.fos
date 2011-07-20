@@ -82,7 +82,7 @@ void InitializeGame() // Export
 	__BagRefreshTime=60; // Real minutes
 	__WisperDist=2;
 	__ShoutDist=100;
-	__CustomItemCost=false;
+	__CustomItemCost=true;
 	__RegistrationTimeout=0; // In real seconds, 0 to disable
 	__AccountPlayTime=0; //*60; // In real seconds, 0 to disable
 	__TalkDistance=3;
@@ -175,12 +175,10 @@ void InitializeGame() // Export
 
 	/// Parameters behavoiours
 #ifndef __CLIENT
-	string dllName="fonline_tla.dll@";
-	string dllNameTNF="fonline_tnf.dll@";
+	string dllName="fonline_tnf.dll@";
 #endif
 #ifdef __CLIENT
-	string dllName="fonline_tla_client.dll@";
-	string dllNameTNF="fonline_tnf_client.dll@";
+	string dllName="fonline_tnf_client.dll@";
 #endif
 	SetParameterGetBehaviour(ST_STRENGTH,dllName+"getParam_Strength");
 	SetParameterGetBehaviour(ST_PERCEPTION,dllName+"getParam_Perception");
@@ -190,22 +188,20 @@ void InitializeGame() // Export
 	SetParameterGetBehaviour(ST_AGILITY,dllName+"getParam_Agility");
 	SetParameterGetBehaviour(ST_LUCK,dllName+"getParam_Luck");
 	SetParameterGetBehaviour(ST_CURRENT_HP,dllName+"getParam_Hp");
-	SetParameterGetBehaviour(ST_MAX_LIFE,dllNameTNF+"getParam_MaxLife");					//Roleplay
+	SetParameterGetBehaviour(ST_MAX_LIFE,dllName+"getParam_MaxLife");					//Roleplay
 	SetParameterGetBehaviour(ST_ACTION_POINTS,dllName+"getParam_MaxAp");
 	SetParameterGetBehaviour(ST_CURRENT_AP,dllName+"getParam_Ap");
 	SetParameterGetBehaviour(ST_MAX_MOVE_AP,dllName+"getParam_MaxMoveAp");
 	SetParameterGetBehaviour(ST_MOVE_AP,dllName+"getParam_MoveAp");
-	SetParameterGetBehaviour(ST_CARRY_WEIGHT,dllNameTNF+"getParam_MaxWeight");				//Roleplay
+	SetParameterGetBehaviour(ST_CARRY_WEIGHT,dllName+"getParam_MaxWeight");				//Roleplay
 	SetParameterGetBehaviour(ST_MELEE_DAMAGE,dllName+"getParam_MeleeDmg");
 	SetParameterGetBehaviour(ST_SEQUENCE,dllName+"getParam_Sequence");
 	SetParameterGetBehaviour(ST_HEALING_RATE,dllName+"getParam_HealingRate");
 	SetParameterGetBehaviour(ST_CRITICAL_CHANCE,dllName+"getParam_CriticalChance");
 	SetParameterGetBehaviour(ST_MAX_CRITICAL,dllName+"getParam_MaxCritical");
-	SetParameterGetBehaviour(ST_ARMOR_CLASS,dllNameTNF+"getParam_Ac");							//Roleplay
+	SetParameterGetBehaviour(ST_ARMOR_CLASS,dllName+"getParam_Ac");							//Roleplay
 	SetParameterGetBehaviour(ST_RADIATION_RESISTANCE,dllName+"getParam_RadiationResist");
 	SetParameterGetBehaviour(ST_POISON_RESISTANCE,dllName+"getParam_PoisonResist");
-	//SetParameterGetBehaviour(ST_WALK_TIME,dllNameTNF+"getParam_WalkTime");							//Roleplay
-	//SetParameterGetBehaviour(ST_RUN_TIME,dllNameTNF+"getParam_RunTime");							//Roleplay
 	for(uint i=ST_NORMAL_RESIST;i<=ST_EXPLODE_RESIST;i++) SetParameterGetBehaviour(i,dllName+"getParam_DamageResistance");
 	for(uint i=ST_NORMAL_ABSORB;i<=ST_EXPLODE_ABSORB;i++) SetParameterGetBehaviour(i,dllName+"getParam_DamageThreshold");
 	for(uint i=TIMEOUT_BEGIN;i<=TIMEOUT_END;i++) SetParameterGetBehaviour(i,dllName+"getParam_Timeout");
@@ -214,9 +210,6 @@ void InitializeGame() // Export
 	//for(uint i = REPUTATION_BEGIN; i <= REPUTATION_END   ; i++) SetParameterChangeBehaviour(i, dllName + "changedParam_Reputation");
 
 #ifndef __CLIENT
-	//SetParameterGetBehaviour(MODE_DISABLE_SEND,dllNameTNF+"getParam_DisableSend");
-	//SetParameterChangeBehaviour(MODE_DISABLE_SEND,	dllNameTNF+"changedParam_DisableSend");
-	
 	SetParameterChangeBehaviour(ST_CURRENT_HP,"parameters@changedParam_Hp");
 	SetParameterChangeBehaviour(ST_EXPERIENCE,"parameters@changedParam_Experience");
 	SetParameterChangeBehaviour(MODE_HIDE,"parameters@changedParam_Hide");
@@ -236,6 +229,8 @@ void InitializeGame() // Export
 	for(uint i=TRAIT_BEGIN;i<=TRAIT_END;i++) SetRegistrationParameter(i,true);
 	SetRegistrationParameter(ST_AGE,true);
 	SetRegistrationParameter(ST_GENDER,true);
+	SetRegistrationParameter(ST_BODY_TYPE, true);
+	SetRegistrationParameter(ST_BASE_CRTYPE, true);
 #ifdef PLAYERS_3D
 	SetRegistrationParameter(ST_BASE_CRTYPE                        , true);
 	SetRegistrationParameter(ST_ANIM3D_LAYERS+ANIM3D_LAYER_SKIN    , true);

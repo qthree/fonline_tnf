@@ -34,7 +34,13 @@
 #pragma globalvar "bool __fastPanelShow = true"
 #pragma globalvar "bool __fastPanel = false"
 #pragma globalvar "bool __f4Pressed = false"
+#pragma globalvar "bool __elementActive = false"
 #pragma globalvar "string __tempFastText"
+#pragma globalvar "uint16 __baseCrType = 0"
+#pragma globalvar "uint8 __inventoryCollection = 0"
+
+#pragma globalvar "bool __getExpToPlayer = false"
+#pragma globalvar "uint __getExpToPlayerCount = 0"
 //#pragma globalvar "string[]@ __critterHistoryInfo"
 string[] __critterHistoryInfo;
 //#pm menu
@@ -48,9 +54,7 @@ string[] __critterHistoryInfo;
 #define	SINF_ITEMID			(0x10)
 #define	SINF_HEX			(0x20)
 #define	SINF_INSIGHT		(0x40)
-#define	SINF_GLOBAL			(0x80)
-#define	SINF_GRID			(0x100)
-#define	SINF_WORLDTEST		(0x200)
+#define	SINF_SPRITES		(0x80)
 #define	SINF_TOOLS			(0x1000)
 
 
@@ -59,6 +63,9 @@ string[] __critterHistoryInfo;
 #define	CONF_GLOB_GRID			(0x1)
 #define	CONF_GLOB_WILD			(0x2)
 
+//ErlKing
+#pragma globalvar "bool __mobhotkeys = false"
+#pragma globalvar "bool __usermobhotkeys = false"
 
 /////////////////////////////////////////////////
 
@@ -164,6 +171,9 @@ string[] __critterHistoryInfo;
 #define CLIENT_SCREEN_HISTORY_VIEW		(46)//pm added
 #define CLIENT_SCREEN_HISTORY_ALL		(47)//pm added
 #define CLIENT_SCREEN_CODEDOOR			(48)
+#define CLIENT_SCREEN_CHA_SKIN			(49)
+#define CLIENT_SCREEN_TEACH			(50)
+#define CLIENT_SCREEN_DOC			(51)
 
 // Screen Elements //pm add
 #define SCREEN_ELEMENT_BUTTON		(0)

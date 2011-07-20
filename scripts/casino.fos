@@ -4,9 +4,9 @@
 #include "_msgstr.fos"
 
 
-#define START_BET             (5)
-#define MIN_BET               (1)
-#define MAX_BET               (50)
+#define START_BET             (25)
+#define MIN_BET               (25)
+#define MAX_BET               (75)
 #define STR_ONEHANDED_RING    (2000)
 
 #define MapLimitGet           GetData(60)
@@ -75,7 +75,7 @@ bool s_Onehanded(Critter& cr, Scenery& onehanded, int skill, Item@ item)
 	gambling=CLAMP(gambling,6,95);
 
 	// Win
-	if(gambling>=Random(1,100))
+	if(Random(1,100)>=(70-cr.Skill[SK_GAMBLING]/10))
 	{
 		// Bonuses
 		if(Random(0,99)==77) bet*=10;

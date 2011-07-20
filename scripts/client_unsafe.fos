@@ -3,7 +3,8 @@
 import void critter_reload_weapon(Critter& cr, Item& weapon, Item@ ammo) from "main";
 import bool critter_use_item(Critter& cr, Item& item, Critter@ targetCr, Item@ targetItem, Scenery@ targetScen, uint param) from "main";
 import void CombatAttack(Critter& cr, Critter@ target, ProtoItem& weapon, uint8 weaponMode, ProtoItem@ ammo, uint16 hexX, uint16 hexY) from "combat";
-
+import bool AddAttackPlane(Critter& npc, uint priority, Critter& target, bool run) from "npc_planes";
+import bool AddWalkPlane(Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut) from "npc_planes";
 import void Actions(Critter& cr, uint8 actionType, uint16 pickType) from "context_callback";
 
 void unsafe_contmenu_callback(Critter& player, int id, int screenId, int actionId, string@ command, int[]@ myArr)
@@ -39,6 +40,149 @@ void unsafe_contmenu_callback(Critter& player, int id, int screenId, int actionI
 	}
 	
 }
+
+void unsafe_doc(Critter& cr, int damage, int targetId, int p2, string@ message, int[]@ p4)
+{
+	Critter @ target = GetCritter(targetId);
+	if(@target == null) return;
+	uint[] rates;
+	uint8 countTimes = target.GetTimeEvents(CTE_HEAL, null, null, rates);
+	if(countTimes > 0)
+	{
+		for(uint8 i = 0; i < countTimes; i++)
+		{
+			if(rates[i] == damage)
+			{
+				target.Say(SAY_NETMSG, "Эта часть тела уже лечится.");
+				return;
+			}
+		}
+	}
+	
+	if(target.DamageBase[damage] == 0) {cr.Say(SAY_NETMSG, "Эта часть тела не нуждается в лечении."); return;}
+	
+	uint docTime = 504 - cr.Skill[SK_DOCTOR] - (target.Stat[ST_ENDURANCE] * 5);
+	target.AddTimeEvent("cte_Doc", docTime*3600, CTE_DOC, damage);
+	cr.TimeoutBase[TO_SK_DOCTOR]=DOCTOR_TIMEOUT(cr);
+	cr.AddScore(SCORE_DOCTOR,1);
+	cr.Say(SAY_NETMSG, "Вы наложили швы.");
+}
+
+uint cte_Doc(Critter& cr, int identifier, uint& rate)
+{
+	cr.DamageBase[rate]=0;
+	cr.Say(SAY_NETMSG,"Вы чувствуете себя гораздо лучше.");
+	uint8 noMove = cr.DamageBase[DAMAGE_LEFT_LEG] > 0 && cr.DamageBase[DAMAGE_RIGHT_LEG] > 0 ? 1 : 0;
+	cr.ModeBase[MODE_NO_WALK] = noMove;
+	cr.ModeBase[MODE_NO_RUN] = noMove;
+	//ChangeCritterSpeed(cr); //pm added
+	return 0;
+	
+}
+
+//teaching
+
+#include "_ltp.fos"
+
+#define TEACHER_BASE_WAIT		(60000)
+#define STR_SKILLS			(10200)
+
+string[] skillNames = {"Легкое оружие", "Тяжелое оружие", "Энергооружие", "Рукопашная", "Xолодное оружие", "Метательное оружие", "Санитар", "Доктор", "Скрытность", "Взлом замков", "Воровство", "Ловушки", "Наука", "Ремонт", "Красноречие", "Торговля", "Азартные игры", "Скиталец"};
+
+bool ltp_teach_inited=false;
+
+
+void unsafe_teach(Critter& cr, int skill, int p1, int p2, string@ message, int[]@ p4) //if p1 > 0 | skill == exp to player
+{
+	if(cr.StatBase[ARCADE_MODE] > 0) {cr.Say(SAY_NETMSG, "Запрещено аркадным игрокам."); return;}
+	if(p1 > 0) //added exp to critter
+	{
+		uint studyExp = cr.StatBase[ST_STUDY_EXP]; // = (cr.StatBase[ST_STUDY_EXP] > 100 ? cr.StatBase[ST_STUDY_EXP] : 100);
+		if(skill > studyExp || skill <= 0) {cr.Say(SAY_NETMSG, "Недостаточно опыта."); return;}
+		Critter @ target = GetCritter(p2);
+		if(@target == null) return;
+		if(cr.Id == target.Id) {cr.Say(SAY_NETMSG, "Нельзя дать опыт самому себе."); return;}
+		if(target.IsNpc()) {cr.Say(SAY_NETMSG, "Нельзя дать опыт не игровому персонажу."); return;}
+		target.StatBase[ST_EXPERIENCE] += skill;
+		cr.StatBase[ST_STUDY_EXP] = CLAMP(cr.StatBase[ST_STUDY_EXP] - skill, 0, 10000);
+		
+		cr.Say(SAY_NETMSG, "Вы наградили юзернеим "+skill+" очками опыта");
+		return;
+		
+	}
+	
+	if(cr.Skill[skill] < 120) {cr.Say(SAY_NETMSG, "Вашего навыка недостаточно для обучения."); return;}
+	
+	if(!ltp_teach_inited) ltp_teach_init();
+	
+	bool validSKill = false;
+	for(uint8 i = 0; i < 4; i++)
+	{
+		if(cr.Param[226+i] == skill) {validSKill = true;}
+	}
+	
+	if(validSKill) StartProcess(cr, LTP_TEACH, skill, 0, 0, TEACHER_BASE_WAIT - (cr.Skill[SK_SPEECH] * 200)); else cr.Say(SAY_NETMSG, "Выбранный навык не является профилирующим.");
+}
+
+void ltp_teach_init()
+{
+	LTPREG(LTP_TEACH,process_teach)
+	ltp_teach_inited=true;
+}
+
+uint process_teach(Critter@ cr, int& param0, int& param1, int& param2)
+{
+	LTPROCESSD(LTP_TEACH)
+	
+	GameVar@ wearinessMaster = GetLocalVar(LVAR_weariness, cr.Id);
+	if(wearinessMaster < 1000) wearinessMaster.opAddAssign(Random(50,75)); else {cr.Say(SAY_NETMSG, "Вы слишком устали"); return 0;}
+	
+	Critter@[] crs;
+	cr.GetMap().GetCrittersHex(cr.HexX, cr.HexY, 7, FIND_LIFE, crs);
+	
+	uint8 length = crs.length();
+	if(length <= 0) return 0;
+	uint16 skillTeacher = cr.Skill[param0];
+	
+	for(uint8 i = 0; i < length; i++)
+	{
+		uint16 skillStude = crs[i].Skill[param0];
+		if(cr.Id != crs[i].Id)
+		{
+			if(skillTeacher >= skillStude+30)
+			{
+				GameVar@ wearinessSlave = GetLocalVar(LVAR_weariness, crs[i].Id);
+				//crs[i].Say(SAY_NETMSG, "before "+crs[i].Skill[param0]+" "+(wearinessSlave.GetValue() / 10));
+				if(wearinessSlave.GetValue() < 1000) 
+				{
+					uint16 wearSlave = (wearinessSlave.GetValue() / 10);
+					int16 skillDifference = skillTeacher - skillStude;
+					uint16 skillBase = (skillDifference > 0 ? skillDifference : 1)  / (wearSlave > 0 ? wearSlave : 1) * (crs[i].Stat[ST_INTELLECT] / 2);
+
+					if(skillBase > 0) 
+					{	
+						wearinessSlave.opAddAssign(Random(50,150));
+						skillBase = CLAMP(skillBase, 1,5);
+						crs[i].SkillBase[param0] += skillBase;
+						crs[i].Say(SAY_NETMSG, "Вы научились лучше обращаться с навыком "+skillNames[param0-200]+".");
+					}
+					else {crs[i].Say(SAY_NETMSG, "Вы ничему не научились.");}
+			
+					//crs[i].Say(SAY_NETMSG, "base "+(skillBase));
+				}
+				else {crs[i].Say(SAY_NETMSG, "Вы слишком устали.");}
+		
+				//crs[i].Say(SAY_NETMSG, "after "+(crs[i].Skill[param0]));
+			}
+			else {crs[i].Say(SAY_NETMSG, "Вас нельзя научить.");}
+		}
+		
+	}
+	
+return TEACHER_BASE_WAIT - ((cr.Skill[SK_SPEECH] * 200) / wearinessMaster.GetValue());
+}
+
+//teaching end
 
 void unsafe_fastpanel_say(Critter& player, int p0, int p1, int p2, string@ message, int[]@ p4)
 {
@@ -151,14 +295,18 @@ void unsafe_send_fastpanel(Critter& cr, int p0, int p1, int p2, string@ info, in
 void unsafe_openCodeDoor(Critter& player, int itemId, int code, int param2, string@ param3, int[]@ param4)
 {
 	  Item @ item = GetItem(itemId);
-	  if(@item == null) return;
+	  if(@item == null) {return;}
 	  if((player.HexX < item.HexX + 2 || player.HexX > item.HexX - 2) && (player.HexY < item.HexY + 2 || player.HexY > item.HexY - 2))
 	  {
-		if(param2 != 0) {item.Val4 = code; player.Say(SAY_NETMSG, "Вы установили новый код : "+code); return;}
+		if(param2 != 0) if(code >= pow(10, item.Val1)) {item.Val4 = code; player.Say(SAY_NETMSG, "Вы установили новый код : "+code); return;} else {player.Say(SAY_NETMSG, "Не допустимый код"); return;}
 		if(item.Val4 == code)
 		{
 			if(_LockerIsClose(item))
-			  item.LockerOpen();
+			{
+				item.LockerOpen();
+				player.RunClientScript("client_screen_codedoor@HideScreen", 0, 0, 0, "", null);
+			}
+			
 		}
 		else player.Say(SAY_NETMSG, "Не верный код");
 	  }
@@ -372,4 +520,81 @@ void unsafe_zombie(Critter& player, int hexX, int hexY, int param2, string@ lex,
 		player.ParamBase[ST_REPLICATION_TIME]=-1;
 		player.TransitToMap(modoc.Id,0);
 	}
+}
+
+
+void unsafe_stopMob(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ vals)
+{
+	for(uint i=param0*10,ii=10+param0*10;i<ii;i++)
+		{
+		Critter@ controlled = GetCritter(vals[i]);
+		if (valid(controlled) && controlled.ParamBase[MERC_MASTER_ID]!=player.Id) {player.Say(SAY_NETMSG, "Нет доступа."); return;}
+		if (valid(player) && valid(controlled) && controlled.IsNpc())
+			{
+			controlled.ErasePlane(-1, true);
+			controlled.ClearEnemyStack();
+			controlled.EraseTimeEvents(9);
+			controlled.SetDir(GetDirection(controlled.HexX, controlled.HexY, param1, param2));
+			}
+		}
+}
+
+void unsafe_moveMob(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ vals)
+{
+	for(uint i=param0*10,ii=10+param0*10;i<ii;i++)
+		{
+		Critter@ controlled = GetCritter(vals[i]);
+		if (valid(controlled) && controlled.ParamBase[MERC_MASTER_ID]!=player.Id) {player.Say(SAY_NETMSG, "Нет доступа."); return;}
+		if (valid(player) && valid(controlled) && controlled.IsNpc())
+			{
+			controlled.ErasePlane(-1, true);
+			AddWalkPlane(controlled, 1, param1 + Random(-i,i), param2 + Random(-i,i), GetDirection(controlled.HexX, controlled.HexY, param1, param2), (param3!=null), 0);
+			if(param0==0) controlled.ClearEnemyStack();
+			}
+		}
+}
+
+void unsafe_attackMob(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ vals)
+{
+	Critter@ target = GetCritter(param0);
+	for(uint i=param2*10,ii=10+param2*10;i<ii;i++)
+		{
+		Critter@ controlled = GetCritter(vals[i]);
+		if (valid(controlled) && controlled.ParamBase[MERC_MASTER_ID]!=player.Id) {player.Say(SAY_NETMSG, "Нет доступа."); return;}
+		if (valid(player) && valid(controlled) && valid(target) && controlled.IsNpc())
+			{
+			controlled.ErasePlane(-1, true);
+			AddAttackPlane(controlled,0,target,__RunOnCombat);
+			controlled.AddEnemyInStack(target.Id);
+			}
+		}
+}
+
+import uint follow(Critter& cr, int master, uint& rate) from "raiders";
+
+void unsafe_chaseMob(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ vals)
+{
+	Critter@ target = GetCritter(param0);
+	for(uint i=param2*10,ii=10+param2*10;i<ii;i++)
+		{
+		Critter@ controlled = GetCritter(vals[i]);
+		if (valid(controlled) && controlled.ParamBase[MERC_MASTER_ID]!=player.Id) {player.Say(SAY_NETMSG, "Нет доступа."); return;}
+		if (valid(player) && valid(controlled) && valid(target) && controlled.IsNpc())
+			{
+			controlled.ErasePlane(-1, true);
+			controlled.ModeBase[MODE_NO_HOME] = 1;
+			controlled.StatBase[ST_KILLER_PERSON]=target.Id;
+			controlled.AddTimeEvent("follow",30,9);
+			}
+		}
+}
+
+import void say(Critter& player, int param0, int param1, int param2) from "gm";
+
+void unsafe_say(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ controlled = GetCritter(param0);
+	if (param1 != 1 && param1 != 5 && controlled.IsPlayer()) {player.Say(SAY_NETMSG, "Нет доступа."); return;}
+	if (valid(controlled) && controlled.ParamBase[MERC_MASTER_ID]!=player.Id) {player.Say(SAY_NETMSG, "Нет доступа."); return;}
+	say(player, param0, param1, 0);
 }

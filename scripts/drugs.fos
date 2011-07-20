@@ -5,6 +5,7 @@
 
 import void AffectRadiation(Critter& cr, int value) from "radiation";
 import void AffectPoison(Critter& cr, int value) from "poison";
+import bool ItemStimpackUse(Critter& cr) from "main"; //pm add
 
 // Chem Reliant
 // benefit: Faster recovery from chem side effects
@@ -27,11 +28,16 @@ const int[] DrugsIdentifiers={PID_STIMPAK,PID_RADAWAY,PID_ANTIDOTE,PID_RAD_X,PID
 
 const int[] DrugEffects={
 // PID_STIMPAK
-					-1,      0,             0,      0,          0,     0,
-                         -2,        10,      0,      0,          0,     0,
-              ST_CURRENT_HP,        20,      0,      0,          0,     0,
-                         -1,         0,      0,      0,          0,     0,
-                         -1,         0,      0,      0,          0,     0,
+// 			 -1,      0,             0,      0,          0,     0,
+//                          -2,        10,      0,      0,          0,     0,
+//               ST_CURRENT_HP,        20,      0,      0,          0,     0,
+//                          -1,         0,      0,      0,          0,     0,
+//                          -1,         0,      0,      0,          0,     0,
+			 0,      0,             0,      0,          0,     0,
+                         0,        0,      0,      0,          0,     0,
+              ST_CURRENT_HP,        0,      0,      0,          0,     0,
+                         0,         0,      0,      0,          0,     0,
+                         0,         0,      0,      0,          0,     0,
 // PID_RADAWAY
      ADDICTION_RADAWAY,     10,           120,    120,      14160, 10080,
          ST_RADIATION_LEVEL,       -25,    -50,    -75,          0,     0,
@@ -82,7 +88,7 @@ const int[] DrugEffects={
                          -1,         0,      0,      0,          0,     0,
 // PID_RAD_X
 			 -1,         0,   1440,   1440,          0,     0,
-    ST_RADIATION_RESISTANCE,        50,    -25,    -25,          0,     0,
+    ST_RADIATION_RESISTANCE,        20,    -10,    -10,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
                          -1,         0,      0,      0,          0,     0,
@@ -222,7 +228,9 @@ void UseDrugOn(Critter& cr, Critter& onCr, Item& drug) // Export
 	if(isStimpak || onCr.IsKnockout()/* || Random(0,cr.Skill[SK_FIRST_AID])>onCr.Stat[ST_PERCEPTION]*20*/)
 	{
 		onCr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_DRUG_USE_ON_SUCC);
-		SetDrug(onCr,drug.GetProtoId());
+		
+		ItemStimpackUse(onCr);
+		//SetDrug(onCr,drug.GetProtoId());
 	}
 	else
 	{

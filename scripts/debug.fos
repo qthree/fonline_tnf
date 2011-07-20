@@ -1,8 +1,11 @@
 // Debug functions
 
 #include "_macros.fos"
+#include "_colors.fos"
 import void AffectRadiation(Critter& cr, int value) from "radiation";
 import void ApplyMutation(Critter& cr) from "morphes";
+import void _MobInit(Critter& npc, bool firstTime) from "mob";
+import void FlushScreen(Critter& cr, uint fromColor, uint toColor, uint timeMs) from "effects";
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Trinitro
@@ -296,10 +299,32 @@ void god(Critter& player, int, int, int)
 	player.StatBase[ST_MAX_LIFE]=9999;
 }
 
+void GM_god(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	for(uint i=ST_STRENGTH;i<=ST_LUCK;i++) player.StatBase[i]=10;
+	for(uint i=SK_SMALL_GUNS;i<=SK_OUTDOORSMAN;i++) player.SkillBase[i]=300;
+	player.PerkBase[PE_SHARPSHOOTER]=100;
+	player.PerkBase[PE_STRONG_BACK]=10;
+	player.PerkBase[PE_SILENT_RUNNING]=1;
+	player.PerkBase[PE_AWARENESS]=2;
+	player.PerkBase[PE_PATHFINDER]=3;
+	player.StatBase[ST_MAX_LIFE]=120;
+	player.StatBase[ST_CURRENT_HP]=9999;
+	player.ModeBase[MODE_HIDE]=1;
+	player.ModeBase[MODE_NO_LOOSE_LIMBS]=1;
+	player.ModeBase[MODE_INVULNERABLE]=1;
+	player.ModeBase[MODE_NO_STEAL]=1;
+}
+
 void mapid(Critter& player, int, int, int)
 {
 	Map@ map=player.GetMap();
 	player.Say(SAY_NETMSG, ""+(map.GetProtoId()));
+}
+
+void GM_tele(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	tele(player, param0, param1, param2);
 }
 
 void tele(Critter& player, int param0, int param1, int param2)
@@ -606,7 +631,7 @@ void NetId(Critter & player, int searchRadius, int, int)
 	player.Say(SAY_NETMSG, "my info: HexX="+player.HexX+"; HexY="+player.HexY+"; SearchRadius="+searchRadius);
 	for(uint i=0;i<crits.length();i++)
 	{
-		player.Say(SAY_NETMSG,"Critter Pid:"+crits[i].GetProtoId()+"; Dialog:"+crits[i].Stat[ST_DIALOG_ID]+"; Id:"+ crits[i].Id+ "; Name: "+GetPlayerName(crits[i].Id));
+		player.Say(SAY_NETMSG,"Critter Pid:"+crits[i].GetProtoId()+"; Dialog:"+crits[i].Stat[ST_DIALOG_ID]+"; Id:"+ crits[i].Id);
 	}
 	player.Say(SAY_NETMSG,"Total: "+crits.length());
 }
@@ -740,6 +765,12 @@ void changeHome(Critter& player, int id, int x, int y)
 	cr.SetHomePos(x, y, 0);
 }
 
+void GM_tel(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(param0);
+	if(valid(cr)) cr.TransitToHex (param1, param2, cr.Dir);
+}
+
 void teleportCritter(Critter& player, int id, int x, int y)
 {
 	Critter@ cr = GetCritter(id);
@@ -750,6 +781,13 @@ void getCoords(Critter& player, int id, int x, int y)
 {
 	Critter@ cr = GetCritter(id);
 	player.Say(SAY_NETMSG, "X = " + cr.HexX + " Y = " + cr.HexY);
+}
+
+void GM_lock(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Map@ map = player.GetMap();
+	Item@ item = map.GetItem(param0);
+	if(valid(item)) lock(player, param0, param1, param2);
 }
 
 void lock(Critter& player, int itemId, int complexity, int lockId)
@@ -901,7 +939,7 @@ DeleteItems(items);
 
 void setblankscript(Critter& cr, int p0, int p1, int p2)
 {
-Item @ item = cr.GetMap().GetItem(p0);
+Item @ item = GetItem(p0);
 if(!valid(item)) return;
 item.SetScript("");
 }
@@ -1124,14 +1162,347 @@ void HideAllMaps(Critter& cr, int, int, int)
 	}
 }
 
-void setcodedoor(Critter& cr, int p0, int, int)
+void GM_setcodedoor(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	setcodedoor(player, param0, param1, param2);
+}
+
+void setcodedoor(Critter& cr, int p0, int p1, int p3)
 {
 	Item @ item = GetItem(p0);
 	if(@item == null) return;
-	item.SetScript("item@_InitCodeDoor");
+//	item.SetScript("item@_InitCodeDoor");
 	item.Val0 = 4;
-	item.Val4 = Random(10000, 99999);
+	item.Val1 = p1 + 1;
+	item.Val4 = p3 != 0 ? p3 : Random(pow(10, item.Val1), pow(10, (item.Val1+1))-1);
+	cr.Say(SAY_NETMSG, "code "+item.Val4);
 	item.LockerComplexity = Random(50, 200);
-	item.LockerCondition = LOCKER_ELECTRO;
+	SETFLAG(item.LockerCondition, LOCKER_ELECTRO);
 	item.Update();
+}
+
+void Flushblack(Critter& player, int p0, int p1, int p3, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(p0);
+	FlushScreen(cr, COLOR_BLACK, COLOR_BLACK, p1);
+}
+
+void GiveItem(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(param0);
+	cr.AddItem(param1, 1);
+}
+
+void GM_mobinit(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(param0);
+	cr.StatBase[ST_TEAM_ID] = 33;
+	_MobInit(cr, true);
+}
+
+void GM_GetParam(Critter& player, int crId, int param1, int param2, string@ param3, int[]@ param4)
+{
+	if(crId==0) crId=player.Id;
+	Critter@ toCr=GetCritter(crId);
+	if(valid(toCr)) player.Say(SAY_NETMSG, " "+toCr.Param[param1]);
+}
+
+void GM_SetParam(Critter& player, int crId, int param1, int param2, string@ param3, int[]@ param4)
+{
+	if(crId==0) crId=player.Id;
+	Critter@ toCr=GetCritter(crId);
+	if(valid(toCr)) { toCr.ParamBase[param1]=param2; player.Say(SAY_NETMSG, "Done.");}
+}
+
+void GM_liststats(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter @ target = GetCritter(param0);
+	for(uint16 i = STAT_BEGIN; i < STAT_END; i++)
+	{
+		player.Say(SAY_NETMSG,"id "+target.Id+" stat "+i+" "+target.Stat[i]);
+	}
+	
+	for(uint16 i = SKILL_BEGIN; i < SKILL_END; i++)
+	{
+		player.Say(SAY_NETMSG,"id "+target.Id+" skill "+i+" "+target.Skill[i]);
+	}
+}
+
+void GM_openDoor(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item@ item=GetItem(uint(param0));
+	if(item is null) return;
+	
+	item.LockerOpen();
+}
+
+void GM_closeDoor(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item@ item=GetItem(uint(param0));
+	if(item is null) return;
+	
+	item.LockerClose();
+}
+
+void GM_noopenDoor(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item@ door = GetItem(uint(param0));
+	if(door is null) return;
+	if(param1==0) SETFLAG(door.LockerCondition, LOCKER_NOOPEN);
+	else UNSETFLAG(door.LockerCondition, LOCKER_NOOPEN);
+}
+
+void GM_clearDoor(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item@ door = GetItem(uint(param0));
+	if(door is null) return;
+	
+	door.LockerClose();
+	
+	door.LockerCondition=0;
+	door.LockerId=0;
+	door.LockerComplexity=0;
+	door.Val0=0;
+	door.Val1=0;
+}
+
+void GM_deleteCritter(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(param0);
+	if(valid(cr)) DeleteNpc(cr);
+}
+
+void GM_delItem(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item @ item = player.GetMap().GetItem(param0);
+	if(!valid(item)) return;
+	DeleteItem(item);
+}
+
+void GM_brokeItem(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item @ item = GetItem(param0);
+	if(!valid(item)) return;
+	item.Deterioration=param1;
+	player.Say(SAY_NETMSG, "предмет "+ item.Id +" сломан на " + param1);
+}
+
+void viewarcadepop(Critter& cr, int clear,int,int)
+{
+      GameVar@ firegeckoNow=GetGlobalVar(GVAR_firegecko_now);
+      GameVar@ alienNow=GetGlobalVar(GVAR_alien_now);
+      GameVar@ deathclawNow=GetGlobalVar(GVAR_deathclaw_now);
+      GameVar@ flocentNow=GetGlobalVar(GVAR_floaterandcentaur_now);
+      GameVar@ clawNow=GetGlobalVar(GVAR_claw_now);
+      GameVar@ clawKidNow=GetGlobalVar(GVAR_clawkid_now);
+      
+      GameVar@ firegecko=GetGlobalVar(GVAR_firegecko_population);
+      GameVar@ alien=GetGlobalVar(GVAR_alien_population);
+      GameVar@ deathclaw=GetGlobalVar(GVAR_deathclaw_population);
+      GameVar@ flocent=GetGlobalVar(GVAR_floaterandcentaur_population);
+      
+      if(clear > 0)
+      {
+		firegeckoNow.opAssign(0);
+		alienNow.opAssign(0);
+		deathclawNow.opAssign(0);
+		clawNow.opAssign(0);
+		clawKidNow.opAssign(0);
+		flocentNow.opAssign(0);
+      }
+      
+      cr.Say(SAY_NETMSG, "firegecko : "+firegeckoNow.GetValue()+"\nalien : "+alienNow.GetValue()+"\ndeathclaw : "+deathclawNow.GetValue()+"\nclaw : "+clawNow.GetValue()+"\nclawkid :"+clawKidNow.GetValue()+"\nflocent : "+flocentNow.GetValue());
+      cr.Say(SAY_NETMSG, "\neggs\nfiregecko : "+firegecko.GetValue()+"\nalien : "+alien.GetValue()+"\ndeathclaw : "+deathclaw.GetValue()+"\nflocent : "+flocent.GetValue());
+}
+
+void testcte(Critter& cr, int p0, int p1, int)
+{
+	for(uint8 i = 0; i <= p1; i++)
+	{
+		cr.AddTimeEvent("cte_test", p0+Random(p0,p0*3), CTE_TEST, i);
+	}
+}
+
+uint cte_test(Critter& cr, int identifier, uint& rate)
+{
+	cr.Say(SAY_NETMSG, "test cte "+rate);
+	return 0;
+}
+
+void itemsetval(Critter& cr, int p0, int p1, int p3)
+{
+	Item @ item = GetItem(p0);
+	if(@item == null) return;
+	switch(p1)
+	{
+	  case 0 : item.Val0 = p3; break;
+	  case 1 : item.Val1 = p3; break;
+	  case 3 : item.Val2 = p3; break;
+	  case 4 : item.Val4 = p3; break;
+	  case 5 : item.Val5 = p3; break;
+	  case 6 : item.Val6 = p3; break;
+	  case 7 : item.Val7 = p3; break;
+	  //case 0 : item.Val8 = p3; break;
+	  default : break;
+	}
+	
+}
+/*
+void testidi(Critter& cr, int p0, int p1, int p3)
+{
+	Item @ item = GetItem(p0);
+	if(@item == null) return;
+	if(p3 > 0)
+	{
+		cr.RunClientScript("client_main@set_indicator", item.Indicator-Random(0,4), 0, 0, "", null);
+		return;
+	}
+	if(p1 == 0) cr.Say(SAY_EMOTE_ON_HEAD, ""+item.Indicator);
+	else item.Indicator = p1;
+}*/
+
+void GM_GiveAll(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(param0);
+	Item@[] items;
+	if (param1==0)
+		{
+		cr.GetItems(SLOT_INV,items);
+		cr.GetItems(SLOT_HAND1,items);
+		cr.GetItems(SLOT_HAND2,items);
+		MoveItems(items, player);
+		cr.Say(SAY_NETMSG, "Вещи переданы вам от криттера " + cr.Id);
+		}
+	else if (param1==1)
+		{
+		player.GetItems(SLOT_INV,items);
+		player.GetItems(SLOT_HAND1,items);
+		player.GetItems(SLOT_HAND2,items);
+		MoveItems(items, cr);
+		cr.Say(SAY_NETMSG, "Вещи переданы криттеру " + player.Id );
+		}
+	else if (param1==2)
+		{
+		cr.GetItems(SLOT_INV,items);
+		cr.GetItems(SLOT_HAND1,items);
+		cr.GetItems(SLOT_HAND2,items);
+		DeleteItems(items);
+		cr.Say(SAY_NETMSG, "Удалены вещи у криттера " + player.Id );
+		}
+}
+
+void Clone(Critter& player, int param0, int param1, int param2)
+{
+	Critter@ cr = GetCritter(param0);
+	if(!valid(cr)) return;
+	if (param1==1)
+		{
+		for (uint i=0;i<=565;i++)
+			{
+			cr.ParamBase[i]=player.Param[i];
+			}
+		player.Say(SAY_NETMSG, "Вы присвоили свои параметры персонажу " + cr.Id );
+		}
+	else if (param1==0)
+		{
+		for (uint i=0;i<=565;i++)
+			{
+			player.ParamBase[i]=cr.Param[i];
+			}
+		player.Say(SAY_NETMSG, "Вам присвоенны параметры персонажа " + cr.Id );
+		}
+}
+
+void GM_Clone(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(param0);
+	if(valid(cr))
+		{
+		for (uint i=0;i<=80;i++)
+			{
+			player.ParamBase[i]=cr.Param[i];
+			}
+		for (uint i=200;i<=207;i++)
+			{
+			player.ParamBase[i]=cr.Param[i];
+			}
+		for (uint i=209;i<=217;i++)
+			{
+			player.ParamBase[i]=cr.Param[i];
+			}
+
+		for (uint i=260;i<=278;i++)
+			{
+			player.ParamBase[i]=cr.Param[i];
+			}
+		for (uint i=300;i<=439;i++)
+			{
+			player.ParamBase[i]=cr.Param[i];
+			}
+		for (uint i=470;i<=476;i++)
+			{
+			player.ParamBase[i]=cr.Param[i];
+			}
+		for (uint i=480;i<=498;i++)
+			{
+			player.ParamBase[i]=cr.Param[i];
+			}
+		for (uint i=550;i<=565;i++)
+			{
+			player.ParamBase[i]=cr.Param[i];
+			}
+		player.Say(SAY_NETMSG, "Вам присвоенны параметры персонажа " + cr.Id );
+		player.Say(SAY_NETMSG, "Сник цели равен " + cr.Param[208]);
+		}
+}
+
+import void _TraderInit(Critter& trader, bool firstTime) from "trader";
+
+void GM_TraderInit(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Critter@ cr = GetCritter(param0);
+	if(!valid(cr)) return;
+	_TraderInit(cr, true);
+}
+
+void setautodoor(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item@ door=GetItem(param0);
+	if(door is null) return;
+	uint16 x = 0;
+	uint16 y = 0;
+	Map@ map = door.GetMapPosition(x, y);
+	uint16 x0 = x;
+	uint16 y0 = y;
+	for(uint8 i = 0; i < 6; i++)
+		{
+		map.MoveHexByDir(x,y,i,1);
+		if (param1!=2)
+			{
+			Item@ pedal = map.AddItem(x, y, PID_AUTODOOR, 1);
+			pedal.Val1=door.Id;
+			pedal.Val2=param1;
+			}
+		else
+			{
+			Item@ pedal = map.GetItem(x, y, PID_AUTODOOR);
+			if(valid(pedal)) DeleteItem(pedal);
+			}
+		x = x0;
+		y = y0;
+		}
+}
+
+void setjukebox(Critter& cr, int id, int, int)
+{
+	Item @ item = GetItem(id);
+	if(@item == null || item.GetType() != ITEM_CONTAINER) return;
+	item.SetScript("jukebox@_JukeboxInit");
+}
+
+void GM_GetItem(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item @ item = GetItem(param0);
+	if(!valid(item)) return;
+	MoveItem(item,0,player);
 }

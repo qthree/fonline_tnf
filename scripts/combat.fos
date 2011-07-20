@@ -23,6 +23,7 @@ import void HookHoldAttack(Critter@ target, uint8 hardness)  from "handcuffs";  
 import void sendAttack(Critter& player, int param0, int param1, int param2)  from "raiders";  //ErlKing
 import void Warn(Critter& admin, int param0, int param1, int param2)  from "warning";  //ErlKing
 import void say(Critter& player, int param0, int param1, int param2)  from "gm";  //ErlKing 
+import void Release(Critter& player, int id, int param1, int param2)  from "gateway";  //ErlKing 
 
 import void ChangeCritterSpeed(Critter& cr) from "speed"; //pm added
 import bool FlareGunUse(Critter& cr, Item& item) from "item"; //pm added flare gun
@@ -227,7 +228,7 @@ uint yyy=0;
 	if(dmgType==DAMAGE_NORMAL)
 	{
 	if(aim==HIT_LOCATION_NONE) target.Say(SAY_NETMSG, "НА СЕРВЕРЕ ЗАПЕРЩЕН СЛЕНГ И НЕИГРОВОЕ ОБЩЕНИЕ");
-	else if(aim==HIT_LOCATION_EYES) target.Say(SAY_NETMSG, "ВЫ СЕРЬЕЗНО НАРУШАЕТЕ ПРАВИЛА СЕРВЕРА");
+	else if(aim==HIT_LOCATION_EYES) {target.Say(SAY_NETMSG, "ВЫ СЕРЬЕЗНО НАРУШАЕТЕ ПРАВИЛА СЕРВЕРА"); Release(cr, target.Id, 1, 0);}
 	else if(aim==HIT_LOCATION_GROIN) target.Say(SAY_NETMSG, "НЕ СТРОЙТЕ ИЗ СЕБЯ РЕМБО, ПОМНИТЕ ОБ ИНСТИНКТЕ САМОСОХРАНЕНИЯ");
 	else if(aim==HIT_LOCATION_HEAD) target.Say(SAY_NETMSG, "ПРИДЕРЖИВАЙТЕСЬ СВОЕЙ ИГРОВОЙ РОЛИ");
 	else if(aim==HIT_LOCATION_LEFT_ARM) target.Say(SAY_NETMSG, "БЕЗСИСТЕМНОЕ ЛУТАНИЕ ТРУПОВ ЭТО МАРОДЕРСТВО, ОСТАНОВИТЕСЬ");
@@ -344,7 +345,7 @@ if((target.GetProtoId()!=NPC_PID_Ball)&&(weapPid!=PID_BALL) && weapPid!=PID_GM_P
  
 ////////////////////  ErlKing ////////////////////
   // block drop 
-  if(Random(0,2)<1) {cr.StatBase[ST_BLOCK]=0;}
+  if(Random(0,2)<1 && cr.Stat[ST_BLOCK]==1) {cr.StatBase[ST_BLOCK]=0;}
 
 
   // now we block hth attacks with arms:
@@ -381,7 +382,6 @@ if((target.GetProtoId()!=NPC_PID_Ball)&&(weapPid!=PID_BALL) && weapPid!=PID_GM_P
 	}
 
   // block drop
-  if(cr.StatBase[ST_BLOCK]!=0) {cr.StatBase[ST_BLOCK]=0;}
 
 if(weapPid==PID_GM_PISTOL) return;
 
@@ -1722,7 +1722,7 @@ if(attack.WeaponPid==PID_FLASH_GRENADE)
 			attacker.StatBase[ST_EXPERIENCE]+=totalDmg; // Опыт за урон в ркадном режиме
 			ChangeWildness(target.WorldX/10, target.WorldY/10, 2);
 		}
-		if(!targetIsPlayer && attackerIsPlayer && attacker.Param[ARCADE_MODE]==1 && target.Param[ARCADE_MODE]!=1) target.StatBase[ST_ARCADE_ATTACKED]=1; // Опыт за урон в ркадном режиме
+		if(!targetIsPlayer && attackerIsPlayer && attacker.Param[ARCADE_MODE]==1 && target.Param[ARCADE_MODE]!=1) target.StatBase[ST_DESEASE]=1; // Опыт за урон в ркадном режиме
 		// Score
 		if(attack.scoreUnarmed && validAttacker && attackerIsPlayer) attacker.AddScore(SCORE_UNARMED_DAMAGE,totalDmg);
 	}
@@ -1803,7 +1803,7 @@ if(attack.WeaponPid==PID_FLASH_GRENADE)
 
     if(validAttacker && !attackerIsPlayer) attacker.EraseEnemyFromStack(target.Id);
 
-    if(valid(attacker) && (attacker.Param[ARCADE_MODE]==1 || target.Stat[ST_ARCADE_ATTACKED]!=1))
+    if(valid(attacker) && (attacker.Param[ARCADE_MODE]==1 || target.Stat[ST_DESEASE]!=1))
     {
       attacker.StatBase[ST_EXPERIENCE]+=target.Stat[ST_KILL_EXPERIENCE];
       attacker.KillBase[KILL_BEGIN+bt]++;
@@ -1941,7 +1941,7 @@ if(attack.WeaponPid==PID_FLASH_GRENADE)
     int radiation=attacker.Stat[ST_RADIOACTIVE];
     if(poison!=0 || radiation!=0)
     {
-    	if(Random(2,11)>target.Stat[ST_LUCK])
+    	if(Random(2,11)>target.Stat[ST_LUCK] && !attackerIsPlayer) // ErlKing  temporary
 		{
 			if(poison>0) AffectPoison(target,Random(poison/3,poison));
 			if(radiation>0) AffectRadiation(target,Random(radiation/3,radiation));
@@ -1982,6 +1982,18 @@ if(attack.WeaponPid==PID_FLASH_GRENADE)
       }
     }
   }
+  
+  if(target.StatBase[ARCADE_MODE] > 0 && !target.IsDead() && target.StatBase[ST_CURRENT_HP] <= 0) {target.ToDead(dmgType, @attacker != null ? attacker : null); target.Action(ACTION_DEAD,0,null);}
+  if(attacker.CountItem(PID_COLLAR) >= 1 && target.Karma[KARMA_SLAVER]!=0) {attacker.StatBase[ST_CURRENT_HP]-=Random(1,4); attacker.ToKnockout(KNOCKOUT_ANIM2_DEFAULT(true), 100, attacker.HexX, attacker.HexY);} // проверка на атаку рабом работорговца
+  if(target.CountItem(PID_PACKAGE) >= 1 && (!target.IsDead() || !target.IsKnockout()))
+	{
+	Item@package = target.GetItem(PID_PACKAGE, 0);
+	MoveItem(package, 0, map, target.HexX, target.HexY);
+	target.ModeBase[MODE_NO_WALK] = 0;
+	target.ModeBase[MODE_NO_RUN] = 0;	
+	target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), 2, target.HexX, target.HexY);
+	} // выбивание груза из цели
+  if(valid(realWeapon) && realWeapon.Val5 == 10) {attacker.ToKnockout(KNOCKOUT_ANIM2_DEFAULT(true), 10, attacker.HexX, attacker.HexY); attacker.Say(SAY_EMOTE_ON_HEAD, "оружие взрывается"); DeleteItem(realWeapon);} // проверка на оружие-муляж
   if(valid(attack.Ammo) && valid(attack.Attacker) && attack.Ammo.ProtoId==PID_NEED_CART_POISON) AffectPoisonByCritter(target,25,attack.Attacker); // Проверка на картридж с ядом
   if(attack.WeaponPid == PID_KNIFE_P) AffectPoisonByCritter(target,20,attack.Attacker);
   if(attack.WeaponPid == PID_SPEAK_P) AffectPoisonByCritter(target,20,attack.Attacker);
@@ -1998,43 +2010,31 @@ if(attack.WeaponPid==PID_FLASH_GRENADE)
 	if(attack.WeaponPid == PID_SOUND_BLASTER)					// TabaK. Акустическое ружье.
 	{
 		QuakeScreen2(target);
-		if((Random(10,30)-target.Stat[ST_LUCK])>10)
+		if((Random(12,40)-target.Stat[ST_LUCK])>10 && (target.Timeout[TO_SK_DOCTOR]<=0 || target.Timeout[TO_SK_DOCTOR]>__FullSecond+REAL_MINUTE(1)))
 		{
-		int8 roll=Random(10,50)-target.Stat[ST_ENDURANCE];
-		if(roll>0) target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), roll, target.HexX, target.HexY);
+		int8 roll=Random(10,60)-target.Stat[ST_ENDURANCE];
+		if(roll>0) {target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), roll, target.HexX, target.HexY); target.TimeoutBase[TO_SK_STEAL]=__FullSecond+REAL_SECOND(30);}
 		}
 	}
 	if((attack.WeaponPid == PID_LEG_ATTACK1 || attack.WeaponPid == PID_LEG_ATTACK3 || attack.WeaponPid == PID_LEG_ATTACK3) &&
-	  (aim==HIT_LOCATION_RIGHT_LEG || aim==HIT_LOCATION_LEFT_LEG))
+	  (aim==HIT_LOCATION_RIGHT_LEG || aim==HIT_LOCATION_LEFT_LEG) && (target.Timeout[TO_SK_DOCTOR]<=0 || target.Timeout[TO_SK_DOCTOR]>__FullSecond+REAL_MINUTE(1)))
 	{
 		if(((Random(10,30)-target.Stat[ST_ENDURANCE]-target.Stat[ST_AGILITY])>0) && ((Random(1,200)+attacker.Skill[SK_UNARMED]-target.Skill[SK_UNARMED])>=100) &&
 		(target.Param[ST_BODY_TYPE]<BT_BRAHMIN) && (attacker.Param[ST_BODY_TYPE]<BT_BRAHMIN) && (!target.IsDead() || !target.IsKnockout()))
 		{
 		attacker.Say(SAY_EMOTE_ON_HEAD, "подсечка");
 		int8 roll=Random(0,20)-target.Stat[ST_ENDURANCE];
-		if(roll>0) target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), roll, target.HexX, target.HexY);
+		if(roll>0) {target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), roll, target.HexX, target.HexY); target.TimeoutBase[TO_SK_STEAL]=__FullSecond+REAL_SECOND(10);}
 		target.StatBase[ST_BLOCK]=0;
 		}
 	}
-	if((attack.WeaponPid == PID_LEG_ATTACK1 || attack.WeaponPid == PID_LEG_ATTACK2 || attack.WeaponPid == PID_LEG_ATTACK3) &&
-	  (aim==HIT_LOCATION_RIGHT_LEG || aim==HIT_LOCATION_LEFT_LEG))
-	{
-		if(((Random(10,30)-target.Stat[ST_ENDURANCE]-target.Stat[ST_AGILITY])>0) && ((Random(1,200)+attacker.Skill[SK_UNARMED]-target.Skill[SK_UNARMED])>=100) &&
-		(target.Param[ST_BODY_TYPE]<BT_BRAHMIN) && (attacker.Param[ST_BODY_TYPE]<BT_BRAHMIN) && (!target.IsDead() || !target.IsKnockout()))
-		{
-		attacker.Say(SAY_EMOTE_ON_HEAD, "подсечка");
-		int8 roll=Random(0,20)-target.Stat[ST_ENDURANCE];
-		if(roll>0) target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), roll, target.HexX, target.HexY);
-		target.StatBase[ST_BLOCK]=0;
-		}
-	}
-	if(attack.WeaponPid == PID_CATTLE_PROD && valid(attack.Ammo) && valid(attack.Attacker) && attack.Ammo.ProtoId!=PID_CUENCELL_LOW)
+	if(attack.WeaponPid == PID_CATTLE_PROD && valid(attack.Ammo) && valid(attack.Attacker) && attack.Ammo.ProtoId!=PID_CUENCELL_LOW && (target.Timeout[TO_SK_DOCTOR]<=0 || target.Timeout[TO_SK_DOCTOR]>__FullSecond+REAL_MINUTE(1)))
 	{
 		QuakeScreen2(target);
-		if((!target.IsDead() || !target.IsKnockout()) && (Random(10,30)-target.Stat[ST_LUCK])>10)
+		if((!target.IsDead() || !target.IsKnockout()) && (Random(13,30)-target.Stat[ST_LUCK])>10)
 		{
-		int8 roll=Random(10,50)-target.Stat[ST_ENDURANCE];
-		if(roll>0) target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), roll, target.HexX, target.HexY);
+		int8 roll=Random(13,50)-target.Stat[ST_ENDURANCE];
+		if(roll>0) {target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), roll, target.HexX, target.HexY); target.TimeoutBase[TO_SK_DOCTOR]=__FullSecond+REAL_SECOND(15);}
 		}
 	}
 	if (attack.WeaponPid == PID_REMINGTON) //remington knockout
@@ -2067,22 +2067,6 @@ if(attack.WeaponPid==PID_FLASH_GRENADE)
 				}
 			}
 		}
-	if (attack.WeaponPid == PID_JONNY_BB_GUN)
-		{
-		   if(!target.IsDead())
-			{
-			HookAttack(attacker, target, 5, 1);
-			HookAttack(target, attacker, 0, 1);
-			}
-		}
-	if (attack.WeaponPid == PID_RED_RYDER_LE_BB_GUN)
-		{
-		   if(!target.IsDead())
-			{
-			HookAttack(attacker, target, 5, 0);
-			HookAttack(target, attacker, 0, 0);
-			}
-		}
 	if (attack.WeaponPid == PID_SPEARTHROWER2)
 		{
 		   if(!target.IsDead() && (Random(0, 15) - target.Stat[ST_ENDURANCE] > 0) && (attacker.CountItem(PID_ROPE) >= 1))
@@ -2113,27 +2097,36 @@ if(attack.WeaponPid==PID_FLASH_GRENADE)
 	if (attack.WeaponPid == PID_HAND_GRAPPLE)
 		{
 		if(((Random(1,200)+attacker.Skill[SK_UNARMED]-target.Skill[SK_UNARMED])>=70) &&	(target.Param[ST_BODY_TYPE]<BT_BRAHMIN) && (attacker.Param[ST_BODY_TYPE]<BT_BRAHMIN) &&
-		!target.IsDead() && aim!=HIT_LOCATION_LEFT_ARM && aim!=HIT_LOCATION_RIGHT_ARM)
+		!target.IsDead() && aim!=HIT_LOCATION_LEFT_ARM && aim!=HIT_LOCATION_RIGHT_ARM && (target.Timeout[TO_SK_DOCTOR]<=1 || target.Timeout[TO_SK_DOCTOR]>100))
 			{
 			HookMeleeAttack(attacker, target);
 			HookMeleeAttack(target, attacker);
 			attacker.Say(SAY_EMOTE_ON_HEAD, "хватает");
+			target.TimeoutBase[TO_SK_DOCTOR]=__FullSecond+REAL_SECOND(10);
 			}
 		}
 	if (attack.WeaponPid == PID_SHOTGUN) //remington knockout
 		{
-		   if(!target.IsDead() || !target.IsKnockout())
+		   if((!target.IsDead() || !target.IsKnockout()) && (target.Timeout[TO_SK_DOCTOR]<=0 || target.Timeout[TO_SK_DOCTOR]>__FullSecond+REAL_MINUTE(1)))
 			{
 			  uint8 dist = GetDistantion (attack.Hx, attack.Hy, target.HexX, target.HexY);
-			  if(Random(0, 15) - target.Stat[ST_ENDURANCE] > 0 && dist <=4 ) target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0, 1) == 1?true:false)), 4, target.HexX, target.HexY);
+			  if(Random(5, 15) - target.Stat[ST_ENDURANCE] > 0 && dist <=4 )
+				{
+				target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0, 1) == 1?true:false)), Random(6, 16), target.HexX, target.HexY);
+				target.TimeoutBase[TO_SK_DOCTOR]=__FullSecond+REAL_SECOND(15);
+				}
 			}
 		}
 	if (attack.WeaponPid == PID_SAWED_OFF_SHOTGUN) //remington knockout
 		{
-		   if(!target.IsDead() || !target.IsKnockout())
+		   if((!target.IsDead() || !target.IsKnockout()) && (target.Timeout[TO_SK_DOCTOR]<=0 || target.Timeout[TO_SK_DOCTOR]>__FullSecond+REAL_MINUTE(1)))
 			{
 			  uint8 dist = GetDistantion (attack.Hx, attack.Hy, target.HexX, target.HexY);
-			  if(Random(0, 20) - target.Stat[ST_ENDURANCE] > 0 && dist <=4 ) target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0, 1) == 1?true:false)), 4, target.HexX, target.HexY);
+			  if(Random(5, 20) - target.Stat[ST_ENDURANCE] > 0 && dist <=4 )
+				{
+				target.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0, 1) == 1?true:false)), Random(8, 20), target.HexX, target.HexY);
+				target.TimeoutBase[TO_SK_DOCTOR]=__FullSecond+REAL_SECOND(20);
+				}
 			}
 		}
 if (attack.WeaponPid == PID_PULSE_GRENADE) //pulse knockout

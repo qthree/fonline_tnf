@@ -1,3 +1,4 @@
+
 [Proto]
 Pid=1497
 Type=11
@@ -17587,7 +17588,7 @@ Material=1
 [Proto]
 Pid=4500
 Type=11
-PicMapName=art\scenery\dryrack1.frm
+PicMapName=art\scenery\dryrack1.frm		
 PicInvName=art\inven\reserved.frm
 Flags=24
 SoundId=48
@@ -17596,7 +17597,7 @@ Material=3
 [Proto]
 Pid=4501
 Type=11
-PicMapName=art\scenery\shrine1.frm
+PicMapName=art\scenery\shrine1.frm		
 PicInvName=art\inven\reserved.frm
 Flags=24
 SoundId=48
@@ -20128,15 +20129,4 @@ Type=11
 PicMapName=art\scenery\grid_wall_light.frm
 PicInvName=art\inven\reserved.frm
 Flags=19
-
-[Proto]
-Pid=20270
-Type=11
-PicMapName=art\scenery\vosfloor.frm
-PicInvName=art\inven\reserved.frm
-Flags=28
-DisableEgg=1
-SoundId=48
-Material=1
-DrawOrderOffsetHexY=50
 

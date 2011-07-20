@@ -107,6 +107,7 @@ bool _UsePlant(Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scener
 		int heal = cr.Param[ST_MAX_LIFE]-cr.Param[ST_CURRENT_HP],
 		good=item.Val2;
 		if(good>heal) good=heal;
+		if(good>15) good=15; //ErlKing ограничение лечения радцветом
 		cr.ParamBase[ST_CURRENT_HP]+=good;
 		DeleteItem(item);
 	}

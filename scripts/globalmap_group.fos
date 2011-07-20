@@ -346,21 +346,21 @@ class CellWorld
 			
 		}
 
-		if(dc>1)
-		{
+		//if(dc>1)
+		//{
 			data_color.resize(dc);
 			cr.RunClientScript("client_main@_dr", 1, 0, 0, null, data_color);
-		}
-		if(dn>1)
-		{
+		//}
+		//if(dn>1)
+		//{
 			data_number.resize(dn);
 			cr.RunClientScript("client_main@_dr", 2, 0, 0, null, data_number);
-		}
-		if(dch>1)
-		{
+		//}
+		//if(dch>1)
+		//{
 			data_char.resize(dch);
 			cr.RunClientScript("client_main@_dr", 3, 0, 0, null, data_char);
-		}
+		//}
 	}
 
 	Cell@ PassCell(Critter& cr)
@@ -476,7 +476,7 @@ void cells_world_save()		//Export
 	CellContent@ cont = null;
 	for(uint i=0; i<clen; i++)
 	{
-		//if(cells[i].Wildness<100) cells[i].Wildness+=1;
+		if(cells[i].Wildness<100) cells[i].Wildness+=Random(0, 5-cells[i].Wildness/20);
 		
 		@cell = cells[i];
 		
@@ -487,7 +487,7 @@ void cells_world_save()		//Export
 		if(cont !is null and cont.Type==CELLMAP_TYPE_ENCOUTER)
 		{
 			dur= cont.Durability;
-			dur+= (cont.GetCrittersCount(CELL_CRITTERS_SURVIVAL)-1);
+			dur+= (cont.GetCrittersCount(CELL_CRITTERS_SURVIVAL)*2-1);
 			if(dur<1)
 			{
 				Map@ map = GetMap(cont.MapId);
@@ -517,27 +517,28 @@ void cells_critter_shift(Map& map, Critter& cr, bool quit)	//Export
 	Cell@ cell = world.GetCell(cr);
 	if(cell is null) return;
 	CellContent@ cont = cell.Content;
-	if(cont is null || cont.MapId!=map.Id) return;
+	if(cont is null) return;
 	
-	if(cr.IsPlayer())
-	{
-		Location@ loc = map.GetLocation();
-		if(cont.Type==CELLMAP_TYPE_ENCOUTER and loc !is null and loc.AutoGarbage)
-		{
-			loc.AutoGarbage=false;
-		}
-		
-		if(!cont.ShiftCritter(cr, ((cr.Param[ARCADE_MODE]==0)?CELL_CRITTERS_SURVIVAL:CELL_CRITTERS_ARCADE), quit))
-		{
-			Log("ShiftCritter player fail"+(quit?", quit.":".")+" Id: "+cr.Id);
-		}
-	}
-	else if(cont.Type==CELLMAP_TYPE_ENCOUTER)
+	if(cr.IsNpc() && cont.Type==CELLMAP_TYPE_ENCOUTER)
 	{
 		if(!cont.ShiftCritter(cr, CELL_CRITTERS_MOB, quit))
 		{
 			Log("ShiftCritter mob fail"+(quit?", quit.":".")+" Id: "+cr.Id);
 		}
+	}
+	else if(cr.IsPlayer() && cont.MapId==map.Id)
+	{
+		if(!cont.ShiftCritter(cr, ((cr.Param[ARCADE_MODE]==0)?CELL_CRITTERS_SURVIVAL:CELL_CRITTERS_ARCADE), quit))
+		{
+			Log("ShiftCritter player fail"+(quit?", quit.":".")+" Id: "+cr.Id);
+		}	
+	}
+	else return;
+	
+	Location@ loc = map.GetLocation();
+	if(cont.Type==CELLMAP_TYPE_ENCOUTER and loc !is null and loc.AutoGarbage)
+	{
+		loc.AutoGarbage=false;
 	}
 }
 
@@ -582,7 +583,7 @@ void CellInfo(Critter& cr, int p0, int p1, int p2)
 	
 	cr.Say(SAY_NETMSG, "MapId: "+cont.MapId+" Type: "+cont.Type+" Index: "+cont.Index);
 	cr.Say(SAY_NETMSG, "Visibility: "+cont.Visibility+" Durability: "+cont.Durability);
-	//cr.Say(SAY_NETMSG, "Online: "+cont.OnlineSurvival+"/"+cont.OnlineAdventure+"/"+cont.OnlineArcade);
+	cr.Say(SAY_NETMSG, "Online: "+cont.GetCrittersCount(CELL_CRITTERS_SURVIVAL)+"/"+cont.GetCrittersCount(CELL_CRITTERS_ADVENTURE)+"/"+cont.GetCrittersCount(CELL_CRITTERS_ARCADE)+" Mobs: "+cont.GetCrittersCount(CELL_CRITTERS_MOB));
 }
 
 void ChWild(Critter& cr, int p0, int p1, int p2)
@@ -991,6 +992,11 @@ void global_process(int processType, Critter& cr, Item@ car,
 			speed = speed * 100.0f / float(speedDiv);
 		}
 	}
+	else if(processType == GLOBAL_PROCESS_START_FAST || processType ==GLOBAL_PROCESS_STOPPED)
+	{
+		Cell@ cell = world.GetCell(cr);
+		if(cell !is null) world.ShowCells(cr, cell);
+	}
 	else if(processType == GLOBAL_PROCESS_NPC_IDLE)
 	{
 		// Critter& cr - is npc who call idle
@@ -1036,7 +1042,6 @@ void global_invite(Critter& leader, Item@ car, uint encounterDescriptor, int com
 			}
 		}
 		return;
-	}
 
 	// Find encounter
 	InviteToEncounter(leader.GetGlobalGroup(), car, encounterDescriptor, combatMode, mapId, hexX, hexY, dir);

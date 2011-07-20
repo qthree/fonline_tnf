@@ -186,10 +186,16 @@ bool transit_start(Critter& cr)
 bool transit_dead(Critter& cr)
 {
 	if(__Zombies && cr.Param[ST_BODY_TYPE]==BT_ZOMBIE) return false;
-	uint locid = CreateLocation(6,cr.WorldX,cr.WorldY,null); 
-	Location@ loc=GetLocation(locid);
+	
+	Location@ loc = GetLocationByPid(6,0);
 
-	if(not valid(loc)) {Log("can't create dead loc"); return false;}
+	if(loc is null)
+	{
+		uint locid = CreateLocation(6,cr.WorldX,cr.WorldY,null); 
+		@loc=GetLocation(locid);
+		
+		if(not valid(loc)) {Log("can't create dead loc"); return false;}
+	}
 
 	Map@ map = loc.GetMapByIndex(0);
 

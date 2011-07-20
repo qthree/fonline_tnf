@@ -9,10 +9,11 @@ void _MapInit(Map& map, bool fistTime)
 void _byeBye(Map& map, Critter& cr)
 {
 	int8 counter=0;
-	while(counter<18)
+	for(uint i=0; i<18; i++)
 	{
-		if(map.GetData(counter)==int(cr.Id)) map.SetData(counter,0);
-		counter==18;
+		if(map.GetData(i)!=int(cr.Id)) continue;
+		map.SetData(counter,0);
+		break;
 	}
 }
 
