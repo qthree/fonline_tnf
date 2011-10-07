@@ -35,9 +35,11 @@
 #pragma globalvar "bool __fastPanel = false"
 #pragma globalvar "bool __f4Pressed = false"
 #pragma globalvar "bool __elementActive = false"
+#pragma globalvar "bool __arrowDraw = false"
 #pragma globalvar "string __tempFastText"
 #pragma globalvar "uint16 __baseCrType = 0"
 #pragma globalvar "uint8 __inventoryCollection = 0"
+#pragma globalvar "uint8 __arrowValue = 0"
 
 #pragma globalvar "bool __getExpToPlayer = false"
 #pragma globalvar "uint __getExpToPlayerCount = 0"

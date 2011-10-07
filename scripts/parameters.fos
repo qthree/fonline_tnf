@@ -38,7 +38,7 @@ void changedParam_Experience(Critter& cr, uint, int oldValue)
 		if(level>=__LevelCap && not __LevelCapAddExperience) return;
 
 		exp+=exp*(cr.Perk[PE_SWIFT_LEARNER]*5)/100; // SwiftLearner perk
-		cr.StatBase[ST_EXPERIENCE]=oldValue+exp;
+		cr.StatBase[ST_EXPERIENCE]=oldValue+(exp*cr.StatBase[ST_EXPERIENCE_MULTIPLIER]); //pm edit expbar
 
 		if(level>=__LevelCap) return;
 
@@ -258,6 +258,7 @@ void CritterGenerate(int[]& data) // Export to client_main@player_data_generate
 	_param_[ST_ACTION_POINTS]+=5;
 	_param_[ST_CURRENT_HP]=_param_[ST_MAX_LIFE];
 	_param_[ST_CURRENT_AP]=_param_[ST_ACTION_POINTS]*100;
+	_param_[ST_EXPERIENCE_MULTIPLIER] = 1;
 }
 
 #ifdef __CLIENT

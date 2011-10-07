@@ -5,6 +5,7 @@
 #include "_npc_pids.fos"
 #include "_animation.fos"
 #include "teams_table.fos"
+#include "_colors.fos"
 
 #include "_ltp.fos"
 
@@ -48,6 +49,7 @@ import bool UseSkillOnGeiger(Critter& cr, Item& geiger, int skill) from "geiger"
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target) from "npc_planes";
 import bool AddAttackPlane(Critter& npc, uint priority, Critter& target, int minHp) from "npc_planes";
 import bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) from "lockers";
+import bool UseItemOnLocker(Critter& cr, Item& locker, Item& item) from "lockers"; // Export pm added
 import bool PerkCheck(Critter& cr, uint perk) from "perks";
 import void CritterGenerate(Critter& cr) from "parameters";
 //import void CaravansInit() from "caravan";
@@ -188,7 +190,7 @@ bool start()
 	// ITEM_DATA_MASK_CONTAINER                                                                                        ITEM_DATA_MASK_CONTAINER                                                                                             ITEM_DATA_MASK_CONTAINER
 	int8[] mask3={  -1,-1,     -1,    0,         0,0,0,0, -1,-1,-1,-1,    0,0,         0,  0,      0,  0,      0,  0,   -1,-1,-1,-1,  -1,       -1,            -1,        -1,     -1,-1,-1,-1,   0,0,     0,0,    -1,-1,-1,-1, -1,-1,-1,-1, 0,0,0,0 ,0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, -1,-1,-1,-1,-1,-1,-1,-1 };
 	// ITEM_DATA_MASK_MAP                                                                                              ITEM_DATA_MASK_MAP                                                                                                   ITEM_DATA_MASK_MAP
-	int8[] mask4={  -1,-1,     -1,    0,     -1,-1,-1,-1,     0,0,0,0,  -1,-1,        -1, -1,     -1, -1,     -1, -1,   -1,-1,-1,-1,  -1,       -1,            -1,        -1,     -1,-1,-1,-1,   0,0,     0,0,        0,0,0,0,     0,0,0,0, 0,0,0,0 ,0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, -1,-1,-1,-1,-1,-1,-1,-1 };
+	int8[] mask4={  -1,-1,     -1,    0,     -1,-1,-1,-1,     0,0,0,0,  -1,-1,        -1, -1,     -1, -1,     -1, -1,   -1,-1,-1,-1,  -1,       -1,            -1,        -1,     -1,-1,-1,-1,   0,0,     0,0,        0,0,0,0,     0,0,0,0, 0,0,0,0 ,-1,-1,-1,-1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, -1,-1,-1,-1,-1,-1,-1,-1 };
 	SetItemDataMask(ITEM_DATA_MASK_CHOSEN,mask0);
 	SetItemDataMask(ITEM_DATA_MASK_CRITTER,mask1);
 	SetItemDataMask(ITEM_DATA_MASK_CRITTER_EXT,mask2);
@@ -761,6 +763,8 @@ bool critter_use_item(Critter& cr, Item& item, Critter@ targetCr, Item@ targetIt
 	
 	if(pid==PID_SHOVEL && useOnSelf && UseShovel(cr, item)) return true;
 	
+	
+	if((targetItem.GetType() == ITEM_DOOR || targetItem.GetType() == ITEM_CONTAINER) && UseItemOnLocker(cr, targetItem, item)) return true;
 	// Take process to engine
 	return false;
 }
@@ -790,7 +794,7 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 	if(valid(targetItem) && targetItem.GetProtoId()==PID_GEIGER_COUNTER && UseSkillOnGeiger(cr,targetItem,skill)) return true;
 
 	// Doors or containers
-	if(valid(targetItem) && (targetItem.GetType()==ITEM_DOOR || (targetItem.GetType()==ITEM_CONTAINER && !isAidKitScience)) && UseSkillOnLocker(cr,targetItem,skill)) return true; else cr.Say(SAY_NETMSG, "else"); //targetItem.GetType()==ITEM_CONTAINER
+	if(valid(targetItem) && (targetItem.GetType()==ITEM_DOOR || (targetItem.GetType()==ITEM_CONTAINER && !isAidKitScience)) && UseSkillOnLocker(cr,targetItem,skill)) return true; //else cr.Say(SAY_NETMSG, "else"); //targetItem.GetType()==ITEM_CONTAINER
 	switch(skill)
 	{
 	case SKILL_PICK_ON_GROUND: // Pick item or scenery on ground
@@ -867,6 +871,11 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 								    targetPid == PID_MEDNEEDLE	||
 								    targetPid == PID_ANESTETIC	);
 						if(!isDocSupply) {cr.Say(SAY_NETMSG, "Это нельзя положить в сумку доктора."); return true;}
+						if(!isDocSupply) {cr.Say(SAY_NETMSG, "Это нельзя положить в сумку доктора."); return true;}
+					}
+					else if(cont.GetProtoId() == PID_KEY_BUNCH)
+					{
+						if(targetItem.GetType() != ITEM_KEY) {cr.Say(SAY_NETMSG, "Это нельзя прицепить на связку ключей."); return true;}
 					}
 				
 					cr.ParamBase[ST_CARRY_WEIGHT_EXT]-=int(targetItem.Proto.Weight*cr.GetItemTransferCount());
@@ -1872,6 +1881,8 @@ void critter_idle(Critter& cr)
 	}
 }
 
+#define EXP_BAR_KILLING_TIME		(60)
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on something critter dies.
 // Killer can be null.
@@ -1890,6 +1901,13 @@ void critter_dead(Critter& cr, Critter@ killer)
 		{
 			cr.TransitToMap(map.Id,0);
 		}
+	}
+	
+	Log("dead");
+	
+	if(killer !is null && killer.IsPlayer())
+	{
+		ExpBarTimer(killer, EXP_BAR_KILLING_TIME / killer.StatBase[ST_EXPERIENCE_MULTIPLIER]);
 	}
 
 	uint8 Body=cr.CrType;
@@ -2099,6 +2117,8 @@ void critter_change_item(Critter& cr, Item& item, uint8 fromSlot)
 	{
 		cr.Say(SAY_NETMSG, "change_item "+fromSlot+" to "+item.CritSlot+" acc "+item.Accessory+" cont "+item.ContainerId);
 	}*/
+	
+	if(fromSlot == 0 && !item.IsCanUseByIndefine(cr)) {cr.MoveItem(item.Id, 1, fromSlot); cr.Say(SAY_NETMSG, "Вы не можете использовать это."); return;}
 	
 	if(fromSlot==0xFF || item.CritSlot==0xFF)
 	{
@@ -2395,8 +2415,12 @@ uint item_cost(Item& item, Critter& cr, Critter& npc, bool sell)
 	}
 	
 	cost = CLAMP(cost, 1, cost);
+	
+	
+	uint16 	costSell = uint(cost * 0.15 / (!item.IsCanUseByIndefine(cr) ? 5 : 1)),
+		costBuy	= cost;
 
-	return sell ? (cost * 0.15 > 1 ? cost * 0.15 : 1)  : cost;
+	return sell ? costSell : costBuy;
 	
 	
 	
@@ -2772,6 +2796,95 @@ uint cte_IncreaseStudyExp(Critter& cr, int identifier, uint& rate)
 	}
 	
 return (60*15)*__TimeMultiplier;
+}
+/*
+#define EXP_BAR_MULTIPLIER_BONUS_TIME		(10*60*__TimeMultiplier)
+*/
+
+#define EXP_BAR_MULTIPLIER_MAX		(5)
+
+void ExpBarTimer(Critter& cr, uint8 time)
+{
+	uint[] rates;
+	
+	//cr.StatBase[ST_EXPERIENCE_MULTIPLIER]++;
+	int16 tempMultiplier = cr.StatBase[ST_EXPERIENCE_MULTIPLIER]++;
+	cr.StatBase[ST_EXPERIENCE_MULTIPLIER] = CLAMP(cr.StatBase[ST_EXPERIENCE_MULTIPLIER], 1, EXP_BAR_MULTIPLIER_MAX);
+	
+	if(cr.GetTimeEvents(CTE_EXPBAR,null,null,rates) > 0)
+	{
+		//rates[0] += time;
+		return;
+	}
+	
+	//ExpBarSetTime(cr.StatBase[ST_EXPERIENCE_MULTIPLIER_TIME], time, true);
+	cr.StatBase[ST_EXPERIENCE_MULTIPLIER_TIME] = ((time)<<8)|(time);
+	cr.AddTimeEvent("cte_ExpBar", REAL_MS(100), CTE_EXPBAR, time);
+}
+
+void ExpBarSetTime(int& time, uint8 newTime, bool set)
+{
+	uint8 allTime = (time)&0xFF;
+	      //elapsedTime = (time>>8)&0xFF;
+	      
+	//elapsedTime = newTime;
+	
+	time = ((set ? newTime : allTime)<<8)|(newTime);
+	
+	
+}
+
+uint cte_ExpBar(Critter& cr, int identifier, uint& rate)
+{
+	//cr.Say(SAY_SHOUT, "cte done! "+rate);
+	int16 tempRate = rate;
+	rate = CLAMP(tempRate--, 0, 255);
+	//ExpBarSetTime(cr.StatBase[ST_EXPERIENCE_MULTIPLIER_TIME], rate, false);
+	uint8 allTime = (cr.StatBase[ST_EXPERIENCE_MULTIPLIER_TIME])&0xFF;
+	      //elapsedTime = (time>>8)&0xFF;
+	cr.StatBase[ST_EXPERIENCE_MULTIPLIER_TIME] = ((rate)<<8)|(allTime);
+	
+	if(rate <= 0) {cr.StatBase[ST_EXPERIENCE_MULTIPLIER] = 1; cr.StatBase[ST_EXPERIENCE_MULTIPLIER_TIME] = 0; return 0;}
+	return REAL_MS(1000);
+}
+/*
+uint ExpBarMultiplier(Critter& cr)
+{
+	uint16 	r = 0xFF,
+		g = 0xFF,
+		b = 0xFF;
+			
+	if(time > EXP_BAR_MULTIPLIER_BONUS_TIME)
+	{/*
+		float colorMod = EXP_BAR_MULTIPLIER_BONUS_TIME / time;
+		r *= colorMod;
+		g *= colorMod;
+		b *= colorMod;*
+		
+		cr.Say(SAY_NETMSG, "cte_bar_time 12 "+(__FullSecond - __Year)+" t "+time);
+			
+		cr.RunClientScript("client_main@_expBarUpdateColor", COLOR_RGB(r,g,b), 0, 0, "", null);
+				
+		cr.StatBase[ST_VAR7] -= EXP_BAR_MULTIPLIER_BONUS_TIME;
+			//time.opAssign(iTime - EXP_BAR_MULTIPLIER_BONUS_TIME);
+		return 5;
+	}
+	
+	cr.StatBase[ST_VAR7] = __FullSecond - __Year;
+	cr.RunClientScript("client_main@_expBarUpdateColor", COLOR_GREEN, 0, 0, "", null);
+	return 1;
+} */
+
+void SetStartCrTimeEvent(Critter& cr, string func, uint time, int identifier, uint rate)
+{
+	if(cr.GetTimeEvents(identifier,null,null,null) > 0)
+	{
+		cr.Say(SAY_NETMSG, "erase");
+		cr.EraseTimeEvents(identifier);
+	}
+	
+	cr.AddTimeEvent(func, time, identifier, rate);
+  
 }
 
 // Call on player try change access

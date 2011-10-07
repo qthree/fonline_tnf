@@ -334,6 +334,8 @@
 #define PID_LF_GRAVESITE_3                  (376)
 #define PID_HIDDEN_CONTAINER                (467)
 
+#define PID_KEY_BUNCH			(888)
+
 // From Misc
 #define PID_ALIEN_SIDE                      (107)
 #define PID_ALIEN_FORWARD                   (108)

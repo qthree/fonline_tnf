@@ -287,6 +287,9 @@
 #define CTE_SLOWRELOAD              (10)
 #define CTE_CHOOSESKIN				(11)
 #define CTE_DELETECORPSE            (12)
+
+#define CTE_EXPBAR		(30) //expbar
+
 #define CTE_TEST		(39)
 #define CTE_STUDY		(40)
 #define CTE_HEAL		(41)
@@ -295,6 +298,7 @@
 #define CTE_BLEED		(44)
 #define CTE_THROW		(45)
 #define CTE_BLOOD_TOXIC		(46)
+#define CTE_MOTEL_ROOM		(47)
 // Drugs time events                40 (PID_STIMPAK) .. 1000
 
 // Parameters
@@ -429,6 +433,12 @@
 #define ST_CELL_Y		(120)
 
 #define ST_ARCADE_DEAD		(121)
+
+#define ST_LOCALMAP_DIR		(122)
+#define ST_LOCALMAP_PID		(123)
+
+#define ST_EXPERIENCE_MULTIPLIER	(124) //expbar
+#define ST_EXPERIENCE_MULTIPLIER_TIME	(125) //expbar
 
 // 119..129
 #define ST_LAST_CONT_ID             (130)
@@ -1041,6 +1051,11 @@
 #define OBJECT_SCENERY		(4)
 //#pm menu
 
+
+//pm exit grid
+#define EXIT_GRID_PID		(4052)
+#define EXIT_GRID_DISTATION	(3)
+
 // Global map fog
 #define FOG_FULL                    (0)
 #define FOG_HALF                    (1)
@@ -1443,9 +1458,21 @@
 #pragma bindfunc "bool Critter::IsAddicted()   -> fonline_tnf.dll Critter_IsAddicted  "
 #pragma bindfunc "bool Critter::IsOverweight() -> fonline_tnf.dll Critter_IsOverweight"
 
+#pragma bindfunc "void Critter::SetWorldPos(uint16 x, uint16 y) -> fonline_tnf.dll Critter_SetWorldPos" //pm added
+
 #pragma bindfunc "bool Item::Weapon_IsHtHAttack(uint8 mode)    -> fonline_tnf.dll Item_Weapon_IsHtHAttack   "
 #pragma bindfunc "bool Item::Weapon_IsGunAttack(uint8 mode)    -> fonline_tnf.dll Item_Weapon_IsGunAttack   "
 #pragma bindfunc "bool Item::Weapon_IsRangedAttack(uint8 mode) -> fonline_tnf.dll Item_Weapon_IsRangedAttack"
+
+//pm added
+#pragma bindfunc "uint Item::GetDurability() -> fonline_tnf.dll Item_GetDurability"
+#pragma bindfunc "void Item::SetDurability(uint8 value) -> fonline_tnf.dll Item_SetDurability"
+#pragma bindfunc "uint Item::GetIndefineValue() -> fonline_tnf.dll Item_GetIndefineValue"
+#pragma bindfunc "uint Item::SetIndefineValue(uint16 value) -> fonline_tnf.dll Item_SetIndefineValue"
+#pragma bindfunc "uint Item::GetIndefineStat() -> fonline_tnf.dll Item_GetIndefineStat"
+#pragma bindfunc "bool Item::IsCanUseByIndefine(Critter& cr) -> fonline_tnf.dll Item_IsCanUseByIndefine"
+//#pragma bindfunc "uint Item::ViewTimeEvent() -> fonline_tnf.dll Item_ViewTimeEvent"
+//#pragma bindfunc "uint Item::CreateTimeEvent(uint16 identifier) -> fonline_tnf.dll Item_CreateTimeEvent"
 
 #pragma bindfunc "uint Map::GetTile(uint16 tx, uint16 ty) -> fonline_tnf.dll Map_GetTile"
 #pragma bindfunc "uint Map::GetRoof(uint16 tx, uint16 ty) -> fonline_tnf.dll Map_GetRoof"
@@ -1467,6 +1494,12 @@
 #pragma bindfunc "bool ItemCl::Weapon_IsHtHAttack(uint8 mode)    -> fonline_tnf_client.dll Item_Weapon_IsHtHAttack   "
 #pragma bindfunc "bool ItemCl::Weapon_IsGunAttack(uint8 mode)    -> fonline_tnf_client.dll Item_Weapon_IsGunAttack   "
 #pragma bindfunc "bool ItemCl::Weapon_IsRangedAttack(uint8 mode) -> fonline_tnf_client.dll Item_Weapon_IsRangedAttack"
+
+//pm added
+#pragma bindfunc "uint ItemCl::GetIndefineValue() -> fonline_tnf_client.dll Item_GetIndefineValue"
+#pragma bindfunc "void ItemCl::SetInvPic(uint hash) -> fonline_tnf_client.dll Item_SetInvPic"
+#pragma bindfunc "bool ItemCl::IsCanUseByIndefine(CritterCl& cr) -> fonline_tnf_client.dll Item_IsCanUseByIndefine"
+#pragma bindfunc "uint ItemCl::GetIndefineStat() -> fonline_tnf_client.dll Item_GetIndefineStat"
 #endif
 
 ///
@@ -1476,6 +1509,8 @@
 // Whole size for data - 500 bytes
 	// Common
 #pragma bindfield "const int    ProtoItem::MagicPower -> 0"
+#pragma bindfield "const uint16 ProtoItem::IndefineValue -> 4"
+#pragma bindfield "const uint16 ProtoItem::IndefineStat -> 6"
 	// Armor
 #pragma bindfield "const uint   ProtoItem::Armor_CrTypeMale   -> 100"
 #pragma bindfield "const uint   ProtoItem::Armor_CrTypeFemale -> 104"

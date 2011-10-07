@@ -22,13 +22,53 @@
 #define LOCATION_StartMap							(50)
 #define LOCATION_Ghostfarm							(60)
 
+#define LOCATION_Modoc_1							(1)
+#define LOCATION_Modoc_2							(2)
+#define LOCATION_Modoc_3							(3)
+#define LOCATION_Modoc_4							(4)
+#define LOCATION_Modoc_5							(5)
+#define LOCATION_Modoc_6							(6)
+#define LOCATION_ModocApp_1							(7)
+#define LOCATION_ModocApp_2							(8)
+#define LOCATION_ModocApp_3							(9)
+#define LOCATION_ModocApp_4							(10)
+#define LOCATION_ModocApp_5							(11)
+#define LOCATION_ModocApp_6							(12)
+
+#define LOCATION_Satter_0_0							(13)
+#define LOCATION_Satter_0_1							(14)
+#define LOCATION_Satter_0_2							(15)
+#define LOCATION_Satter_0_3							(16)
+#define LOCATION_Satter_1_0							(17)
+#define LOCATION_Satter_1_3							(18)
+#define LOCATION_Satter_2_0							(19)
+#define LOCATION_Satter_2_3							(20)
+#define LOCATION_Satter_3_0							(21)
+#define LOCATION_Satter_3_1							(22)
+#define LOCATION_Satter_3_2							(23)
+#define LOCATION_Satter_3_3							(24)
+#define LOCATION_Satter_center							(25)
+
+#define LOCATION_lake								(40)
+#define LOCATION_junkyard							(41)
+#define LOCATION_phoenix							(42)
+
 #define LOCATION_TechBunker							(21)
 
 
 //для roleplay сервера
 #define LOCATION_IS_CITY #(locPid)                  (LocIsCity((locPid)))
 
-uint[] CityPids = {LOCATION_Lakecity, LOCATION_Junkyard, LOCATION_Modoc, LOCATION_Sacramento, LOCATION_Ghostfarm};
+uint[] CityPids = {LOCATION_Lakecity, LOCATION_Junkyard, LOCATION_Modoc, LOCATION_Sacramento, LOCATION_Ghostfarm, 
+LOCATION_Modoc_1, LOCATION_Modoc_2, LOCATION_Modoc_3, LOCATION_Modoc_4, LOCATION_Modoc_5, LOCATION_Modoc_6, 
+LOCATION_ModocApp_1, LOCATION_ModocApp_2, LOCATION_ModocApp_3, LOCATION_ModocApp_4, LOCATION_ModocApp_5, LOCATION_ModocApp_6, 
+LOCATION_lake, 
+LOCATION_junkyard, 
+LOCATION_phoenix, 
+LOCATION_Satter_0_0, LOCATION_Satter_0_1, LOCATION_Satter_0_2, LOCATION_Satter_0_3, 
+LOCATION_Satter_1_0, LOCATION_Satter_center, LOCATION_Satter_1_3,
+LOCATION_Satter_2_0, LOCATION_Satter_2_3,
+LOCATION_Satter_3_0, LOCATION_Satter_3_1, LOCATION_Satter_3_2, LOCATION_Satter_3_3};
 
 bool LocIsCity(uint locPid)
 {

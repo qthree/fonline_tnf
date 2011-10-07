@@ -6,6 +6,32 @@
 
 bool UseItemOnLocker(Critter& cr, Item& locker, Item& item) // Export
 {
+	if(item.GetType() == ITEM_KEY)
+	{
+		if(item.LockerId == locker.LockerId)
+		{
+			if(!FLAG(locker.LockerCondition, LOCKER_ISOPEN))
+			{
+				if(FLAG(locker.LockerCondition, LOCKER_LOCKED))
+				{
+					UNSETFLAG(locker.LockerCondition, LOCKER_LOCKED);
+					cr.Say(SAY_NETMSG, "Вы отперли дверь.");
+				}else
+				{
+					SETFLAG(locker.LockerCondition, LOCKER_LOCKED);
+					cr.Say(SAY_NETMSG, "Вы заперли дверь.");
+				}
+				return true;
+			}
+			cr.Say(SAY_NETMSG, "Дверь должна быть закрыта.");
+			return true;
+		}else
+		{
+			cr.Say(SAY_NETMSG, "Ключ не подходит.");
+			return true;
+		}
+	}
+	
 	return true;
 }
 
@@ -43,7 +69,7 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 
 			// Check key
 			if(!FLAG(locker.LockerCondition,LOCKER_ISOPEN) && locker.LockerId!=0 &&
-				!FLAG(locker.LockerCondition,LOCKER_BROKEN) && !IsKeyAviable(cr,locker.LockerId))
+				!FLAG(locker.LockerCondition,LOCKER_BROKEN) && FLAG(locker.LockerCondition, LOCKER_LOCKED))
 			{
 				cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_ITEM_LOCKER_NEED_KEY);
 				return true;
@@ -246,7 +272,11 @@ bool UseSkillOnLocker(Critter& cr, Item& locker, int skill) // Export
 		else if(base>=Random(1,100))
 		{
 			locker.LockerOpen();
-			if(locker.GetType()==ITEM_CONTAINER) cr.ShowContainer(null,locker,locker.Proto.GroundLevel?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+			if(locker.GetType()==ITEM_CONTAINER) 
+			{
+				cr.ShowContainer(null,locker,locker.Proto.GroundLevel?TRANSFER_HEX_CONT_DOWN:TRANSFER_HEX_CONT_UP);
+				
+			}
 			if(activePid == PID_EXP_LOCKPICK_SET) //break door if dont heve lockpicks
 			{
 			  cr.Say(SAY_NETMSG, "Вы успешно вскрыли замок. Осторожно, дверь может захлонуться.");

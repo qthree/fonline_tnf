@@ -13,6 +13,12 @@ import uint GetGlobalMapRelief(uint x, uint y) from "worldmap";
 //import uint GetAllPlayers(Critter@[]& crs) from "manager";
 //import uint GetPlayers(Critter& cr, uint16 radius, bool square, Critter@[]& crs) from "manager";
 
+#define ENTIRE_NUM		(255)
+#define MAP_SIZE		(148)
+#define ADD_HEX_COUNT		(5)
+#define SEARCH_HEX_COUNT	(3)
+#define CELL_SIZE		(10)
+
 #include "_cell.fos"
 
 class CellContent
@@ -147,6 +153,8 @@ class CellContent
 class Cell
 {
 	//uint Color;
+	uint8 SizeX; //pm added
+	uint8 SizeY;
 	uint16 X;
 	uint16 Y;
 	uint8 Wildness;
@@ -159,6 +167,8 @@ class Cell
 	{
 		//Color=0x33773333;
 		Wildness = 50;
+		SizeX = 1; //pm added
+		SizeY = 1; //pm added
 		//@Content = null;
 	}
 	
@@ -188,8 +198,8 @@ class CellWorld
 			uint cy = y*CellsW;
 			for(uint x=0; x<CellsW; x++)
 			{
-				Cells[x+cy].X=x;
-				Cells[x+cy].Y=y;
+					Cells[x+cy].X=x;
+					Cells[x+cy].Y=y;
 			}
 		}
 	}
@@ -230,7 +240,6 @@ class CellWorld
 	{
 		uint16 x = cr.WorldX/10, y = cr.WorldY/10;
 		if(x>=CellsW || y>=CellsH) return null;
-		
 		return Cells[x+y*CellsW];
 	}
 	
@@ -283,6 +292,8 @@ class CellWorld
 		int[] data_color(len*2),
 		data_number(len*2),
 		data_char(len*2);
+		
+		uint8 data_cellSize = 1; //pm added
 		
 		uint dc=0, dn=0, dch=0, wild=0, color=0, number=uint(-1), chr=uint(-1), r=0, nr=0, zx=0, zy=0;
 		Cell@ cell0=null;
@@ -343,6 +354,11 @@ class CellWorld
 				data_number[dn++]=coord;
 				data_number[dn++]=int(number);
 			}
+			/*
+			if(cell0.SizeX != 1)
+			{
+				data_cellSize = cell0.Size;
+			}*/
 			
 		}
 
@@ -360,6 +376,9 @@ class CellWorld
 		//{
 			data_char.resize(dch);
 			cr.RunClientScript("client_main@_dr", 3, 0, 0, null, data_char);
+			
+			//pm added
+			//cr.RunClientScript("client_main@_dr", 3, 0, 0, null, data_char);
 		//}
 	}
 
@@ -408,6 +427,8 @@ class CellWorld
 			uint8 type = CELLMAP_TYPE_NULL;
 			int8 vis = 0;
 			
+			uint8 sizeX = 1, sizeY = 1; //pm added
+			
 			if(map.GetData(56)==0)
 			{
 				uint16 pid = loc.GetProtoId();
@@ -416,6 +437,12 @@ class CellWorld
 				else if(LocIsHidden(pid)) vis=-100;
 				else continue;
 				type=CELLMAP_TYPE_STATIC;
+				
+				switch(pid)
+				{
+					case LOCATION_Satter_center : sizeX = 2; sizeY = 2; break;
+					default : break;
+				}
 			}
 			else
 			{
@@ -429,6 +456,28 @@ class CellWorld
 			cell.Content.MapId=map.Id;
 			cell.Content.Type=type;
 			cell.Content.Visibility=vis;
+			
+			
+			
+			if(sizeX > 1 || sizeY > 1)
+			{
+				for(uint8 y = 0; y < sizeY; ++y)
+				{
+					for(uint x = 0; x < sizeX; ++x)
+					{
+						Cell@ cell = GetCell(loc.WorldX/10+x, loc.WorldY/10+y);
+						if(cell is null) continue;
+			
+						@cell.Content = CellContent();
+						cell.Content.MapId=map.Id;
+						cell.Content.Type=type;
+						cell.Content.Visibility=vis;
+						
+						cell.SizeX = sizeX;
+						cell.SizeY = sizeY;
+					}
+				}
+			}
 		}
 		
 		if(IsAnyData("cells_v1"))
@@ -1058,7 +1107,10 @@ void global_invite(Critter& leader, Item@ car, uint encounterDescriptor, int com
 		@cont = cell.Content;
 		cont.Type|=CELLMAP_TYPE_ENCOUTER;
 		cont.Durability=5;
-	}	
+	}
+	
+	//pm added
+	
 	
 	uint8 type = (cont.Type&0x1f);
 	
@@ -1070,12 +1122,20 @@ void global_invite(Critter& leader, Item@ car, uint encounterDescriptor, int com
 			Map@ map = GetMap(cont.MapId);
 			if(map !is null and map.GetEntireCoords(0,0,hexX,hexY, dir))
 			{
+				//pm added
+			GetEnterHexFromGlobal(leader, cell, hexX, hexY);
 				cont.Index=uint(-1);
 				mapId = map.Id;
 			}
 		}
 		else		
 		{
+			//leader.Say(SAY_NETMSG, "dir "+dir);
+			
+			//pm added
+			GetEnterHexFromGlobal(leader, cell, hexX, hexY);
+		
+			
 			InviteToEncounter(leader.GetGlobalGroup(),car,encounterDescriptor, COMBAT_MODE_REAL_TIME /*combatMode*/,mapId,hexX,hexY,dir);
 			cont.Index=encounterDescriptor;
 			cont.MapId=mapId;
@@ -1084,9 +1144,12 @@ void global_invite(Critter& leader, Item@ car, uint encounterDescriptor, int com
 	else if(type == CELLMAP_TYPE_STATIC)
 	{
 		if(encounterDescriptor!=uint(-1)) Log("stat, encounterDescriptor WTF?!");
+		
 		Map@ map = GetMap(cont.MapId);
 		if(map !is null and map.GetEntireCoords(0,0,hexX,hexY, dir))
 		{
+			//pm added
+			GetEnterHexFromGlobal(leader, cell, hexX, hexY);
 			cont.Index=uint(-1);
 			mapId = map.Id;
 		}
@@ -1176,62 +1239,312 @@ void CheckForLocationWithoutParking(Critter& cr, Item& car, float& curX, float& 
 
 //pm added
 
-#define ENTIRE_NUM		(255)
-#define MAP_SIZE		(150)
 //#define MAP_WIDTH		(150)
 
-void TransitCritterToCell(Critter& cr, uint8 direction)
+void TransitCritterToCell(Critter& cr, uint16 gridId) //uint8 direction deprecated
 {
 	if(@world == null)  {cr.Say(SAY_NETMSG, "world !valid"); return;}
+	
+	Item@ grid = GetItem(gridId);
+	if(@grid == null) {cr.Say(SAY_NETMSG, "grid !valid"); return;}
+	
 	Cell @ cell = world.GetCell(cr);
-	if(@cell == null) {cr.Say(SAY_NETMSG, "cell !valid"); return;}
+	if(@cell == null || @cell.Content == null) {cr.Say(SAY_NETMSG, "cell !valid"); return;}
 	
 	Map @ map = cr.GetMap();
 	if(@map == null) {cr.Say(SAY_NETMSG, "map !valid"); return;}
 	
-	uint16 destCellX = cr.StatBase[ST_CELL_X], destCellY = cr.StatBase[ST_CELL_Y], mapX = 0, mapY = 0;
+	int8 offsetCellX = 0, offsetCellY = 0;
+	uint8 direction = grid.Val1;
+	uint16 destCellX = cr.WorldX * 0.1, destCellY = cr.WorldY * 0.1, oldHexX = 0, oldHexY = 0;
+
+	SetMapDirection(direction, destCellX, destCellY, offsetCellX, offsetCellY);
+
+	if(!map.GetEntireCoords(ENTIRE_NUM, 0, oldHexX, oldHexY)) {cr.Say(SAY_NETMSG, "no ent"); return;}
+					  
+	oldHexX = grid.HexX - oldHexX; //cr.HexX deprecated
+	oldHexY = grid.HexY - oldHexY; //cr.HexY deprecated
+
+	uint8 worldOffsetX = (((MAP_SIZE - oldHexX) * 100) / MAP_SIZE), worldOffsetY = (((MAP_SIZE - oldHexY) * 100) / MAP_SIZE);
+
 	
-	//if(map.CountEntire <= 0) return;
-	if(!map.GetEntireCoords(ENTIRE_NUM, 0, mapX, mapY)) {cr.Say(SAY_NETMSG, "no ent"); return;}
-	//cell.X, destCellY = cell.Y;
+	uint16 wX = cell.X * 10, wY = cell.Y * 10 + CELL_SIZE;
+	
+	if(cell.SizeX > 1 || cell.SizeY > 1)
+	{
+		SetOffSetNonStandartMaps(cell, direction, oldHexX, oldHexY, offsetCellX, offsetCellY, destCellX, destCellY);
+	}
+
+	Cell @transitCell = world.GetCell(destCellX, destCellY);
+	
+	if(transitCell !is null && transitCell.Content !is null) 
+	{
+		uint16 mapId = transitCell.Content.MapId;
+	
+		//cr.Say(SAY_NETMSG, "mid "+mapId);
+	
+		@map = GetMap(mapId);
+		if(mapId == 0 || map is null) {cr.Say(SAY_NETMSG, "mapId !valid"); cr.TransitToGlobal(false); return;}
+		uint16 destHexX = 0, destHexY = 0;
+		if(!map.GetEntireCoords(ENTIRE_NUM, 0, destHexX, destHexY)) {cr.Say(SAY_NETMSG, "no dest ent"); return;}
+		SetHexDirection(direction, oldHexX, oldHexY, transitCell.SizeX, transitCell.SizeY);
+		
+		if(map.IsHexPassed(destHexX+oldHexX, destHexY+oldHexY))//SearchForEmptyHex(map, destX, destY))
+		{
+			cr.SetWorldPos(destCellX * 10, destCellY * 10);
+			cr.TransitToMap(mapId, destHexX+oldHexX, destHexY+oldHexY, direction);
+			return;
+		}
+		cr.Say(SAY_NETMSG, "Вы не можете туда перейти. Гексы заняты."); 
+		return;
+	}//else {cr.Say(SAY_NETMSG, "cell !valid"); cr.TransitToGlobal(false); return;}
+	SetWorldDirection(direction, wX, wY, worldOffsetX, worldOffsetY);
+	cr.SetWorldPos(wX, wY);
+	//cr.Say(SAY_NETMSG, "dest cell !valid"); 
+	cr.TransitToGlobal(true); 
+	return;
+}
+/*
+bool SearchForEmptyHex(Map& map, uint16& hexX, uint16& hexY, uint8 direction)
+{
+	switch(direction)
+	{
+		case 0 : break;
+		case 1 : hexY -= 1; break;
+		case 2 : break;
+		case 3 : hexX -= 1; break;
+		case 4 : break;
+		case 5 : hexY -= 1; break;
+		case 6 : break;
+		case 7 : hexX -= 1; break;
+		default: break;
+	}
+	
+	0 == 2
+	1 == 2
+	2 == 3
+	
+	uint16 
+	
+	if(direction == 1 || direction == 5)
+	{
+		
+	}
 	
 	
+	MoveHexByDir 	( 	uint16&  	hexX,
+		uint16&  	hexY,
+		uint8  	dir,
+		uint  	steps	 
+	) 
 	
-	cr.Say(SAY_NETMSG, "x "+destCellX+" y "+destCellY+" world x "+cr.WorldX+" world y "+cr.WorldY);
-	mapX = cr.HexX - mapX;
-	mapY = cr.HexY - mapY;
+	/*for(uint16 i = hexX, iCondition = hexX + SEARCH_HEX_COUNT; i < iCondition; ++i)
+	{
+		for(uint16 j = hexY, jCondition = hexY + SEARCH_HEX_COUNT; j < jCondition; ++j)
+		{
+			//Log("x "+j+" y "+i);
+			if(map.IsHexPassed(j, i)) 
+			{
+				hexX = j;
+				hexY = i;
+				return true;
+			}
+			++hexX;
+		}
+		++hexY;
+	}*
+	return false;
+}*/
+
+bool GetEnterHexFromGlobal(Critter& leader, Cell& cell, uint16& hexX, uint16& hexY)
+{
+	//leader.Say(SAY_NETMSG, "wSX "+(leader.WorldX * 0.1)+" wSY "+(leader.WorldY * 0.1)+" cSX "+cell.X+" cSY "+cell.Y+" x "+(ABS(cell.X - (leader.WorldX * 0.1)))+" y "+(ABS(cell.Y - (leader.WorldY * 0.1))));
+	if(cell.Content == null) return false;
+	Map @ map = GetMap(cell.Content.MapId);
+	if(map !is null)
+	{
+		uint16 placeMapHexX = 0, placeMapHexY = 0;
+		if(map.GetEntireCoords(ENTIRE_NUM, 0, placeMapHexX, placeMapHexY)) 
+		{
+			uint8 tempX = leader.WorldX - cell.X * 10;
+			uint8 tempY = leader.WorldY - cell.Y * 10;
+			int8 tempN = -1;
+			
+			//uint8 placeCellX = (leader.WorldX - uint(leader.WorldX * 0.1)), placeCellY = (leader.WorldY - uint(leader.WorldY * 0.1));
+			uint8 placeCellX = ((MAP_SIZE * 0.1) * tempX), placeCellY = ((MAP_SIZE * 0.1) * tempY);
+			
+			if(tempY <= 3 && tempX >= 0) tempN = 0;
+			  else if(tempY >= 0 && tempX >= 5) tempN = 1;
+			    else if(tempY >= 5 && tempX >= 0) tempN = 2;
+			      else if(tempY >= 0 && tempX <= 3) tempN = 3;
+			      
+			      
+			
+			switch(tempN)
+			{
+				//case -1: map.GetEntireCoords(0, 0, placeMapHexX, placeMapHexY);
+				case 0 : placeMapHexX += placeCellX; break;
+				case 1 : placeMapHexX += ADD_HEX_COUNT; placeMapHexY += placeCellY; break;
+				case 2 : placeMapHexX += placeCellX; placeMapHexY += MAP_SIZE - ADD_HEX_COUNT; break;
+				case 3 : placeMapHexX += MAP_SIZE; placeMapHexY += placeCellY; break;
+				default: break;
+			}
+			      
+			//if(tempN == 0 || tempN == 2) placeMapHexX += placeCellX;
+			  //else if(tempN == 1 || tempN == 3) placeMapHexY += placeCellY;
+			      
+			      
+			
+			//float placeCellX = (cell.X - (leader.WorldX * 0.1)), placeCellY = cell.Y - (leader.WorldY * 0.1);
+			
+			
+			//leader.Say(SAY_NETMSG, "pX "+(placeCellX)+" pY "+(placeCellY)+" n "+tempN);
+			//if(placeCellX > 0) {hexX = placeMapHexX + (MAP_SIZE * (ABS(placeCellX))) - ADD_HEX_COUNT;}
+			  //else if (placeCellX < 0) {hexX = placeMapHexX + (MAP_SIZE * (ABS(placeCellX))) + ADD_HEX_COUNT;}
+			    //else if (placeCellX < 0) {hexX = placeMapHexX + (MAP_SIZE * (ABS(placeCellX))) + ADD_HEX_COUNT;}
+			//leader.Say(SAY_NETMSG, "old x"+hexX+" y "+hexY);
+			//hexX = placeMapHexX + (MAP_SIZE * ABS(placeCellX));
+			//hexY = placeMapHexY + (MAP_SIZE * ABS(placeCellY));
+			hexX = placeMapHexX;
+			hexY = placeMapHexY;
+			//leader.Say(SAY_NETMSG, "use new system x"+hexX+" y "+hexY+" pX "+placeCellX+" pY "+placeCellY);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool SetMapDirection(uint8 direction, uint16& destCellX, uint16& destCellY, int8& offsetCellX, int8& offsetCellY)
+{
+	Cell @ cell = world.GetCell(destCellX, destCellY);
+	if(cell is null || cell.Content is null) return false;
+	
+	Cell @ targetCell = cell;
+	
+	offsetCellX = 0;
+	offsetCellY = 0;
+	
+	//uint8 offsetCellX = (cell.SizeX * MAP_SIZE) / (oldHexX > 0 ? oldHexX : 1), offsetCellY = (cell.SizeY * MAP_SIZE) / (oldHexY > 0 ? oldHexY : 1);
+	//Log(""+offsetCellX+" "+offsetCellY);
+	
+	do{
+	//Log("x = "+destCellX+" y = "+destCellY);
+		switch(direction)
+		{
+			case 0 : destCellX++; destCellY--; offsetCellX++; offsetCellY--; break;
+			case 1 : destCellX++; offsetCellX++; break;
+			case 2 : destCellX++; destCellY++; offsetCellX++; offsetCellY++; break;
+			case 3 : destCellY++; offsetCellY++; break;
+			case 4 : destCellX--; destCellY++; offsetCellX--; offsetCellY++; break;
+			case 5 : destCellX--; offsetCellX--; break;
+			case 6 : destCellX--; destCellY--; offsetCellX--; offsetCellY--; break;
+			case 7 : destCellY--; offsetCellY--; break;
+			default: return false;
+		}
+		
+		@targetCell = world.GetCell(destCellX, destCellY);
+		if(targetCell is null || targetCell.Content is null) return false;
+	}while(cell.Content.MapId == targetCell.Content.MapId);
+	
+	return true;
+}
+
+void SetHexDirection(uint8& direction, uint16& hexX, uint16& hexY, uint8 sizeX, uint8 sizeY)
+{
+	//hexX = MAP_SIZE - hexX;
+	//hexY = MAP_SIZE - hexY;
+	
+	uint16 	mapSizeX = MAP_SIZE * sizeX,
+		mapSizeY = MAP_SIZE * sizeY;
 	
 	switch(direction)
 	{
-		case 0 : destCellX += 1; destCellY -= 1; mapX += MAP_SIZE; mapY += MAP_SIZE; break;
-		case 1 : destCellX += 1; /*destCellY -= 1;*/ mapX += MAP_SIZE; mapY += MAP_SIZE / 3; break;
-		case 2 : destCellX += 1; destCellY += 1; break;
-		case 3 : /*destCellX += 1*/; destCellY += 1; break;
-		case 4 : destCellX -= 1; destCellY += 1; break;
-		case 5 : destCellX -= 1; /*destCellY -= 1;*/ mapX += MAP_SIZE; mapY += MAP_SIZE / 3; break;
-		case 6 : destCellX -= 1; destCellY -= 1; break;
-		case 7 : /*destCellX += 1;*/ destCellY -= 1; break;
+		case 0 : hexX = mapSizeX - hexX; hexY = mapSizeY - hexY; direction = 0; break;
+		case 1 : hexX = mapSizeX - hexX ; direction = 1; break;
+		case 2 : hexX = mapSizeX - hexX; hexY = mapSizeY - hexY; direction = 2; break;
+		case 3 : hexY = mapSizeX - hexY; direction = Random(2,3); break;
+		case 4 : hexX = mapSizeX - hexX; hexY = mapSizeY - hexY; direction = 3; break;
+		case 5 : hexX = mapSizeX - hexX; direction = 4; break;
+		case 6 : hexX = mapSizeX - hexX; hexY = mapSizeY - hexY; direction = 5; break;
+		case 7 : hexY = mapSizeX - hexY; direction = (Random(0,1) > 0 ? 5 : 0); break;
+		default: return;
+	}	
+	return;
+}
+
+void SetOffSetNonStandartMaps(Cell& cell, uint8 direction, uint16 hexX, uint16 hexY, int8 offsetCellX, int8 offsetCellY, uint16& destCellX, uint16& destCellY)
+{
+	uint16  tempX = (MAP_SIZE * cell.SizeX) / hexX,
+		tempY = (MAP_SIZE * cell.SizeY) / hexY;
+		
+		offsetCellX += tempX;
+		offsetCellY += tempY;
+		
+	switch(direction)
+		{
+			case 0 : destCellX+offsetCellX; destCellY-offsetCellY;break;
+			case 1 : destCellX+offsetCellX; break;
+			case 2 : destCellX+offsetCellX; destCellY+offsetCellY;break;
+			case 3 : destCellY+offsetCellY; break;
+			case 4 : destCellX-offsetCellX; destCellY+offsetCellY; break;
+			case 5 : destCellX-offsetCellX; break;
+			case 6 : destCellX-offsetCellX; destCellY-offsetCellY; break;
+			case 7 : destCellY-offsetCellY; break;
+			default: break;
+		}
+}
+
+void SetWorldDirection(uint8 direction, uint16& wX, uint16& wY, uint8 worldOffsetX, uint8 worldOffsetY)
+{
+	//worldOffsetX /= uint(worldOffsetX * 0.1);
+	//worldOffsetY /= uint(worldOffsetY * 0.1);
+	
+	//worldOffsetX = CLAMP(worldOffsetX, 0, 10);
+	//worldOffsetY = CLAMP(worldOffsetY, 0, 10);
+	
+	wY -= worldOffsetY * 0.1;
+	      
+	switch(direction)
+	{
+		case 0 : wX += worldOffsetX * 0.1; break;
+		case 1 : wX += worldOffsetX * 0.1; break;
+		case 2 : wX += worldOffsetX * 0.1; break;
+		case 3 : wY += worldOffsetY * 0.1; break;
+		case 4 : wX -= worldOffsetX * 0.1; break;
+		case 5 : wX -= worldOffsetX * 0.1; break;
+		case 6 : wX -= worldOffsetX * 0.1; break;
+		case 7 : wX += worldOffsetX * 0.1; break;
+		default: return;
+	}
+}
+/*
+void SetHexDirection(uint8 direction, uint16 hexX, uint16 hexY, uint16& destHexX, uint16& destHexY)
+{
+	switch(direction)
+	{
+		case 0 : destHexX += MAP_SIZE - hexX - ADD_HEX_COUNT; destHexY += MAP_SIZE - hexY - ADD_HEX_COUNT; break;
+		case 1 : destHexX += MAP_SIZE + hexX + ADD_HEX_COUNT; break;
+		case 2 : destHexX += MAP_SIZE + hexX - ADD_HEX_COUNT; destHexY += MAP_SIZE - hexY - ADD_HEX_COUNT; break;
+		case 3 : destHexY += MAP_SIZE - hexY - ADD_HEX_COUNT; break;
+		case 4 : destHexX += MAP_SIZE - hexX + ADD_HEX_COUNT; destHexY += MAP_SIZE - hexY + ADD_HEX_COUNT; break;
+		case 5 : destHexX += MAP_SIZE - hexX - ADD_HEX_COUNT; break;
+		case 6 : destHexX += MAP_SIZE - hexX - ADD_HEX_COUNT; destHexY += MAP_SIZE - hexY - ADD_HEX_COUNT; break;
+		case 7 : destHexY += MAP_SIZE + hexY - ADD_HEX_COUNT; break;
 		default: return;
 	}
 	
-	cr.StatBase[ST_CELL_X] = destCellX;
-	cr.StatBase[ST_CELL_Y] = destCellY;
+	//hexX -= ADD_HEX_COUNT;
+	//hexY -= ADD_HEX_COUNT;
 	
-	
-	
-	@cell = world.GetCell(destCellX, destCellY);
-	if(@cell == null) {cr.Say(SAY_NETMSG, "dest cell !valid"); return;}
-	uint16 mapId = cell.Content.MapId;
-	
-	@map = GetMap(mapId);
-	uint16 destX = 0, destY = 0;
-	if(!map.GetEntireCoords(ENTIRE_NUM, 0, destX, destY)) {cr.Say(SAY_NETMSG, "no dest ent"); return;}
-	
-	cr.Say(SAY_NETMSG, ""+mapId);
-	if(mapId == 0) {cr.Say(SAY_NETMSG, "mapId !valid"); return;}
-	cr.TransitToMap(mapId, destX+mapX, destY+mapY, 0);
-	
-}
+	return;
+}*/
+
+/*
+void GetEnterHex(Critter& cr, Cell& cell uint16& hexX, uint16& hexY)
+{
+	Map @ map = GetMap(cell.Content.MapId);
+	if(@map == null) return;
+}*/
 
 void RefrashCoords(Critter& cr)
 {
@@ -1239,30 +1552,109 @@ void RefrashCoords(Critter& cr)
 	Cell @ cell = world.GetCell(cr);
 	if(@cell == null) return;
 		
-	//cr.StatBase[ST_CELL_X] = cell.X;
-	//cr.StatBase[ST_CELL_Y] = cell.Y;
-	//cr.Say(SAY_NETMSG, "on enc");
 }
 
 void Ttransit(Critter& cr, Scenery& trigger, bool entered, uint8 dir)
 {
-	cr.Say(SAY_NETMSG, ""+dir);
+	//cr.Say(SAY_NETMSG, ""+dir);
 	TransitCritterToCell(cr, dir);
 }
 
 void Ttransit(Item& item, bool firstTime)
 {
-	item.SetEvent(ITEM_EVENT_WALK, "e_WalkTrigger");
+	//item.SetEvent(ITEM_EVENT_WALK, "e_WalkTrigger");
+	item.SetEvent(ITEM_EVENT_SKILL, "e_Skill");
 }
 
 void e_WalkTrigger(Item& item, Critter& cr, bool entered, uint8 dir)
 {
-	TransitCritterToCell(cr, item.Val0);
+	TransitCritterToCell(cr, item.Val1);
+}
+
+bool e_Skill(Item& item, Critter& cr, int skill)
+{
+	return true;
+}
+
+void unsafe_ExitGridClick(Critter& cr, int itemId, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item @ grid = GetItem(itemId);
+	if(grid !is null)
+	{
+		uint8 length = cr.GetMap().GetPathLength(cr,grid.HexX, grid.HexY, 0);
+		//cr.Say(SAY_NETMSG, ""+(ABS(int(cr.HexX - grid.HexX)))+" "+(ABS(int(cr.HexY - grid.HexY))));
+		if(ABS(int(cr.HexX - grid.HexX)) <= EXIT_GRID_DISTATION && ABS(int(cr.HexY - grid.HexY)) <= EXIT_GRID_DISTATION)
+		{
+			//if(length  <= EXIT_GRID_DISTATION)
+			//{
+				TransitCritterToCell(cr, grid.Id);
+				return;
+			//}
+			
+		}
+		cr.Say(SAY_NETMSG, "Вы слишком далеко от сетки выхода");
+		//cr.Say(SAY_NETMSG, "Выход заблокирован.");
+	}
+	
+}
+
+void unsafe_GetMapPid(Critter& cr, int gridId, int param1, int param2, string@ param3, int[]@ param4)
+{
+	Item @ grid = GetItem(gridId);
+	if(grid !is null)
+	{
+	
+		Cell @ cell = world.GetCell(cr);
+		if(cell !is null && cell.Content !is null)
+		{
+			int8 offsetCellX = 0, offsetCellY = 0;
+			uint8  direction = grid.Val1;
+			uint16 destCellX = cell.X, destCellY = cell.Y, oldHexX = 0, oldHexY = 0;
+	
+			if(!GetMap(cell.Content.MapId).GetEntireCoords(ENTIRE_NUM, 0, oldHexX, oldHexY)) {cr.Say(SAY_NETMSG, "no ent"); return;}
+					  
+			oldHexX = grid.HexX - oldHexX; //cr.HexX deprecated
+			oldHexY = grid.HexY - oldHexY; //cr.HexY deprecated
+	
+			cr.StatBase[ST_LOCALMAP_DIR] = direction;
+			if(SetMapDirection(direction, destCellX, destCellY, offsetCellX, offsetCellY))
+			{
+	//Cell @ cell = GetCell(destCellX, destCellY);
+	//cr.Say(SAY_NETMSG, ""+destCellX+" "+destCellY);
+	//if(cell !is null && cell.Content !is null) 
+	//{
+				if(cell.SizeX > 1 || cell.SizeY > 1)
+				{
+					SetOffSetNonStandartMaps(cell, direction, oldHexX, oldHexY, offsetCellX, offsetCellY, destCellX, destCellY);
+				}
+				
+				uint16 mapId = GetCellMap(destCellX*10, destCellY*10);
+				if(mapId != -1)
+				{
+					Map @ map = GetMap(mapId); //cell.Content.MapId); //
+					if(map !is null)
+					{	
+						cr.StatBase[ST_LOCALMAP_PID] = map.GetProtoId();
+				//cr.Say(SAY_NETMSG, ""+map.GetProtoId());
+						return;
+					}
+				}
+		
+		
+		//cr.StatBase[ST_VAR8] = 0;
+		//cr.StatBase[ST_VAR8] |= direction;
+		//cr.StatBase[ST_VAR8] |= cell.Content.MapId<<3;
+		//cr.RunClientScript("client_screen_teach@SetMaxExp", studyTemp, 0, 0, "", null);
+			}
+		}
+	}
+	cr.StatBase[ST_LOCALMAP_PID] = 0; 
+	return;
 }
 
 int GetCellMap(uint16 x, uint16 y)
 {
 	Cell @ cell = world.GetCell(x*0.1, y*0.1);
-	if(@cell == null) return -1;
+	if(@cell == null || cell.Content is null) return -1;
 	return cell.Content.MapId;
 }

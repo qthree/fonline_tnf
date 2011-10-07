@@ -1506,14 +1506,14 @@ void GM_GetItem(Critter& player, int param0, int param1, int param2, string@ par
 	if(!valid(item)) return;
 	MoveItem(item,0,player);
 }
-
-import void TransitCritterToCell(Critter& cr, uint8 direction) from "globalmap_group";
+/*	deprecated
+import void TransitCritterToCell(Critter& cr, uint16 itemId) from "globalmap_group";
 
 void transit(Critter& cr, int dir, int, int)
 {
 	TransitCritterToCell(cr, dir);
 }
-
+*/
 void chagecell(Critter& cr, int x, int y, int)
 {
 	cr.StatBase[ST_CELL_X] = x;

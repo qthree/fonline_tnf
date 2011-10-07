@@ -53,6 +53,11 @@ EXPORT bool Item_Weapon_IsHtHAttack(Item& item, uint8 mode);
 EXPORT bool Item_Weapon_IsGunAttack(Item& item, uint8 mode);
 EXPORT bool Item_Weapon_IsRangedAttack(Item& item, uint8 mode);
 
+EXPORT uint Item_GetIndefineValue(Item& item); //pm added
+EXPORT void Item_SetIndefineValue(Item& item, uint16 value); //pm added
+EXPORT uint Item_GetIndefineCritterStat(Item& item); //pm added
+EXPORT bool Item_IsCanUseByIndefine(Item& item, CritterMutual& cr);
+
 // Callbacks
 uint GetUseApCost(CritterMutual& cr, Item& item, uint8 mode);
 uint GetAttackDistantion(CritterMutual& cr, Item& item, uint8 mode);
@@ -492,6 +497,37 @@ EXPORT bool Item_Weapon_IsRangedAttack(Item& item, uint8 mode)
 	return skill == SK_SMALL_GUNS || skill == SK_BIG_GUNS || skill == SK_ENERGY_WEAPONS || skill == SK_THROWING;
 }
 
+EXPORT uint Item_GetIndefineValue(Item& item)
+{
+	//uint16 value = (item.Data.ScriptValues[9] != 0 ? item.Data.ScriptValues[9] : item.Proto -> IndefineValue);
+	return item.Proto -> IndefineValue;
+}
+
+EXPORT void Item_SetIndefineValue(Item& item, uint16 value)
+{
+	//item.Data.ScriptValues[9] = value; //IndefineValue
+	return;
+}
+
+EXPORT void Item_SetInvPic(Item& item, uint hash)
+{
+	item.Data.PicInvHash = hash;
+	//item.Update();
+	return;
+}
+
+EXPORT uint Item_GetIndefineStat(Item& item)
+{
+	return item.Proto -> IndefineStat;
+	
+}
+
+EXPORT bool Item_IsCanUseByIndefine(Item& item, CritterMutual& cr)
+{
+	uint16 stat = item.Proto -> IndefineStat, value = item.Proto -> IndefineValue;
+	return (value <= cr.Params[stat]);
+}
+
 /************************************************************************/
 /* Callbacks                                                            */
 /************************************************************************/
@@ -726,6 +762,25 @@ EXPORT bool Map_SetRoof(Map& map, uint16 tx, uint16 ty, uint picHash)
 EXPORT uint Critter_GetItemTransferCount(Critter& cr)
 {
 	return cr.ItemTransferCount;
+}
+
+//pm added
+
+EXPORT void Critter_SetWorldPos(CritterMutual& cr, uint16 x, uint16 y) //pm added
+{
+	cr.WorldX = x;
+	cr.WorldY = y;
+}
+
+EXPORT uint Item_GetDurability(Item& item)
+{
+	return item.Durability;
+}
+
+EXPORT void Item_SetDurability(Item& item, uint8 value)
+{
+	item.Durability = value;
+	return;
 }
 
 #endif //__SERVER

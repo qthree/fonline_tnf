@@ -7,6 +7,7 @@
 # Music, (pid + 1) * 10 + 5
 # Ambient, (pid + 1) * 10 + 6
 # NoLogOut, (pid + 1) * 10 + 7
+# Transit Name, (pid + 1) * 10 + 8 pm added
 
 # Map 0, Global, base 10
 {10}{}{Глобальная карта}
@@ -18,1209 +19,153 @@
 {15}{}{12 - Kill Klesk.ogg}
 {16}{}{blank:100}
 
+#####MODOC####
+
 # Map 1, base 20
-{20}{}{Arroyo Temple Entrance}
-{25}{}{17arroyo}
+{20}{}{Modoc reach}
+{25}{}{18modoc}
 {26}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{28}{}{Богатый район}
 # Map 2, base 30
-{30}{}{Arroyo}
-{35}{}{17arroyo}
-{36}{}{gntlwin1:25, gntlwind:25, animal1:20, laughter:15, animal:20, winddoor:20, gustwin1:5, gustwin1:5}
+{50}{}{Modoc administrative}
+{55}{}{18modoc}
+{56}{}{gntlwin1:25, gntlwind:25, animal1:20, laughter:15, animal:20, winddoor:20, gustwin1:5, gustwin1:5}
+{58}{}{Административный район}
 # Map 3, base 40
-{40}{}{Arroyo garden}
-{45}{}{17arroyo}
-{46}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{70}{}{Modoc work}
+{75}{}{18modoc}
+{76}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{78}{}{Рабочий район : Север}
 # Map 4, base 50
-{50}{}{Arroyo Bridge}
-{55}{}{17arroyo}
-{56}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{100}{}{Modoc bum}
+{105}{}{18modoc}
+{106}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{108}{}{Трущебы}
 # Map 5, base 60
-{60}{}{Arroyo temple}
-{65}{}{13carvrn}
-{66}{}{electri1:15, electric:15, gntlwin1:20, gntlwind:20}
-
+{110}{}{Modoc entrance}
+{115}{}{18modoc}
+{116}{}{electri1:15, electric:15, gntlwin1:20, gntlwind:20}
+{118}{}{Вход в город}
 # Map 6, base 70
-{70}{}{Den Business}
-{75}{}{05RAIDER}
-{76}{}{dogbark:10, dogbark1:10, gntlwind:20, gntlwin1:20, blank:40}
+{140}{}{Modoc work1}
+{145}{}{18modoc}
+{146}{}{dogbark:10, dogbark1:10, gntlwind:20, gntlwin1:20, blank:40}
+{148}{}{Рабочий район : Юг}
 # Map 7, base 80
-{80}{}{Den Carstop}
-{85}{}{05RAIDER}
-{86}{}{dogbark:10, dogbark1:10, gntlwind:20, gntlwin1:20, blank:40}
-
+{160}{}{Modoc cemetery}
+{165}{}{14necro}
+{166}{}{dogbark:10, dogbark1:10, gntlwind:20, gntlwin1:20, blank:40}
+{168}{}{Кладбище}
 # Map 8, base 90
-{90}{}{Klamath Canyon}
-{95}{}{03wrldmp}
-{96}{}{gntlwin1:30, gntlwind:30, gustwin1:10, gustwind:10, vulture:10, vulture1:10}
+{170}{}{Modoc app1}
+{175}{}{03wrldmp}
+{176}{}{gntlwin1:30, gntlwind:30, gustwin1:10, gustwind:10, vulture:10, vulture1:10}
+{178}{}{Заправка}
 # Map 9, base 100
-{100}{}{Klamath Downtown}
-{105}{}{03wrldmp}
-{106}{}{laughter:10, laughte1:10, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
+{180}{}{Modoc toxic}
+{185}{}{03wrldmp}
+{186}{}{laughter:10, laughte1:10, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
+{188}{}{Токсичное болото}
 # Map 10, base 110
-{110}{}{Klamath Mall}
-{115}{}{03wrldmp}
-{116}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
+{190}{}{Modoc app3}
+{195}{}{03wrldmp}
+{196}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
+{198}{}{Окрестности города}
 # Map 11, base 120
-{120}{}{Klamath Vic's toilet}
-{125}{}{12junktn}
-{126}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
+{200}{}{Klamath Vic's toilet}
+{205}{}{12junktn}
+{206}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
+{208}{}{Окрестности города}
 # Map 12, base 130
-{130}{}{Klamath Toxic Caves}
-{135}{}{13carvrn}
-{136}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
-# Map 13, base 140
-{140}{}{Klamath Trapping Caves}
-{145}{}{03wrldmp}
-{146}{}{gntlwin1:20, gntlwind:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
-# Map 14, base 150
-{150}{}{Klamath Grazing Area}
-{155}{}{03wrldmp}
-{156}{}{gntlwin1:20, gntlwind:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
+{210}{}{Klamath Toxic Caves}
+{215}{}{13carvrn}
+{216}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{218}{}{Старая дорога}
 
-# Map 15, base 160
-{160}{}{Vault City Courtyard}
-{165}{}{22vcity}
-{166}{}{blank:40, brdchirp:25, brdchir1:25, potspans:5, potspan1:5}
-# Map 16, base 170
-{170}{}{Vault City Downtown}
-{175}{}{22vcity}
-{176}{}{blank:40, brdchirp:25, brdchir1:25, potspans:5, potspan1:5}
-
-# Map 18, base 190
-{190}{}{Modoc Large}
-{195}{}{18modoc}
-{196}{}{brdchir1:25, brdchirp:25, chimes:15, chimes1:15, dogbark:10, dogbark1:10}
-
-# Map 20, base 210
-{210}{}{Vault City Vault Level 1}
-{215}{}{22vcity}
-{216}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 21, base 220
-{220}{}{Vault City Vault Level 2}
-{225}{}{22vcity}
-{226}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 22, base 230
-{230}{}{Vault City Vault Level 3}
-{235}{}{22vcity}
-{236}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-
-# Map 24, base 250
-{250}{}{Barter ground}
-{255}{}{01hub}
-{256}{}{gntlwin1:25, gntlwind:25, gustwind:10, dogbark1:10, laughter:15, vulture:10}
-
-# Map 25, base 260
-{260}{}{Sierra Army Depot: The Battlefield}
-{265}{}{08vats}
-{266}{}{gntlwind:30, gntlwin1:30, gustwind:10, gustwin1:10, vulture:10, vulture1:10}
-# Map 26, base 270
-{270}{}{Sierra Army Depot: Powersub}
-{275}{}{08vats}
-{276}{}{gntlwind:30, gntlwin1:30, gustwind:10, gustwin1:10, vulture:10, vulture1:10}
-# Map 27, base 280
-{280}{}{Sierra Army Depot: Levels 1}
-{285}{}{08vats}
-{286}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 28, base 290
-{290}{}{Sierra Army Depot: Level 2}
-{295}{}{08vats}
-{296}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 29, base 300
-{300}{}{Sierra Army Depot: Level 3}
-{305}{}{08vats}
-{306}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 30, base 310
-{310}{}{Sierra Army Depot: Level 4}
-{315}{}{08vats}
-{316}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-
-# Map 31, base 320
-{320}{}{Gecko Settlement}
-{325}{}{12junktn}
-{326}{}{electri1:20, electric:20, gntlwind:20, gntlwin1:20, steam:20, steam1:20}
-# Map 32, base 330
-{330}{}{Gecko Power Plant}
-{335}{}{12junktn}
-{336}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 33, base 340
-{340}{}{Gecko Junkyard}
-{345}{}{12junktn}
-{346}{}{gntlwind:20, gntlwin1:20, winddoor:20, winddoo1:20, animal:20, animal1:20}
-
-# Map 34, base 350
-{350}{}{Vault 15 Enter}
-{355}{}{14necro}
-{356}{}{gntlwin1:25, gntlwind:25, dogbark:20, dogbark1:20, gustwind:5, gustwin1:5}
-# Map 35, base 360
-{360}{}{Vault 15 Door}
-{365}{}{14necro}
-{366}{}{animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-# Map 36, base 370
-{370}{}{Vault 15 Level 1}
-{375}{}{14necro}
-{376}{}{animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-# Map 37, base 380
-{380}{}{Vault 15 Level 2}
-{385}{}{14necro}
-{386}{}{animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-# Map 38, base 390
-{390}{}{Vault 15 Level 3}
-{395}{}{14necro}
-{396}{}{animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-
-# Map 39, base 400
-{400}{}{Gecko Dungeon}
-{405}{}{12junktn}
-{406}{}{animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-
-# Map 42, base 430
-{430}{}{NCR: Downtown}
-{435}{}{01hub}
-{436}{}{gntlwin1:25, gntlwind:25, brdchir1:10, brdchirp:10, blank:30}
-# Map 43, base 440
-{440}{}{NCR: Council}
-{445}{}{01hub}
-{446}{}{gntlwin1:25, gntlwind:25, brdchir1:10, brdchirp:10, blank:30}
-# Map 44, base 450
-{450}{}{NCR: Westin Ranch}
-{455}{}{01hub}
-{456}{}{gntlwin1:25, gntlwind:25, brdchir1:10, brdchirp:10, blank:30}
-# Map 45, base 460
-{460}{}{NCR: Bazaar}
-{465}{}{01hub}
-{466}{}{gntlwin1:25, gntlwind:25, brdchir1:10, brdchirp:10, blank:30}
-
-# Map 48, base 490
-{490}{}{New Reno basement}
-{495}{}{19reno}
-{496}{}{water1:20, water:20, drunklaf:20, chemical:15, chemica1:15, steam:15, shots1:15, blank:30}
-
-# Map 49, base 500
-{500}{}{Military Base Entrance}
-{505}{}{07desert}
-{506}{}{gntlwin1:20, gntlwind:20, dogbark:20, dogbark:20, gustwin1:10, gustwind:10}
 # Map 50, base 510
-{510}{}{Military Base Level 1}
-{515}{}{mbase12}
-{516}{}{elevato1:25, elevator:25, electri1:15, electric:15, clank:10, clank1:10}
+{510}{}{Klamath Toxic Caves}
+{515}{}{13carvrn}
+{516}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{518}{}{Северо-Запад}
 # Map 51, base 520
-{520}{}{Military Base Level 2}
-{525}{}{mbase12}
-{526}{}{elevato1:25, elevator:25, electri1:15, electric:15, clank:10, clank1:10}
-# Map 52, base 530
-{530}{}{Military Base Level 3}
-{535}{}{mbase34}
-{536}{}{elevato1:25, elevator:25, electri1:15, electric:15, clank:10, clank1:10}
-# Map 53, base 540
-{540}{}{Military Base Level 4}
-{545}{}{mbase34}
-{546}{}{elevato1:25, elevator:25, electri1:15, electric:15, clank:10, clank1:10}
-
-# Map 54, base 550
-{550}{}{New Reno 1}
-{555}{}{19reno}
-{556}{}{drunkla1:20, drunklaf:20, laughter:15, laughte1:15, shots1:15, shots:10}
+{520}{}{Klamath Toxic Caves}
+{525}{}{13carvrn}
+{526}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{528}{}{Юго-Восток}
 # Map 55, base 560
-{560}{}{New Reno 2}
-{565}{}{19reno}
-{566}{}{drunkla1:20, drunklaf:20, laughter:15, laughte1:15, shots1:15, shots:10}
-# Map 56, base 570
-{570}{}{New Reno 3}
-{575}{}{19reno}
-{576}{}{drunkla1:20, drunklaf:20, laughter:15, laughte1:15, shots1:15, shots:10}
-# Map 57, base 580
-{580}{}{New Reno 4}
-{585}{}{19reno}
-{586}{}{drunkla1:20, drunklaf:20, laughter:15, laughte1:15, shots1:15, shots:10}
-# Map 58, base 590
-{590}{}{New Reno Chop Shop}
-{595}{}{19reno}
-{596}{}{clank:20, clank1:20, laughter:15, laughte1:15, shots1:15, shots:10}
-# Map 59, base 600
-{600}{}{New Reno Eldrige's basement}
-{605}{}{19reno}
-{606}{}{animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
+{560}{}{Klamath Toxic Caves}
+{565}{}{13carvrn}
+{566}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{568}{}{Станция}
 
-# Map 60, base 610
-{610}{}{Vault 13 outside}
-{615}{}{07desert}
-{616}{}{gustwind:20, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
-# Map 61, base 620
-{620}{}{Vault 13 carvern}
-{625}{}{08vats}
-{626}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
+#####SATTER####
 
-# Map 62, base 630
-{630}{}{Redding Downtown}
-{635}{}{24redd}
-{636}{}{saloon:25, saloon1:25, gustwind:10, laughter:20, footste1:10, footstep:10}
-# Map 63, base 640
-{640}{}{Redding Mine Entrance}
-{645}{}{24redd}
-{646}{}{animal1:20, animal:20, elevator:15, ore:15, mechpump:20, ore1:10}
-# Map 64, base 650
-{650}{}{Wanamingo Mine Entrance}
-{655}{}{24redd}
-{656}{}{animal1:20, animal:20, elevator:15, ore:15, mechpump:20, ore1:10}
+{610}{}{Satter 1 1}
+{615}{}{13carvrn}
+{616}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{618}{}{Руины: Северо-Запад}
 
-# Map 70, base 710
-{710}{}{Primal Tribe}
-{715}{}{primal.ogg}
-{716}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{640}{}{Satter 1 2}
+{645}{}{13carvrn}
+{646}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{648}{}{Дыра: Север}
 
-# Map 71, base 720
-{720}{}{Vault 13 level 1}
-{725}{}{08vats}
-{726}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 72, base 730
-{730}{}{Vault 13 level 2}
-{735}{}{08vats}
-{736}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 73, base 740
-{740}{}{Vault 13 level 3}
-{745}{}{08vats}
-{746}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 74, base 750
-{750}{}{Vault 13 back exit}
-{755}{}{07desert}
-{756}{}{gustwind:20, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
+{660}{}{Satter 1 3}
+{665}{}{13carvrn}
+{666}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{668}{}{Церковь: Север}
 
-# Map 75, base 760
-{760}{}{Cathedral: Enter}
-{765}{}{16follow}
-{766}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 76, base 770
-{770}{}{Cathedral: Main}
-{775}{}{16follow}
-{776}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 77, base 780
-{780}{}{Cathedral: Level1}
-{785}{}{16follow}
-{786}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 78, base 790
-{790}{}{Cathedral: Level2}
-{795}{}{16follow}
-{796}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 79, base 800
-{800}{}{Cathedral: Level3}
-{805}{}{16follow}
-{806}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
+{680}{}{Satter 1 4}
+{685}{}{13carvrn}
+{686}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{688}{}{Склады: Северо-Восток}
 
-# Map 81, base 820
-{820}{}{Klamath Rat Caves level 1}
+{700}{}{Satter 2 1}
+{705}{}{13carvrn}
+{706}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{708}{}{Руины: Запад}
+
+{720}{}{Satter 2 4}
+{725}{}{13carvrn}
+{726}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{728}{}{Руины: Восток}
+
+{740}{}{Satter 3 1}
+{745}{}{13carvrn}
+{746}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{748}{}{Склады: Восток}
+
+{760}{}{Satter 3 4}
+{765}{}{13carvrn}
+{766}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{768}{}{Руины: Восток}
+
+{780}{}{Satter 4 1}
+{785}{}{13carvrn}
+{786}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{788}{}{Пристанище: Юго-Запад}
+
+{800}{}{Satter 4 2}
+{805}{}{13carvrn}
+{806}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{808}{}{Руины: Юг}
+
+{820}{}{Satter 4 3}
 {825}{}{13carvrn}
-{826}{}{squeak:10, water:20, water1:20, animal:20, pebble:20, squeak1:10}
-# Map 82, base 830
-{830}{}{Klamath Rat Caves level 2}
-{835}{}{13carvrn}
-{836}{}{squeak:10, water:20, water1:20, animal:20, pebble:20, squeak1:10}
-# Map 83, base 840
-{840}{}{Klamath Rat Caves level 3}
+{826}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{828}{}{Парк: Юг}
+
+{840}{}{Satter 4 4}
 {845}{}{13carvrn}
-{846}{}{squeak:10, water:20, water1:20, animal:20, pebble:20, squeak1:10}
+{846}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{848}{}{Отель: Юго-Восток}
 
-# Map 84, base 850
-{850}{}{New Reno Desperado 1st floor}
-{855}{}{19reno}
-{856}{}{clank:20, clank1:20, laughter:15, laughte1:15, shots1:15, shots:10}
-# Map 85, base 860
-{860}{}{New Reno Desperado basement}
-{865}{}{19reno}
-{866}{}{clank:20, clank1:20, laughter:15, laughte1:15, shots1:15, shots:10}
-# Map 86, base 870
-{870}{}{New Reno Shark club 1st floor}
-{875}{}{19reno}
-{876}{}{clank:20, clank1:20, laughter:15, laughte1:15, shots1:15, shots:10}
-# Map 87, base 880
-{880}{}{New Reno Shark club 2nd floor }
-{885}{}{19reno}
-{886}{}{clank:20, clank1:20, blank:15, shots1:15, shots:10}
-# Map 88, base 890
-{890}{}{New Reno Hidden ring}
-{895}{}{19reno}
-{896}{}{clank:20, clank1:20, blank:15}
-# Map 89, base 900
-{900}{}{New Reno Salvatore's bar 1st floor}
-{905}{}{19reno}
-{906}{}{clank:20, clank1:20, blank:15, shots1:15}
+{890}{}{Satter center}
+{895}{}{13carvrn}
+{896}{}{puddle1:30, puddle:30, water:5, water1:5, pebble:5, pebble1:5}
+{898}{}{Станция}
 
-# Map 93, base 940
-{940}{}{Dappo lost caravan encounter}
-{945}{}{07desert}
-{946}{}{gustwind:20, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
 
-# Map 99, base 1000
-{1000}{}{Wanamingo carvern}
-{1005}{}{13carvrn}
-{1006}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 100, base 1010
-{1010}{}{Atoll}
-{1015}{}{07desert}
-{1016}{}{seawind1:25, seawind:25, waves1:10, seagull:15, seagull1:15, waves:10}
-
-# Map 101 base 1020
-{1020}{}{NCR siege camp}
-{1025}{}{05raider}
-{1026}{}{gntlwin1:25, gntlwind:25, gustwind:10, dogbark1:10, shots1:15, vulture:10}
-
-# Map 102 base 1030
-{1030}{}{NCR siege camp}
-{1035}{}{05raider}
-{1036}{}{gntlwin1:25, gntlwind:25, gustwind:10, dogbark1:10, shots1:15, vulture:10}
-
-# Map 103 base 1040
-{1040}{}{NCR siege camp}
-{1045}{}{05raider}
-{1046}{}{gntlwin1:25, gntlwind:25, gustwind:10, dogbark1:10, shots1:15, vulture:10}
-
-# Map 104 base 1050
-{1050}{}{NCR siege camp}
-{1055}{}{05raider}
-{1056}{}{gntlwin1:25, gntlwind:25, gustwind:10, dogbark1:10, shots1:15, vulture:10}
-
-# Map 105 base 1060
-{1060}{}{NCR siege camp}
-{1065}{}{05raider}
-{1066}{}{gntlwin1:25, gntlwind:25, gustwind:10, dogbark1:10, shots1:15, vulture:10}
-
-# Map 106 base 1070
-{1070}{}{NCR siege camp cave}
-{1075}{}{05raider}
-{1076}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 107 base 1080
-{1080}{}{Arroyo Raiders' camp 1.}
-{1085}{}{07desert}
-{1086}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 108 base 1090
-{1090}{}{Arroyo Raiders' camp 2.}
-{1095}{}{07desert}
-{1096}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 109, base 1100
-{1100}{}{Navarro Entrance}
-{1105}{}{14necro}
-{1106}{}{gntlwin1:25, gntlwind:25, gustwind:10, blank:40}
-# Map 110, base 1110
-{1110}{}{Navarro Base}
-{1115}{}{14necro}
-{1116}{}{gntlwin1:25, gntlwind:25, gustwind:10, blank:40}
-# Map 111, base 1120
-{1120}{}{Navarro Sub1}
-{1125}{}{14necro}
-{1126}{}{gntlwin1:25, gntlwind:25, gustwind:10, blank:40}
-# Map 112, base 1130
-{1130}{}{Navarro Sub2}
-{1135}{}{14necro}
-{1136}{}{gntlwin1:25, gntlwind:25, gustwind:10, blank:40}
-
-# Map 115, base 1160
-{1160}{}{Broken Hills}
-{1165}{}{08vats}
-{1166}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 116, base 1170
-{1170}{}{Broken Hills Basement}
-{1175}{}{08vats}
-{1176}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 117, base 1180
-{1180}{}{Broken Hills Mine}
-{1185}{}{08vats}
-{1186}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 118, base 1190
-{1190}{}{Broken Hills Dungeon}
-{1195}{}{08vats}
-{1196}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 119, base 1200
-{1200}{}{Broken Hills Far Caves}
-{1205}{}{08vats}
-{1206}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 120, base 1210
-{1210}{}{Broken Hills Far Far Caves}
-{1215}{}{08vats}
-{1216}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-
-# Map 135, base 1360
-{1360}{}{San Fran Tanker}
-{1365}{}{21sf}
-{1366}{}{seawind1:25, clang:10, waves1:15, clangl:15, waves:15, seawind:20}
-# Map 136, base 1370
-{1370}{}{San Fran Dock}
-{1375}{}{21sf}
-{1376}{}{seawind1:25, seawind:25, waves1:10, seagull:15, seagull1:15, waves:10}
-# Map 137, base 1380
-{1380}{}{San Fran China}
-{1385}{}{21sf}
-{1386}{}{seawind1:25, seawind:25, chimes1:15, chimes:15, blank:20}
-# Map 138, base 1390
-{1390}{}{Shuttle Outside}
-{1395}{}{21sf}
-{1396}{}{seawind1:25, seawind:25, blank:50}
-# Map 139, base 1400
-{1400}{}{Shi Temple}
-{1405}{}{21sf}
-{1406}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-
-# Map 142, base 1430
-{1430}{}{SF hubbology base}
-{1435}{}{14necro}
-{1436}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 143, base 1440
-{1440}{}{Tanker low level}
-{1445}{}{13carvrn}
-{1446}{}{blank:50, seawind1:25, clang:10, waves1:15, clangl:15, waves:15, seawind:20}
-# Map 144, base 1450
-{1450}{}{Tanker top level}
-{1455}{}{21sf}
-{1456}{}{seawind1:25, clang:10, waves1:15, clangl:15, waves:15, seawind:20}
-# Map 145, base 1460
-{1460}{}{Shi Emperor}
-{1465}{}{21sf}
-{1466}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 146, base 1470
-{1470}{}{SF brotherhood base}
-{1475}{}{16follow}
-{1476}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-
-# Map 150, base 1510
-{1510}{}{Robots Special Encounter}
-{1515}{}{07desert}
-# Map 151, base 1530
-{1520}{}{Toxic Special Encounter}
-{1525}{}{08vats}
-# Map 152, base 1530
-{1530}{}{Star Trek Shuttle Special Encounter}
-{1535}{}{07desert}
-# Map 153, base 1540
-{1540}{}{Bunker BoS Special Encounter}
-{1545}{}{07desert}
-# Map 154, base 1550
-{1550}{}{Truck Nuka-Cola Special Encounter}
-{1555}{}{07desert}
-# Map 155, base 1560
-{1560}{}{Guardian of Forever Special Encounter}
-{1565}{}{16follow}
-# Map 156, base 1570
-{1570}{}{Ufo Special Encounter}
-{1575}{}{07desert}
-# Map 157, base 1580
-{1580}{}{Cafe Special Encounter}
-{1585}{}{01hub}
-
-########ToDo: Fill the rest of special encs.################
-
-# Map 169 base 1700
-{1700}{}{Mad Scientist's Lab Special Encounter}
-{1705}{}{07desert}
-{1706}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 170 base 1710
-{1710}{}{Mad Scientist's Lab Special Encounter Bunker}
-{1715}{}{09glow}
-# Map 171, base 1720
-{1720}{}{Пристанище Детей Пустоши}
-{1725}{}{07desert}
-{1725}{}{05 - Anesthetic.ogg}
-{1725}{}{07 - Echelon.ogg}
-{1725}{}{11 - Face to Face.ogg}
-{1725}{}{13 - Killadrone.ogg}
-{1725}{}{17 - Trinity.ogg}
-{1726}{}{gustwind:20, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
-# Map 172, base 1730
-{1730}{}{База Рыцарей Пустоши. Наземный уровень}
-{1735}{}{07desert}
-# Map 173, base 1740
-{1740}{}{База Рыцарей Пустоши. Первый уровень}
-{1745}{}{07desert}
-# Map 174, base 1750
-{1750}{}{База Рыцарей Пустоши. Второй уровень}
-{1755}{}{07desert}
-# Map 175, base 1760
-{1760}{}{База Рыцарей Пустоши. Третий уровень}
-{1765}{}{07desert}
-
-# Map 190, base 1910
-{1910}{}{City Encounter 1}
-{1915}{}{10labone}
-{1915}{}{05 - Anesthetic.ogg}
-{1915}{}{07 - Echelon.ogg}
-{1915}{}{11 - Face to Face.ogg}
-{1915}{}{13 - Killadrone.ogg}
-{1915}{}{17 - Trinity.ogg}
-{1916}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 191, base 1920
-{1920}{}{City Encounter 2}
-{1925}{}{10labone}
-{1925}{}{05 - Anesthetic.ogg}
-{1925}{}{07 - Echelon.ogg}
-{1925}{}{11 - Face to Face.ogg}
-{1925}{}{13 - Killadrone.ogg}
-{1925}{}{17 - Trinity.ogg}
-{1926}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 192, base 1930
-{1930}{}{City Encounter 3}
-{1935}{}{10labone}
-{1935}{}{05 - Anesthetic.ogg}
-{1935}{}{07 - Echelon.ogg}
-{1935}{}{11 - Face to Face.ogg}
-{1935}{}{13 - Killadrone.ogg}
-{1935}{}{17 - Trinity.ogg}
-{1936}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 193, base 1940
-{1940}{}{City Encounter 4}
-{1945}{}{10labone}
-{1945}{}{05 - Anesthetic.ogg}
-{1945}{}{07 - Echelon.ogg}
-{1945}{}{11 - Face to Face.ogg}
-{1945}{}{13 - Killadrone.ogg}
-{1945}{}{17 - Trinity.ogg}
-{1946}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 194, base 1950
-{1950}{}{City Encounter 5}
-{1955}{}{10labone}
-{1955}{}{05 - Anesthetic.ogg}
-{1955}{}{07 - Echelon.ogg}
-{1955}{}{11 - Face to Face.ogg}
-{1955}{}{13 - Killadrone.ogg}
-{1955}{}{17 - Trinity.ogg}
-{1956}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 195, base 1960
-{1960}{}{City Encounter 5}
-{1965}{}{10labone}
-{1965}{}{05 - Anesthetic.ogg}
-{1965}{}{07 - Echelon.ogg}
-{1965}{}{11 - Face to Face.ogg}
-{1965}{}{13 - Killadrone.ogg}
-{1965}{}{17 - Trinity.ogg}
-{1966}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 196, base 1970
-{1970}{}{City Encounter 5}
-{1975}{}{10labone}
-{1975}{}{05 - Anesthetic.ogg}
-{1975}{}{07 - Echelon.ogg}
-{1975}{}{11 - Face to Face.ogg}
-{1975}{}{13 - Killadrone.ogg}
-{1975}{}{17 - Trinity.ogg}
-{1976}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 198, base 1980
-{1980}{}{City Encounter 5}
-{1985}{}{10labone}
-{1985}{}{05 - Anesthetic.ogg}
-{1985}{}{07 - Echelon.ogg}
-{1985}{}{11 - Face to Face.ogg}
-{1985}{}{13 - Killadrone.ogg}
-{1985}{}{17 - Trinity.ogg}
-{1986}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 201, base 2020
-{2020}{}{Raiders entrance}
-{2025}{}{05raider}
-{2026}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 202, base 2030
-{2030}{}{Raiders cave 1}
-{2035}{}{05raider}
-{2036}{}{squeak:10, water:20, water1:20, animal:20, pebble:20, squeak1:10}
-# Map 203, base 2040
-{2040}{}{Raiders cave 2}
-{2045}{}{05raider}
-{2046}{}{squeak:10, water:20, water1:20, animal:20, pebble:20, squeak1:10}
-# Map 204, base 2050
-{2050}{}{Raiders base}
-{2055}{}{05raider}
-{2056}{}{squeak:10, water:20, water1:20, animal:20, pebble:20, squeak1:10}
-# Map 205, base 2060
-{2060}{}{Raiders entrance 2}
-{2065}{}{05raider}
-{2066}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 210, base 2110
-{2110}{}{Replication Bank Den}
-{2115}{}{09 - D.S.Brudge.ogg}
-{2115}{}{10 - Dystopian Dream.ogg}
-{2115}{}{15 - Phagocyte Disaster.ogg}
-{2116}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2117}{}{NoLogOut}
-# Map 211, base 2120
-{2120}{}{Replication Bank Klamath}
-{2125}{}{09 - D.S.Brudge.ogg}
-{2125}{}{10 - Dystopian Dream.ogg}
-{2125}{}{15 - Phagocyte Disaster.ogg}
-{2126}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2127}{}{NoLogOut}
-# Map 212, base 2130
-{2130}{}{Replication Bank Redding}
-{2135}{}{09 - D.S.Brudge.ogg}
-{2135}{}{10 - Dystopian Dream.ogg}
-{2135}{}{15 - Phagocyte Disaster.ogg}
-{2136}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2137}{}{NoLogOut}
-# Map 213, base 2140
-{2140}{}{Replication Bank Modoc}
-{2145}{}{09 - D.S.Brudge.ogg}
-{2145}{}{10 - Dystopian Dream.ogg}
-{2145}{}{15 - Phagocyte Disaster.ogg}
-{2146}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2147}{}{NoLogOut}
-# Map 214, base 2150
-{2150}{}{Replication Bank NewReno}
-{2155}{}{09 - D.S.Brudge.ogg}
-{2155}{}{10 - Dystopian Dream.ogg}
-{2155}{}{15 - Phagocyte Disaster.ogg}
-{2156}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2157}{}{NoLogOut}
-# Map 215, base 2160
-{2160}{}{Replication Bank Gecko}
-{2165}{}{09 - D.S.Brudge.ogg}
-{2165}{}{10 - Dystopian Dream.ogg}
-{2165}{}{15 - Phagocyte Disaster.ogg}
-{2166}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2167}{}{NoLogOut}
-# Map 216, base 2170
-{2170}{}{Replication Bank BrokenHills}
-{2175}{}{09 - D.S.Brudge.ogg}
-{2175}{}{10 - Dystopian Dream.ogg}
-{2175}{}{15 - Phagocyte Disaster.ogg}
-{2176}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2177}{}{NoLogOut}
-
-# Map 217, base 2180
-{2180}{}{Replication Bank NCR}
-{2185}{}{09 - D.S.Brudge.ogg}
-{2185}{}{10 - Dystopian Dream.ogg}
-{2185}{}{15 - Phagocyte Disaster.ogg}
-{2186}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2187}{}{NoLogOut}
-# Map 218, base 2190
-{2190}{}{Replication Bank SF}
-{2195}{}{09 - D.S.Brudge.ogg}
-{2195}{}{10 - Dystopian Dream.ogg}
-{2195}{}{15 - Phagocyte Disaster.ogg}
-{2196}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2197}{}{NoLogOut}
-# Map 219, base 2200
-{2200}{}{Replication Bank VaultCity}
-{2205}{}{09 - D.S.Brudge.ogg}
-{2205}{}{10 - Dystopian Dream.ogg}
-{2205}{}{15 - Phagocyte Disaster.ogg}
-{2206}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-{2207}{}{NoLogOut}
-# Map 220, base 2210
-{2210}{}{Replication Ground}
-{2215}{}{07desert}
-{2216}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 221, base 2220
-{2220}{}{Replication 1}
-{2225}{}{16 - Stranglet.ogg}
-{2226}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 222, base 2230
-{2230}{}{Replication 2}
-{2235}{}{16 - Stranglet.ogg}
-{2236}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 223, base 2240
-{2240}{}{Replication 3}
-{2245}{}{16 - Stranglet.ogg}
-{2246}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 224, base 2250
-{2250}{}{Replication 4}
-{2255}{}{16 - Stranglet.ogg}
-{2256}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 225, base 2260
-{2260}{}{Hell}
-{2265}{}{02 - Into The Dust.ogg}
-{2265}{}{06 - Cluster Decay.ogg}
-{2266}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 226, base 2270
-{2270}{}{Hell Outside}
-{2275}{}{14necro}
-{2276}{}{gntlwin1:25, gntlwind:25, electri1:15, elevato1:15, blank:30}
-# Map 227, base 2280
-{2280}{}{Hell level 1}
-{2285}{}{02mstrlr}
-{2286}{}{steam:20, steam:15, pebble:15, drunklaf:20, laughter:15, water:20, blank:15}
-# Map 228, base 2290
-{2290}{}{Hell level 2}
-{2295}{}{13carvrn}
-{2296}{}{animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-# Map 229, base 2300
-{2300}{}{Hell level 3}
-{2305}{}{02mstrlr}
-{2306}{}{animal:20, steam:20, chemical:15, chemica1:15, steam:15, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-# Map 230, base 2310
-{2310}{}{Hell corridor}
-{2315}{}{14necro}
-{2316}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 231, base 2320
-{2320}{}{Hell Bunker}
-{2325}{}{08vats}
-{2326}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 232, base 2330
-{2330}{}{Hell Mines}
-{2335}{}{13carvrn}
-{2336}{}{clang:10, animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-# Map 233, base 2340
-{2340}{}{Hell FOrest}
-{2345}{}{14necro}
-{2346}{}{gustwind:20, clang:1, clang:1, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
-# Map 234, base 2350
-{2350}{}{Hell Pipbiy assembly}
-{2355}{}{06 - Cluster Decay.ogg}
-{2356}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-# Map 235, base 2360
-{2360}{}{Hell Bottom}
-{2365}{}{02mstrlr}
-{2366}{}{animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-# Map 236, base 2370
-{2370}{}{Hell Bottom}
-{2375}{}{02mstrlr}
-{2376}{}{animal:20, pebble:15, pebble1:15, water1:20, water:20, blank:15}
-
-# Map 240, base 2410
-{2410}{}{Warehouse}
-{2415}{}{06 - Cluster Decay.ogg}
-{2416}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-# Map 241, base 2420
-{2420}{}{Warehouse}
-{2425}{}{06 - Cluster Decay.ogg}
-{2426}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-# Map 242, base 2430
-{2430}{}{Warehouse}
-{2435}{}{06 - Cluster Decay.ogg}
-{2436}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-# Map 243, base 2440
-{2440}{}{Warehouse}
-{2445}{}{06 - Cluster Decay.ogg}
-{2446}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-# Map 244, base 2450
-{2450}{}{Warehouse}
-{2455}{}{06 - Cluster Decay.ogg}
-{2456}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-# Map 245, base 2460
-{2460}{}{Warehouse}
-{2465}{}{06 - Cluster Decay.ogg}
-{2466}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-# Map 246, base 2470
-{2470}{}{Warehouse}
-{2475}{}{06 - Cluster Decay.ogg}
-{2476}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-# Map 247, base 2480
-{2480}{}{Warehouse}
-{2485}{}{06 - Cluster Decay.ogg}
-{2486}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-
-# Map 250, base 2500
-{2510}{}{Sid and Nancy}
-{2515}{}{07desert}
-{2516}{}{gustwind:20, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
-
-# Map 252, base 2530
-{2530}{}{City, Build by GECK.}
-{2535}{}{22vcity}
-{2536}{}{blank:40, brdchirp:25, brdchir1:25, potspans:5, potspan1:5}
-
-# Map 253, base 2540
-{2540}{}{City, Build by GECK - warehouse.}
-{2545}{}{22vcity}
-{2546}{}{electri1:15, electric:15, elevator:20, elevato1:15, steam:20, steam:15}
-
-# Map 301, base 3020
-{3020}{}{Desert Encounter 1}
-{3025}{}{07desert}
-{3025}{}{05 - Anesthetic.ogg}
-{3025}{}{07 - Echelon.ogg}
-{3025}{}{11 - Face to Face.ogg}
-{3025}{}{13 - Killadrone.ogg}
-{3025}{}{17 - Trinity.ogg}
-{3026}{}{gustwind:20, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
-# Map 302, base 3030
-{3030}{}{Desert Encounter 2}
-{3035}{}{07desert}
-{3035}{}{05 - Anesthetic.ogg}
-{3035}{}{07 - Echelon.ogg}
-{3035}{}{11 - Face to Face.ogg}
-{3035}{}{13 - Killadrone.ogg}
-{3035}{}{17 - Trinity.ogg}
-{3036}{}{gustwind:20, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
-# Map 303, base 3040
-{3040}{}{Desert Encounter 3}
-{3045}{}{07desert}
-{3045}{}{05 - Anesthetic.ogg}
-{3045}{}{07 - Echelon.ogg}
-{3045}{}{11 - Face to Face.ogg}
-{3045}{}{13 - Killadrone.ogg}
-{3045}{}{17 - Trinity.ogg}
-{3046}{}{gustwind:20, gustwin1:20, rattle:15, rattle1:15, vulture:15, vulture1:15}
-# Map 304, base 3050
-{3050}{}{Desert Encounter 4}
-{3055}{}{07desert}
-{3055}{}{05 - Anesthetic.ogg}
-{3055}{}{07 - Echelon.ogg}
-{3055}{}{11 - Face to Face.ogg}
-{3055}{}{13 - Killadrone.ogg}
-{3055}{}{17 - Trinity.ogg}
-{3056}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 305, base 3060
-{3060}{}{Desert Encounter 5}
-{3065}{}{07desert}
-{3065}{}{05 - Anesthetic.ogg}
-{3065}{}{07 - Echelon.ogg}
-{3065}{}{11 - Face to Face.ogg}
-{3065}{}{13 - Killadrone.ogg}
-{3065}{}{17 - Trinity.ogg}
-{3066}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 306, base 3070
-{3070}{}{Desert Encounter 6}
-{3075}{}{07desert}
-{3075}{}{05 - Anesthetic.ogg}
-{3075}{}{07 - Echelon.ogg}
-{3075}{}{11 - Face to Face.ogg}
-{3075}{}{13 - Killadrone.ogg}
-{3075}{}{17 - Trinity.ogg}
-{3076}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 307, base 3080
-{3080}{}{Desert Encounter 7}
-{3085}{}{07desert}
-{3085}{}{05 - Anesthetic.ogg}
-{3085}{}{07 - Echelon.ogg}
-{3085}{}{11 - Face to Face.ogg}
-{3085}{}{13 - Killadrone.ogg}
-{3085}{}{17 - Trinity.ogg}
-{3086}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 308, base 3090
-{3090}{}{Desert Encounter 8}
-{3095}{}{07desert}
-{3095}{}{05 - Anesthetic.ogg}
-{3095}{}{07 - Echelon.ogg}
-{3095}{}{11 - Face to Face.ogg}
-{3095}{}{13 - Killadrone.ogg}
-{3095}{}{17 - Trinity.ogg}
-{3096}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 309, base 3100
-{3100}{}{Desert Encounter 9}
-{3105}{}{07desert}
-{3105}{}{05 - Anesthetic.ogg}
-{3105}{}{07 - Echelon.ogg}
-{3105}{}{11 - Face to Face.ogg}
-{3105}{}{13 - Killadrone.ogg}
-{3105}{}{17 - Trinity.ogg}
-{3106}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 310, base 3110
-{3110}{}{Desert Encounter 10}
-{3115}{}{07desert}
-{3115}{}{05 - Anesthetic.ogg}
-{3115}{}{07 - Echelon.ogg}
-{3115}{}{11 - Face to Face.ogg}
-{3115}{}{13 - Killadrone.ogg}
-{3115}{}{17 - Trinity.ogg}
-{3116}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 311, base 3120
-{3120}{}{Desert Encounter 11}
-{3125}{}{07desert}
-{3125}{}{05 - Anesthetic.ogg}
-{3125}{}{07 - Echelon.ogg}
-{3125}{}{11 - Face to Face.ogg}
-{3125}{}{13 - Killadrone.ogg}
-{3125}{}{17 - Trinity.ogg}
-{3126}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 312, base 3130
-{3130}{}{Desert Encounter 12}
-{3135}{}{07desert}
-{3135}{}{05 - Anesthetic.ogg}
-{3135}{}{07 - Echelon.ogg}
-{3135}{}{11 - Face to Face.ogg}
-{3135}{}{13 - Killadrone.ogg}
-{3135}{}{17 - Trinity.ogg}
-{3136}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 331, base 3320
-{3320}{}{Mountain Encounter 1}
-{3325}{}{07desert}
-{3325}{}{05 - Anesthetic.ogg}
-{3325}{}{07 - Echelon.ogg}
-{3325}{}{11 - Face to Face.ogg}
-{3325}{}{13 - Killadrone.ogg}
-{3325}{}{17 - Trinity.ogg}
-{3326}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 332, base 3330
-{3330}{}{Mountain Encounter 2}
-{3335}{}{07desert}
-{3335}{}{05 - Anesthetic.ogg}
-{3335}{}{07 - Echelon.ogg}
-{3335}{}{11 - Face to Face.ogg}
-{3335}{}{13 - Killadrone.ogg}
-{3335}{}{17 - Trinity.ogg}
-{3336}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 333, base 3340
-{3340}{}{Mountain Encounter 3}
-{3345}{}{07desert}
-{3345}{}{05 - Anesthetic.ogg}
-{3345}{}{07 - Echelon.ogg}
-{3345}{}{11 - Face to Face.ogg}
-{3345}{}{13 - Killadrone.ogg}
-{3345}{}{17 - Trinity.ogg}
-{3346}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 334, base 3350
-{3350}{}{Mountain Encounter 4}
-{3355}{}{07desert}
-{3355}{}{05 - Anesthetic.ogg}
-{3355}{}{07 - Echelon.ogg}
-{3355}{}{11 - Face to Face.ogg}
-{3355}{}{13 - Killadrone.ogg}
-{3355}{}{17 - Trinity.ogg}
-{3356}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 335, base 3360
-{3360}{}{Mountain Encounter 5}
-{3365}{}{07desert}
-{3365}{}{05 - Anesthetic.ogg}
-{3365}{}{07 - Echelon.ogg}
-{3365}{}{11 - Face to Face.ogg}
-{3365}{}{13 - Killadrone.ogg}
-{3365}{}{17 - Trinity.ogg}
-{3366}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 336, base 3370
-{3370}{}{Mountain Encounter 6}
-{3375}{}{07desert}
-{3375}{}{05 - Anesthetic.ogg}
-{3375}{}{07 - Echelon.ogg}
-{3375}{}{11 - Face to Face.ogg}
-{3375}{}{13 - Killadrone.ogg}
-{3375}{}{17 - Trinity.ogg}
-{3376}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 348, base 3490
-{3490}{}{Cave Enconter 0 Enter}
-{3495}{}{07desert}
-{3495}{}{05 - Anesthetic.ogg}
-{3495}{}{07 - Echelon.ogg}
-{3495}{}{11 - Face to Face.ogg}
-{3495}{}{13 - Killadrone.ogg}
-{3495}{}{17 - Trinity.ogg}
-{3496}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 349, base 3500
-{3500}{}{Cave Enconter 0 Indoor}
-{3505}{}{07desert}
-{3506}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 350, base 3510
-{3510}{}{Cave Enconter 1 Enter}
-{3515}{}{07desert}
-{3515}{}{05 - Anesthetic.ogg}
-{3515}{}{07 - Echelon.ogg}
-{3515}{}{11 - Face to Face.ogg}
-{3515}{}{13 - Killadrone.ogg}
-{3515}{}{17 - Trinity.ogg}
-{3516}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 351, base 3520
-{3520}{}{Cave Enconter 1 Indoor}
-{3525}{}{07desert}
-{3526}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 352, base 3530
-{3530}{}{Cave Enconter 2 Enter}
-{3535}{}{07desert}
-{3535}{}{05 - Anesthetic.ogg}
-{3535}{}{07 - Echelon.ogg}
-{3535}{}{11 - Face to Face.ogg}
-{3535}{}{13 - Killadrone.ogg}
-{3535}{}{17 - Trinity.ogg}
-{3536}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 353, base 3540
-{3540}{}{Cave Enconter 2 Indoor}
-{3545}{}{07desert}
-{3546}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 354, base 3550
-{3550}{}{Cave Enconter 3 Enter}
-{3555}{}{07desert}
-{3555}{}{05 - Anesthetic.ogg}
-{3555}{}{07 - Echelon.ogg}
-{3555}{}{11 - Face to Face.ogg}
-{3555}{}{13 - Killadrone.ogg}
-{3555}{}{17 - Trinity.ogg}
-{3556}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 355, base 3560
-{3560}{}{Cave Enconter 3 Indoor}
-{3565}{}{07desert}
-{3566}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 356, base 3570
-{3570}{}{Cave Enconter 4 Enter}
-{3575}{}{07desert}
-{3575}{}{05 - Anesthetic.ogg}
-{3575}{}{07 - Echelon.ogg}
-{3575}{}{11 - Face to Face.ogg}
-{3575}{}{13 - Killadrone.ogg}
-{3575}{}{17 - Trinity.ogg}
-{3576}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 357, base 3580
-{3580}{}{Cave Enconter 4 Indoor}
-{3585}{}{07desert}
-{3586}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 358, base 3590
-{3590}{}{Cave Enconter 5 Enter}
-{3595}{}{07desert}
-{3595}{}{05 - Anesthetic.ogg}
-{3595}{}{07 - Echelon.ogg}
-{3595}{}{11 - Face to Face.ogg}
-{3595}{}{13 - Killadrone.ogg}
-{3595}{}{17 - Trinity.ogg}
-{3596}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 359, base 3600
-{3600}{}{Cave Enconter 5 Indoor}
-{3605}{}{07desert}
-{3606}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 360, base 3610
-{3610}{}{Cave Enconter 5 Exit}
-{3615}{}{07desert}
-{3616}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 371 base 3720
-{3720}{}{Ocean Encounter 1}
-{3725}{}{07desert}
-{3726}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 372 base 3730
-{3730}{}{Ocean Encounter 2}
-{3735}{}{07desert}
-{3736}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 373 base 3740
-{3740}{}{Ocean Encounter 3}
-{3745}{}{07desert}
-{3746}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 374 base 3750
-{3750}{}{Ocean Encounter 4}
-{3755}{}{07desert}
-{3756}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 375 base 3760
-{3760}{}{Ocean Encounter 5}
-{3765}{}{07desert}
-{3766}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 381 base 3820
-{3820}{}{Shoreline Encounter 1}
-{3825}{}{07desert}
-{3825}{}{05 - Anesthetic.ogg}
-{3825}{}{07 - Echelon.ogg}
-{3825}{}{11 - Face to Face.ogg}
-{3825}{}{13 - Killadrone.ogg}
-{3825}{}{17 - Trinity.ogg}
-{3826}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 382 base 38320
-{3830}{}{Shoreline Encounter 2}
-{3835}{}{07desert}
-{3835}{}{05 - Anesthetic.ogg}
-{3835}{}{07 - Echelon.ogg}
-{3835}{}{11 - Face to Face.ogg}
-{3835}{}{13 - Killadrone.ogg}
-{3835}{}{17 - Trinity.ogg}
-{3836}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 383 base 3840
-{3840}{}{Shoreline Encounter 3}
-{3845}{}{07desert}
-{3845}{}{05 - Anesthetic.ogg}
-{3845}{}{07 - Echelon.ogg}
-{3845}{}{11 - Face to Face.ogg}
-{3845}{}{13 - Killadrone.ogg}
-{3845}{}{17 - Trinity.ogg}
-{3846}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 384 base 3850
-{3850}{}{Shoreline Encounter 4}
-{3855}{}{07desert}
-{3855}{}{05 - Anesthetic.ogg}
-{3855}{}{07 - Echelon.ogg}
-{3855}{}{11 - Face to Face.ogg}
-{3855}{}{13 - Killadrone.ogg}
-{3855}{}{17 - Trinity.ogg}
-{3856}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 385 base 3860
-{3860}{}{Shoreline Encounter 5}
-{3865}{}{07desert}
-{3865}{}{05 - Anesthetic.ogg}
-{3865}{}{07 - Echelon.ogg}
-{3865}{}{11 - Face to Face.ogg}
-{3865}{}{13 - Killadrone.ogg}
-{3865}{}{17 - Trinity.ogg}
-{3866}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 386 base 3870
-{3870}{}{Shoreline Encounter 6}
-{3875}{}{07desert}
-{3875}{}{05 - Anesthetic.ogg}
-{3875}{}{07 - Echelon.ogg}
-{3875}{}{11 - Face to Face.ogg}
-{3875}{}{13 - Killadrone.ogg}
-{3875}{}{17 - Trinity.ogg}
-{3876}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 387 base 3880
-{3880}{}{Shoreline Encounter 7}
-{3885}{}{07desert}
-{3885}{}{05 - Anesthetic.ogg}
-{3885}{}{07 - Echelon.ogg}
-{3885}{}{11 - Face to Face.ogg}
-{3885}{}{13 - Killadrone.ogg}
-{3885}{}{17 - Trinity.ogg}
-{3886}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 388 base 3890
-{3890}{}{Shoreline Encounter 8}
-{3895}{}{07desert}
-{3895}{}{05 - Anesthetic.ogg}
-{3895}{}{07 - Echelon.ogg}
-{3895}{}{11 - Face to Face.ogg}
-{3895}{}{13 - Killadrone.ogg}
-{3895}{}{17 - Trinity.ogg}
-{3896}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 389 base 3900
-{3900}{}{Shoreline Encounter 9}
-{3905}{}{07desert}
-{3905}{}{05 - Anesthetic.ogg}
-{3905}{}{07 - Echelon.ogg}
-{3905}{}{11 - Face to Face.ogg}
-{3905}{}{13 - Killadrone.ogg}
-{3905}{}{17 - Trinity.ogg}
-{3906}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 390 base 3910
-{3910}{}{Shoreline Encounter 10}
-{3915}{}{07desert}
-{3915}{}{05 - Anesthetic.ogg}
-{3915}{}{07 - Echelon.ogg}
-{3915}{}{11 - Face to Face.ogg}
-{3915}{}{13 - Killadrone.ogg}
-{3915}{}{17 - Trinity.ogg}
-{3916}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 391 base 3920
-{3920}{}{Shoreline Encounter 11}
-{3925}{}{07desert}
-{3925}{}{05 - Anesthetic.ogg}
-{3925}{}{07 - Echelon.ogg}
-{3925}{}{11 - Face to Face.ogg}
-{3925}{}{13 - Killadrone.ogg}
-{3925}{}{17 - Trinity.ogg}
-{3926}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 392, base 3930
-{3930}{}{Cave Enconter 4 Indoor}
-{3935}{}{07desert}
-{3936}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-
-# Map 400, base 4010
-{4010}{}{Церковь Атома Поверхность}
-{4015}{}{10labone}
-{4015}{}{05 - Anesthetic.ogg}
-{4015}{}{07 - Echelon.ogg}
-{4015}{}{11 - Face to Face.ogg}
-{4015}{}{13 - Killadrone.ogg}
-{4015}{}{17 - Trinity.ogg}
-{4016}{}{gntlwin1:25, gntlwind:25, gustwind:10, rattle:15, rattle1:15, vulture:10}
-# Map 401, base 4020
-{4020}{}{Церковь Атома Уровень 1}
-{4025}{}{08vats}
-{4026}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-# Map 402, base 4030
-{4030}{}{Церковь Атома Реактор}
-{4035}{}{16follow}
-{4036}{}{brdchir1:20, brdchirp:20, gntlwind:20, gntlwin1:20, gustwind:10, blank:10}
-
-# Map 405, base 4060
-{4060}{}{Church of Broc and Xander}
-{4065}{}{16follow}
-{4066}{}{gntlwind:20, gntlwin1:20, gustwind:20, blank:40}
-# Map 406, base 4070
-{4070}{}{Church of Broc and Xander Underground}
-{4075}{}{16follow}
-{4076}{}{blank:100}
 
 #
 # Global map

@@ -3,86 +3,10 @@
 
 #include "_macros.fos"
 
-#define PID_MOTEL_KEY	(823) //add to ITEM_PID.H
+#define PID_MOTEL_KEY	(823) 
+//add to ITEM_PID.H
 
-//***************************//
-//**********DOORS************//
-//***************************//
-#define DOOR_COUNT	(67)
-
-
-//all door from door.txt
-#define DOOR_0		(2002)
-#define DOOR_1		(2008)
-#define DOOR_2		(2018)
-#define DOOR_3		(2019)
-#define DOOR_4		(2022)
-#define DOOR_5		(2023)
-#define DOOR_6		(2077)
-#define DOOR_7		(2087)
-#define DOOR_8		(2088)
-#define DOOR_9		(2089)
-#define DOOR_10		(2142)
-#define DOOR_11		(2143)
-#define DOOR_12		(2144)
-#define DOOR_13		(2151)
-#define DOOR_14		(2152)
-#define DOOR_15		(2153)
-#define DOOR_16		(2154)
-#define DOOR_17		(2173)
-#define DOOR_18		(2195)
-#define DOOR_19		(2196)
-#define DOOR_20		(2258)
-#define DOOR_21		(2259)
-#define DOOR_22		(2260)
-#define DOOR_23		(2261)
-#define DOOR_24		(2332)
-#define DOOR_25		(2333)
-#define DOOR_26		(2346)
-#define DOOR_27		(2361)
-#define DOOR_28		(2362)
-#define DOOR_29		(2406)
-#define DOOR_30		(2421)
-#define DOOR_31		(2437)
-#define DOOR_32		(2438)
-#define DOOR_33		(2448)
-#define DOOR_34		(2470)
-#define DOOR_35		(2481)
-#define DOOR_36		(2482) 
-#define DOOR_37		(2486)	//new
-#define DOOR_38		(2581)
-#define DOOR_39		(2645)
-#define DOOR_40		(2825)
-#define DOOR_41		(2826)
-#define DOOR_42		(2848)
-#define DOOR_43		(2849)
-#define DOOR_44		(2850)
-#define DOOR_45		(2934)
-#define DOOR_46		(2954)
-#define DOOR_47		(2955)
-#define DOOR_48		(2956)
-#define DOOR_49		(2957)
-#define DOOR_50		(2958)
-#define DOOR_51		(2959)
-#define DOOR_52		(2960)
-#define DOOR_53		(2961)
-#define DOOR_54		(2962)
-#define DOOR_55		(2978)
-#define DOOR_56		(2981)
-#define DOOR_57		(2982)
-#define DOOR_58		(2983)
-#define DOOR_59		(2984)
-#define DOOR_60		(3169)
-#define DOOR_61		(3170)
-#define DOOR_62		(3358)
-#define DOOR_63		(3387)
-#define DOOR_64		(3388)
-#define DOOR_65		(3389)
-#define DOOR_66		(3390)
-#define DOOR_67		(3391)
-
-
-uint8 keyNumberLex = 0;
+//uint8 keyNumberLex = 0;
 
 void r_SaleRoom(Critter& master, Critter@slave, int val)
 {
@@ -90,6 +14,17 @@ void r_SaleRoom(Critter& master, Critter@slave, int val)
   {
     SaleRoomAction(master, slave, val);
   }
+}
+
+void r_GrowRenta(Critter& master, Critter@slave, int val)
+{
+  GrowRenta(master, slave, val);
+}
+
+bool d_HaveKey(Critter& master, Critter@ slave)
+{
+  if(_CritGetItemHand(master).GetProtoId() == PID_MOTEL_KEY) return true;
+  return false;
 }
 
 bool d_FreeRooms(Critter& master, Critter@ slave)
@@ -107,166 +42,132 @@ bool d_NoFreeRooms(Critter& master, Critter@ slave)
 int16 FreeRoomNumber(Critter@ npc, bool sale)
 {
   Map @ map = npc.GetMap();
-  if(!valid(map)) return -1;
+  if(map is null) return -1;
+  
+  uint8 entNum = npc.StatBase[ST_NPC_ROLE], entCount = map.CountEntire(entNum);
   uint16 hexX = 0, hexY = 0;
-  for (uint16 i = npc.StatBase[ST_NPC_ROLE]; i < npc.StatBase[ST_TEAM_ID]; i++)
+  
+  if(entCount > 0)
   {
-    if(map.GetEntireCoords(i, 0, hexX, hexY))
-    {
-      Item @ door = ValidDoor(map, hexX, hexY);
-      if(door.Val3 == 0)
-      {
-	keyNumberLex = i - npc.StatBase[ST_NPC_ROLE] + 1;
-	if(!sale)
+	for(uint8 i = 0; i <= entCount; ++i)
 	{
-	  return npc.StatBase[ST_NPC_ROLE] + i;
-	}
-	else
-	{
- 	return door.Id;
-	}
+		map.GetEntireCoords(entNum, i, hexX, hexY);
+		Item @ door = map.GetDoor(hexX, hexY);
+		
+		if(door !is null)
+		{
+			GameVar@ isStored = GetLocalVar(LIVAR_motel_isStored, door.Id);
+			if(isStored !is null && isStored.GetValue() == 0)
+			{
+			
+				npc.StatBase[ST_VAR7] = i + 1;
+				npc.StatBase[ST_VAR8] = door.Id;
+			
+				if(!sale)
+				{
+					return i;
+				}
+				else
+				{
+					return door.Id;
+				}
+			}
 	
-      }
-    }
+		}
+	}
   }
   return -1;
 }
 
-Item@ ValidDoor(Map& map, uint16 hexX, uint16 hexY) //search needed proto 4 door
+bool GrowRenta(Critter& player, Critter& npc, uint8 growValue)
 {
-  string doorNum;
-  int temp = 0;
-  for(uint8 i = 0; i < DOOR_COUNT; i++)
-  {
-    doorNum = "DOOR_"+i;
-    StrToInt(doorNum, temp);
-    Item@ door = map.GetItem(hexX, hexY, temp);
-    if(valid(door))
-    {
-//       door.LockerComplexity = DoorComplexity(i);
-      return door;
-    }
-  }
-  return null;
+	if(growValue >= 0)
+	{
+		Item @ key = _CritGetItemHand(player);
+		if(key !is null)
+		{
+			uint[] rates, indexes, durations;
+			uint8 countTimes = npc.GetTimeEvents(CTE_MOTEL_ROOM, indexes, durations, rates);
+			
+			if(rates.length() == countTimes && indexes.length() == countTimes && durations.length() == countTimes)
+			{
+				for(uint8 i = 0; i < countTimes; ++i)
+				{
+					uint keyId = (rates[i]>>16)&0xFFFF;
+		
+					if(keyId != key.Id) {continue;}
+				
+					npc.ChangeTimeEvent(indexes[i], durations[i]+growValue, rates[i]);
+					
+					player.Say(SAY_NETMSG, "Срок аренды номера продлен на "+growValue+" часов.");
+					return true;
+				
+				}
+			}
+		}
+	}
+	return false;
 }
+
+bool SaleRoomAction(Critter& player, Critter& npc, int val) //all action to sale room
+{
+  uint16 doorId = npc.StatBase[ST_VAR8];
+  uint16 keyNumber = Random(6666,9999);
+  if(doorId != uint(-1))
+  {
+	Item @ door = GetItem(doorId);
+	Item @ key  = player.AddItem(PID_MOTEL_KEY, 1);
+	
+	if(door !is null && key !is null)
+	{
+	
+		GameVar@ isStored = GetLocalVar(LIVAR_motel_isStored, door.Id);
+		if(isStored !is null)
+		{
+	
+			uint 	value = 0;
+				value |=door.Id;//{door.Id, key.Id, npc.Id};
+				value |=key.Id<<16;
+
+			isStored.opAssign(1);
+			door.LockerId = keyNumber;	//key number for open
+			SETFLAG(door.LockerCondition, LOCKER_LOCKED);    
+			key.LockerId = keyNumber;	//add key num to open door
+			key.SetLexems("$keyNumberLex"+npc.StatBase[ST_VAR7]);
+			key.Update();
     
-/*    
-uint16 DoorComplexity (uint8 doorNum ) //complexity for door locker //set complexity in mapper and uncomment line 144
-{
-  uint16[] comlpex =
-  { 
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100,
-    100
-  };
-  return comlpex[doorNum];
-}
-*/
-
-void SaleRoomAction(Critter& player, Critter& npc, int val) //all action to sale room
-{
-  uint16 id = FreeRoomNumber(npc, true);
-  uint16 keyNumber = Random(0,9999);
-  if(id != -1)
-  {
-    Item@ door = GetItem(id);
-    Item@ key  = player.AddItem(PID_MOTEL_KEY, 1);
-    uint[] values = {door.Id, key.Id, npc.Id};
-    door.Val3 = 1; 		//not for sale yet
-    door.LockerId = keyNumber;	//key number for open
-    door.Val4 = val;		//how long room  stored
-    door.LockerCondition = LOCKER_LOCKED;
-    key.LockerId = keyNumber;	//add key num to open door
-    key.SetLexems("$keyNumberLex"+keyNumberLex);
-    key.Update();
-    CloseDoor(door);
-    CreateTimeEvent(__FullSecond + (val * 60 * 60),"e_RoomRentaOver", values, true);
+			door.LockerClose();
+			npc.AddTimeEvent("cte_RoomRentaOver", val * 3600, CTE_MOTEL_ROOM, value);
+		
+			return true;
+		}
+	}
   }
+  return false;
 }
 
-void CloseDoor(Item& door)
+uint cte_RoomRentaOver(Critter& cr, int identifier, uint& value)
 {
-      //Map @ map = GetMap(door.MapId);
-      //map.CloseDoor(door);
-      door.LockerClose();
-      door.Update();
-}
+	uint16 	doorId = value&0xFFFF,
+		keyId = (value>>16)&0xFFFF;
 
-uint e_RoomRentaOver(uint[]@ values)
-{
-  Item @ door = GetItem(values[0]);
-  Item @ key = GetItem(values[1]);
-  if(door is null) return 0;
-  CloseDoor(door);
-  door.Val3 = 0;
-  door.LockerId = 0;
-  door.Val4 = 0;
-  door.LockerCondition = LOCKER_ISOPEN;
-  if(key is null) return 0;
-  key.LockerId  = 0;
-  return 0;
+	Item @ door = GetItem(doorId);
+	Item @ key  = GetItem(keyId);
+	     
+	if(door !is null && key !is null)
+	{
+	
+		door.LockerClose();
+	
+		GameVar@ isStored = GetLocalVar(LIVAR_motel_isStored, door.Id);
+		if(isStored !is null)
+		{
+			isStored.opAssign(0);	
+		}
+		
+		door.LockerId = 0;
+		UNSETFLAG(door.LockerCondition, LOCKER_LOCKED);
+		//key.LockerId = 0;
+	}
+	return 0;
 }

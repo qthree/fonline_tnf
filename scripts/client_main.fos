@@ -78,6 +78,7 @@ import void SetHivePos(int16 x, int16 y, int16 realX, int16 realY, int16 type, u
 //#pm menu
 
 uint prevId = 0; //нужен для определения, когда загружать сохраненные имена
+Sprite[] arrow;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on client loaded or new client_main.fos script received.
@@ -131,8 +132,20 @@ bool start()
 	InitScreenDoc();
 	InitFirstAidScreen();
 	InitOptMenuScreen();
+	
+	ExpBarSetPos();
+	
 	//InitHistoryViewScreen();
 	//InitHistoryAllScreen();
+	arrow.resize(8);
+	arrow[0].Load("arrow0.png", int(PT_ART_INTRFACE));
+	arrow[1].Load("arrow1.png", int(PT_ART_INTRFACE));
+	arrow[2].Load("arrow2.png", int(PT_ART_INTRFACE));
+	arrow[3].Load("arrow3.png", int(PT_ART_INTRFACE));
+	arrow[4].Load("arrow4.png", int(PT_ART_INTRFACE));
+	arrow[5].Load("arrow5.png", int(PT_ART_INTRFACE));
+	arrow[6].Load("arrow6.png", int(PT_ART_INTRFACE));
+	arrow[7].Load("arrow7.png", int(PT_ART_INTRFACE));
 	//#pm menu
 	
 #ifdef PLAYERS_3D
@@ -286,13 +299,55 @@ void _dr(int param0, int param1, int param2, string@ param3, int[]@ param4) //dr
 	}
 }
 
+uint8 localMapPid = 0;
+
 void render_iface(uint layer)
 {
 	if(layer==3)
  	{
 		DrawChosenTabs();
 		GUI_Render();
-
+		
+		if(!__GmapActive)DrawExpBar();
+		
+		if(GetCurrentCursor()==CURSOR_MOVE) //pm map arrows
+		{
+			ItemCl @ item = GetMonitorItem(__MouseX,__MouseY);
+			if(item !is null)
+			{
+			 
+				if(item.GetProtoId() == EXIT_GRID_PID)
+				{
+					//Message(""+item.Val7+" "+item.Val8+" "+item.Val9+" "+item.Val1+" "+item.Val0);
+					uint8 value = item.Val1;
+					int x = 0, y = 0;
+					switch(value)
+					{
+						  case 0: x = -100; y = -80; break;
+						  case 1: x = -120; y = -110; break;
+						  case 2: x = -120; y = -120; break;
+						  case 3: x = -120; y = -100; break;
+						  case 4: x = -90; y = -110; break;
+						  case 5: x = -100; y = -110; break;
+						  case 6: x = -60; y = -125; break;
+						  case 7: x = -120; y = -120; break;
+						  default: break;
+					}
+										
+					arrow[value].Draw(__MouseX+x,__MouseY+y);
+					
+					CritterCl @ choo = GetChosen();
+					localMapPid = choo.StatBase[ST_LOCALMAP_PID];
+					
+					if(value != choo.StatBase[ST_LOCALMAP_DIR]) RunServerScriptUnsafe("globalmap_group@unsafe_GetMapPid", item.Id, 0, 0, null, null);
+					
+					string mapName = GetMsgStr(TEXTMSG_GM, (localMapPid + 1) * 10 + 8);
+					DrawText(localMapPid != 0 ? mapName : "Пустошь", __MouseX-(localMapPid != 0 ? mapName.length() * 7 : 45), __MouseY+20, 300 , 10, localMapPid != 0 ? COLOR_LGREEN : COLOR_RED, FONT_BIG, 0);
+					//Message(""+GetChosen().StatBase[ST_LOCALMAP_PID]);
+				}
+			}
+		
+		}
 		//binyan - Hex attack
 		if(__IsHexAttack)
 		{
@@ -731,16 +786,37 @@ void item_map_out(ItemCl& item)
 // Called on something critter in/out chosen inventory.
 void item_inv_in(ItemCl& item)
 {
+	Message("in");
+	CritterCl @ choo = GetChosen();
+	if(choo is null) return;
+	if(!item.IsCanUseByIndefine(choo))
+	{
+		item.SetInvPic(GetIndefineSpriteHash(item, choo));
+	}
 }
 
 void item_inv_out(ItemCl& item)
 {
+	Message("out");
+	CritterCl @ choo = GetChosen();
+	if(choo is null) return;
+	if(!item.IsCanUseByIndefine(choo))
+	{
+		item.SetInvPic(GetIndefineSpriteHash(item, choo));
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Called on player drag&drop some item.
 void item_drop(ItemCl& item)
 {
+	Message("drag");
+	CritterCl @ choo = GetChosen();
+	if(choo is null) return;
+	if(!item.IsCanUseByIndefine(choo))
+	{
+		item.SetInvPic(GetIndefineSpriteHash(item, choo));
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1738,6 +1814,12 @@ string item_description(ItemCl& item, int lookType)
 		if(lookType!=ITEM_LOOK_MAP)
 		{
 			uint16 pid = item.GetProtoId();
+			
+			CritterCl @ choo = GetChosen();
+			if(choo is null) return "";
+			
+			if(item.GetIndefineValue() < choo.Param[item.GetIndefineStat()])
+			{
 			if(pid<PID_FISH_SMALLEST || pid>PID_FISH_BIGGEST)
 			{
 				// Weight
@@ -1789,6 +1871,10 @@ string item_description(ItemCl& item, int lookType)
 			// Key id
 			if(item.GetType()==ITEM_KEY)
 				result += "\n"+ReplaceText(GetMsgStr(TEXTMSG_GAME, STR_INV_KEY_NUMBER), "KEY_ID", item.LockerId);
+			}else
+			{
+				result = "\nМусор.";
+			}
 		}
 	}
 
@@ -2280,7 +2366,7 @@ uint item_cost(ItemCl& item, CritterCl& chosen, CritterCl& npc, bool sell)
 	uint16 pid = item.GetProtoId();
 	uint8 itemType = item.GetType();
 	//ProtoItem @ proto = GetProtoItem(pid);
-	uint cost = GetProtoItem(pid).Cost;
+	uint cost = item.Proto.Cost;
 	
 	if(pid == PID_BOTTLE_CAPS || pid == PID_REAL_BOTTLE_CAPS) return 1;
 	
@@ -2323,7 +2409,11 @@ uint item_cost(ItemCl& item, CritterCl& chosen, CritterCl& npc, bool sell)
 	
 	cost = CLAMP(cost, 1, cost);
 	
-	return sell ? (cost * 0.15 > 1 ? cost * 0.15 : 1)  : cost;
+	//return sell ? (cost * 0.15 > 1 ? cost * 0.15 : 1)  : cost;
+	uint16 	costSell = uint((cost * 0.15) / (!item.IsCanUseByIndefine(chosen) ? 5 : 1)),
+		costBuy	= cost;
+
+	return sell ? costSell : costBuy;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3043,8 +3133,11 @@ void items_collection(int collection, ItemCl@[]& items)
 				case 6 : if(items[i].GetType()!=ITEM_KEY) @items[i]=null; break;
 				default : break;
 			}
+			//if(!items[i].IsCanUseByIndefine(choo)) @items[i] = null;
 		}
 	}
+	
+	ShowItemByIndefineValue(items);
 }
 
 void _sinf(int param0, int param1, int param2, string@ param3, int[]@ param4)
@@ -3077,4 +3170,186 @@ void _waiting(int param0, int param1, int param2, string@ param3, int[]@ param4)
 	ChangeCursor((__waiting)?CURSOR_WAIT:CURSOR_DEFAULT);
 }
 
+void ShowItemByIndefineValue(ItemCl@[]@ items)
+{
+	CritterCl @ choo = GetChosen();
+	if(choo is null) return;
+	
+	for(uint16 i = 0, len = items.length(); i < len; ++i)
+	{
+		if(items[i] is null) continue;
+		
+		ItemCl @ item = items[i];
+			
+		//Message("pid "+item.GetProtoId()+" id "+item.Id+" val "+item.GetIndefineValue());
+		
+		uint hash = GetIndefineSpriteHash(item, choo);
+		if(hash != 0)	item.SetInvPic(hash);
+		
+		
+	}
+	
+}
+
+uint GetIndefineSpriteHash(ItemCl& item, CritterCl& cr)
+{
+	if(!item.IsCanUseByIndefine(cr))
+	{
+		uint16 	stat = item.GetIndefineStat(),
+			value = item.GetIndefineValue();
+		string spriteName = "art\\inven\\pump2.frm";
+	
+		if(cr.Param[stat] - (value * 0.5) >= value)
+		{
+			switch(stat)
+			{
+				case SK_SMALL_GUNS : spriteName = "art\\inven\\hrifle.frm"; break;
+				case SK_MELEE_WEAPONS : spriteName = "art\\inven\\oknife.frm"; break;
+				//case SK_BARTER : spri
+				default : break;
+			}
+		}
+		return GetStrHash(spriteName);
+	}
+return 0;
+}
+
 #include "client_zomb.fos"
+
+#define EXPBAR_POS_X			(expbarPosX)
+#define EXPBAR_POS_Y			(expbarPosY)
+#define EXPBAR_LINE_END			(expbarLineEnd)
+
+Sprite 	expbar,
+	expbar_;
+
+uint16 expbarPosX = 0, expbarPosY = 0, expbarLineEnd = 0;
+
+void ExpBarSetPos()
+{
+	GetIfaceIniPos("ExpBar", expbarPosX, expbarPosY, expbarLineEnd);
+	
+	expbar.Load("bar1.png", int(PT_ART_INTRFACE));
+ 	expbar_.Load("bar1_e.png", int(PT_ART_INTRFACE));
+}
+		
+void DrawExpBar()
+{
+	int[] drawData;
+	
+	CritterCl @ choo = GetChosen();
+	if(choo is null) return;
+	
+	uint8 	level = choo.StatBase[ST_LEVEL];
+	uint 	levelExp = NUMERICAL_NUMBER(level-1)*1000;
+	
+	uint16 	exp = choo.StatBase[ST_EXPERIENCE] - levelExp,
+		toLevelExp = NUMERICAL_NUMBER(level)*1000 - levelExp;  
+	
+	float expMod = exp * 100 / (toLevelExp > 100 ? toLevelExp : 100);
+	
+	uint16 time = choo.StatBase[ST_EXPERIENCE_MULTIPLIER_TIME];
+	uint8 allTime = (time)&0xFF,
+	      elapsedTime = (time>>8)&0xFF;
+	      
+	float timeMod = elapsedTime * 100 / (allTime > 0 ? allTime : 1);
+	
+	uint16 	r0 = 0x15,
+		g0 = 0x1F,
+		b0 = 0x00,
+		
+		r1 = 0x67,
+		g1 = 0x60,
+		b1 = 0x00;
+/*
+	switch(choo.StatBase[ST_EXPERIENCE_MULTIPLIER])
+	{
+		case 2: r0 = 0x14;
+			g0 = 0x1F;
+			b0 = 0x00;
+			
+			r1 = 0x35;
+			g1 = 0x39;
+			b1 = 0x00;
+			break;
+		case 3: r0 = 0x8F;
+			g0 = 0x6F;
+			b0 = 0x0;
+			break;
+		case 4: r0 = 0x0;
+			g0 = 0x0;
+			b0 = 0xC8;
+			break;
+		case 5: r0 = 0xC8;
+			g0 = 0x0;
+			b0 = 0x0;
+			break;
+		default:break;
+	}*/
+	       
+/*
+	for(uint16 i = 0; i < EXPBAR_LINE_HEIGH; ++i)
+	{
+		//uint8 k = i;
+		
+		uint16 tempY = EXPBAR_POS_Y - ((EXPBAR_POS_Y - EXPBAR_LINE_END) * (allTime > 0 ? timeMod * 0.01 :  expMod * 0.01));
+		
+		drawData.insertLast(982+i);
+		drawData.insertLast(EXPBAR_LINE_START);
+		drawData.insertLast(COLOR_RGB(r,g,b));
+		
+		drawData.insertLast(982+i);
+		drawData.insertLast(tempY);
+		drawData.insertLast(COLOR_RGB(r,g,b));
+		
+		
+	}
+*/
+
+	uint16 tempY = ((EXPBAR_POS_Y - EXPBAR_LINE_END) * (allTime > 0 ? timeMod * 0.01 :  expMod * 0.01));
+	
+	for(uint16 i = 0; i < tempY; ++i)
+	{
+		i+=3;
+		
+		drawData.insertLast(EXPBAR_POS_X);
+		drawData.insertLast(EXPBAR_POS_Y-i);
+		drawData.insertLast(COLOR_RGB(r0,g0,b0));
+		
+		drawData.insertLast(EXPBAR_POS_X+5);
+		drawData.insertLast(EXPBAR_POS_Y-i);
+		drawData.insertLast(COLOR_RGB(r1,g1,b1));
+		
+		drawData.insertLast(EXPBAR_POS_X+5);
+		drawData.insertLast(EXPBAR_POS_Y-i);
+		drawData.insertLast(COLOR_RGB(r1,g1,b1));
+		
+		drawData.insertLast(EXPBAR_POS_X+8);
+		drawData.insertLast(EXPBAR_POS_Y-i);
+		drawData.insertLast(COLOR_RGB(r0,g0,b0));
+	
+		
+	}
+		
+	DrawSprite(expbar.Id, -1, EXPBAR_POS_X-42, EXPBAR_POS_Y-210, 0);
+	DrawPrimitive(DRAW_PRIMITIVE_LINELIST, drawData);
+	DrawSprite(expbar_.Id, -1, EXPBAR_POS_X-42, EXPBAR_POS_Y-210, 0);
+	DrawText("0"+choo.StatBase[ST_EXPERIENCE_MULTIPLIER], EXPBAR_POS_X-20, EXPBAR_POS_Y+30, 70 , 10, COLOR_RGB(r1,g1,b1), FONT_NUM, 0);
+}
+
+void GetIfaceIniPos(string iniKey, uint16& posX, uint16& posY, uint16& lineEnd)
+{
+	string@ str=GetIfaceIniStr(iniKey);
+	if(@str==null || str=="") return;
+
+	string@[]@ valuesStr=splitEx(str," ");
+	if(valuesStr.length()!=3) return;
+
+	int[] values(3);
+	for(int i=0;i<3;i++)
+	if(not StrToInt(valuesStr[i],values[i])) return;
+
+	posX=values[0];
+	posY=values[1];
+	lineEnd=values[2];
+}

@@ -1732,6 +1732,23 @@ Material=1
 Container.ContVolume=200
 
 [Proto]
+Pid=888
+Type=8
+PicMapName=art\items\bpack2.frm
+PicInvName=art\inven\healpwdr.frm
+Script=item
+Func=_KeyBunchInit
+Flags=150994974
+DisableEgg=1
+SoundId=48
+Material=1
+Weight=30
+Volume=1
+SoundId=65
+Material=1
+Container.ContVolume=200
+
+[Proto]
 Pid=1899
 Type=8
 PicMapName=art\items\jukebox.fofrm

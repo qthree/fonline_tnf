@@ -620,7 +620,9 @@ struct ProtoItem
 	// User data, binded with 'bindfield' pragma
 	// Common
 	int    MagicPower;
-	uint8  Unused[96];
+	uint16 IndefineValue;
+	uint16 IndefineStat;
+	uint8  Unused[92]; //pm edit
 	// Armor, offset 100
 	uint   Armor_CrTypeMale;
 	uint   Armor_CrTypeFemale;
@@ -928,6 +930,10 @@ struct Item
 	int16 RefCounter;
 	bool  IsNotValid;
 
+	uint8 Durability; //pm added
+	uint16 IndefineValue;
+
+
 #ifdef __SERVER
 	int      FuncId[ITEM_EVENT_MAX];
 	Critter* ViewByCritter;
@@ -1049,6 +1055,10 @@ struct Item
 	// Trap
 	bool   IsTrap()       {return FLAG(Data.Flags, ITEM_TRAP);}
 	int    TrapGetValue() {return Data.TrapValue;}
+
+	//durability pm added
+	uint8 GetDurability()		{return Durability;}
+	void SetDurability(uint8 durability) {Durability = durability; return;}
 };
 
 struct GlobalMapGroup
