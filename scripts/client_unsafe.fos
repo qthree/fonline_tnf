@@ -41,43 +41,476 @@ void unsafe_contmenu_callback(Critter& player, int id, int screenId, int actionI
 	
 }
 
-void unsafe_doc(Critter& cr, int damage, int targetId, int p2, string@ message, int[]@ p4)
+#define BT_BRAHMIN	(15)
+#define BT_DOG		(16)
+#define BT_RAT_GRIZLY	(19)
+#define BT_SCORP	(22)
+#define BT_FLOATER	(23)
+#define BT_RAT		(24)
+#define BT_CENTAUR	(25)
+#define BT_CLAW		(51)
+#define BT_MANTIS	(52)
+#define BT_RAT_PIG	(55)
+#define BT_SCORP_SMALL	(59)
+#define BT_CLAW_SMALL	(60)
+#define BT_GECKO_SILVER	(67)
+#define BT_GECKO_GOLD	(68)
+#define BT_RAT_KING	(76)
+#define BT_ALIEN	(80)
+#define BT_GECKO_FIRE	(81)
+#define BT_ALIEN_QUEEN	(86)
+#define BT_GIGANT_ANT	(97)
+#define BT_CLAW_KING	(100)
+
+void unsafe_set_arcade_stat(Critter& cr, int locX, int locY, int type, string@ message, int[]@ p4) //if p1 > 0 | skill == exp to player
 {
-	Critter @ target = GetCritter(targetId);
-	if(@target == null) return;
-	uint[] rates;
-	uint8 countTimes = target.GetTimeEvents(CTE_HEAL, null, null, rates);
-	if(countTimes > 0)
+	string animIndex = "";
+	//cr.Say(SAY_NETMSG, ""+type);
+	switch(type)
 	{
-		for(uint8 i = 0; i < countTimes; i++)
-		{
-			if(rates[i] == damage)
-			{
-				target.Say(SAY_NETMSG, "Эта часть тела уже лечится.");
-				return;
-			}
-		}
+		case BT_RAT : 
+				cr.ParamBase[ST_STRENGTH] = 2;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 2;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 4;
+				cr.ParamBase[ST_LUCK] = 1;
+				cr.ParamBase[ST_MAX_LIFE] = 0;
+				cr.ParamBase[ST_ACTION_POINTS] = 5;
+				cr.ParamBase[ST_ARMOR_CLASS] = 40;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 3;
+				cr.ParamBase[ST_HEALING_RATE] = 20;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 1;
+				
+				cr.ParamBase[SK_UNARMED] = 100;
+				cr.ParamBase[SK_SNEAK] = 200;
+				
+				animIndex = "masrat";
+		  break;
+		  
+		  case BT_MANTIS : 
+				cr.ParamBase[ST_STRENGTH] = 2;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 2;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 4;
+				cr.ParamBase[ST_LUCK] = 1;
+				cr.ParamBase[ST_MAX_LIFE] = 0;
+				cr.ParamBase[ST_ACTION_POINTS] = 4;
+				cr.ParamBase[ST_ARMOR_CLASS] = 40;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 5;
+				cr.ParamBase[ST_HEALING_RATE] = 10;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 1;
+				
+				cr.ParamBase[SK_UNARMED] = 150;
+				cr.ParamBase[SK_SNEAK] = 150;
+				
+				animIndex = "mamant";
+		  break;
+		  
+		  case BT_GIGANT_ANT : 
+				cr.ParamBase[ST_STRENGTH] = 3;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 3;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 5;
+				cr.ParamBase[ST_LUCK] = 1;
+				cr.ParamBase[ST_MAX_LIFE] = 20;
+				cr.ParamBase[ST_ACTION_POINTS] = 6;
+				cr.ParamBase[ST_ARMOR_CLASS] = 30;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 7;
+				cr.ParamBase[ST_HEALING_RATE] = 10;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 170;
+				cr.ParamBase[SK_SNEAK] = 130;
+				
+				animIndex = "maantt";
+		  break;
+		  
+		  case BT_RAT_PIG : 
+				cr.ParamBase[ST_STRENGTH] = 4;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 4;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 5;
+				cr.ParamBase[ST_LUCK] = 1;
+				cr.ParamBase[ST_MAX_LIFE] = 35;
+				cr.ParamBase[ST_ACTION_POINTS] = 6;
+				cr.ParamBase[ST_ARMOR_CLASS] = 30;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 10;
+				cr.ParamBase[ST_HEALING_RATE] = 6;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 180;
+				cr.ParamBase[SK_SNEAK] = 110;
+				
+				animIndex = "mamurt";
+		  break;
+		
+		  case BT_GECKO_SILVER : 
+				cr.ParamBase[ST_STRENGTH] = 4;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 4;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 5;
+				cr.ParamBase[ST_LUCK] = 1;
+				cr.ParamBase[ST_MAX_LIFE] = 35;
+				cr.ParamBase[ST_ACTION_POINTS] = 6;
+				cr.ParamBase[ST_ARMOR_CLASS] = 20;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 16;
+				cr.ParamBase[ST_HEALING_RATE] = 4;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 150;
+				cr.ParamBase[SK_SNEAK] = 70;
+				
+				animIndex = "magko2";
+		  break;
+		  
+		  case BT_DOG : 
+				cr.ParamBase[ST_STRENGTH] = 5;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 5;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 5;
+				cr.ParamBase[ST_LUCK] = 1;
+				cr.ParamBase[ST_MAX_LIFE] = 35;
+				cr.ParamBase[ST_ACTION_POINTS] = 7;
+				cr.ParamBase[ST_ARMOR_CLASS] = 25;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 7;
+				cr.ParamBase[ST_HEALING_RATE] = 6;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 180;
+				cr.ParamBase[SK_SNEAK] = 110;
+				
+				animIndex = "maddog";
+		  break;
+		  
+		  case BT_GECKO_GOLD : 
+				cr.ParamBase[ST_STRENGTH] = 5;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 5;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 6;
+				cr.ParamBase[ST_LUCK] = 2;
+				cr.ParamBase[ST_MAX_LIFE] = 40;
+				cr.ParamBase[ST_ACTION_POINTS] = 6;
+				cr.ParamBase[ST_ARMOR_CLASS] = 25;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 16;
+				cr.ParamBase[ST_HEALING_RATE] = 5;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 180;
+				cr.ParamBase[SK_SNEAK] = 80;
+				
+				animIndex = "magcko";
+		  break;
+		  
+		  case BT_BRAHMIN : 
+				cr.ParamBase[ST_STRENGTH] = 5;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 5;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 6;
+				cr.ParamBase[ST_LUCK] = 2;
+				cr.ParamBase[ST_MAX_LIFE] = 70;
+				cr.ParamBase[ST_ACTION_POINTS] = 12;
+				cr.ParamBase[ST_ARMOR_CLASS] = 30;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 4;
+				cr.ParamBase[ST_HEALING_RATE] = 7;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 200;
+				cr.ParamBase[SK_SNEAK] = 40;
+				
+				animIndex = "mabrom";
+		  break;
+		  
+		  case BT_RAT_GRIZLY : 
+				cr.ParamBase[ST_STRENGTH] = 6;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 6;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 6;
+				cr.ParamBase[ST_LUCK] = 2;
+				cr.ParamBase[ST_MAX_LIFE] = 60;
+				cr.ParamBase[ST_ACTION_POINTS] = 7;
+				cr.ParamBase[ST_ARMOR_CLASS] = 25;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 16;
+				cr.ParamBase[ST_HEALING_RATE] = 5;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 180;
+				cr.ParamBase[SK_SNEAK] = 40;
+				
+				animIndex = "mamrat";
+		  break;
+		  
+		  case BT_RAT_KING : 
+				cr.ParamBase[ST_STRENGTH] = 6;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 6;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 6;
+				cr.ParamBase[ST_LUCK] = 2;
+				cr.ParamBase[ST_MAX_LIFE] = 80;
+				cr.ParamBase[ST_ACTION_POINTS] = 8;
+				cr.ParamBase[ST_ARMOR_CLASS] = 30;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 16;
+				cr.ParamBase[ST_HEALING_RATE] = 5;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 200;
+				cr.ParamBase[SK_SNEAK] = 40;
+				
+				animIndex = "mabran";
+		  break;
+		  
+		  case BT_SCORP_SMALL : 
+				cr.ParamBase[ST_STRENGTH] = 6;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 6;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 6;
+				cr.ParamBase[ST_LUCK] = 2;
+				cr.ParamBase[ST_MAX_LIFE] = 80;
+				cr.ParamBase[ST_ACTION_POINTS] = 8;
+				cr.ParamBase[ST_ARMOR_CLASS] = 30;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 12;
+				cr.ParamBase[ST_HEALING_RATE] = 5;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 200;
+				cr.ParamBase[SK_SNEAK] = 140;
+				
+				animIndex = "mascp2";
+		  break;
+		  
+		  case BT_SCORP : 
+				cr.ParamBase[ST_STRENGTH] = 7;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 7;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 6;
+				cr.ParamBase[ST_LUCK] = 2;
+				cr.ParamBase[ST_MAX_LIFE] = 100;
+				cr.ParamBase[ST_ACTION_POINTS] = 8;
+				cr.ParamBase[ST_ARMOR_CLASS] = 30;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 16;
+				cr.ParamBase[ST_HEALING_RATE] = 4;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 210;
+				cr.ParamBase[SK_SNEAK] = 80;
+				
+				animIndex = "mascrp";
+		  break;
+		  
+		  case BT_CLAW_SMALL : 
+				cr.ParamBase[ST_STRENGTH] = 7;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 7;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 6;
+				cr.ParamBase[ST_LUCK] = 3;
+				cr.ParamBase[ST_MAX_LIFE] = 80;
+				cr.ParamBase[ST_ACTION_POINTS] = 6;
+				cr.ParamBase[ST_ARMOR_CLASS] = 25;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 10;
+				cr.ParamBase[ST_HEALING_RATE] = 4;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 210;
+				cr.ParamBase[SK_SNEAK] = 140;
+				
+				animIndex = "maclw2";
+		  break;
+		  
+		  case BT_ALIEN : 
+				cr.ParamBase[ST_STRENGTH] = 7;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 7;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 7;
+				cr.ParamBase[ST_LUCK] = 3;
+				cr.ParamBase[ST_MAX_LIFE] = 120;
+				cr.ParamBase[ST_ACTION_POINTS] = 8;
+				cr.ParamBase[ST_ARMOR_CLASS] = 30;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 15;
+				cr.ParamBase[ST_HEALING_RATE] = 4;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 240;
+				cr.ParamBase[SK_SNEAK] = 80;
+				
+				animIndex = "malien";
+		  break;
+		  
+		  case BT_CENTAUR : 
+				cr.ParamBase[ST_STRENGTH] = 8;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 8;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 7;
+				cr.ParamBase[ST_LUCK] = 4;
+				cr.ParamBase[ST_MAX_LIFE] = 150;
+				cr.ParamBase[ST_ACTION_POINTS] = 8;
+				cr.ParamBase[ST_ARMOR_CLASS] = 30;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 15;
+				cr.ParamBase[ST_HEALING_RATE] = 3;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 240;
+				cr.ParamBase[SK_SNEAK] = 40;
+				
+				animIndex = "mathng";
+		  break;
+		  
+		  case BT_CLAW : 
+				cr.ParamBase[ST_STRENGTH] = 8;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 8;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 7;
+				cr.ParamBase[ST_LUCK] = 4;
+				cr.ParamBase[ST_MAX_LIFE] = 170;
+				cr.ParamBase[ST_ACTION_POINTS] = 6;
+				cr.ParamBase[ST_ARMOR_CLASS] = 25;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 13;
+				cr.ParamBase[ST_HEALING_RATE] = 3;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 240;
+				cr.ParamBase[SK_SNEAK] = 80;
+				
+				animIndex = "maclaw";
+		  break;
+		  
+		  case BT_FLOATER : 
+				cr.ParamBase[ST_STRENGTH] = 8;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 8;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 7;
+				cr.ParamBase[ST_LUCK] = 3;
+				cr.ParamBase[ST_MAX_LIFE] = 220;
+				cr.ParamBase[ST_ACTION_POINTS] = 8;
+				cr.ParamBase[ST_ARMOR_CLASS] = 20;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 15;
+				cr.ParamBase[ST_HEALING_RATE] = 2;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 3;
+				
+				cr.ParamBase[SK_UNARMED] = 250;
+				cr.ParamBase[SK_SNEAK] = 100;
+				
+				animIndex = "masphn";
+		  break;
+		  
+		  case BT_ALIEN_QUEEN : 
+				cr.ParamBase[ST_STRENGTH] = 9;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 9;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 7;
+				cr.ParamBase[ST_LUCK] = 3;
+				cr.ParamBase[ST_MAX_LIFE] = 200;
+				cr.ParamBase[ST_ACTION_POINTS] = 8;
+				cr.ParamBase[ST_ARMOR_CLASS] = 30;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 25;
+				cr.ParamBase[ST_HEALING_RATE] = 1;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 5;
+				
+				cr.ParamBase[SK_UNARMED] = 260;
+				cr.ParamBase[SK_SNEAK] = 120;
+				
+				animIndex = "maquen";
+		  break;
+		  
+		  case BT_CLAW_KING : 
+				cr.ParamBase[ST_STRENGTH] = 9;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 9;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 7;
+				cr.ParamBase[ST_LUCK] = 3;
+				cr.ParamBase[ST_MAX_LIFE] = 250;
+				cr.ParamBase[ST_ACTION_POINTS] = 6;
+				cr.ParamBase[ST_ARMOR_CLASS] = 20;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 15;
+				cr.ParamBase[ST_HEALING_RATE] = 1;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 5;
+				
+				cr.ParamBase[SK_UNARMED] = 240;
+				cr.ParamBase[SK_SNEAK] = 80;
+				
+				animIndex = "madeth";
+		  break;
+		  
+		  case BT_GECKO_FIRE : 
+				cr.ParamBase[ST_STRENGTH] = 9;
+				cr.ParamBase[ST_PERCEPTION] = 6;
+				cr.ParamBase[ST_ENDURANCE] = 9;
+				cr.ParamBase[ST_CHARISMA] = 1;
+				cr.ParamBase[ST_INTELLECT] = 1;
+				cr.ParamBase[ST_AGILITY] = 7;
+				cr.ParamBase[ST_LUCK] = 3;
+				cr.ParamBase[ST_MAX_LIFE] = 150;
+				cr.ParamBase[ST_ACTION_POINTS] = 6;
+				cr.ParamBase[ST_ARMOR_CLASS] = 15;
+				cr.ParamBase[ST_MELEE_DAMAGE] = 10;
+				cr.ParamBase[ST_HEALING_RATE] = 4;
+				cr.ParamBase[ST_CRITICAL_CHANCE] = 1;
+				
+				cr.ParamBase[SK_UNARMED] = 240;
+				cr.ParamBase[SK_SNEAK] = 100;
+				
+				animIndex = "mafire";
+		  default : animIndex = "hmjmps";
+		  break;
 	}
 	
-	if(target.DamageBase[damage] == 0) {cr.Say(SAY_NETMSG, "Эта часть тела не нуждается в лечении."); return;}
-	
-	uint docTime = 504 - cr.Skill[SK_DOCTOR] - (target.Stat[ST_ENDURANCE] * 5);
-	target.AddTimeEvent("cte_Doc", docTime*3600, CTE_DOC, damage);
-	cr.TimeoutBase[TO_SK_DOCTOR]=DOCTOR_TIMEOUT(cr);
-	cr.AddScore(SCORE_DOCTOR,1);
-	cr.Say(SAY_NETMSG, "Вы наложили швы.");
+	cr.ParamBase[ST_CURRENT_HP] = cr.ParamBase[ST_MAX_LIFE] * 0.1;
+	cr.ParamBase[PE_AWARENESS] = 0;
+	skin(cr, type);
+
+	cr.RunClientScript("client_screen_additional@SendAnimIndex", locX, locY, type, animIndex, null);
 }
 
-uint cte_Doc(Critter& cr, int identifier, uint& rate)
+import int GetCellMap(uint16 x, uint16 y) from "globalmap_group";
+
+void unsafe_set_arcade_start(Critter& cr, int x, int y, int p2, string@ message, int[]@ p4)
 {
-	cr.DamageBase[rate]=0;
-	cr.Say(SAY_NETMSG,"Вы чувствуете себя гораздо лучше.");
-	uint8 noMove = cr.DamageBase[DAMAGE_LEFT_LEG] > 0 && cr.DamageBase[DAMAGE_RIGHT_LEG] > 0 ? 1 : 0;
-	cr.ModeBase[MODE_NO_WALK] = noMove;
-	cr.ModeBase[MODE_NO_RUN] = noMove;
-	//ChangeCritterSpeed(cr); //pm added
-	return 0;
+	int mapId = GetCellMap(x, y);
+
+	if(mapId == -1) return;
+	Map@ map = GetMap(mapId);
+	if(@map == null) return;
+
+	cr.TransitToMap(map.Id, 0);
 	
+	cr.StatBase[ST_ARCADE_DEAD] = 0;
+	cr.StatBase[ST_CRSTATUS] = 0;
 }
 
 //teaching

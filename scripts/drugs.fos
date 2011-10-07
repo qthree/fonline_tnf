@@ -5,7 +5,7 @@
 
 import void AffectRadiation(Critter& cr, int value) from "radiation";
 import void AffectPoison(Critter& cr, int value) from "poison";
-import bool ItemStimpackUse(Critter& cr) from "main"; //pm add
+import bool ItemStimpackUse(Critter& cr, Item& item) from "heal"; //pm add
 
 // Chem Reliant
 // benefit: Faster recovery from chem side effects
@@ -229,7 +229,7 @@ void UseDrugOn(Critter& cr, Critter& onCr, Item& drug) // Export
 	{
 		onCr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_DRUG_USE_ON_SUCC);
 		
-		ItemStimpackUse(onCr);
+		ItemStimpackUse(onCr, drug);
 		//SetDrug(onCr,drug.GetProtoId());
 	}
 	else

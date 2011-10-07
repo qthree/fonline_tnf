@@ -6,6 +6,8 @@
 #include "_animation.fos"
 #include "teams_table.fos"
 
+#include "_ltp.fos"
+
 // Imports
 import void InitializeGame() from "config";
 import bool OnUseExplode(Critter& cr, Item& explode, Critter@ targetCr, Item@ targetItem, Scenery@ targetScen, uint timer) from "explode";
@@ -93,7 +95,15 @@ import string SetupAidLeX(uint8 aidValue) from "item";
 
 import void CheckFaction (Critter& cr, bool join) from "factions";
 
+import bool IsHaveBlade(uint16 pid) from "repair"; //pm added
 
+import void ProccessFirstAidSkill(Critter& cr, Critter& targetCr) from "heal"; //pm added
+import void ProccessDoctorSkill(Critter& cr, Critter& targetCr) from "heal";
+import bool ItemStimpackUse(Critter& cr, Item& item) from "heal";
+
+
+import void ArcadeDead(Critter& cr, uint8 time) from "arcade_menu";
+import void ShowHiveButtons(Critter& cr) from "arcade_menu";
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -608,7 +618,7 @@ bool critter_use_item(Critter& cr, Item& item, Critter@ targetCr, Item@ targetIt
 		//stimpack
 		if(pid == PID_STIMPAK)
 		{
-			ItemStimpackUse(cr);
+			ItemStimpackUse(cr, item);
 		}
 		
 		return true;
@@ -696,7 +706,7 @@ bool critter_use_item(Critter& cr, Item& item, Critter@ targetCr, Item@ targetIt
 	if ((pid == PID_CROWBAR || pid == PID_MULTI_TOOL) && @targetItem != null)
 	{
 	uint8 itemType = targetItem.GetType();
-		if((itemType == ITEM_DOOR || itemType == ITEM_CONTAINER) && !FLAG(targetItem.LockerCondition, LOCKER_ELECTRO) && targetItem.Val0 != 0 && _LockerIsOpen(targetItem))
+		if((itemType == ITEM_DOOR || itemType == ITEM_CONTAINER) && targetItem.Val0 != 0 && _LockerIsOpen(targetItem))
 		{
 			
 			uint16 pid_locker = 0;
@@ -765,6 +775,8 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 {
 	bool isPlayer=cr.IsPlayer();
 	bool onSelf=((!valid(targetCr)) && (!valid(targetItem)) && (!valid(targetScen))); //TabaK
+	
+	bool isAidKitScience = (@targetItem != null && (targetItem.GetProtoId() == PID_FIRST_AID_KIT || targetItem.GetProtoId() == PID_DOCTORS_BAG) && skill == SK_SCIENCE);
 
 	/*if(cr.IsPlayer())
 	{
@@ -778,8 +790,7 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 	if(valid(targetItem) && targetItem.GetProtoId()==PID_GEIGER_COUNTER && UseSkillOnGeiger(cr,targetItem,skill)) return true;
 
 	// Doors or containers
-	if(valid(targetItem) && (targetItem.GetType()==ITEM_DOOR || targetItem.GetType()==ITEM_CONTAINER) && UseSkillOnLocker(cr,targetItem,skill)) return true;
-
+	if(valid(targetItem) && (targetItem.GetType()==ITEM_DOOR || (targetItem.GetType()==ITEM_CONTAINER && !isAidKitScience)) && UseSkillOnLocker(cr,targetItem,skill)) return true; else cr.Say(SAY_NETMSG, "else"); //targetItem.GetType()==ITEM_CONTAINER
 	switch(skill)
 	{
 	case SKILL_PICK_ON_GROUND: // Pick item or scenery on ground
@@ -832,8 +843,35 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 				Item@ cont = GetItem(cr.ParamBase[ST_LAST_CONT_ID]);
 				if(@cont!=null && cont.Accessory==ACCESSORY_CRITTER && cont.CritId==cr.Id)
 				{
+					uint16 targetPid = targetItem.GetProtoId();
+					if(cont.GetProtoId() == PID_FIRST_AID_KIT)
+					{
+						bool isAidSupply = (targetPid == PID_STIMPAK 		||
+								    targetPid == PID_HEALING_POWDER 	||
+								    targetPid == PID_BANDAGE		||
+								    targetPid == PID_RAGS		||
+								    targetPid == PID_ANTISEPTIC 	||
+								    targetPid == PID_BOOZE		);
+						if(!isAidSupply) {cr.Say(SAY_NETMSG, "Это нельзя положить в аптечку."); return true;}
+					}
+					else if(cont.GetProtoId() == PID_DOCTORS_BAG)
+					{
+						bool isDocSupply = (targetPid == PID_MULTI_TOOL ||
+								    targetPid == PID_MEDCLIP 	||
+								    targetPid == PID_PLANK	||
+								    targetPid == PID_MEDSPLINT	||
+								    targetPid == PID_ANTISEPTIC ||
+								    targetPid == PID_BOOZE	||
+								    targetPid == PID_STRING	||
+								    targetPid == PID_MEDTHREAD	||
+								    targetPid == PID_MEDNEEDLE	||
+								    targetPid == PID_ANESTETIC	);
+						if(!isDocSupply) {cr.Say(SAY_NETMSG, "Это нельзя положить в сумку доктора."); return true;}
+					}
+				
 					cr.ParamBase[ST_CARRY_WEIGHT_EXT]-=int(targetItem.Proto.Weight*cr.GetItemTransferCount());
 					ChangeCritterSpeed(cr); //pm added
+				
 				}
 			}
 			return false;
@@ -909,6 +947,13 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 				if(isPlayer) EditRadioSettings(cr,targetItem);
 				return true;
 			}
+			
+			if(valid(targetItem) && (targetItem.GetProtoId() == PID_FIRST_AID_KIT || targetItem.GetProtoId() == PID_DOCTORS_BAG))
+			{
+				cr.RunClientScript("client_screen_firstais@ShowScreen", targetItem.Id, targetItem.Val4, targetItem.GetProtoId() == PID_FIRST_AID_KIT ? 0 : 1, "", null);
+				return true;
+			}
+			
 
 			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_USE_NOTHING); // Todo: "You fail to learn anything."
 		}
@@ -1004,8 +1049,18 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 				cr.TimeoutBase[TO_SK_REPAIR]=REPAIR_TIMEOUT(cr);
 				return true;
 			}
-			if(valid(targetItem) && targetItem.Accessory==ACCESSORY_CRITTER && targetItem.IsDeteriorable() && TryRepairItem(cr,targetItem)) return true;
-
+			if(valid(targetItem) && targetItem.Accessory==ACCESSORY_CRITTER && targetItem.IsDeteriorable()) //pm deattach if
+			{
+				if(IsHaveBlade(targetItem.GetProtoId()))
+				{	
+					Item @ activeHand = _CritGetItemHand(cr);
+					if(@activeHand == null && activeHand.GetProtoId() != PID_FLINT) {cr.Say(SAY_NETMSG, "Для заточки лезвия нужен кремень в руке."); return true;}
+					if(!ltp_sharp_inited) ltp_sharp_init();
+					StartProcess(cr, LTP_SHARP, targetItem.Id, 0, 0, 10);
+					return true;
+				}
+				else if(TryRepairItem(cr,targetItem)) return true;
+			}
 			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_USE_NOTHING);
 		}
 		break;
@@ -1094,13 +1149,13 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 				cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_SKILL_NORESSURECT);
 				break;
 			}
-
+			/*
 			if(targetCr.Stat[ST_CURRENT_HP]>=targetCr.Stat[ST_MAX_LIFE])
 			{
 				if(_CritIsInjured(targetCr)) cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_SKILL_NOFIRSTAID_NEEDDOCTOR);
 				else if(is_self) cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_SKILL_NONEED_FIRSTAID);
 				break;
-			}
+			}*/
 
 			if(isPlayer && cr.Timeout[TO_SK_FIRST_AID]>0)
 			{
@@ -1108,92 +1163,8 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 				break;
 			}
 			
-			if(targetCr.Stat[ST_CURRENT_HP] <= 0) {cr.Say(SAY_NETMSG, "Это уже не поможет."); break;}
-
-			int sk=cr.Skill[SK_FIRST_AID];
-			uint8 mode=0;
-			uint16 activePid=cr.GetSlotProto(SLOT_HAND1,mode).ProtoId;
-			
-			//Требование на материал при лечении
-			if (activePid!=PID_FIRST_AID_KIT && activePid!=PID_FIELD_MEDIC_KIT && activePid!=PID_MEDICAL_SUPPLIES)
-			{
-				cr.Say(SAY_NETMSG,"Вам нужны медицинские препараты, аптечка или аптечка военфельдшера для применения этого навыка.");
-				break;
-			}
-			
-			//uint[] timeIndexs;
-			if(targetCr.GetTimeEvents(CTE_HEAL, null, null, null) > 0)
-			{
-				cr.Say(SAY_NETMSG,"Персонаж и так уже забинтован.");
-				targetCr.Say(SAY_NETMSG,"Вы уже забинтованы. Ждите.");
-				break;
-			}
-			/*			
-			if(activePid==PID_FIRST_AID_KIT)
-			{
-				sk+=25;
-				if(Random(0,30)==0) cr.DeleteItem(PID_FIRST_AID_KIT,1);
-			}
-			
-			else if(activePid==PID_FIELD_MEDIC_KIT)
-			{
-				sk+=50;
-				if(Random(0,30)==0) cr.DeleteItem(PID_FIELD_MEDIC_KIT,1);
-			}*/
-			
-			Item @ activeHand = cr.GetItem(activePid, SLOT_HAND1); //pm edit
-			if(@activeHand != null)
-			{
-				if(activeHand.Indicator <= 0) {cr.Say(SAY_NETMSG, "Сумка пуста. Нет медикаментов."); break;}
-				int8 aidValue = 1000 / (sk / (activePid==PID_FIRST_AID_KIT ? 2 : 1.5));
-				
-				aidValue = CLAMP(aidValue, 0, 20);
-				
-				activeHand.Indicator -= aidValue;
-				
-				activeHand.SetLexems("Медикаментов там "+SetupAidLeX(aidValue)+".");
-			//}
-			} //end of edit
-			
-			//Расходный материал - коричневая сумка. Нужно поправить прототип с описанием. И в крафт её добавить.
-			if(activePid==PID_MEDICAL_SUPPLIES)
-			{
-				cr.DeleteItem(PID_MEDICAL_SUPPLIES,1);
-			}
-			
-			int mod=11-cr.Stat[ST_LUCK];
-			mod=CLAMP(mod,1,10);
-			int heal=Random(sk/mod,sk);
-			if(heal<1) heal=1;
-
-			int curHp=targetCr.Stat[ST_CURRENT_HP];
-			int maxHp=targetCr.Stat[ST_MAX_LIFE];
-			if(curHp+heal>maxHp) heal=maxHp-curHp;
-			
-			
- 			int16 aidTime = 80 + (heal * 10) - (targetCr.Stat[ST_HEALING_RATE] * 3) - targetCr.Stat[ST_ENDURANCE] + Random(-10,10);
-			if(aidTime < 0) aidTime = 0;
-			//cr.AddTimeEvent("cte_IncreaseStudyExp", (60*15)*__TimeMultiplier, CTE_STUDY, 0);
-			targetCr.AddTimeEvent("cte_Heal", aidTime, CTE_HEAL, heal);
-			
-			
-
-			//cr.Say(SAY_NETMSG,"Вылечено: "+heal);
-			cr.Say(SAY_NETMSG,"Наложил бинты");
-			//if(not is_self) targetCr.Say(SAY_NETMSG,"Вылечено: "+heal);
-
-			if(isPlayer)
-			{
-				GameVar@ firstAidCount=::GetUnicumVar(UVAR_first_aid_count,cr.Id,targetCr.Id);
-				if(firstAidCount<10)
-				{
-					cr.StatBase[ST_EXPERIENCE]+=heal; //если общий таймаут кончился
-				}
-				firstAidCount+=1;
-
-				cr.TimeoutBase[TO_SK_FIRST_AID]=FIRST_AID_TIMEOUT(cr);
-				cr.AddScore(SCORE_DOCTOR,1);
-			}
+			//all code moved to heal.fos
+			ProccessFirstAidSkill(cr, targetCr);
 		}
 		break;
 	case SK_DOCTOR:
@@ -1232,45 +1203,8 @@ bool critter_use_skill(Critter& cr, int skill, Critter@ targetCr, Item@ targetIt
 				break;
 			}
 
-			int uninjured=0;
-			int sk=cr.Skill[SK_DOCTOR];
-			uint8 mode=0;
-			uint16 activePid=cr.GetSlotProto(SLOT_HAND1,mode).ProtoId;
-			
-			if (activePid!=PID_DOCTORS_BAG && activePid!=PID_PARAMEDICS_BAG)
-			{
-				cr.Say(SAY_NETMSG,"Вам нужен докторский чемоданчик или аптечка парамедика для применения этого навыка.");
-				break;
-			}
-			
-			Item @ activeHand = cr.GetItem(activePid, SLOT_HAND1); //pm edit
-			if(@activeHand != null)
-			{
-				if(activeHand.Indicator <= 0) {cr.Say(SAY_NETMSG, "Сумка пуста. Нет медикаментов."); break;}
-				/*cr.Say(SAY_NETMSG, "done. have valid hand1 item");
-				int8 aidValue;// = activeHand.Indicator;//Val7;
-				
-				if(activePid==PID_DOCTORS_BAG)
-				{
-					//sk+=25;
-					//if(Random(0,30)==0) cr.DeleteItem(PID_DOCTORS_BAG,1);
-					//aidValue -= 100 / (sk / 3);
-				}
-				else if(activePid==PID_PARAMEDICS_BAG)
-				{
-					//sk+=50;
-					//if(Random(0,30)==0) cr.DeleteItem(PID_PARAMEDICS_BAG,1);
-					//aidValue -= 100 / (sk / 2);
-				}*/
-				int8 aidValue = 100 / (sk / (activePid==PID_DOCTORS_BAG ? 3 : 2));
-				
-				activeHand.Indicator = CLAMP(aidValue, 0, 100);
-				
-				activeHand.SetLexems("Медикаментов там "+SetupAidLeX(aidValue)+".");
-			//}
-			}
-			
-			cr.RunClientScript("client_screen_doc@showScreen", cr.Id, targetCr.Id, 0, "", null);
+			//code moved to heal.fos
+			ProccessDoctorSkill(cr, targetCr);
 			
 			//end of edit
 /*
@@ -1412,8 +1346,6 @@ Item@ weapon=cr.GetItemById(rate);
 
 
 //ltp reload pm add
-
-#include "_ltp.fos"
 
 #define RELOAD_BASE		(6000)
 #define RELOAD_BASE_REVOLVER	(500)
@@ -2003,6 +1935,9 @@ void critter_dead(Critter& cr, Critter@ killer)
 	  case 100: deathclawNow.opAddAssign(deathclawNow.GetValue() > 0 ? -1 : 0); 
 	}
 	}
+
+	if(cr.IsPlayer() && cr.Param[ARCADE_MODE]==1) {ArcadeDead(cr, 0); return;}
+	
 	if(cr.IsPlayer() && valid(killer) && killer.IsPlayer()) //TabaK. Опыт за игроков игрокам-животным.
 	{
 		if(cr.Stat[ST_BODY_TYPE]<5 && killer.Param[ARCADE_MODE]==1)
@@ -2321,6 +2256,8 @@ void critter_change_item(Critter& cr, Item& item, uint8 fromSlot)
 	// SLOT_PERK_STEALTH_BOY   // +20 sneak
 }
 
+import void RefrashCoords(Critter& cr) from "globalmap_group";
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on something critter in to map.
 void map_critter_in(Map& map, Critter& cr)
@@ -2339,6 +2276,8 @@ void map_critter_in(Map& map, Critter& cr)
 			lastCityVar = locPid;
 		}
 	}
+	
+	RefrashCoords(cr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2438,11 +2377,6 @@ uint item_cost(Item& item, Critter& cr, Critter& npc, bool sell)
 		{
 			cost += GetProtoItem(item.WeaponAmmoPid).Cost * item.WeaponAmmoCount;
 		}
-	}
-	
-	if(pid == PID_FIRST_AID_KIT || pid == PID_FIELD_MEDIC_KIT || pid == PID_PARAMEDICS_BAG || pid == PID_DOCTORS_BAG)
-	{
-		cost *= item.Indicator * 0.01;
 	}
 
 	//cost += cost * (npc.SkillBase[SK_BARTER] * 0.01 - (chosen.SkillBase[SK_BARTER] - 50) * 0.01); 
@@ -2787,6 +2721,7 @@ bool player_login(uint ip, string& name, string& password, uint id, uint& textMs
 		{
 			cr.AddTimeEvent("cte_IncreaseStudyExp", (60*15)*__TimeMultiplier, CTE_STUDY, 0);
 		}
+		else if(cr.Param[ST_ARCADE_DEAD] > 0) ShowHiveButtons(cr);
 		
 		//cr.Wait(0);
 		//cr.ParamBase[MODE_WAIT]=0;
@@ -2853,45 +2788,24 @@ void _giveHair(Critter& cr, uint index, int oldValue)
 	SetHair(cr);
 }
 
-uint cte_Heal(Critter& cr, int identifier, uint& rate)
+bool ltp_sharp_inited=false;
+
+void ltp_sharp_init()
 {
-	cr.StatBase[ST_CURRENT_HP]+=rate;
-	cr.Say(SAY_NETMSG,"Вылечено жизней: "+rate);
-		
-	uint8 rnd = Random(1, rate * 0.05);
-	rate -= (rate > rate - rnd ? rate - rnd : 1);
-	
-	int16 aidTime = 80 + (rate * 10) - (cr.Stat[ST_HEALING_RATE] * 3) - cr.Stat[ST_ENDURANCE] + Random(-10,10);
-	if(aidTime < 0) aidTime = 0;
-	
-	ChangeCritterSpeed(cr); //pm added
-	
-	bool repeat;
-	
-	if(cr.StatBase[ST_MAX_LIFE] <= cr.StatBase[ST_CURRENT_HP] || rate <= 1)
-	{
-		repeat = false;
-	}
-	return repeat ? aidTime : 0;
-	
+	LTPREG(LTP_SHARP,process_sharp)
+	ltp_sharp_inited=true;
 }
 
-bool ItemStimpackUse(Critter& cr)
+uint process_sharp(Critter@ cr, int& param0, int& param1, int& param2)
 {
-	int16 hpCurrent = cr.StatBase[ST_CURRENT_HP];
-	uint16 hpMax = (cr.StatBase[ST_MAX_LIFE] + cr.StatBase[ST_STRENGTH]*4+cr.StatBase[ST_ENDURANCE]*8);
-	uint8 hpHealRate = cr.Stat[ST_HEALING_RATE];
+	LTPROCESSD(LTP_SHARP)
+	Item @ item = GetItem(param0);
+	if(@item == null) return 0;
+	int8 det = GetDeteriorationProcent(item);
+	det -= Random(1, cr.Stat[ST_STRENGTH]);
+	det = CLAMP(det, 0, 100);
+	SetDeterioration(item, det); 
 	
-	if(hpCurrent == hpMax) {cr.Say(SAY_NETMSG, "Ваше здоровье маскимально."); return true;}
-			
-	float healMod = (hpMax * 0.01) * (hpCurrent * 0.01);
-	if(healMod == 0) healMod = 1;
-	uint16 healAdd = (hpHealRate * 4) * (healMod);
-	healAdd = CLAMP(healAdd, 1, hpHealRate * (cr.Stat[ST_ENDURANCE] + cr.Stat[ST_STRENGTH]) * 0.8) ;
-	hpCurrent + healAdd > hpMax ? cr.StatBase[ST_CURRENT_HP] = hpMax : cr.StatBase[ST_CURRENT_HP] += healAdd;
-			
-	ChangeCritterSpeed(cr); //pm added
-			
-	cr.Say(SAY_NETMSG, "Вы восстановили "+healAdd+" жизней");
-return true;
+	cr.Say(SAY_NETMSG, "Вы точите лезвия.");
+	return det > 0 ? 3*1000 : 0;
 }

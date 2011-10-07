@@ -221,6 +221,8 @@ void InitializeGame() // Export
 	SetParameterChangeBehaviour(ST_LEVEL,"parameters@changedParam_Level");
 	SetParameterChangeBehaviour(ST_EXPERIENCE,"parameters@changedParam_Experience");
 	SetParameterChangeBehaviour(ST_UNSPENT_PERKS,"parameters@changedParam_UnspentPerks");
+	
+	SetParameterChangeBehaviour(ST_LEVEL,"parameters@changedParam_CrStatus"); //pm added
 #endif
 
 	/// Registration parameters

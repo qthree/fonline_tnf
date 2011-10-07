@@ -179,6 +179,11 @@
 #define STR_YOU_TURN_TITLE              (449)
 #define STR_TURN_BASED_TITLE            (450)
 
+#define STR_HEAVY_DMG_TITLE		(451)			//pm added
+#define STR_BULLET_OVER_TITLE		(452)
+#define STR_BLEED_TITLE			(453)
+#define STR_BLOOD_TOXIC_TITLE		(454)
+
 // Radio
 #define STR_RADIO_MAIN                  (455)
 #define STR_RADIO_CHANNEL               (456)

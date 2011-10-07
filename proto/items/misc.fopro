@@ -1,7 +1,3 @@
-# 3.0.4
-
-[Proto]
-
 [Proto]
 ProtoId=41
 Type=5
@@ -16,10 +12,10 @@ Cost=1
 Material=1
 
 [Proto]
-ProtoId=47
-Type=5
-PicMap=art\items\bpack2.frm
-PicInv=art\inven\1staid.frm
+Pid=47
+Type=8
+PicMapName=art\items\bpack2.frm
+PicInvName=art\inven\1staid.frm
 Flags=150994974
 DisableEgg=1
 Weight=907
@@ -27,7 +23,12 @@ Volume=1
 SoundId=48
 Cost=200
 Material=1
+IsStackable=0
 IndicatorStart=100
+Container.ContVolume=25
+Container.CannotPickUp=0
+Container.MagicHandsGrnd=1
+Container.Changeble=1
 
 [Proto]
 ProtoId=50
@@ -321,21 +322,23 @@ Cost=210
 Material=1
 
 [Proto]
-ProtoId=91
-Type=5
-ScriptModule=item
-ScriptFunc=_InitAidKit
-PicMap=art\items\docbag.frm
-PicInv=art\inven\docbag7.frm
+Pid=91
+Type=8
+PicMapName=art\items\docbag.frm
+PicInvName=art\inven\docbag7.frm
 Flags=150994974
 DisableEgg=1
-Stackable=1
 Weight=2267
 Volume=1
 SoundId=48
 Cost=300
 Material=7
+IsStackable=0
 IndicatorStart=100
+Container.ContVolume=25
+Container.CannotPickUp=0
+Container.MagicHandsGrnd=1
+Container.Changeble=1
 
 [Proto]
 ProtoId=92
@@ -7247,3 +7250,18 @@ AnimShow_1=1
 AnimHide_0=1
 AnimHide_1=1
 
+[Proto]
+Pid=4052
+Type=5
+PicMap=art\scenery\grid_exit.frm
+PicInv=art\inven\reserved.frm
+ScriptModule=globalmap_group
+ScriptFunc=Ttransit
+Flags=150994974
+DisableEgg=1
+Stackable=1
+Weight=907
+Volume=1
+SoundId=48
+Cost=375
+Material=1

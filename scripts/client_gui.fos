@@ -80,6 +80,8 @@ class GUIElement : IGUIElementOpt
 		ElementFastPanelId = 0;
 		ElementFastPanelType = 0;
 		Visible = true;
+		
+		RenderLayer = 3; // pm add
 		//#pm menu
 		
 		@CallbackInit=null;
@@ -300,6 +302,17 @@ class GUIElement : IGUIElementOpt
 		return this;
 	}
 	
+	IGUIElementOpt@ SpecialValue(uint value)
+	{
+		SpecialValue = value;
+		return this;
+	}
+	
+	IGUIElementOpt@ SetRenderLayer(uint8 layer)
+	{
+		RenderLayer=layer; 
+		return this;
+	} //pm add
 //#pm menu
 
 	// Info
@@ -316,6 +329,9 @@ class GUIElement : IGUIElementOpt
 	string GetDescription() { return Description; } //pm add
 	uint16 GetSurfaceHeight() { return Surface.Height; }
 	uint16 GetSurfaceWidth() { return Surface.Width; }
+	uint GetSpecValue() { return SpecialValue; }
+	uint8 GetRenderLayer() { return RenderLayer; }
+	//string GetSpriteName()	{ return Surface.Name; }
 	//void  SetType(uint8 type) { ElementType = type; } //pm add
 	
 	//pm add
@@ -326,6 +342,9 @@ class GUIElement : IGUIElementOpt
 	uint8 ElementFastPanelType;
 	uint16 ElementFastPanelId;
 	string Description;
+	
+	uint8 RenderLayer;
+	uint SpecialValue;
 //#pm menu
 
 	// Data
@@ -1350,6 +1369,13 @@ void GUI_Render()
 			::GetHardcodedScreenPos(screen.Index,screen.PosX,screen.PosY);
 		}
 		screen.Draw();
+		/*for(uint16 i = 0; i < screen.Elements.length(); i++)
+		{
+			if(screen.Elements[i].GetRenderLayer() != layer)
+			{
+				@screen.Elements[i].Visible(false);
+			}
+		}*/
 	}
 }
 

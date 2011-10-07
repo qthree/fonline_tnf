@@ -94,6 +94,8 @@ interface IGUIElementOpt
 	IGUIElementOpt@ UpPic(string@ sprName);
 	IGUIElementOpt@ Pic(string@ sprName, int path);
 	IGUIElementOpt@ Layer(uint8 layer);
+	IGUIElementOpt@ SpecialValue(uint value);
+	IGUIElementOpt@ SetRenderLayer(uint8 layer); //pm add
 	//#pm menu
 	
 
@@ -112,6 +114,9 @@ interface IGUIElementOpt
 	string GetDescription();
 	uint16 GetSurfaceHeight();
 	uint16 GetSurfaceWidth();
+	uint GetSpecValue();	
+	uint8 GetRenderLayer();
+	//string GetSpriteName();
 	//#pm menu
 }
 

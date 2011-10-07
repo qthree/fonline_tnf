@@ -174,6 +174,9 @@ string[] __critterHistoryInfo;
 #define CLIENT_SCREEN_CHA_SKIN			(49)
 #define CLIENT_SCREEN_TEACH			(50)
 #define CLIENT_SCREEN_DOC			(51)
+#define CLIENT_SCREEN_FIRSTAID			(52)
+#define CLIENT_SCREEN_OPTIONS_TNF       	(53)
+#define CLIENT_SCREEN_ARCADE_HIVE		(54)
 
 // Screen Elements //pm add
 #define SCREEN_ELEMENT_BUTTON		(0)

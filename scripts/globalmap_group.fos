@@ -1091,6 +1091,7 @@ void global_invite(Critter& leader, Item@ car, uint encounterDescriptor, int com
 			mapId = map.Id;
 		}
 	}
+	
 }
 
 void ScanZone(Critter@[]& group, int zx, int zy)
@@ -1133,7 +1134,7 @@ void ScanZone(Critter@[]& group, int zx, int zy)
 		// Find new locations
 		/*uint[]@ locIds = lookLen == 1 ? locIds1 : locIds2;
 		for(uint j = 0; j < locIds.length(); j++)
-		{
+		{	
 			uint locId = locIds[j];
 			if(!cr.IsKnownLoc(true, locId))
 			{
@@ -1170,4 +1171,98 @@ void CheckForLocationWithoutParking(Critter& cr, Item& car, float& curX, float& 
 			curY = loc.WorldY + int(loc.Radius) * (Random(0, 1) == 0 ? int(1) : int(-1));
 		}
 	}
+}
+
+
+//pm added
+
+#define ENTIRE_NUM		(255)
+#define MAP_SIZE		(150)
+//#define MAP_WIDTH		(150)
+
+void TransitCritterToCell(Critter& cr, uint8 direction)
+{
+	if(@world == null)  {cr.Say(SAY_NETMSG, "world !valid"); return;}
+	Cell @ cell = world.GetCell(cr);
+	if(@cell == null) {cr.Say(SAY_NETMSG, "cell !valid"); return;}
+	
+	Map @ map = cr.GetMap();
+	if(@map == null) {cr.Say(SAY_NETMSG, "map !valid"); return;}
+	
+	uint16 destCellX = cr.StatBase[ST_CELL_X], destCellY = cr.StatBase[ST_CELL_Y], mapX = 0, mapY = 0;
+	
+	//if(map.CountEntire <= 0) return;
+	if(!map.GetEntireCoords(ENTIRE_NUM, 0, mapX, mapY)) {cr.Say(SAY_NETMSG, "no ent"); return;}
+	//cell.X, destCellY = cell.Y;
+	
+	
+	
+	cr.Say(SAY_NETMSG, "x "+destCellX+" y "+destCellY+" world x "+cr.WorldX+" world y "+cr.WorldY);
+	mapX = cr.HexX - mapX;
+	mapY = cr.HexY - mapY;
+	
+	switch(direction)
+	{
+		case 0 : destCellX += 1; destCellY -= 1; mapX += MAP_SIZE; mapY += MAP_SIZE; break;
+		case 1 : destCellX += 1; /*destCellY -= 1;*/ mapX += MAP_SIZE; mapY += MAP_SIZE / 3; break;
+		case 2 : destCellX += 1; destCellY += 1; break;
+		case 3 : /*destCellX += 1*/; destCellY += 1; break;
+		case 4 : destCellX -= 1; destCellY += 1; break;
+		case 5 : destCellX -= 1; /*destCellY -= 1;*/ mapX += MAP_SIZE; mapY += MAP_SIZE / 3; break;
+		case 6 : destCellX -= 1; destCellY -= 1; break;
+		case 7 : /*destCellX += 1;*/ destCellY -= 1; break;
+		default: return;
+	}
+	
+	cr.StatBase[ST_CELL_X] = destCellX;
+	cr.StatBase[ST_CELL_Y] = destCellY;
+	
+	
+	
+	@cell = world.GetCell(destCellX, destCellY);
+	if(@cell == null) {cr.Say(SAY_NETMSG, "dest cell !valid"); return;}
+	uint16 mapId = cell.Content.MapId;
+	
+	@map = GetMap(mapId);
+	uint16 destX = 0, destY = 0;
+	if(!map.GetEntireCoords(ENTIRE_NUM, 0, destX, destY)) {cr.Say(SAY_NETMSG, "no dest ent"); return;}
+	
+	cr.Say(SAY_NETMSG, ""+mapId);
+	if(mapId == 0) {cr.Say(SAY_NETMSG, "mapId !valid"); return;}
+	cr.TransitToMap(mapId, destX+mapX, destY+mapY, 0);
+	
+}
+
+void RefrashCoords(Critter& cr)
+{
+		//pm edit
+	Cell @ cell = world.GetCell(cr);
+	if(@cell == null) return;
+		
+	//cr.StatBase[ST_CELL_X] = cell.X;
+	//cr.StatBase[ST_CELL_Y] = cell.Y;
+	//cr.Say(SAY_NETMSG, "on enc");
+}
+
+void Ttransit(Critter& cr, Scenery& trigger, bool entered, uint8 dir)
+{
+	cr.Say(SAY_NETMSG, ""+dir);
+	TransitCritterToCell(cr, dir);
+}
+
+void Ttransit(Item& item, bool firstTime)
+{
+	item.SetEvent(ITEM_EVENT_WALK, "e_WalkTrigger");
+}
+
+void e_WalkTrigger(Item& item, Critter& cr, bool entered, uint8 dir)
+{
+	TransitCritterToCell(cr, item.Val0);
+}
+
+int GetCellMap(uint16 x, uint16 y)
+{
+	Cell @ cell = world.GetCell(x*0.1, y*0.1);
+	if(@cell == null) return -1;
+	return cell.Content.MapId;
 }

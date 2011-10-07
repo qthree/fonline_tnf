@@ -55,7 +55,8 @@ class DocButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
 		if(click == MOUSE_CLICK_LEFT)
 		{	
 			HideScreen(CLIENT_SCREEN_DOC,0,0,0);
-			RunServerScriptUnsafe("client_unsafe@unsafe_doc", Type+500, Instance.TargetId, 0, "", null);
+			ChangeCursor(CURSOR_DEFAULT);
+			RunServerScriptUnsafe("heal@unsafe_doc", Type+500, Instance.TargetId, 0, "", null);
 			
 		}
 	}
@@ -74,7 +75,7 @@ void InitScreenDoc() //export
 	//uint8 j = 0;
 	uint16 axist = 0;
 
-	for(uint16 i = 2; i <= 6; i++)
+	for(uint16 i = 2; i <= 7; i++)
 	{
 		DocButton docBtn(screen, i);
 		GUI_AddScreenElement(CLIENT_SCREEN_DOC, "chosen_tab.png", 5, 10+axist)

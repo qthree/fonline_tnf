@@ -1,0 +1,654 @@
+//heal
+//pm
+
+#include "_macros.fos"
+
+import void InjureCritter(Critter& cr, uint dmg, uint dmgType, uint8 dir, uint attackerId) from "combat"; // Export
+
+import void ChangeStatus(Critter& cr, uint16 status, uint8 value, bool set) from "critter_status"; //pm added
+import void ChangeCritterSpeed(Critter& cr) from "speed"; //pm add
+import void UseDrug(Critter& cr, Item& drug) from "drugs";
+
+
+#define _DecItem			#(x, count)		x.GetCount() > count ? x.SetCount(x.GetCount() - count) : DeleteItem(x)
+#define HEAVY_DAMAGE			(507)
+
+void ProccessFirstAidSkill(Critter& cr, Critter& targetCr)
+{
+	if(targetCr.Stat[ST_CURRENT_HP] <= 0) {cr.Say(SAY_NETMSG, "Это уже не поможет."); return;}
+			
+	bool isPlayer=cr.IsPlayer();
+
+	int sk=cr.Skill[SK_FIRST_AID];
+	uint8 mode=0;
+	uint16 activePid=cr.GetSlotProto(SLOT_HAND1,mode).ProtoId;
+			
+	//Требование на материал при лечении
+	//if (activePid!=PID_FIRST_AID_KIT && activePid!=PID_FIELD_MEDIC_KIT && activePid!=PID_MEDICAL_SUPPLIES)
+	if (activePid!=PID_FIRST_AID_KIT)
+	{
+		cr.Say(SAY_NETMSG,"Вам нужны медицинские препараты, аптечка или аптечка военфельдшера для применения этого навыка.");
+		return;
+	}
+			
+	bool[] isHaveItem = {false, false, false}; //antiseptic / healing / bandage
+			
+	uint16 statusFlag = cr.StatBase[ST_CRSTATUS];
+			
+	//if(FLAG(statusFlag, CR_STATUS_BLOOD_TOXIC)) isNeedItem[0] = true;
+	//if(FLAG(statusFlag, CR_STATUS_BLEED)) isNeedItem[2] = true; //pm edit
+	//if(targetCr.Stat[ST_CURRENT_HP]<targetCr.Stat[ST_MAX_LIFE]) isNeedItem[1] = true;
+			
+	//uint16 drugsIndex = 0;
+	uint8[] drugIndexs = {0,0,0};
+			
+	Item@ activeHand = _CritGetItemHand(cr);
+	if(@activeHand == null || activeHand.GetType() != ITEM_CONTAINER) {cr.Say(SAY_NETMSG, "Техническая ошибка, итема нет. Обратитесь к геиммастеру."); return;}
+	Item@[] drugs;
+	activeHand.GetItems(-1, drugs);
+	
+	uint16 firstAidFlag = activeHand.Val4;
+	if(FLAG(statusFlag, CR_STATUS_HEAVY_DMG)) {cr.Say(SAY_NETMSG, "Здесь нужен врач."); return;}
+
+	if(!FindItemInCont(drugs, drugIndexs, isHaveItem, firstAidFlag, true)) {cr.Say(SAY_NETMSG, "Аптечка пуста"); return;}
+	  
+			
+	
+	//else 
+			
+			//cr.Say(SAY_NETMSG, ""+(drugsIndex&0x4)+" "+((drugsIndex>>4)&0x4));
+	cr.Say(SAY_NETMSG, ""+drugIndexs[0]+" "+drugIndexs[1]+" "+drugIndexs[2]);
+			
+			
+			
+	bool isBandaged = (targetCr.GetTimeEvents(CTE_HEAL, null, null, null) > 0);
+			
+	if(targetCr.Stat[ST_CURRENT_HP]<targetCr.Stat[ST_MAX_LIFE])
+	{
+			
+		//uint[] timeIndexs;
+				
+				
+		if(drugs[drugIndexs[1]].GetProtoId() == PID_STIMPAK) {ItemStimpackUse(cr, drugs[drugIndexs[1]]); cr.Say(SAY_NETMSG,"Упарываемся.");} //heal with stempack
+		else if(drugs[drugIndexs[1]].GetProtoId() == PID_HEALING_POWDER) {ItemPowderUse(cr, drugs[drugIndexs[1]]);}
+
+		if(isBandaged)
+		{
+			cr.Say(SAY_NETMSG,"Персонаж и так уже забинтован.");
+			targetCr.Say(SAY_NETMSG,"Вы уже забинтованы. Ждите.");
+			//	break;
+		}
+
+		if(isHaveItem[0]) //blood toxic
+		{
+			uint16 drugProtoId = drugs[drugIndexs[0]].GetProtoId();
+			if(drugProtoId == PID_BOOZE)
+			{
+				//CR_STATUS_HEAVY_DMG
+				int16 hpCurrent = cr.StatBase[ST_CURRENT_HP];
+				uint16 hpMax = (cr.StatBase[ST_MAX_LIFE] + cr.StatBase[ST_STRENGTH]*4+cr.StatBase[ST_ENDURANCE]*8);
+				uint8 chance = targetCr.Stat[ST_STRENGTH] * 3 + targetCr.Stat[ST_ENDURANCE] * 4 + targetCr.Stat[ST_HEALING_RATE] * 10 * ((hpMax * 0.01) * (hpCurrent * 0.01));
+				chance = CLAMP(chance, 0, 95);
+				if(Random(1, 100-(targetCr.Stat[ST_LUCK]*Random(1,3))) > chance)
+				{
+					ChangeStatus(cr, CR_STATUS_BLOOD_TOXIC, 0, true);
+				}
+			}else if(Random(0,100) > 95) ChangeStatus(cr, CR_STATUS_BLOOD_TOXIC, 0, true);
+					  
+			_DecItem(drugs[drugIndexs[0]], 1);
+				    
+		}else if(Random(100-((targetCr.Stat[ST_LUCK] * 2) + targetCr.Stat[ST_HEALING_RATE] * 5),100) > 95) ChangeStatus(cr, CR_STATUS_BLOOD_TOXIC, 0, true);
+				  
+				
+			
+		//Расходный материал - коричневая сумка. Нужно поправить прототип с описанием. И в крафт её добавить.
+		if(activePid==PID_MEDICAL_SUPPLIES)
+		{
+			cr.DeleteItem(PID_MEDICAL_SUPPLIES,1);
+		}
+			
+		if(isHaveItem[2])
+		{
+			
+			int mod=11-cr.Stat[ST_LUCK];
+			mod=CLAMP(mod,1,10);
+			int heal=Random(sk/mod,sk);
+			if(heal<1) heal=1;
+
+			int curHp=targetCr.Stat[ST_CURRENT_HP];
+			int maxHp=targetCr.Stat[ST_MAX_LIFE];
+			if(curHp+heal>maxHp) heal=maxHp-curHp;
+			
+			
+ 			int16 aidTime = 80 + (heal * 10) - (targetCr.Stat[ST_HEALING_RATE] * 3) - targetCr.Stat[ST_ENDURANCE] + Random(-10,10);
+			if(aidTime < 0) aidTime = 0;
+			//cr.AddTimeEvent("cte_IncreaseStudyExp", (60*15)*__TimeMultiplier, CTE_STUDY, 0);
+			targetCr.AddTimeEvent("cte_Heal", aidTime, CTE_HEAL, heal);
+			
+			
+
+			//cr.Say(SAY_NETMSG,"Вылечено: "+heal);
+			cr.Say(SAY_NETMSG,"Наложил бинты.");
+			//if(not is_self) targetCr.Say(SAY_NETMSG,"Вылечено: "+heal);
+
+			if(isPlayer)
+			{
+				GameVar@ firstAidCount=::GetUnicumVar(UVAR_first_aid_count,cr.Id,targetCr.Id);
+				if(firstAidCount<10)
+				{
+					cr.StatBase[ST_EXPERIENCE]+=heal; //если общий таймаут кончился
+				}
+				firstAidCount+=1;
+
+				cr.TimeoutBase[TO_SK_FIRST_AID]=FIRST_AID_TIMEOUT(cr);
+				cr.AddScore(SCORE_DOCTOR,1);
+			}
+		}else {cr.Say(SAY_NETMSG,"В аптечке нет бинтов.");}
+	}else {cr.Say(SAY_NETMSG,"Не нуждается в лечении.");}
+}
+
+void ProccessDoctorSkill(Critter& cr, Critter& targetCr)
+{
+	int uninjured=0;
+	int sk=cr.Skill[SK_DOCTOR];
+	uint8 mode=0;
+	Item @ activeHand = _CritGetItemHand(cr);//cr.GetItem(activePid, SLOT_HAND1); //pm edit
+	if(@activeHand == null || activeHand.GetType() != ITEM_CONTAINER) {cr.Say(SAY_NETMSG,"Ошибка. Неверный итем. Обратитесь к геиммастеру."); return;}
+	uint16 activePid=activeHand.GetProtoId();
+			
+	if (activePid!=PID_DOCTORS_BAG) // && activePid!=PID_PARAMEDICS_BAG
+	{
+		cr.Say(SAY_NETMSG,"Вам нужен докторский чемоданчик для применения этого навыка."); // или аптечка парамедика
+		return;//break;
+	}
+			
+	/*
+	if(@activeHand != null)
+	{
+		if(activeHand.Indicator <= 0) {cr.Say(SAY_NETMSG, "Сумка пуста. Нет медикаментов."); break;}
+				/*cr.Say(SAY_NETMSG, "done. have valid hand1 item");
+				int8 aidValue;// = activeHand.Indicator;//Val7;
+				
+				if(activePid==PID_DOCTORS_BAG)
+				{
+					//sk+=25;
+					//if(Random(0,30)==0) cr.DeleteItem(PID_DOCTORS_BAG,1);
+					//aidValue -= 100 / (sk / 3);
+				}
+				else if(activePid==PID_PARAMEDICS_BAG)
+				{
+					//sk+=50;
+					//if(Random(0,30)==0) cr.DeleteItem(PID_PARAMEDICS_BAG,1);
+					//aidValue -= 100 / (sk / 2);
+				}*
+		int8 aidValue = 100 / (sk / (activePid==PID_DOCTORS_BAG ? 3 : 2));
+				
+		activeHand.Indicator = CLAMP(aidValue, 0, 100);
+				
+		activeHand.SetLexems("Медикаментов там "+SetupAidLeX(aidValue)+".");
+			//}
+	}*/
+			
+	cr.RunClientScript("client_screen_doc@showScreen", cr.Id, targetCr.Id, activeHand.Id, "", null);
+}
+
+bool FindItemInCont(Item@[]& drugs, uint8[]& drugIndexs, bool[]& isHaveItem, uint16 flag, bool isFirstAid)
+{
+	uint8 drugsLength = drugs.length();
+	if(drugsLength > 0)
+	{
+		for(uint8 i = 0; i < drugsLength; i++)
+		{
+			
+			uint16 drugProtoId = drugs[i].GetProtoId();
+			
+			if(isFirstAid)
+			{
+			  
+			
+				if(drugProtoId == PID_BOOZE)
+				{
+					if(!FLAG(flag, HEAL_ANTISEPTIC)) {drugIndexs[0] = i; isHaveItem[0] = true;}
+					else if(!isHaveItem[0]) {drugIndexs[0] = i; isHaveItem[0] = true;}	  
+				}
+				else if(drugProtoId == PID_ANTISEPTIC)
+				{
+					if(FLAG(flag, HEAL_ANTISEPTIC)) {drugIndexs[0] = i; isHaveItem[0] = true;}
+					else if(!isHaveItem[0]) {drugIndexs[0] = i; isHaveItem[0] = true;}	  
+				}
+				  
+				else if(drugProtoId == PID_HEALING_POWDER)
+				{
+					if(!FLAG(flag, HEAL_HEALING)) {drugIndexs[1] = i; isHaveItem[1] = true;}
+					else if(!isHaveItem[1]) {drugIndexs[1] = i; isHaveItem[1] = true;}
+				}
+				else if(drugProtoId == PID_STIMPAK)
+				{
+					if(FLAG(flag, HEAL_HEALING)) {drugIndexs[1] = i; isHaveItem[1] = true;}
+					else if(!isHaveItem[1]) {drugIndexs[1] = i; isHaveItem[1] = true;}
+				}
+				
+				else if(drugProtoId == PID_RAGS)
+				{
+					if(!FLAG(flag, HEAL_BANDAGE)) {drugIndexs[2] = i; isHaveItem[2] = true;}
+					else if(!isHaveItem[2]) {drugIndexs[2] = i; isHaveItem[2] = true;}
+				}
+				else if(drugProtoId == PID_BANDAGE)
+				{
+					if(FLAG(flag, HEAL_BANDAGE)) {drugIndexs[2] = i; isHaveItem[2] = true;}
+					else if(!isHaveItem[2]) {drugIndexs[2] = i; isHaveItem[2] = true;}
+				}
+				
+				//{drugIndexs[1] = i; isHaveItem[1] = true;}
+			
+/*
+				 && !FLAG(flag, HEAL_ANTISEPTIC))
+				{
+					drugIndexs[0] = i; isHaveItem[0] = true; //cr.Say(SAY_NETMSG,"booze");
+				}
+				else if(drugProtoId == PID_ANTISEPTIC && FLAG(flag, HEAL_ANTISEPTIC))
+				{
+					drugIndexs[0] = i; isHaveItem[0] = true; //cr.Say(SAY_NETMSG,"booze");
+				}
+				else if(drugProtoId == PID_ANTISEPTIC || drugProtoId == PID_BOOZE)
+				{
+					drugIndexs[0] = i; isHaveItem[0] = true; //cr.Say(SAY_NETMSG,"booze");
+				}
+				if(!isHaveItem[1])
+				if(drugProtoId == PID_HEALING_POWDER && !FLAG(flag, HEAL_HEALING))
+				{
+					drugIndexs[1] = i; isHaveItem[1] = true; //cr.Say(SAY_NETMSG,"powder");
+				}
+				else if(drugProtoId == PID_STIMPAK && FLAG(flag, HEAL_HEALING)) 
+				{
+					drugIndexs[1] = i; isHaveItem[1] = true; //cr.Say(SAY_NETMSG,"stimpack");		  
+				}
+				else if(drugProtoId == PID_HEALING_POWDER || drugProtoId == PID_STIMPAK)
+				{
+					drugIndexs[1] = i; isHaveItem[1] = true; //cr.Say(SAY_NETMSG,"stimpack");		  
+				}
+				
+				if(drugProtoId == PID_RAGS && !FLAG(flag, HEAL_BANDAGE))
+				{
+					drugIndexs[2] = i; isHaveItem[2] = true; //cr.Say(SAY_NETMSG,"rags");
+				}
+				else if(drugProtoId == PID_BANDAGE && FLAG(flag, HEAL_BANDAGE))
+				{
+					drugIndexs[2] = i; isHaveItem[2] = true; //cr.Say(SAY_NETMSG,"bandage");
+				}
+				else if(drugProtoId == PID_RAGS || drugProtoId == PID_BANDAGE)
+				{
+					drugIndexs[2] = i; isHaveItem[2] = true; //cr.Say(SAY_NETMSG,"bandage");
+				}*/
+			}else
+			{
+				if(drugProtoId == PID_BOOZE)
+				{
+					if(!FLAG(flag, HEAL_ANTISEPTIC)) {drugIndexs[0] = i; isHaveItem[0] = true;}	//low antiseptic ; low anestetic
+					else if(!isHaveItem[0]) {drugIndexs[0] = i; isHaveItem[0] = true;} //cr.Say(SAY_NETMSG,"booze");
+					
+					if(!FLAG(flag, HEAL_ANESTETIC)) {drugIndexs[4] = i; isHaveItem[4] = true;}
+					else if(!isHaveItem[4]) {drugIndexs[4] = i; isHaveItem[4] = true;} //cr.Say(SAY_NETMSG,"booze");
+				}
+				else if(drugProtoId == PID_ANTISEPTIC)		//high antiseptic
+				{
+					if(FLAG(flag, HEAL_ANTISEPTIC)) {drugIndexs[0] = i; isHaveItem[0] = true;}
+					else if(!isHaveItem[0]) {drugIndexs[0] = i; isHaveItem[0] = true;} //cr.Say(SAY_NETMSG,"booze");
+				}
+				
+				else if(drugProtoId == PID_MULTI_TOOL)		//low multytool
+				{
+					if(!FLAG(flag, HEAL_MULTYTOOL)) {drugIndexs[1] = i; isHaveItem[1] = true;} //cr.Say(SAY_NETMSG,"booze");
+					else if(!isHaveItem[1]) {drugIndexs[1] = i; isHaveItem[1] = true;}
+				}
+				else if(drugProtoId == PID_MEDCLIP)		//high multytool
+				{
+					if(FLAG(flag, HEAL_MULTYTOOL)) {drugIndexs[1] = i; isHaveItem[1] = true;}
+					else if(!isHaveItem[1]) {drugIndexs[1] = i; isHaveItem[1] = true;} //cr.Say(SAY_NETMSG,"booze");
+				}
+				
+				else if(drugProtoId == PID_PLANK)			//low splint
+				{
+					if(!FLAG(flag, HEAL_SPLINT)) {drugIndexs[2] = i; isHaveItem[2] = true;}
+					else if(!isHaveItem[2]) {drugIndexs[2] = i; isHaveItem[2] = true;} //cr.Say(SAY_NETMSG,"booze");
+				}
+				else if(drugProtoId == PID_MEDSPLINT)		//high splint
+				{
+					if(FLAG(flag, HEAL_SPLINT)) {drugIndexs[2] = i; isHaveItem[2] = true;}
+					else if(!isHaveItem[2]) {drugIndexs[2] = i; isHaveItem[2] = true;} //cr.Say(SAY_NETMSG,"booze");
+				}
+				
+				else if(drugProtoId == PID_STRING)			//low thread
+				{
+					if(!FLAG(flag, HEAL_THREAD)) {drugIndexs[3] = i; isHaveItem[3] = true;}
+					else if(!isHaveItem[3]) {drugIndexs[3] = i; isHaveItem[3] = true;} //cr.Say(SAY_NETMSG,"booze");
+				}
+				else if(drugProtoId == PID_MEDTHREAD)		//high thread
+				{
+					if(FLAG(flag, HEAL_THREAD)) {drugIndexs[3] = i; isHaveItem[3] = true;}
+					else if(!isHaveItem[3]) {drugIndexs[3] = i; isHaveItem[3] = true;} //cr.Say(SAY_NETMSG,"booze");
+				}
+				
+				/*else if(drugProtoId == PID_BOOZE)		//high anestetic
+				{
+					if(!FLAG(flag, HEAL_ANESTETIC)) {drugIndexs[4] = i; isHaveItem[4] = true;}
+					else if(!isHaveItem[4]) {drugIndexs[4] = i; isHaveItem[4] = true;} //cr.Say(SAY_NETMSG,"booze");
+				}*/
+				else if(drugProtoId == PID_ANESTETIC)		//high anestetic
+				{
+					if(FLAG(flag, HEAL_ANESTETIC)) {drugIndexs[4] = i; isHaveItem[4] = true;}
+					else if(!isHaveItem[4]) {drugIndexs[4] = i; isHaveItem[4] = true;} //cr.Say(SAY_NETMSG,"booze");
+				}
+				
+				else if(drugProtoId == PID_MEDNEEDLE)						//needle
+				{
+					drugIndexs[5] = i; isHaveItem[5] = true; //cr.Say(SAY_NETMSG,"booze");
+				}
+				
+				
+				//return false;
+			}
+
+					
+			Log("no "+i+" pid "+drugProtoId+" index "+drugIndexs[i]+" isHave "+isHaveItem[i]);
+		}
+		return true;
+	}
+return false;
+}
+
+
+bool ItemStimpackUse(Critter& cr, Item& item)
+{
+	int16 hpCurrent = cr.StatBase[ST_CURRENT_HP];
+	uint16 hpMax = (cr.StatBase[ST_MAX_LIFE] + cr.StatBase[ST_STRENGTH]*4+cr.StatBase[ST_ENDURANCE]*8);
+	uint8 hpHealRate = cr.Stat[ST_HEALING_RATE];
+	
+	if(hpCurrent == hpMax) {cr.Say(SAY_NETMSG, "Ваше здоровье маскимально."); return true;}
+			
+	float healMod = (hpMax * 0.01) * (hpCurrent * 0.01);
+	if(healMod == 0) healMod = 1;
+	uint16 healAdd = (hpHealRate * 4) * (healMod);
+	healAdd = CLAMP(healAdd, 1, hpHealRate * (cr.Stat[ST_ENDURANCE] + cr.Stat[ST_STRENGTH]) * 0.8) ;
+	hpCurrent + healAdd > hpMax ? cr.StatBase[ST_CURRENT_HP] = hpMax : cr.StatBase[ST_CURRENT_HP] += healAdd;
+	
+	//bleed
+	if(hpCurrent >= (hpMax * 0.75))
+	{
+		ChangeStatus(cr, CR_STATUS_BLEED, healAdd * 0.5, false); 
+	}
+	
+	_DecItem(item, 1); //delete stimpack
+	
+	uint8 overdose = (cr.StatBase[ST_OVERDOSE]&0x4); //overdose
+	
+	cr.Say(SAY_NETMSG, "before "+cr.Stat[ST_OVERDOSE]);
+	
+	if(overdose <= (cr.Stat[ST_ENDURANCE] + cr.Stat[ST_STRENGTH]) / 2.5)
+	{
+		overdose++;
+		overdose = CLAMP(overdose, 0, 7);
+		cr.StatBase[ST_OVERDOSE] |= overdose;
+	}else
+	{
+		if(Random(0, 95) > cr.Stat[ST_LUCK] * 10)
+		{
+			cr.ToDead(Random(0,1) > 0 ? ANIM2_DEAD_FRONT : ANIM2_DEAD_BACK, null);
+			cr.Say(SAY_NETMSG, "Вы умерли от передозировки.");
+			return true;
+		}else 
+		{
+			cr.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), 200-(cr.Stat[ST_ENDURANCE]*cr.Stat[ST_HEALING_RATE]*2), cr.HexX, cr.HexY);
+			cr.Say(SAY_NETMSG, "У Вас передозировка.");
+		}
+	}
+	
+	cr.Say(SAY_NETMSG, "after "+cr.StatBase[ST_OVERDOSE]);
+	
+	ChangeCritterSpeed(cr); //pm added
+			
+	cr.Say(SAY_NETMSG, "Вы восстановили "+healAdd+" жизней");
+return true;
+}
+
+bool ItemPowderUse(Critter& cr, Item& item)
+{
+	uint8 overdose = ((cr.StatBase[ST_OVERDOSE]>>4)&0x4); //overdose
+	
+	cr.Say(SAY_NETMSG, "before "+cr.Stat[ST_OVERDOSE]);
+	
+	if(overdose <= ((cr.Stat[ST_ENDURANCE] *2 ) + (cr.Stat[ST_STRENGTH] * 2) / 5))
+	{
+		overdose++;
+		overdose = CLAMP(overdose, 0, 7);
+		(cr.StatBase[ST_OVERDOSE]<<4) |= overdose;
+	}else
+	{
+		if(Random(0, 95) > cr.Stat[ST_LUCK] * 10)
+		{
+			cr.ToDead(Random(0,1) > 0 ? ANIM2_DEAD_FRONT : ANIM2_DEAD_BACK, null);
+			cr.Say(SAY_NETMSG, "Вы умерли от передозировки.");
+			return true;
+		}else 
+		{
+			cr.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), 200-(cr.Stat[ST_ENDURANCE]*cr.Stat[ST_HEALING_RATE]*2), cr.HexX, cr.HexY);
+			cr.Say(SAY_NETMSG, "У Вас передозировка.");
+		}
+	}
+	
+	cr.Say(SAY_NETMSG, "after "+cr.StatBase[ST_OVERDOSE]);
+	UseDrug(cr, item);
+	return true;
+}
+
+uint cte_Heal(Critter& cr, int identifier, uint& rate)
+{
+	cr.StatBase[ST_CURRENT_HP]+=rate;
+	cr.Say(SAY_NETMSG,"Вылечено жизней: "+rate);
+		
+	uint8 rnd = Random(1, rate * 0.05);
+	rate -= (rate > rate - rnd ? rate - rnd : 1);
+	
+	int16 aidTime = 80 + (rate * 10) - (cr.Stat[ST_HEALING_RATE] * 3) - cr.Stat[ST_ENDURANCE] + Random(-10,10);
+	if(aidTime < 0) aidTime = 0;
+	
+	ChangeCritterSpeed(cr); //pm added
+	
+	bool repeat;
+	
+	if(cr.StatBase[ST_MAX_LIFE] <= cr.StatBase[ST_CURRENT_HP] || rate <= 1)
+	{
+		repeat = false;
+	}
+	return repeat ? aidTime : 0;
+	
+}
+
+void unsafe_doc(Critter& cr, int damage, int targetId, int docbagId, string@ message, int[]@ p4)
+{
+	Critter @ target = GetCritter(targetId);
+	if(@target == null) return;
+	
+	uint8[] drugIndexs = {0,0,0,0,0,0};
+	bool[] isHaveItem = {false,false,false,false,false,false}; //antiseptic / healing / bandage
+	
+	//isHaveItem.resize(6);
+	//drugIndexs.resize(6);
+			
+	uint16 statusFlag = target.StatBase[ST_CRSTATUS];
+
+
+			
+	Item@ activeHand = _CritGetItemHand(cr);
+	if(@activeHand == null || activeHand.GetType() != ITEM_CONTAINER) {cr.Say(SAY_NETMSG, "Техническая ошибка, итема нет. Обратитесь к геиммастеру."); return;}
+	Item@[] drugs;
+	activeHand.GetItems(-1, drugs);
+	
+	uint16 flag = activeHand.Val4;
+	
+	if(!FindItemInCont(drugs, drugIndexs, isHaveItem, flag, false)) {cr.Say(SAY_NETMSG, "Сумка доктора пуста"); return;}
+	
+	if(damage == HEAVY_DAMAGE) //heal non-firstAid damages
+	{
+		if(!isHaveItem[5] || !isHaveItem[3])  {cr.Say(SAY_NETMSG, "У Вас нет ниток или иглы."); return;}
+		if(FLAG(target.StatBase[ST_CRSTATUS], CR_STATUS_BULLET_OVER) || FLAG(target.StatBase[ST_CRSTATUS], CR_STATUS_HEAVY_DMG))
+		{
+			if(isHaveItem[1]) 
+			{
+				uint8 skillMod = (drugs[drugIndexs[1]].GetProtoId() == PID_MULTI_TOOL ? 60 : 20);
+				
+				if(Random(1,95-(target.Stat[ST_LUCK]*1.5)) > CLAMP(target.Skill[SK_DOCTOR] - skillMod, 0, 95))
+				{
+					cr.Say(SAY_NETMSG, "Для Вас это оказалось слишком сложно.");
+					cr.TimeoutBase[TO_SK_DOCTOR]=DOCTOR_TIMEOUT(cr);
+					return;
+				}
+				
+				if(isHaveItem[4])
+				{
+					target.Say(SAY_NETMSG, "have 4");
+					uint16 drugPid = drugs[drugIndexs[4]].GetProtoId();
+					
+					if(drugPid == PID_BOOZE)
+					{
+						uint8 boozeNeeded = target.Stat[ST_ENDURANCE];
+						uint8 boozeHave = drugs[drugIndexs[4]].GetCount();
+						int8 damageValue = boozeHave - boozeNeeded;
+						
+						target.Say(SAY_NETMSG, ""+boozeNeeded+" "+boozeHave+" "+damageValue);
+					
+						if(damageValue < 0)
+						{
+							InjureCritter(target, (ABS(damageValue) * (40+Random(0,5))) * ((target.Stat[ST_ENDURANCE] + target.Stat[ST_STRENGTH]) * 0.01), DAMAGE_NORMAL, target.Dir, 0);
+						}
+						
+						//uint8 forValue = boozeNeeded - ABS(boozeHave - boozeNeeded);
+						for(uint8 i = 0; i < boozeNeeded; i++)
+						{
+							if(@drugs[drugIndexs[4]] != null)
+							{
+								UseDrug(target, drugs[drugIndexs[4]]);
+								_DecItem(drugs[drugIndexs[4]], 1);
+								
+								target.Say(SAY_NETMSG, " i = "+i+" booze "+boozeNeeded);
+							}else break;
+						}
+					}
+					else if(drugPid == PID_ANESTETIC)
+					{	
+						_DecItem(drugs[drugIndexs[4]], 1);
+					}
+				}
+				else
+				{
+					InjureCritter(target, 400 * ((target.Stat[ST_ENDURANCE] + target.Stat[ST_STRENGTH]) * 0.01), DAMAGE_NORMAL, target.Dir, 0);
+				}
+				
+				if(isHaveItem[0] && (@drugs[drugIndexs[0]] != null && drugs[drugIndexs[0]].GetCount() > 0)) //blood toxic
+				{
+					uint16 drugProtoId = drugs[drugIndexs[0]].GetProtoId();
+					if(drugProtoId == PID_BOOZE)
+					{
+						//CR_STATUS_HEAVY_DMG
+						int16 hpCurrent = target.StatBase[ST_CURRENT_HP];
+						uint16 hpMax = (target.StatBase[ST_MAX_LIFE] + target.StatBase[ST_STRENGTH]*4+target.StatBase[ST_ENDURANCE]*8);
+						uint8 chance = target.Stat[ST_STRENGTH] * 3 + target.Stat[ST_ENDURANCE] * 4 + target.Stat[ST_HEALING_RATE] * 10 * ((hpMax * 0.01) * (hpCurrent * 0.01)) + (FLAG(target.StatBase[ST_CRSTATUS], CR_STATUS_BULLET_OVER) ? 30 : 0);
+						chance = CLAMP(chance, 0, 95);
+						if(Random(1, 100-(target.Stat[ST_LUCK]*Random(1,3))) > chance)
+						{
+							ChangeStatus(target, CR_STATUS_BLOOD_TOXIC, 0, true);
+						}
+					}else if(Random(0,100) > 95) ChangeStatus(target, CR_STATUS_BLOOD_TOXIC, 0, true);
+					  
+					_DecItem(drugs[drugIndexs[0]], 1);
+				    
+				}else if(Random(130-((target.Stat[ST_LUCK] * 2) + target.Stat[ST_HEALING_RATE] * 5),100) > 95) ChangeStatus(target, CR_STATUS_BLOOD_TOXIC, 0, true);
+				
+				ChangeStatus(target, CR_STATUS_BULLET_OVER, 0, false);
+				//UNSETFLAG(cr.StatBase[ST_CRSTATUS], CR_STATUS_BULLET_OVER);
+				cr.Say(SAY_NETMSG, "Вы извлекли пули."); 
+			}else
+			{
+				cr.Say(SAY_NETMSG, "Вам потребуются плоскогубцы или зажим для этого."); 
+				return;
+			}
+		}else
+		{
+			cr.Say(SAY_NETMSG, "Вам не требуются помощь данного вида."); 
+			return;
+		}
+		
+		//UNSETFLAG(cr.StatBase[ST_CRSTATUS], CR_STATUS_HEAVY_DMG);
+		ChangeStatus(target, CR_STATUS_HEAVY_DMG, 0, false);
+		cr.Say(SAY_NETMSG, "Вы зашили тяжелые раны."); 
+		return;
+		
+		
+	}
+	
+	uint[] rates;
+	uint8 countTimes = target.GetTimeEvents(CTE_DOC, null, null, rates);
+	cr.Say(SAY_NETMSG, ""+countTimes);
+	if(countTimes > 0)
+	{
+		for(uint8 i = 0; i < countTimes; i++)
+		{
+			cr.Say(SAY_EMOTE, ""+i+" "+rates[i]);
+			if(rates[i] == damage)
+			{
+				cr.Say(SAY_NETMSG, "Эта часть тела уже лечится.");
+				return;
+			}
+		}
+	}
+	
+	if(target.DamageBase[damage] == 0) {cr.Say(SAY_NETMSG, "Эта часть тела не нуждается в лечении."); return;}
+	
+	cr.Say(SAY_NETMSG, "id "+drugIndexs[2]+" have "+isHaveItem[2]);
+	
+	if(!isHaveItem[2]) {cr.Say(SAY_NETMSG, "Требуется шина."); return;}
+	
+	uint docTime = 504 - cr.Skill[SK_DOCTOR] - (target.Stat[ST_ENDURANCE] * 5);
+	target.AddTimeEvent("cte_Doc", docTime*3600, CTE_DOC, damage);
+	cr.StatBase[ST_EXPERIENCE]+=250;
+	cr.TimeoutBase[TO_SK_DOCTOR]=DOCTOR_TIMEOUT(cr);
+	cr.AddScore(SCORE_DOCTOR,1);
+	cr.Say(SAY_NETMSG, "Вы наложили швы.");
+}
+
+uint cte_Doc(Critter& cr, int identifier, uint& rate)
+{
+	cr.DamageBase[rate]=0;
+	cr.Say(SAY_NETMSG,"Вы чувствуете себя гораздо лучше.");
+	uint8 noMove = cr.DamageBase[DAMAGE_LEFT_LEG] > 0 && cr.DamageBase[DAMAGE_RIGHT_LEG] > 0 ? 1 : 0;
+	cr.ModeBase[MODE_NO_WALK] = noMove;
+	cr.ModeBase[MODE_NO_RUN] = noMove;
+	//ChangeCritterSpeed(cr); //pm added
+	return 0;
+	
+}
+
+void unsafe_setDrugsPriority(Critter& cr, int id, int state, int p2, string@ message, int[]@ p4)
+{
+	//cr.Say(SAY_EMOTE, ""+id+" "+state);
+	Item @ item = GetItem(id);
+	if(@item == null) 
+	{
+		cr.Say(SAY_NETMSG, "Не верный итем. Обратитесь к геиммастеру.");
+		return;
+	}
+	//cr.Say(SAY_EMOTE, ""+item.GetProtoId());
+	
+	if(item.GetProtoId() != PID_FIRST_AID_KIT && item.GetProtoId() != PID_DOCTORS_BAG)
+	{
+		cr.Say(SAY_NETMSG, "Неверный тип сумки.");
+		return;
+	}
+	if(item.Accessory != ACCESSORY_CRITTER)
+	{
+		cr.Say(SAY_NETMSG, "Должен быть в инвентаре.");
+		return;
+	}
+	
+	item.Val4 = state;
+}

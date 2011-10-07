@@ -2,7 +2,7 @@
 #include "_macros.fos"
 #include "entire.fos"
 
-import void SkinMenu(Critter@ cr) from "arcade_menu";
+//import void SkinMenu(Critter@ cr) from "arcade_menu";
 import void DropDrugEffects(Critter& cr) from "drugs";
 import void DropPoison(Critter& cr) from "poison";
 import void DropRadiation(Critter& cr) from "radiation";
@@ -102,7 +102,7 @@ void ReplicateCritter(Critter& cr) // Export
 		cr.ParamBase[DAMAGE_LEFT_ARM]=0;
 		cr.ParamBase[DAMAGE_RIGHT_LEG]=0;
 		cr.ParamBase[DAMAGE_LEFT_LEG]=0;
-		SkinMenu(cr);
+		//SkinMenu(cr);
 		return;
 		}
 		if(!act_var_check(cr))

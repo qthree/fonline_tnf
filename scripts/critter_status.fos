@@ -1,0 +1,131 @@
+//critter status
+//pm
+
+#include "_macros.fos"
+
+import int GetDeteriorationProcent(Item& item) from "repair";
+import void InjureCritter(Critter& cr, uint dmg, uint dmgType, uint8 dir, uint attackerId) from "combat"; // Export
+
+void ChangeStatus(Critter& cr, uint16 status, uint8 value, bool set) //export
+{
+	//cr.Say(SAY_NETMSG, "bleed start0");
+	bool onlyFlag = false;
+	
+	if(set)
+	{
+		switch(status)
+		{
+			case CR_STATUS_BLEED 		: BleedCritterHigh(cr, value); break;
+			case CR_STATUS_BLOOD_TOXIC 	: BloodToxicCritterHigh(cr); break;
+			default : break;
+		}
+		
+		SETFLAG(cr.StatBase[ST_CRSTATUS], status);
+	}
+	else
+	{
+		switch(status)
+		{
+			case CR_STATUS_BLEED 		: BleedCritterLow(cr, value); break;
+			case CR_STATUS_BLOOD_TOXIC 	: BloodToxicCritterLow(cr, value); break;
+			case CR_STATUS_HEAVY_DMG	: onlyFlag = true; break;
+			case CR_STATUS_BULLET_OVER	: onlyFlag = true; break;
+			default : break;
+		}
+		
+		if(onlyFlag && FLAG(cr.StatBase[ST_CRSTATUS], status)) UNSETFLAG(cr.StatBase[ST_CRSTATUS], status);
+	}
+}
+
+void BleedCritterHigh(Critter& cr, int8 bleedValue)
+{
+	Item@[] armor = {null};
+	cr.GetItems(SLOT_ARMOR, armor);
+	if(@armor[0] != null)
+	{
+		uint8 armorClass = armor[0].Proto.Armor_AC, armorDet = GetDeteriorationProcent(armor[0]);
+		cr.Say(SAY_NETMSG, "bleed value old"+bleedValue);
+		bleedValue -= CLAMP(armorClass * (armorDet > 0 ? armorDet : 1 * 0.01) * 2, 0, 100);
+	}
+
+	cr.Say(SAY_NETMSG, "bleed value new"+bleedValue);
+	if(bleedValue > 0)	cr.AddTimeEvent("cte_bleed", ((cr.Stat[ST_ENDURANCE] * 10 + (cr.Stat[ST_STRENGTH] * 10)) * 4) * (bleedValue * 0.001), CTE_BLEED, bleedValue);	
+}
+
+void BleedCritterLow(Critter& cr, int8 bleedValue)
+{
+	uint[] rates;
+	uint8 eventCount = cr.GetTimeEvents(CTE_BLEED, null, null, rates);
+	
+	if(eventCount > 0)
+	{
+		for(uint8 i = 0; i < eventCount; i++)
+		{
+			uint8 tempBleed = rates[i] - (bleedValue / rates.length()) > 0 ? rates[i] - (bleedValue / rates.length()) : 0;
+			rates[i] =  tempBleed;
+		}
+	}
+}
+
+uint cte_bleed(Critter& cr, int identifier, uint& rate)
+{
+	if(cr.GetTimeEvents(CTE_BLEED, null, null, null) <= 1 && rate == 0) 
+	{
+		UNSETFLAG(cr.StatBase[ST_CRSTATUS], CR_STATUS_BLEED); 
+		cr.Say(SAY_NETMSG, "Вы перестали истекать кровью.");
+		return 0;
+	}
+	
+	uint16 damage = rate * (cr.Stat[ST_ENDURANCE] * 0.01 + (cr.Stat[ST_STRENGTH] * 0.01));
+	if(cr.StatBase[ST_CURRENT_HP] > damage)
+	  cr.StatBase[ST_CURRENT_HP] -= damage > 0 ? damage : 1;
+	else
+	  InjureCritter(cr, damage, DAMAGE_NORMAL, 0, 0);
+	rate -= rate * (cr.Stat[ST_HEALING_RATE] * 0.01);
+	cr.Say(SAY_NETMSG, "Вы истекаете кровью.");
+	
+	return ((cr.Stat[ST_ENDURANCE] * 10 + (cr.Stat[ST_STRENGTH] * 10)) * 4) * (rate * 0.001);
+}
+
+void BloodToxicCritterHigh(Critter& cr)
+{
+	if(cr.GetTimeEvents(CTE_BLOOD_TOXIC, null, null, null) > 0)
+	cr.AddTimeEvent("cte_blood_toxic", ((cr.Stat[ST_ENDURANCE] * 10 + (cr.Stat[ST_STRENGTH] * 10)) * cr.Stat[ST_HEALING_RATE]) * (0.001), CTE_BLOOD_TOXIC, 0);
+}
+
+void BloodToxicCritterLow(Critter& cr, uint8 value)
+{
+	uint8 toxicLevel = cr.StatBase[ST_BLOOD_TOXIC];
+	toxicLevel = CLAMP(toxicLevel - value, 0, 100);
+	
+	if(toxicLevel <= 0)
+	{
+		//int[] indexs;
+		if(cr.GetTimeEvents(CTE_BLOOD_TOXIC, null, null, null) > 0)
+		{
+			cr.EraseTimeEvents(CTE_BLOOD_TOXIC);
+			UNSETFLAG(cr.StatBase[ST_CRSTATUS], CR_STATUS_BLOOD_TOXIC);
+			cr.Say(SAY_NETMSG, "Вы чувствуете себя намного лучше.");
+		}
+	}
+	
+	cr.StatBase[ST_BLOOD_TOXIC] = toxicLevel;
+}
+
+uint cte_blood_toxic(Critter& cr, int identifier, uint& rate)
+{	
+	cr.StatBase[ST_BLOOD_TOXIC] += 3;
+	uint8 toxicLevel = cr.StatBase[ST_BLOOD_TOXIC];
+	if(toxicLevel >= cr.Stat[ST_ENDURANCE] * 5 + (cr.Stat[ST_STRENGTH] * 5))
+	{
+		cr.ToDead(Random(0,1)==0?ANIM2_DEAD_FRONT:ANIM2_DEAD_BACK,null);
+		UNSETFLAG(cr.StatBase[ST_CRSTATUS], CR_STATUS_BLOOD_TOXIC);
+		cr.Say(SAY_NETMSG, "Вы умерли от заражения крови.");
+		return 0;
+	}
+	else if(toxicLevel <= 0) return 0;
+	
+	cr.Say(SAY_NETMSG, "Вы страдаете от заражения крови." + cr.StatBase[ST_BLOOD_TOXIC]);
+	return ((cr.Stat[ST_ENDURANCE] * 10 + (cr.Stat[ST_STRENGTH] * 10)) * cr.Stat[ST_HEALING_RATE]) * (0.001);
+	
+}

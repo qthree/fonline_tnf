@@ -18,6 +18,11 @@ int    StepY;
 bool   LevelUp;
 int    CurTab;
 
+bool IsHeavyDmg; //pm added
+bool IsBullOver; //pm added
+bool IsBleed; //pm added
+bool IsBldTox; //pm added
+
 
 void InitChosenTabs() // Export
 {
@@ -29,12 +34,39 @@ void InitChosenTabs() // Export
 	if(StepY != 0) StepY += TabPic.Height;
 	LevelUp = false;
 	CurTab = 0;
+	
+	IsHeavyDmg = false; //pm added
+	IsBullOver = false; //pm added
+	IsBleed = false; //pm added
+	IsBldTox = false; //pm added
 }
 
 void SetChosenTabLevelUp(bool enable) // Export
 {
 	LevelUp = enable;
 }
+
+void SetChosenTabHeavyDmg(bool enable) // Export
+{
+	IsHeavyDmg = enable;
+}
+
+void SetChosenTabBullOver(bool enable) // Export
+{
+	IsBullOver = enable;
+}
+
+void SetChosenTabBleed(bool enable) // Export
+{
+	IsBleed = enable;
+}
+
+void SetChosenTabBldTox(bool enable) // Export
+{
+	IsBldTox = enable;
+}
+
+
 
 void DrawChosenTabs() // Export
 {
@@ -77,6 +109,15 @@ void DrawChosenTabs() // Export
 
 	if(IsTurnBased() && !chosen.IsTurnBasedTurn())
 		DrawTab(GetMsgStr(TEXTMSG_GAME, STR_TURN_BASED_TITLE), COLOR_DGREEN);
+	
+	if(FLAG(chosen.StatBase[ST_CRSTATUS], CR_STATUS_HEAVY_DMG))				//pm added
+		DrawTab(GetMsgStr(TEXTMSG_GAME, STR_HEAVY_DMG_TITLE), COLOR_DRED);
+	if(FLAG(chosen.StatBase[ST_CRSTATUS], CR_STATUS_BULLET_OVER))
+		DrawTab(GetMsgStr(TEXTMSG_GAME, STR_BULLET_OVER_TITLE), COLOR_DRED);
+	if(FLAG(chosen.StatBase[ST_CRSTATUS], CR_STATUS_BLEED))
+		DrawTab(GetMsgStr(TEXTMSG_GAME, STR_BLEED_TITLE), COLOR_DRED);
+	if(FLAG(chosen.StatBase[ST_CRSTATUS], CR_STATUS_BLOOD_TOXIC))
+		DrawTab(GetMsgStr(TEXTMSG_GAME, STR_BLOOD_TOXIC_TITLE), COLOR_DRED);
 }
 
 void DrawTab(string@ text, uint color)

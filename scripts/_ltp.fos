@@ -18,7 +18,8 @@ funcdef uint PROCESS(Critter@, int&, int&, int&);
 #define LTP_SNOW	(33) //pm add
 #define LTP_ROPECUFFS	(34) //pm add
 #define LTP_TEACH	(35)
-//36..255 для предметов, квестов, сценок и т.д.
+#define LTP_SHARP	(36)
+//37..255 для предметов, квестов, сценок и т.д.
 
 import bool RegisterProcess(uint8 type, any func) from "ltp";
 

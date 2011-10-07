@@ -29,11 +29,15 @@
 
 #define MAP_SATTER_WILD	(101)
 
+#define DEATH_TIMEOUT	(25)
+
+#define ANYDATA_ARCADE_HIVE "ARCADE_HIVE"
+
 import void skin(Critter& player, int playerId, int crType, int param2) from "skins";
 import void ChangeCritterSpeed(Critter& cr) from "speed"; //pm add
-uint16[]  body = {24, 52, 97, 55, 67, 16, 68, 15, 19, 76, 59, 22, 60, 80, 25, 51, 23, 86, 100, 81};
+//uint16[]  body = {24, 52, 97, 55, 67, 16, 68, 15, 19, 76, 59, 22, 60, 80, 25, 51, 23, 86, 100, 81};
 //  Index:         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17,  18, 19.  
-uint16[] realbody(8,0);          
+//uint16[] realbody(8,0);          
 
 
 void unsafe_arcade(Critter& player, int param0, int param1, int param2, string@ param3, int[]@ param4)
@@ -58,11 +62,112 @@ void unsafe_arcade(Critter& player, int param0, int param1, int param2, string@ 
 	}
 	else
 	{
+		player.Say(SAY_NETMSG, "Включен аркадный режим игры. Выбор существа через "+DEATH_TIMEOUT+" секунд.");
 		player.ParamBase[ARCADE_MODE]=1;
-		SkinMenu(player);
+		ArcadeDead(player, 0);
+		//SkinMenu(player);
 	}
 	return;
 }
+//////////////////
+
+void ShowHiveButtons(Critter& cr)
+{
+	int[] arcadeHive;
+	if(IsAnyData(ANYDATA_ARCADE_HIVE) && @cr != null) GetArcadeData(arcadeHive); else {Log("arcade death time event error"); return;}
+	cr.RunClientScript("client_screen_additional@SendHiveInfo", 0, 0, 0, null, arcadeHive);
+}
+
+void ArcadeDead(Critter& cr, uint8 time)
+{
+	//cr.Say(SAY_NETMSG, "dead");
+	//uint16[] id = {cr.Id};
+	CreateTimeEvent(__FullSecond+REAL_MS((time > 0 ? time : DEATH_TIMEOUT)*1000), "e_arcade_dead", cr.Id, true);
+	//cr.Say(SAY_NETMSG, "dead2");
+	//cr.RunClientScript("client_screen_additional@ShowGlobalMap", 0, 0, 0, null, arcadeHive);
+}
+
+uint e_arcade_dead(uint[]@ values)
+{
+	uint16 id = values[0];
+	Critter @ cr = GetCritter(id);
+	int[] arcadeHive;
+	if(IsAnyData(ANYDATA_ARCADE_HIVE) && @cr != null) GetArcadeData(arcadeHive); else {Log("arcade death time event error"); return 0;}
+	cr.RunClientScript("client_screen_additional@SendHiveInfo", 0, 0, 0, null, arcadeHive);
+	
+	cr.ToLife();
+	cr.TransitToGlobal(false);
+	
+	cr.StatBase[ST_ARCADE_DEAD] = 1;
+	
+	return 0;
+}
+
+bool GetArcadeData(int[]& arcadeHive)
+{
+	//Log("dead1");
+	if(IsAnyData(ANYDATA_ARCADE_HIVE))
+	{
+		GetAnyData(ANYDATA_ARCADE_HIVE, arcadeHive);
+	}else return false;
+	//Log("dead2");
+return true;
+}
+
+void arcadehiveinsert(Critter& cr, uint16 x, uint16 y, uint8 type)
+{
+	int[] arcadeHive;
+	/*if(IsAnyData(ANYDATA_ARCADE_HIVE))
+	{
+		GetAnyData(ANYDATA_ARCADE_HIVE, arcadeHive);
+	}*/
+	if(!GetArcadeData(arcadeHive)) {cr.Say(SAY_NETMSG, "нет логов, создаем новым массив.");}
+	uint data = (int(x)&0x3FF)|((int(y)&0x3FF)<<10)|((int(type)&0xFFF)<<20);
+	arcadeHive.insertLast(data);
+	if(SetAnyData(ANYDATA_ARCADE_HIVE, arcadeHive))
+	cr.Say(SAY_NETMSG, "добавлен логово No "+arcadeHive.length()+" x "+x+" y "+y+" тип "+type);
+	else
+	cr.Say(SAY_NETMSG, "ошибка записи, массив не записан. данные не изменены.");
+}
+
+void arcadehivelist(Critter& cr)
+{
+	int[] arcadeHive;
+	if(!GetArcadeData(arcadeHive)) {cr.Say(SAY_NETMSG, "нет логов, операция невозможна. выход."); return;}
+	for(uint8 i = 0; i < arcadeHive.length(); i++)
+	{
+		uint16 x=(arcadeHive[i])&0x3FF;
+		uint16 y=(arcadeHive[i]>>10)&0x3FF;
+		uint16 type=(arcadeHive[i]>>20)&0xFFF;
+		
+		cr.Say(SAY_NETMSG, "логово No "+i+" x "+x+" y "+y+" тип(по БТ) "+type);
+	}
+}
+
+void arcadehivedelone(Critter& cr, uint8 index)
+{
+	int[] arcadeHive;
+	if(!GetArcadeData(arcadeHive)) {cr.Say(SAY_NETMSG, "нет логов, операция невозможна. выход."); return;}
+	uint8 length = arcadeHive.length();
+	if(index > length) {cr.Say(SAY_NETMSG, "индекс > длинны. выход"); return;}
+	arcadeHive.removeAt(index);
+	if(SetAnyData(ANYDATA_ARCADE_HIVE, arcadeHive))
+	cr.Say(SAY_NETMSG, "удален индекс No "+index+" старая длинна "+length+" новая "+arcadeHive.length()+" массив сдвинут на один влево с удаление элемента.");
+	else
+	cr.Say(SAY_NETMSG, "ошибка записи, массив не записан. данные не изменены.");
+	
+}
+
+void arcadehiveclear(Critter& cr)
+{
+	int[] arcadeHive;
+	if(!GetArcadeData(arcadeHive)) {cr.Say(SAY_NETMSG, "нет логов, операция невозможна. выход."); return;}
+	EraseAnyData(ANYDATA_ARCADE_HIVE);
+	cr.Say(SAY_NETMSG, "Количество удаленных логов : "+arcadeHive.length());
+	
+	
+}
+//////////////////////
 
 void DontPickItUp(Critter& cr) //Export
 {
@@ -74,7 +179,7 @@ bool _noPickUp(Critter& cr, int skill, Critter@ onCritter, Item@ onItem, Scenery
 	if(skill==SKILL_PICK_ON_GROUND || skill==SKILL_LOOT_CRITTER || skill==SKILL_TALK || skill==SK_STEAL) return true;
 	return false;
 }
-
+/* deprecated
 void SkinMenu(Critter@ cr) // Export
 {
 	//return;
@@ -115,7 +220,6 @@ void SkinMenu(Critter@ cr) // Export
 	if(StartValue>=14 && (flocent>=15 || flocentNow >= 3)) {maxValue--; cr.Say(SAY_NETMSG, "floater");}
 	if(StartValue>=16 && (flocent>=15 || flocentNow >= 3)) {maxValue--; cr.Say(SAY_NETMSG, "centaur");}
 	int rate=StartValue|(maxValue<<16);
-	cr.StatBase[ST_VAR1] = 0;
 	cr.AddTimeEvent("Menu", 1, CTE_CHOOSESKIN, rate);
 }
 
@@ -228,8 +332,6 @@ uint Menu(Critter& cr, int identifier, uint& rate)
 		cr.SayMsg(SAY_DIALOGBOX_BUTTON(butNumber),TEXTMSG_GAME, 106931);
 		}
 	}
-	cr.StatBase[ST_VAR1]++; //ErlKing ограничение по времени на выбор скина
-	if (cr.Stat[ST_VAR1]>=10) LetsGo(cr, 0); //ErlKing ограничение по времени на выбор скина
 	return REAL_SECOND(30);
 }
 
@@ -310,10 +412,10 @@ void LetsGo(Critter& cr, int num)
 	cr.TransitToMap(maps[0].Id, 0);
 	cr.TransitToGlobal(false);
 	if(toDel) DeleteLocation(locs[0].Id);
-	*/
+	*
 	cr.TransitToMap(map.Id, x,y,Random(0,5));
 	return;
-}
+}*/
 
 void BreakBalls(uint16 crType) //i've got balls of steel ;D
 {
@@ -334,7 +436,7 @@ void BreakBalls(uint16 crType) //i've got balls of steel ;D
 }
 //ody = {24, 52, 97, 55, 67, 16, 68, 15, 19, 76, 59, 22, 60, 80, 25, 51, 23, 86, 100, 81};
 
-
+/*deprecated move -> client_unsafe
 
 //pm added, all critters bonus, stats, and other here
 bool ValidateParams(Critter& cr)
@@ -717,7 +819,7 @@ bool ValidateParams(Critter& cr)
 				cr.ParamBase[ST_AGILITY] = 7;
 				cr.ParamBase[ST_LUCK] = 3;
 				cr.ParamBase[ST_MAX_LIFE] = 150;
-				cr.ParamBase[ST_ACTION_POINTS] = 3;
+				cr.ParamBase[ST_ACTION_POINTS] = 6;
 				cr.ParamBase[ST_ARMOR_CLASS] = 15;
 				cr.ParamBase[ST_MELEE_DAMAGE] = 10;
 				cr.ParamBase[ST_HEALING_RATE] = 4;
@@ -731,6 +833,6 @@ bool ValidateParams(Critter& cr)
 	}
 return false;
 }
-
+*/
 
 

@@ -44,6 +44,10 @@ import void ApplyFlashEff(Critter& target, uint8 dist) from "flash_grenade";
 
 import bool ChangeWildness(uint16 x, uint16 y, int delta) from "globalmap_group";
 
+//pm added
+import void ChangeStatus(Critter& cr, uint16 status, uint8 value, bool set) from "critter_status";
+import int GetDeteriorationProcent(Item& item) from "repair";
+
 class AttackStruct
 {
   Critter@ Attacker;
@@ -549,6 +553,35 @@ cr.Action(ACTION_USE_WEAPON,(((!isHit && isCritical && !hitRandomly)?1:0)<<8)|(a
       int tDir  = realTarget.Dir;
       if (isSneak && cr.Perk[PE_SILENT_DEATH]!=0 && (crDir == tDir || ((crDir+1)%6)==tDir || ((crDir+5)%6)==tDir)) attack.DmgMul*=2;
       ApplyDamage(attack, realTarget, 1, criticalHit, true, results);
+      if(!isArm) //pm added
+      {
+		//uint8 bleedMin = 0, bleedMax = 0;
+		
+		uint8 bleedMax = _WeaponDmgMin(weapon, weaponMode) - (_WeaponDmgMin(weapon, weaponMode) * (GetDeteriorationProcent(attack.RealWeapon) * 0.01)), 
+		      bleedMin = _WeaponDmgMax(weapon, weaponMode) - (_WeaponDmgMax(weapon, weaponMode) * (GetDeteriorationProcent(attack.RealWeapon) * 0.01));
+		/*
+		switch(attack.WeaponPid)
+		{
+			case PID_KNIFE  		: bleedMin = 0; bleedMax = 10; break;
+			case PID_COMBAT_KNIFE   	: bleedMin = 10; bleedMax = 30; break;
+			case PID_LIL_JESUS_WEAPON	: bleedMin = 20; bleedMax = 30; break;
+			case PID_SHIV			: bleedMin = 5; bleedMax = 10; break;
+			case PID_SWITCHBLADE		: bleedMin = 5; bleedMax = 15; break;
+			case PID_WAKIZASHI_BLADE	: bleedMin = 25; bleedMax = 35; break;
+			case PID_RIPPER			: bleedMin = 50; bleedMax = 100; break;
+			default				: break;
+		}*/
+	ChangeStatus(target, CR_STATUS_BLEED, Random(bleedMin, bleedMax)*(GetDeteriorationProcent(attack.RealWeapon) * 0.1), true); //pm added //*(GetDeteriorationProcent(attack.RealWeapon) * 0.01)
+      }
+      
+      if(criticalHit && !FLAG(target.StatBase[ST_CRSTATUS], CR_STATUS_BULLET_OVER))
+      {
+		bool bullerOverRoll = (Random(1,100) > target.Stat[ST_LUCK] * 5);
+		
+		ChangeStatus(target, CR_STATUS_BULLET_OVER, 0, true);
+		if(!FLAG(target.StatBase[ST_CRSTATUS], CR_STATUS_HEAVY_DMG))
+			ChangeStatus(target, CR_STATUS_HEAVY_DMG, 0, true);
+      }
     }
     else
     {
@@ -1226,7 +1259,11 @@ cr.Action(ACTION_USE_WEAPON,(((!isHit && isCritical && !hitRandomly)?1:0)<<8)|(a
 		 FlushResults(results); //Уведомление о промахе в случае оного.
 		 return;
 		}
-		////////////////////////////////////////////////////////////////////////////// 
+		//////////////////////////////////////////////////////////////////////////////
+
+	//pm added
+	if(!attack.RealWeapon.IsStackable()) cr.AddTimeEvent("cte_throw", 1, CTE_THROW, attack.WeaponPid);	
+
 	}
 	else
 	  cr.Say(SAY_NETMSG, "Combat error: weapon PID="+weapPid+" not handled, please send bug report.");
@@ -1480,6 +1517,15 @@ if(attack.WeaponPid==PID_FLASH_GRENADE)
 
       if(target.Mode[MODE_NO_KNOCK]!=0) UNSETFLAG(eff,HF_KNOCKDOWN);
       else if (FLAG(eff, HF_KNOCKDOWN) && target.Perk[PE_STONEWALL]!=0 && (Random(0,100)<50)) UNSETFLAG(eff,HF_KNOCKDOWN);
+     
+      
+      
+      //pm added
+      bool heavyDmgRoll = (Random(1,100) > target.Stat[ST_LUCK] * 5);
+      if(heavyDmgRoll && !FLAG(target.StatBase[ST_CRSTATUS], CR_STATUS_HEAVY_DMG))
+      {
+		ChangeStatus(target, CR_STATUS_HEAVY_DMG, 0, true);
+      }
     }
 
     if (attack.ForceFlags!=0)
@@ -1548,6 +1594,13 @@ if(attack.WeaponPid==PID_FLASH_GRENADE)
 	int totalDmg=0;
 	dmgMul*=attack.DMMod;
 	int dmgDiv=2*attack.DDMod;
+	
+	if(attack.WeaponSubtype == WS_MELEE && attack.RealWeapon.IsDeteriorable()) //pm added
+	{
+		dmgMin -= dmgMin * (GetDeteriorationProcent(attack.RealWeapon) * 0.01);
+		dmgMax -= dmgMax * (GetDeteriorationProcent(attack.RealWeapon) * 0.01);
+	}
+	
 	for (uint i=0;i<rounds;i++)
 	{
 	  rawDmg=Random(dmgMin,dmgMax);

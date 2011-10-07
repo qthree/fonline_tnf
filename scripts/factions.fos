@@ -137,7 +137,7 @@ void ListFactions(Critter& player, int faction, int param1, int param2, string@ 
 		}
 	else if(faction==6)
 		{
-		if (Satter_fort.length()==0) player.Say(SAY_NETMSG, "рейдеров нет в игре");
+		if (Satter_raiders.length()==0) player.Say(SAY_NETMSG, "рейдеров нет в игре");
 		else
 		{
 		player.Say(SAY_NETMSG, "рейдеры:");

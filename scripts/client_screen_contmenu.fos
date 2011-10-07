@@ -268,54 +268,73 @@ class Description : IGUIElementCallbackInit
 	}
 }
 
-class ContextButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick//, IGUIElementCallbackDraw
+class ContextButton : ButtonTest//, IGUIElementCallbackDraw
 {
   
-	IGUIElementOpt@ Options;
-	ScreenMain @ Instance;
-	uint8 ButtType;
-	uint8 ButtSubMenu;
-	uint8 ButtSubMenuBack;
-	uint8 ButtNum;
-	uint16 crId;
-	uint16 itemId;
 	
-	ContextButton(ScreenMain& instance)
+	
+	
+	ContextButton(ScreenMain& instance, uint8 type, uint8 subMenu, uint8 subMenuBack, uint8 num)
 	{
 		@Instance=instance;
 		@Instance.Button=this;
+		@ButtonT = GetButtonByType(type);
+		
+		ButtonT.ButtType = type;
+		ButtonT.ButtSubMenu = subMenu;
+		ButtonT.ButtSubMenuBack = subMenuBack;
+		ButtonT.ButtNum = num;
 	}
 	
 	void OnInit()
 	{
-		@Options=GUI_GetElementOptions();
-		uint8 buttCount = 0;
-		switch(__subMenuNum)
+		//Message(""+ButtType+" "+ButtSubMenu+" "+ButtNum);
+		if(@ButtonT != null) 
 		{
-		  case SUBMENU_MAIN : buttCount = 8;
-		  case SUBMENU_ADMIN: buttCount = 5;
-		  case SUBMENU_ADV  : buttCount = 5;
-		  default	    : buttCount = 6;
+			ButtonT.SetOptions(GUI_GetElementOptions());
+			
+			
+			
+			
+			@ButtonT.choo = GetChosen();
+			@ButtonT.item = GetItem(__contMenuItId); 
+			@ButtonT.target = GetCritter(__contMenuCrId);
+			
+			uint8 buttCount = 0;
+			switch(__subMenuNum)
+			{
+				case SUBMENU_MAIN : buttCount = 8;
+				case SUBMENU_ADMIN: buttCount = 5;
+				case SUBMENU_ADV  : buttCount = 5;
+				default	    : buttCount = 6;
+		  
+			}
+			
+			int16 angel = 0, posX = 0, posY = 0;
+			angel = (360 / buttCount)*ButtNum;
+
+			posX = cos(angel)*85.35;
+			posY = sin(angel)*84.85;
+
+			ButtonT.Options.Position(posX + SCREEN_AXISTX - (ButtNum % 2 == 1 ? 60 : 0), posY + SCREEN_AXISTY - (ButtNum % 2 == 0 ? 45 : -10));
+			
+			bool nearObj = false;
+			if(item != null)
+			{
+				nearObj = ((choo.HexX < item.HexX + 2 || choo.HexX > item.HexX - 2) && (choo.HexY < item.HexY + 2 || choo.HexY > item.HexY - 2));
+			}
+			
+			ButtonT.OnInit();
+			
+			Message(""+ButtonT.ButtNum+" "+ButtonT.ButtSubMenu+" "+ButtonT.ButtSubMenuBack+" "+ButtonT.ButtType+" "+__subMenuNum);
+			
+			if(__subMenuNum != ButtonT.ButtSubMenu) ButtonT.Options.Visible(false);
+			return;
 		  
 		}
-		int16 angel = 0, posX = 0, posY = 0;
-		angel = (360 / buttCount)*ButtNum;
-
-		posX = cos(angel)*85.35;
-		posY = sin(angel)*84.85;
-
-		Options.Position(posX + SCREEN_AXISTX - (ButtNum % 2 == 1 ? 60 : 0), posY + SCREEN_AXISTY - (ButtNum % 2 == 0 ? 45 : -10));
-
-
-		CritterCl @ choo = GetChosen();
-		ItemCl@ item = GetItem(__contMenuItId); 
 		
-		bool nearObj = false;
-		if(item != null)
-		{
-			nearObj = ((choo.HexX < item.HexX + 2 || choo.HexX > item.HexX - 2) && (choo.HexY < item.HexY + 2 || choo.HexY > item.HexY - 2));
-		}
 		
+		/*
 		if(ButtSubMenu != __subMenuNum && ButtType != BUTTON_CANCEL_ALL) Options.Visible(false);
 		else
 
@@ -333,15 +352,21 @@ class ContextButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick//, 
 		  //case BUTTON_TO_SPECIAL : Options.Visible(true); break;
 		  //case BUTTON_DOOR_KNOCK : Options.Visible(item != null && item.GetType() == ITEM_DOOR && nearObj); break;
 		  case BUTTON_ADMIN : Options.Visible(false); break;
-		}
+		}*/
 	}
 		
 	void OnMouseClick(int click)
 	{
-		::HideScreen(0,2,2,2);
 		
-		CritterCl @ target = GetCritter(__contMenuCrId);
 		
+		if(@ButtonT != null) 
+		{
+			::HideScreen(0,2,2,2);
+			ButtonT.OnMouseClick(click); 
+			return;
+		  
+		}
+		/*
 		switch(ButtType)
 		{
 		  case BUTTON_CANCEL_ALL : {::HideScreen(0,2,2,2); break;}
@@ -363,7 +388,294 @@ class ContextButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick//, 
 		  //case BUTTON_TO_SPECIAL : {__subMenuNum = SUBMENU_SPECIAL_ACTIONS; ::ShowScreen(CLIENT_SCREEN_CONTMENU, Instance.GetPosX(), Instance.GetPosY(), SUBMENU_SPECIAL_ACTIONS); break;}
 		  //case BUTTON_DOOR_KNOCK : {ShowContScreen(ACTION_DOOR_KNOCK, 0);  break;}
 		  default : Message("something wrong"); break;
-		}
+		}*/
+	}
+}
+
+ButtonTest @ GetButtonByType(uint8 type)
+{
+	ButtonTest@ button;
+	if(type == BUTTON_CANCEL_ALL)
+	{
+		@button = ButtonCancelAll();
+	}else 
+	if(type == BUTTON_INV)
+	{
+		@button = ButtonInventory();
+	}else 
+	if(type == BUTTON_CANCEL)
+	{
+		@button = ButtonCancel();
+	}else 
+	if(type == BUTTON_USE)
+	{
+		@button = ButtonUse();
+	}else 
+	if(type == BUTTON_LOOK)
+	{
+		@button = ButtonLook();
+	}else 
+	if(type == BUTTON_SKILL)
+	{
+		@button = ButtonSkill();
+	}else 
+	if(type == BUTTON_ADMIN)
+	{
+		@button = ButtonAdmin();
+	}else 
+	if(type == BUTTON_LOOT)
+	{
+		@button = ButtonLoot();
+	}else 
+	if(type == BUTTON_PUSH)
+	{
+		@button = ButtonPush();
+	}else 
+	if(type == BUTTON_ROTATE)
+	{
+		@button = ButtonRotate();
+	}else 
+	if(type == BUTTON_TALK)
+	{
+		@button = ButtonTalk();
+	}else 
+	if(type == BUTTON_REMEMBER)
+	{
+		@button = ButtonRemember();
+	}else 
+	if(type == BUTTON_PANNEL_SKILL)
+	{
+		@button = ButtonPannelSkill();
+	}else 
+	if(type == BUTTON_PANNEL_TEXT)
+	{
+		@button = ButtonPannelText();
+	}
+	
+	return button;
+}
+
+class ButtonTest : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
+{
+	IGUIElementOpt@ Options;
+	ScreenMain @ Instance;
+	uint8 ButtType;
+	uint8 ButtSubMenu;
+	uint8 ButtSubMenuBack;
+	uint8 ButtNum;
+	uint16 crId;
+	uint16 itemId;
+	
+	CritterCl @ choo;
+	CritterCl @ target;
+	ItemCl	  @ item; 
+	
+	ButtonTest @ ButtonT;
+	
+	ButtonTest()
+	{
+		
+	}
+	
+	void SetOptions(IGUIElementOpt@ opt)
+	{
+		@Options = opt;
+	}
+	
+	void SetPos(uint16 x, uint16 y)
+	{
+		//PosX = x;
+		//PosY = y;
+	}
+
+	void OnInit()
+	{
+		//@Options=GUI_GetElementOptions();
+	}
+	
+	void OnMouseClick(int click)
+	{
+
+	}
+}
+
+class ButtonCancelAll  : ButtonTest
+{
+	void OnInit()
+	{
+		if(ButtSubMenu != __subMenuNum && ButtType != BUTTON_CANCEL_ALL) Options.Visible(false);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		GUI_HideScreen(CLIENT_SCREEN_CONTMENU,2,2,2);
+	}
+}
+
+class ButtonCancel : ButtonTest
+{
+	void OnInit()
+	{
+	}
+	
+	void OnMouseClick(int click)
+	{
+		__subMenuNum = ButtSubMenuBack; 
+		ShowScreen(CLIENT_SCREEN_CONTMENU, Instance.GetPosX(), Instance.GetPosY(), 0);
+	}
+}
+
+class ButtonInventory : ButtonTest
+{
+	void OnInit()
+	{
+		Options.Visible(__contMenuCrId != 0 ? true : __contMenuItId != 0 ? true : false);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		ShowContScreen(SCREEN_BAG, CHOSEN_USE_ITEM);
+	}
+}
+
+class ButtonLook : ButtonTest
+{
+	void OnInit()
+	{
+		Options.Visible(__contMenuCrId != 0 ? true : __contMenuItId != 0 ? true : false);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		Look();
+	}
+}
+
+class ButtonUse : ButtonTest
+{
+	void OnInit()
+	{
+		Options.Visible(__contMenuItId != 0 && (__contMenuItId < SCENERY_ID || FLAG(item.Flags, ITEM_CAN_USE)));
+	}
+	
+	void OnMouseClick(int click)
+	{
+		ShowContScreen(ACTION_PICK_ITEM, CHOSEN_PICK_ITEM);
+	}
+}
+
+class ButtonSkill : ButtonTest
+{
+	void OnInit()
+	{
+		 Options.Visible(__contMenuCrId != 0 ? true : __contMenuItId != 0 ? true : false);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		ShowContScreen(SCREEN_SKILLBOX, CHOSEN_NONE);
+	}
+}
+
+class ButtonAdmin : ButtonTest
+{
+	void OnInit()
+	{
+		Options.Visible(false);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		__subMenuNum = SUBMENU_ADMIN; ShowScreen(CLIENT_SCREEN_CONTMENU, Instance.GetPosX(), Instance.GetPosY(), SUBMENU_ADMIN);
+	}
+}
+
+class ButtonLoot : ButtonTest
+{
+	void OnInit()
+	{
+		Options.Visible((__pickType == 0 ? true : false) == true && __contMenuCrId != 0);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		ShowContScreen(ACTION_PICK_CRITTER, CHOSEN_PICK_CRIT);
+	}
+}
+
+class ButtonPush : ButtonTest
+{
+	void OnInit()
+	{
+		Options.Visible((__pickType != 0 ? true : false) == true && __contMenuCrId != 0);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		ShowContScreen(ACTION_PICK_CRITTER, CHOSEN_PICK_CRIT);
+	}
+}
+
+class ButtonRotate : ButtonTest
+{
+	void OnInit()
+	{
+		Options.Visible(__contMenuCrId == choo.Id);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		ShowContScreen(ACTION_DIR, CHOSEN_DIR);
+	}
+}
+
+class ButtonTalk : ButtonTest
+{
+	void OnInit()
+	{
+		Options.Visible(__contMenuCrId != 0 && __contMenuCrId != choo.Id);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		ShowContScreen(ACTION_TALK, CHOSEN_TALK_NPC);
+	}
+}
+
+class ButtonRemember : ButtonTest
+{
+	void OnInit()
+	{
+		Options.Visible(__contMenuCrId != 0);
+	}
+	
+	void OnMouseClick(int click)
+	{
+		CharClick(target);
+	}
+}
+
+class ButtonPannelSkill : ButtonTest
+{
+	void OnInit()
+	{
+	}
+	
+	void OnMouseClick(int click)
+	{
+		ShowScreen(CLIENT_SCREEN_FASTPANEL_SKILLBOX, 0, 0, 0);
+	}
+}
+
+class ButtonPannelText : ButtonTest
+{
+	void OnInit()
+	{
+	}
+	
+	void OnMouseClick(int click)
+	{
+		ShowScreen(CLIENT_SCREEN_FASTPANEL_TEXTBOX, 0, 0, 0);
 	}
 }
 
@@ -386,7 +698,7 @@ void InitContMenuScreen() // Export
 		
 
 	//main buttons
-	ContextButton contButtonCancel(screenMain);
+	ContextButton contButtonCancel(screenMain, BUTTON_CANCEL_ALL, SUBMENU_MAIN, SUBMENU_MAIN, 1);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"canceln.frm",50, 50)
 		.CallbackInit(contButtonCancel)
 		.CallbackMouseClick(contButtonCancel)
@@ -401,7 +713,7 @@ void InitContMenuScreen() // Export
 	contButtonCancel.ButtNum = 1;
 
 	
-	ContextButton contButtonInv(screenMain);
+	ContextButton contButtonInv(screenMain, BUTTON_INV, SUBMENU_MAIN, SUBMENU_MAIN, 3);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"invenn.frm",150, 25)
 		.CallbackInit(contButtonInv)
 		.CallbackMouseClick(contButtonInv)
@@ -414,7 +726,7 @@ void InitContMenuScreen() // Export
 	contButtonInv.ButtSubMenu = SUBMENU_MAIN;
 	contButtonInv.ButtNum = 3;
 	
-	ContextButton contButtonLook(screenMain);
+	ContextButton contButtonLook(screenMain, BUTTON_LOOK, SUBMENU_MAIN, SUBMENU_MAIN, 5);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"lookn.frm",200, 5)
 		.CallbackInit(contButtonLook)
 		.CallbackMouseClick(contButtonLook)
@@ -427,7 +739,7 @@ void InitContMenuScreen() // Export
 	contButtonLook.ButtSubMenu = SUBMENU_MAIN;
 	contButtonLook.ButtNum = 5;
 	
-	ContextButton contButtonSkill(screenMain);
+	ContextButton contButtonSkill(screenMain, BUTTON_SKILL, SUBMENU_MAIN, SUBMENU_MAIN, 2);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"skilln.frm",250, 5)
 		.CallbackInit(contButtonSkill)
 		.CallbackMouseClick(contButtonSkill)
@@ -453,7 +765,7 @@ void InitContMenuScreen() // Export
 	contButtonAdmin.ButtSubMenu = SUBMENU_MAIN;
 	contButtonAdmin.ButtNum = 4;
 	*/
-	ContextButton contButtonUse(screenMain);
+	ContextButton contButtonUse(screenMain, BUTTON_USE, SUBMENU_MAIN, SUBMENU_MAIN, 6);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"usegetn.frm",100, 25)
 		.CallbackInit(contButtonUse)
 		.CallbackMouseClick(contButtonUse)
@@ -465,7 +777,7 @@ void InitContMenuScreen() // Export
 	contButtonUse.ButtSubMenu = SUBMENU_MAIN;
 	contButtonUse.ButtNum = 6;
 		
-	ContextButton contButtonLoot(screenMain);
+	ContextButton contButtonLoot(screenMain, BUTTON_LOOT, SUBMENU_MAIN, SUBMENU_MAIN, 6);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"usegetn.frm",250, 5)
 		.CallbackInit(contButtonLoot)
 		.CallbackMouseClick(contButtonLoot)
@@ -478,7 +790,7 @@ void InitContMenuScreen() // Export
 	contButtonLoot.ButtSubMenu = SUBMENU_MAIN;
 	contButtonLoot.ButtNum = 6;
 	
-	ContextButton contButtonPush(screenMain);
+	ContextButton contButtonPush(screenMain, BUTTON_PUSH, SUBMENU_MAIN, SUBMENU_MAIN, 6);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"pushn.frm",250, 5)
 		.CallbackInit(contButtonPush)
 		.CallbackMouseClick(contButtonPush)
@@ -491,7 +803,7 @@ void InitContMenuScreen() // Export
 	contButtonPush.ButtSubMenu = SUBMENU_MAIN;
 	contButtonPush.ButtNum = 6;
 	
-	ContextButton contButtonRotate(screenMain);
+	ContextButton contButtonRotate(screenMain, BUTTON_ROTATE, SUBMENU_MAIN, SUBMENU_MAIN, 8);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"rotaten.frm",250, 5)
 		.CallbackInit(contButtonRotate)
 		.CallbackMouseClick(contButtonRotate)
@@ -504,7 +816,7 @@ void InitContMenuScreen() // Export
 	contButtonRotate.ButtSubMenu = SUBMENU_MAIN;
 	contButtonRotate.ButtNum = 8;
 	
-	ContextButton contButtonTalk(screenMain);
+	ContextButton contButtonTalk(screenMain, BUTTON_TALK, SUBMENU_MAIN, SUBMENU_MAIN, 8);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"talkn.frm",250, 5)
 		.CallbackInit(contButtonTalk)
 		.CallbackMouseClick(contButtonTalk)
@@ -517,7 +829,7 @@ void InitContMenuScreen() // Export
 	contButtonTalk.ButtSubMenu = SUBMENU_MAIN;
 	contButtonTalk.ButtNum = 8;
 	
-	ContextButton contButtonRemeber(screenMain);
+	ContextButton contButtonRemeber(screenMain, BUTTON_REMEMBER, SUBMENU_MAIN, SUBMENU_MAIN, 10);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"talkn.frm",250, 5)
 		.CallbackInit(contButtonRemeber)
 		.CallbackMouseClick(contButtonRemeber)
@@ -536,7 +848,7 @@ void InitContMenuScreen() // Export
 
 	//admin
 
-	ContextButton contButtonAdminToMain(screenMain);
+	ContextButton contButtonAdminToMain(screenMain, BUTTON_CANCEL, SUBMENU_ADMIN, SUBMENU_MAIN, 3);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"canceln.frm",50, 50)
 		.CallbackInit(contButtonAdminToMain)
 		.CallbackMouseClick(contButtonAdminToMain)
@@ -549,7 +861,7 @@ void InitContMenuScreen() // Export
 	contButtonAdminToMain.ButtSubMenuBack = SUBMENU_MAIN;
 	contButtonAdminToMain.ButtNum = 3;
 	
-	ContextButton contButtonRepair(screenMain);
+	ContextButton contButtonRepair(screenMain, BUTTON_LOOK, SUBMENU_ADMIN, SUBMENU_MAIN, 2);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"lmenu_repair_up.png",100, 25)
 		.CallbackInit(contButtonRepair)
 		.CallbackMouseClick(contButtonRepair)
@@ -561,7 +873,7 @@ void InitContMenuScreen() // Export
 	contButtonRepair.ButtSubMenu = SUBMENU_ADMIN;
 	contButtonRepair.ButtNum = 2;
 	
-	ContextButton contButtonKick(screenMain);
+	ContextButton contButtonKick(screenMain, BUTTON_INV, SUBMENU_ADMIN, SUBMENU_MAIN, 4);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"lmenu_gmap_kick_up.png",50, 50)
 		.CallbackInit(contButtonKick)
 		.CallbackMouseClick(contButtonKick)
@@ -573,7 +885,7 @@ void InitContMenuScreen() // Export
 	contButtonKick.ButtSubMenu = SUBMENU_ADMIN;
 	contButtonKick.ButtNum = 4;
 	
-	ContextButton contButtonMenuAdv(screenMain);
+	ContextButton contButtonMenuAdv(screenMain, BUTTON_USE, SUBMENU_ADMIN, SUBMENU_MAIN, 5);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"lmenu_gmap_rule_up.png",50, 50)
 		.CallbackInit(contButtonMenuAdv)
 		.CallbackMouseClick(contButtonMenuAdv)
@@ -588,7 +900,7 @@ void InitContMenuScreen() // Export
 	
 	//adv
 	
-	ContextButton contButtonAdvToAdmin(screenMain);
+	ContextButton contButtonAdvToAdmin(screenMain, BUTTON_CANCEL, SUBMENU_ADV, SUBMENU_ADMIN, 3);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"canceln.frm",50, 50)
 		.CallbackInit(contButtonAdvToAdmin)
 		.CallbackMouseClick(contButtonAdvToAdmin)
@@ -602,7 +914,7 @@ void InitContMenuScreen() // Export
 	contButtonAdvToAdmin.ButtNum = 3;
 
 	
-	ContextButton contButtonBarterOpen(screenMain);
+	ContextButton contButtonBarterOpen(screenMain, BUTTON_INV, SUBMENU_ADV, SUBMENU_MAIN, 4);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"lmenu_barter_open_up.png",100, 25)
 		.CallbackInit(contButtonBarterOpen)
 		.CallbackMouseClick(contButtonBarterOpen)
@@ -614,7 +926,7 @@ void InitContMenuScreen() // Export
 	contButtonBarterOpen.ButtSubMenu = SUBMENU_ADV;
 	contButtonBarterOpen.ButtNum = 4;
 	
-	ContextButton contButtonGroup(screenMain);
+	ContextButton contButtonGroup(screenMain, BUTTON_INV, SUBMENU_ADV, SUBMENU_MAIN, 6);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"lmenu_gmfollow_up.png",50, 50)
 		.CallbackInit(contButtonGroup)
 		.CallbackMouseClick(contButtonGroup)
@@ -625,7 +937,7 @@ void InitContMenuScreen() // Export
 	contButtonGroup.ButtSubMenu = SUBMENU_ADV;
 	contButtonGroup.ButtNum = 6;
 	
-	ContextButton contButtonBarterHide(screenMain);
+	ContextButton contButtonBarterHide(screenMain, BUTTON_INV, SUBMENU_ADV, SUBMENU_MAIN, 5);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"lmenu_barter_hide_up.png",50, 50)
 		.CallbackInit(contButtonBarterHide)
 		.CallbackMouseClick(contButtonBarterHide)
@@ -679,7 +991,7 @@ void InitContMenuScreen() // Export
 	*/
 	//fast panel sub menu
 
-	ContextButton contButtonPanelSkill(screenMain);
+	ContextButton contButtonPanelSkill(screenMain, BUTTON_PANNEL_SKILL, SUBMENU_FASTPANEL, SUBMENU_MAIN, 2);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"skilln.frm",100, 25)
 		.CallbackInit(contButtonPanelSkill)
 		.CallbackMouseClick(contButtonPanelSkill)
@@ -691,7 +1003,7 @@ void InitContMenuScreen() // Export
 	contButtonPanelSkill.ButtSubMenu = SUBMENU_FASTPANEL;
 	contButtonPanelSkill.ButtNum = 2;
 	
-	ContextButton contButtonPanelText(screenMain);
+	ContextButton contButtonPanelText(screenMain, BUTTON_PANNEL_TEXT, SUBMENU_FASTPANEL, SUBMENU_MAIN, 3);
 	GUI_AddScreenElement(CLIENT_SCREEN_CONTMENU,"talkn.frm",100, 25)
 		.CallbackInit(contButtonPanelText)
 		.CallbackMouseClick(contButtonPanelText)

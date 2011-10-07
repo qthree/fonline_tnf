@@ -7,6 +7,12 @@
 
 import void SetChosenTabLevelUp(bool enable)  from "chosen_tabs";
 import int GUI_GetActiveScreen() from "client_gui";
+
+import void SetChosenTabHeavyDmg(bool enable) from "chosen_tabs"; // Export
+import void SetChosenTabBullOver(bool enable) from "chosen_tabs"; // Export
+import void SetChosenTabBleed(bool enable) from "chosen_tabs"; // Export
+import void SetChosenTabBldTox(bool enable) from "chosen_tabs"; // Export
+
 #endif
 
 #ifndef __CLIENT
@@ -108,6 +114,14 @@ void changedParam_Experience(CritterCl& cr, uint, int oldValue)
 void changedParam_UnspentPerks(CritterCl& cr, uint, int oldValue)
 {
 	if(cr.ParamBase[ST_UNSPENT_PERKS]>0 && GUI_GetActiveScreen()==CLIENT_SCREEN_CHARACTER) ShowScreen(CLIENT_SCREEN_PERK,0,0,0);
+}
+
+void changedParam_CritterStatus(CritterCl& cr, uint, int oldValue) //pm added
+{
+	SetChosenTabHeavyDmg(FLAG(cr.StatBase[ST_CRSTATUS], CR_STATUS_HEAVY_DMG) ? true : false);
+	SetChosenTabBullOver(FLAG(cr.StatBase[ST_CRSTATUS], CR_STATUS_BULLET_OVER) ? true : false);
+	SetChosenTabBleed(FLAG(cr.StatBase[ST_CRSTATUS], CR_STATUS_BLEED) ? true : false);
+	SetChosenTabBldTox(FLAG(cr.StatBase[ST_CRSTATUS], CR_STATUS_BLOOD_TOXIC) ? true : false);
 }
 #endif
 

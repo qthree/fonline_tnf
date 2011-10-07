@@ -20107,6 +20107,16 @@ DisableEgg=1
 Material=1
 
 [Proto]
+Pid=4800
+Type=11
+PicMapName=art\scenery\statue2.fofrm
+PicInvName=art\inven\reserved.frm
+Corner=5
+Flags=33554432
+SoundId=48
+Material=5
+
+[Proto]
 Pid=5000
 Type=11
 PicMapName=art\scenery\gx012ch.frm

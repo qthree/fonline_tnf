@@ -251,6 +251,14 @@
 #define PID_JET_ANTIDOTE                    (260)
 #define PID_HEALING_POWDER                  (273)
 #define PID_HYPO                            (525)
+#define PID_BANDAGE			(4)
+#define PID_ANTISEPTIC			(2)
+
+#define PID_MEDCLIP			(1)
+#define PID_MEDSPLINT			(5)
+#define PID_MEDTHREAD			(6)
+#define PID_MEDNEEDLE			(921)
+#define PID_ANESTETIC			(7)
 
 // Alcohol
 #define PID_NUKA_COLA                       (106)

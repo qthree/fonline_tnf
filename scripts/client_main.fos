@@ -72,6 +72,9 @@ import void InitScreenAddiotional() from "client_screen_additional";
 import void SetCrtype(int[]& params) from "client_screen_additional";
 import void InitTeachScreen() from "client_screen_teaching";
 import void InitScreenDoc() from "client_screen_doc";
+import void InitFirstAidScreen() from "client_screen_firstais";
+import void InitOptMenuScreen() from "client_screen_options"; // Export
+import void SetHivePos(int16 x, int16 y, int16 realX, int16 realY, int16 type, uint8 count) from "client_screen_additional";
 //#pm menu
 
 uint prevId = 0; //нужен для определения, когда загружать сохраненные имена
@@ -126,6 +129,8 @@ bool start()
 	InitScreenAddiotional();
 	InitTeachScreen();
 	InitScreenDoc();
+	InitFirstAidScreen();
+	InitOptMenuScreen();
 	//InitHistoryViewScreen();
 	//InitHistoryAllScreen();
 	//#pm menu
@@ -258,6 +263,18 @@ int[]@ data_color = null;
 int[]@ data_number = null;
 int[]@ data_char = null;
 
+
+int[] hive_data;
+
+void SetHiveData(int[] hivedata)
+{
+	hive_data.resize(0);
+	for(uint8 i = 0; i < hivedata.length(); i++)
+	{
+		hive_data.insertLast(hivedata[i]);
+	}
+}
+
 void _dr(int param0, int param1, int param2, string@ param3, int[]@ param4) //draw data
 {
 	switch(param0)
@@ -301,6 +318,25 @@ void render_iface(uint layer)
 		// x = __GmapGroupX / __GmapZoom + __GmapOffsetX, y = __GmapGroupY / __GmapZoom + __GmapOffsetY.
 		
 		CritterCl@ ch = GetChosen();
+		
+		//SetHivePos(__GmapOffsetX, __GmapOffsetY, 5);
+		if(@ch != null && ch.StatBase[ARCADE_MODE] == 1)
+		{
+			//Message(""+hive_data.length());
+			for(uint8 i = 0; i < hive_data.length(); i++)
+			{
+				int16 x=(hive_data[i])&0x3FF;
+				int16 y=(hive_data[i]>>10)&0x3FF;
+				int16 type=(hive_data[i]>>20)&0xFFF;
+		
+				SetHivePos(x/__GmapZoom+__GmapOffsetX, y/__GmapZoom+__GmapOffsetY, x, y, type, i);
+				
+				//Message("i "+i+" type "+type+" x "+x+" offX "+__GmapOffsetX+" y "+y+" offY "+__GmapOffsetY);
+			}
+			
+			//GUI_Render(100);
+		}
+		
 		
 		int flags = (FT_NOBREAK | FT_CENTERX | FT_CENTERY | FT_BORDERED),
 		font = FONT_FALLOUT;
@@ -788,6 +824,8 @@ bool in_message(string& message, int& sayType, uint& critterId, uint& delay)
 	return true;	
 }
 
+import void DrawHives(uint8 hiveCount) from "client_screen_additional";
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on send message.
 bool out_message(string& message, int& sayType)
@@ -874,6 +912,10 @@ bool out_message(string& message, int& sayType)
 			if(@choo == null || choo.StatBase[ARCADE_MODE] > 0) {Message("Запрещено аркадным игрокам"); return false;}
 			ShowScreen(CLIENT_SCREEN_TEACH,0,0,0);
 			return false;
+		}
+		if(message=="~global")
+		{
+			DrawHives(1);
 		}
 		return true;
 	}

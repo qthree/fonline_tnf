@@ -48,6 +48,7 @@ bool TryRepairItem(Critter& cr, Item& item) // Export
 	int type=item.GetProtoId();
 
 	switch(type)
+	
 	{
 		case PID_SANDROBE: repair+=25;
 		case PID_LEATHER_JACKET: repair+=25;
@@ -214,6 +215,7 @@ bool TryRepairItem(Critter& cr, Item& item) // Export
 		case PID_DESERT_EAGLE_EXT_MAG:
 		case PID_44_MAGNUM_REVOLVER:
 		case PID_44_MAGNUM_SPEEDLOADER: repair-=5;
+
 			if(_CritCountItem(cr,PID_DRILL)>0)
 				{
 				if(_CritCountItem(cr,PID_METAL_TRASH)>3) cr.DeleteItem(PID_METAL_TRASH,4);
@@ -312,14 +314,17 @@ void DeteriorateItem(Critter& cr, Item& item, int deteriorationCount) // Export
 	if(item.Deterioration>=MAX_DETERIORATION)
 	{
 		item.Deterioration=MAX_DETERIORATION;
-		item.BrokenCount++;
+		if(!IsHaveBlade(item.GetProtoId())) //pm added
+		{
+			item.BrokenCount++;
 
-		int brokenLvl=Random(0,item.BrokenCount/(MAX_BROKENS/4));
+			int brokenLvl=Random(0,item.BrokenCount/(MAX_BROKENS/4));
 
-		if(item.BrokenCount>=MAX_BROKENS || brokenLvl>=3) SETFLAG(item.BrokenFlags,BI_NOTRESC);
-		else if(brokenLvl==2) SETFLAG(item.BrokenFlags,BI_HIGHBROKEN);
-		else if(brokenLvl==1) SETFLAG(item.BrokenFlags,BI_NORMBROKEN);
-		else SETFLAG(item.BrokenFlags,BI_LOWBROKEN);
+			if(item.BrokenCount>=MAX_BROKENS || brokenLvl>=3) SETFLAG(item.BrokenFlags,BI_NOTRESC);
+			else if(brokenLvl==2) SETFLAG(item.BrokenFlags,BI_HIGHBROKEN);
+			else if(brokenLvl==1) SETFLAG(item.BrokenFlags,BI_NORMBROKEN);
+			else SETFLAG(item.BrokenFlags,BI_LOWBROKEN);
+		}
 		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_DETERIORATION_WEAPON_BROKEN);
 	}
 
@@ -345,9 +350,21 @@ int GetDeteriorationProcent(Item& item) // Export
 	return CLAMP(value,0,100);
 }
 
-
-
-
-
-
-
+bool IsHaveBlade(uint16 pid)		//pm added
+{
+	if(pid == PID_KNIFE 		||
+	   pid == PID_SPEAR 		||
+	   pid == PID_THROWING_KNIFE	||
+	   pid == PID_RIPPER		||
+	   pid == PID_SPIKED_KNUCKLES	||
+	   pid == PID_COMBAT_KNIFE	||
+	   pid == PID_SHARP_SPEAR	||
+	   pid == PID_SWITCHBLADE 	||
+	   pid == PID_SHIV		||
+	   pid == PID_LIL_JESUS_WEAPON	||
+	   pid == PID_WAKIZASHI_BLADE	)
+	  return true;
+	  
+return false;
+	   
+}

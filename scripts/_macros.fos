@@ -95,6 +95,9 @@
 #define _LockerIsOpen #(door) ((door.LockerCondition&LOCKER_ISOPEN)!=0)
 #define _LockerIsClose #(door) (not _LockerIsOpen(door))
 
+#define _LockerIsFlagSet #(locker, flag) ((locker.LockerCondition&flag) != 0)
+#define _LockerFlagSet #(locker, flag) (locker.LockerCondition |= flag)
+
 // Car
 #define _CarIsBioEngine #(car) ((car.Val0&CAR_BIO_ENGINE)!=0)
 #define _CarSetBioEngine #(car) car.Val0|=CAR_BIO_ENGINE

@@ -292,6 +292,9 @@
 #define CTE_HEAL		(41)
 #define CTE_DOC			(42)
 #define CTE_WORK		(43)
+#define CTE_BLEED		(44)
+#define CTE_THROW		(45)
+#define CTE_BLOOD_TOXIC		(46)
 // Drugs time events                40 (PID_STIMPAK) .. 1000
 
 // Parameters
@@ -422,6 +425,11 @@
 #define ST_WALK_TIME                (117) // Hardcoded
 #define ST_RUN_TIME                 (118) // Hardcoded
 
+#define ST_CELL_X		(119)
+#define ST_CELL_Y		(120)
+
+#define ST_ARCADE_DEAD		(121)
+
 // 119..129
 #define ST_LAST_CONT_ID             (130)
 #define ST_LAST_DOOR_ID		    (131)
@@ -445,7 +453,11 @@
 #define ST_LTP_PARAM0		        (143)
 #define ST_LTP_PARAM1		        (144)
 #define ST_LTP_PARAM2		        (145)
-// 146..149
+
+#define ST_CRSTATUS		(146)
+#define ST_BLOOD_TOXIC		(147)
+#define ST_OVERDOSE		(148)
+// 149..149
 	// Initial values of animation 3d layers
 #define ST_ANIM3D_LAYERS            (150) // Hardcoded
 // 150..179 reserved for 30 layers
@@ -1346,6 +1358,28 @@
 #define PT_SERVER_BANS              (40)
 	// Other
 #define PT_MAPPER_DATA              (45)
+
+//critter status flags
+#define CR_STATUS_BLEED		(0x001)
+#define CR_STATUS_STIMPAK_OVER	(0x002)
+#define CR_STATUS_ILL		(0x004)
+#define CR_STATUS_BLOOD_TOXIC	(0x008)
+#define CR_STATUS_HEAVY_DMG	(0x010)
+#define CR_STATUS_POWDER_OVER	(0x020)
+#define CR_STATUS_BULLET_OVER	(0x040)
+
+//firstaid item priority flags	is set use high tec , else low tec
+//firstaid
+#define HEAL_ANTISEPTIC	(0x2)
+#define HEAL_HEALING	(0x4)
+#define HEAL_BANDAGE	(0x8)
+
+//doc
+#define HEAL_MULTYTOOL	(0x4)
+#define HEAL_SPLINT	(0x8)
+#define HEAL_THREAD	(0x10)
+#define HEAL_ANESTETIC	(0x20)
+
 
 
 #ifndef SKIP_PRAGMAS

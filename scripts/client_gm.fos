@@ -1120,7 +1120,7 @@ class MutateCommand: Command
 		CommandArgument idArg = getArg(0);
 		if (idArg.getType() == INTEGER)
 		{
-			RunServerScript("morpes@GM_ApplyFastMutation",  idArg.getIntData(), 0, 0, null, null);
+			RunServerScript("morphes@GM_ApplyFastMutation",  idArg.getIntData(), 0, 0, null, null);
 		}
 	}
 }
@@ -1137,7 +1137,7 @@ class GhoulCommand: Command
 		CommandArgument idArg = getArg(0);
 		if (idArg.getType() == INTEGER)
 		{
-			RunServerScript("debug@GM_ApplyGhoul",  idArg.getIntData(), 0, 0, null, null);
+			RunServerScript("morphes@GM_ApplyGhoul",  idArg.getIntData(), 0, 0, null, null);
 		}
 	}
 }
