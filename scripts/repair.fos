@@ -1,370 +1,574 @@
-// Author: cvet
-
-//Изменил некоторые значения в рамках эксперимента с экономикой.
-//Dagnir, 23.03.2010
-
 #include "_macros.fos"
 #include "_msgstr.fos"
 
 
-bool TryRepairItem(Critter& cr, Item& item) // Export
+bool TryRepairItem( Critter& cr, Item& item ) // Export
 {
-	if(not item.IsDeteriorable()) return true;
+    if( not item.IsDeteriorable() )
+        return true;
 
-	if(cr.Timeout[TO_BATTLE]>0)
-	{
-		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_TIMEOUT_BATTLE_WAIT);
-		return true;
-	}
+    if( cr.Timeout[ TO_BATTLE ] > 0 )
+    {
+        cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_TIMEOUT_BATTLE_WAIT );
+        return true;
+    }
 
-	if(cr.Timeout[TO_SK_REPAIR]>0)
-	{
-		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_SKILL_WEARINESS);
-		return true;
-	}
+    if( cr.Timeout[ TO_SK_REPAIR ] > 0 )
+    {
+        cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_SKILL_WEARINESS );
+        return true;
+    }
 
-	if(FLAG(item.BrokenFlags,BI_ETERNAL) || FLAG(item.BrokenFlags,BI_NOTRESC))
-	{
-		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_DETERIORATION_NO_RESC);
-		return true;
-	}
+    if( FLAG( item.BrokenFlags, BI_ETERNAL ) || FLAG( item.BrokenFlags, BI_NOTRESC ) )
+    {
+        cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DETERIORATION_NO_RESC );
+        return true;
+    }
 
-	// Repair
-	int repair=cr.Skill[SK_REPAIR];
-	uint8 mode=0;
-	uint16 activePid=cr.GetSlotProto(SLOT_HAND1,mode).ProtoId;
-	if(activePid==PID_MULTI_TOOL)
-	{
-		repair+=25;
-		if(Random(0,30)==0) cr.DeleteItem(PID_MULTI_TOOL,1);
-	}
-	else if(activePid==PID_SUPER_TOOL_KIT)
-	{
-		repair+=50;
-		if(Random(0,30)==0) cr.DeleteItem(PID_SUPER_TOOL_KIT,1);
-	}
+    // Repair
+    int    repair = cr.Skill[ SK_REPAIR ];
+    uint8  mode = 0;
+    uint16 activePid = cr.GetSlotProto( SLOT_HAND1, mode ).ProtoId;
+    if( activePid == PID_MULTI_TOOL )
+    {
+        repair += 25;
+        if( Random( 0, 30 ) == 0 )
+            cr.DeleteItem( PID_MULTI_TOOL, 1 );
+    }
+    else if( activePid == PID_SUPER_TOOL_KIT )
+    {
+        repair += 50;
+        if( Random( 0, 30 ) == 0 )
+            cr.DeleteItem( PID_SUPER_TOOL_KIT, 1 );
+    }
 
-	// запчасти для оружия и брони ErlKing
-	int type=item.GetProtoId();
+    // запчасти для оружия и брони ErlKing
+    int type = item.GetProtoId();
 
-	switch(type)
-	
-	{
-		case PID_SANDROBE: repair+=25;
-		case PID_LEATHER_JACKET: repair+=25;
-			if(_CritCountItem(cr,PID_POCKET_LINT)>1) cr.DeleteItem(PID_POCKET_LINT,2); 
-			else if(_CritCountItem(cr,PID_GECKO_PELT)>0) cr.DeleteItem(PID_GECKO_PELT,1);
-			else if(_CritCountItem(cr,PID_GOLDEN_GECKO_PELT)>0) cr.DeleteItem(PID_GOLDEN_GECKO_PELT,1);
-			else if(_CritCountItem(cr,PID_BRAHMIN_SKIN)>0) cr.DeleteItem(PID_BRAHMIN_SKIN,1);
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155080); return true;}
-			break;
-		case PID_LEATHER_ARMOR: repair+=20;
-		case PID_CURED_LEATHER_ARMOR: repair+=20;
-			if(_CritCountItem(cr,PID_GECKO_PELT)>1) cr.DeleteItem(PID_GECKO_PELT,2);
-			else if(_CritCountItem(cr,PID_BRAHMIN_SKIN)>0) cr.DeleteItem(PID_BRAHMIN_SKIN,1);
-			else if(_CritCountItem(cr,PID_HARD_HIDE)>0) cr.DeleteItem(PID_HARD_HIDE,1);
-			else if(_CritCountItem(cr,PID_GOLDEN_GECKO_PELT)>0) cr.DeleteItem(PID_GOLDEN_GECKO_PELT,1);
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155090); return true;}
-			break;
-		case PID_LEATHER_ARMOR_MK_II: repair+=15;
-			if(_CritCountItem(cr,PID_GOLDEN_GECKO_PELT)>0) cr.DeleteItem(PID_GOLDEN_GECKO_PELT,1);
-			else if(_CritCountItem(cr,PID_HARD_HIDE)>0) cr.DeleteItem(PID_HARD_HIDE,1);
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155090); return true;}
-			break;
-		case PID_CURED_LEATHER_ARMOR_MK_II:
-		case PID_METAL_ARMOR:
-			if(_CritCountItem(cr,PID_SLEDGEHAMMER)>0)
-				{
-				if(_CritCountItem(cr,PID_METAL_TRASH)>2) cr.DeleteItem(PID_METAL_TRASH,3);
-				else if(_CritCountItem(cr,PID_HLAM_MEH)>1) cr.DeleteItem(PID_HLAM_MEH,2);
-				else if(_CritCountItem(cr,PID_HLAM2_MEH)>1) cr.DeleteItem(PID_HLAM2_MEH,2);
-				else if(_CritCountItem(cr,PID_METAL_LIST_MEH)>0) cr.DeleteItem(PID_METAL_LIST_MEH,1);
-				else if(_CritCountItem(cr,PID_IRON_PLATE)>0) cr.DeleteItem(PID_IRON_PLATE,1);
-				else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155100); return true;}
-				}
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155110); return true;}
-			break;
-		case PID_METAL_ARMOR_MK_II: repair-=25;
-			if(_CritCountItem(cr,PID_DRILL)>0)
-				{
-				if(_CritCountItem(cr,PID_METAL_LIST_MEH)>1) cr.DeleteItem(PID_METAL_LIST_MEH,2);
-				else if(_CritCountItem(cr,PID_IRON_PLATE)>0) cr.DeleteItem(PID_IRON_PLATE,1);
-				else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155130); return true;}
-				}
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155120); return true;}
-			break;
-		case PID_MANTIS_ARMOUR: repair-=25;
-				if(_CritCountItem(cr,PID_MANTIS_SHELL)>0) cr.DeleteItem(PID_METAL_LIST_MEH,1);
-				else if(_CritCountItem(cr,PID_MIRELUK_SHELL)>0) cr.DeleteItem(PID_MIRELUK_SHELL,1);
-				else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155140); return true;}
-			break;
-		case PID_MIRELURK_ARMOR: repair-=50;
-			if(_CritCountItem(cr,PID_DRILL)>0)
-				{
-				if(_CritCountItem(cr,PID_MANTIS_SHELL)>9) cr.DeleteItem(PID_METAL_LIST_MEH,10);
-				else if(_CritCountItem(cr,PID_MIRELUK_SHELL)>1) cr.DeleteItem(PID_MIRELUK_SHELL,2);
-				else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155130); return true;}
-				}
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155150); return true;}
-			break;
+    switch( type )
 
-		case PID_COMBAT_ARMOR:
-		case PID_COMBAT_ARMOR_MK_II:
-		case PID_BLACK_COMBAT_ARMOR:
-		case PID_BROTHERHOOD_COMBAT_ARMOR: repair-=50;
-			if(_CritCountItem(cr,PID_DRILL)>0)
-				{
-				if(_CritCountItem(cr,PID_CHEMICALS)>19) cr.DeleteItem(PID_CHEMICALS,20);
-				else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155170); return true;}
-				}
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155160); return true;}
-			break;
+    {
+    case PID_SANDROBE:
+        repair += 25;
+    case PID_LEATHER_JACKET:
+        repair += 25;
+        if( _CritCountItem( cr, PID_POCKET_LINT ) > 1 )
+            cr.DeleteItem( PID_POCKET_LINT, 2 );
+        else if( _CritCountItem( cr, PID_GECKO_PELT ) > 0 )
+            cr.DeleteItem( PID_GECKO_PELT, 1 );
+        else if( _CritCountItem( cr, PID_GOLDEN_GECKO_PELT ) > 0 )
+            cr.DeleteItem( PID_GOLDEN_GECKO_PELT, 1 );
+        else if( _CritCountItem( cr, PID_BRAHMIN_SKIN ) > 0 )
+            cr.DeleteItem( PID_BRAHMIN_SKIN, 1 );
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155080 );
+            return true;
+        }
+        break;
+    case PID_LEATHER_ARMOR:
+        repair += 20;
+    case PID_CURED_LEATHER_ARMOR:
+        repair += 20;
+        if( _CritCountItem( cr, PID_GECKO_PELT ) > 1 )
+            cr.DeleteItem( PID_GECKO_PELT, 2 );
+        else if( _CritCountItem( cr, PID_BRAHMIN_SKIN ) > 0 )
+            cr.DeleteItem( PID_BRAHMIN_SKIN, 1 );
+        else if( _CritCountItem( cr, PID_HARD_HIDE ) > 0 )
+            cr.DeleteItem( PID_HARD_HIDE, 1 );
+        else if( _CritCountItem( cr, PID_GOLDEN_GECKO_PELT ) > 0 )
+            cr.DeleteItem( PID_GOLDEN_GECKO_PELT, 1 );
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155090 );
+            return true;
+        }
+        break;
+    case PID_LEATHER_ARMOR_MK_II:
+        repair += 15;
+        if( _CritCountItem( cr, PID_GOLDEN_GECKO_PELT ) > 0 )
+            cr.DeleteItem( PID_GOLDEN_GECKO_PELT, 1 );
+        else if( _CritCountItem( cr, PID_HARD_HIDE ) > 0 )
+            cr.DeleteItem( PID_HARD_HIDE, 1 );
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155090 );
+            return true;
+        }
+        break;
+    case PID_CURED_LEATHER_ARMOR_MK_II:
+    case PID_METAL_ARMOR:
+        if( _CritCountItem( cr, PID_SLEDGEHAMMER ) > 0 )
+        {
+            if( _CritCountItem( cr, PID_METAL_TRASH ) > 2 )
+                cr.DeleteItem( PID_METAL_TRASH, 3 );
+            else if( _CritCountItem( cr, PID_HLAM_MEH ) > 1 )
+                cr.DeleteItem( PID_HLAM_MEH, 2 );
+            else if( _CritCountItem( cr, PID_HLAM2_MEH ) > 1 )
+                cr.DeleteItem( PID_HLAM2_MEH, 2 );
+            else if( _CritCountItem( cr, PID_METAL_LIST_MEH ) > 0 )
+                cr.DeleteItem( PID_METAL_LIST_MEH, 1 );
+            else if( _CritCountItem( cr, PID_IRON_PLATE ) > 0 )
+                cr.DeleteItem( PID_IRON_PLATE, 1 );
+            else
+            {
+                cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155100 );
+                return true;
+            }
+        }
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155110 );
+            return true;
+        }
+        break;
+    case PID_METAL_ARMOR_MK_II:
+        repair -= 25;
+        if( _CritCountItem( cr, PID_DRILL ) > 0 )
+        {
+            if( _CritCountItem( cr, PID_METAL_LIST_MEH ) > 1 )
+                cr.DeleteItem( PID_METAL_LIST_MEH, 2 );
+            else if( _CritCountItem( cr, PID_IRON_PLATE ) > 0 )
+                cr.DeleteItem( PID_IRON_PLATE, 1 );
+            else
+            {
+                cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155130 );
+                return true;
+            }
+        }
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155120 );
+            return true;
+        }
+        break;
+    case PID_MANTIS_ARMOUR:
+        repair -= 25;
+        if( _CritCountItem( cr, PID_MANTIS_SHELL ) > 0 )
+            cr.DeleteItem( PID_METAL_LIST_MEH, 1 );
+        else if( _CritCountItem( cr, PID_MIRELUK_SHELL ) > 0 )
+            cr.DeleteItem( PID_MIRELUK_SHELL, 1 );
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155140 );
+            return true;
+        }
+        break;
+    case PID_MIRELURK_ARMOR:
+        repair -= 50;
+        if( _CritCountItem( cr, PID_DRILL ) > 0 )
+        {
+            if( _CritCountItem( cr, PID_MANTIS_SHELL ) > 9 )
+                cr.DeleteItem( PID_METAL_LIST_MEH, 10 );
+            else if( _CritCountItem( cr, PID_MIRELUK_SHELL ) > 1 )
+                cr.DeleteItem( PID_MIRELUK_SHELL, 2 );
+            else
+            {
+                cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155130 );
+                return true;
+            }
+        }
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155150 );
+            return true;
+        }
+        break;
 
-		case PID_POWERED_ARMOR:
-		case PID_HARDENED_POWER_ARMOR:
-		case PID_ADVANCED_POWER_ARMOR:
-		case PID_ADVANCED_POWER_ARMOR_MK2:
-		case PID_TESLA_ARMOR: repair-=60;
-			if(_CritCountItem(cr,PID_DRILL)>0)
-				{
-				if(_CritCountItem(cr,PID_HY_MAG_PART)>3) cr.DeleteItem(PID_HY_MAG_PART,4);
-				else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155180); return true;}
-				}
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155160); return true;}
-			break;
+    case PID_COMBAT_ARMOR:
+    case PID_COMBAT_ARMOR_MK_II:
+    case PID_BLACK_COMBAT_ARMOR:
+    case PID_BROTHERHOOD_COMBAT_ARMOR:
+        repair -= 50;
+        if( _CritCountItem( cr, PID_DRILL ) > 0 )
+        {
+            if( _CritCountItem( cr, PID_CHEMICALS ) > 19 )
+                cr.DeleteItem( PID_CHEMICALS, 20 );
+            else
+            {
+                cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155170 );
+                return true;
+            }
+        }
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155160 );
+            return true;
+        }
+        break;
+
+    case PID_POWERED_ARMOR:
+    case PID_HARDENED_POWER_ARMOR:
+    case PID_ADVANCED_POWER_ARMOR:
+    case PID_ADVANCED_POWER_ARMOR_MK2:
+    case PID_TESLA_ARMOR:
+        repair -= 60;
+        if( _CritCountItem( cr, PID_DRILL ) > 0 )
+        {
+            if( _CritCountItem( cr, PID_HY_MAG_PART ) > 3 )
+                cr.DeleteItem( PID_HY_MAG_PART, 4 );
+            else
+            {
+                cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155180 );
+                return true;
+            }
+        }
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155160 );
+            return true;
+        }
+        break;
 
 // оружие совсем лоу тек
-		case PID_REVOLVER_LOW:
-		case PID_PISTOL_LOW:
-		case PID_BIGGUN_LOW:
-		case PID_SMOKE_GUN_LOW:
-		case PID_SHOTPISTOL_LOW: repair+=50;
-			if(_CritCountItem(cr,PID_POCKET_LINT)>2) cr.DeleteItem(PID_POCKET_LINT,3);
-			else if(_CritCountItem(cr,PID_PUMP_PARTS)>0) cr.DeleteItem(PID_PUMP_PARTS,1);
-			else if(_CritCountItem(cr,PID_METAL_TRASH)>0) cr.DeleteItem(PID_METAL_TRASH,1);
-			else if(_CritCountItem(cr,PID_TUBE)>0) cr.DeleteItem(PID_TUBE,1);
-			else if(_CritCountItem(cr,PID_HLAM_MEH)>0) cr.DeleteItem(PID_HLAM_MEH,1);
-			else if(_CritCountItem(cr,PID_HLAM2_MEH)>0) cr.DeleteItem(PID_HLAM2_MEH,1);
-			else if(_CritCountItem(cr,PID_STEEL)>0) cr.DeleteItem(PID_STEEL,1);
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155190); return true;}
-			break;
+    case PID_REVOLVER_LOW:
+    case PID_PISTOL_LOW:
+    case PID_BIGGUN_LOW:
+    case PID_SMOKE_GUN_LOW:
+    case PID_SHOTPISTOL_LOW:
+        repair += 50;
+        if( _CritCountItem( cr, PID_POCKET_LINT ) > 2 )
+            cr.DeleteItem( PID_POCKET_LINT, 3 );
+        else if( _CritCountItem( cr, PID_PUMP_PARTS ) > 0 )
+            cr.DeleteItem( PID_PUMP_PARTS, 1 );
+        else if( _CritCountItem( cr, PID_METAL_TRASH ) > 0 )
+            cr.DeleteItem( PID_METAL_TRASH, 1 );
+        else if( _CritCountItem( cr, PID_TUBE ) > 0 )
+            cr.DeleteItem( PID_TUBE, 1 );
+        else if( _CritCountItem( cr, PID_HLAM_MEH ) > 0 )
+            cr.DeleteItem( PID_HLAM_MEH, 1 );
+        else if( _CritCountItem( cr, PID_HLAM2_MEH ) > 0 )
+            cr.DeleteItem( PID_HLAM2_MEH, 1 );
+        else if( _CritCountItem( cr, PID_STEEL ) > 0 )
+            cr.DeleteItem( PID_STEEL, 1 );
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155190 );
+            return true;
+        }
+        break;
 
 // оружие лоу тек
-		case PID_SHOTGUN: repair+=20;
-		case PID_SAWED_OFF_SHOTGUN:
-		case PID_10MM_PISTOL: repair+=30;
-		case PID_GECKO_LOW:
-		case PID_REV_RIFLE_LOW: repair+=30;
-		case PID_FLAMER:
-		case PID_ONEHAND_ROCKET_LAUNCHER:
-		case PID_AUTOGUN_LOW:
-		case PID_SAWGUN_LOW:
-		case PID_GATLING_LOW:
-		case PID_SNIPER_GUN_LOW:
-		case PID_NEEDLER_PISTOL:
-		case PID_DRUM_GUN_LOW:
-		case PID_9MM_MAUSER:
-		case PID_MAUSER_SMG: repair-=30;
-			if(_CritCountItem(cr,PID_PUMP_PARTS)>0) cr.DeleteItem(PID_PUMP_PARTS,1);
-			else if(_CritCountItem(cr,PID_METAL_TRASH)>0) cr.DeleteItem(PID_METAL_TRASH,1);
-			else if(_CritCountItem(cr,PID_TUBE)>0) cr.DeleteItem(PID_TUBE,1);
-			else if(_CritCountItem(cr,PID_HLAM_MEH)>0) cr.DeleteItem(PID_HLAM_MEH,1);
-			else if(_CritCountItem(cr,PID_HLAM2_MEH)>0) cr.DeleteItem(PID_HLAM2_MEH,1);
-			else if(_CritCountItem(cr,PID_STEEL)>0) cr.DeleteItem(PID_STEEL,1);
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155190); return true;}
-			break;
+    case PID_SHOTGUN:
+        repair += 20;
+    case PID_SAWED_OFF_SHOTGUN:
+    case PID_10MM_PISTOL:
+        repair += 30;
+    case PID_GECKO_LOW:
+    case PID_REV_RIFLE_LOW:
+        repair += 30;
+    case PID_FLAMER:
+    case PID_ONEHAND_ROCKET_LAUNCHER:
+    case PID_AUTOGUN_LOW:
+    case PID_SAWGUN_LOW:
+    case PID_GATLING_LOW:
+    case PID_SNIPER_GUN_LOW:
+    case PID_NEEDLER_PISTOL:
+    case PID_DRUM_GUN_LOW:
+    case PID_9MM_MAUSER:
+    case PID_MAUSER_SMG:
+        repair -= 30;
+        if( _CritCountItem( cr, PID_PUMP_PARTS ) > 0 )
+            cr.DeleteItem( PID_PUMP_PARTS, 1 );
+        else if( _CritCountItem( cr, PID_METAL_TRASH ) > 0 )
+            cr.DeleteItem( PID_METAL_TRASH, 1 );
+        else if( _CritCountItem( cr, PID_TUBE ) > 0 )
+            cr.DeleteItem( PID_TUBE, 1 );
+        else if( _CritCountItem( cr, PID_HLAM_MEH ) > 0 )
+            cr.DeleteItem( PID_HLAM_MEH, 1 );
+        else if( _CritCountItem( cr, PID_HLAM2_MEH ) > 0 )
+            cr.DeleteItem( PID_HLAM2_MEH, 1 );
+        else if( _CritCountItem( cr, PID_STEEL ) > 0 )
+            cr.DeleteItem( PID_STEEL, 1 );
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155190 );
+            return true;
+        }
+        break;
 // оружие энерго лоу
-		case PID_SOLAR_SCORCHER: repair-=30;
-		case PID_SOUND_BLASTER:
-		case PID_LASER_PISTOL_LOW:
-		case PID_LASER_PISTOL_LOW2:
-		case PID_LASER_RIFLE_LOW:
-		case PID_PLASMA_SMG_LOW: repair-=10;
-			if(_CritCountItem(cr,PID_DRILL)>0)
-				{
-				if(_CritCountItem(cr,PID_ELECTO_MEH)>0) cr.DeleteItem(PID_ELECTO_MEH,1);
-				else if(_CritCountItem(cr,PID_OHLAD_MEH)>0) cr.DeleteItem(PID_OHLAD_MEH,1);
-				else if(_CritCountItem(cr,PID_V15_COMPUTER_PART)>0) cr.DeleteItem(PID_V15_COMPUTER_PART,1);
-				else if(_CritCountItem(cr,PID_EMKOCT_MEH)>0) cr.DeleteItem(PID_EMKOCT_MEH,1);
-				else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155200); return true;}
-				}
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155160); return true;}
-			break;
+    case PID_SOLAR_SCORCHER:
+        repair -= 30;
+    case PID_SOUND_BLASTER:
+    case PID_LASER_PISTOL_LOW:
+    case PID_LASER_PISTOL_LOW2:
+    case PID_LASER_RIFLE_LOW:
+    case PID_PLASMA_SMG_LOW:
+        repair -= 10;
+        if( _CritCountItem( cr, PID_DRILL ) > 0 )
+        {
+            if( _CritCountItem( cr, PID_ELECTO_MEH ) > 0 )
+                cr.DeleteItem( PID_ELECTO_MEH, 1 );
+            else if( _CritCountItem( cr, PID_OHLAD_MEH ) > 0 )
+                cr.DeleteItem( PID_OHLAD_MEH, 1 );
+            else if( _CritCountItem( cr, PID_V15_COMPUTER_PART ) > 0 )
+                cr.DeleteItem( PID_V15_COMPUTER_PART, 1 );
+            else if( _CritCountItem( cr, PID_EMKOCT_MEH ) > 0 )
+                cr.DeleteItem( PID_EMKOCT_MEH, 1 );
+            else
+            {
+                cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155200 );
+                return true;
+            }
+        }
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155160 );
+            return true;
+        }
+        break;
 
 // оружие энерго хай
-		case PID_PLASMA_RIFLE: repair-=10;
-		case PID_PLASMA_PISTOL: repair-=10;
-		case PID_LASER_RIFLE: repair-=10;
-		case PID_MAGNETO_LASER_PISTOL: repair-=10;
-		case PID_LASER_PISTOL: repair-=30;
-			if(_CritCountItem(cr,PID_PLASMA_TRANSFORMER)>0) cr.DeleteItem(PID_PLASMA_TRANSFORMER,1);
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155210); return true;}
-			break;
+    case PID_PLASMA_RIFLE:
+        repair -= 10;
+    case PID_PLASMA_PISTOL:
+        repair -= 10;
+    case PID_LASER_RIFLE:
+        repair -= 10;
+    case PID_MAGNETO_LASER_PISTOL:
+        repair -= 10;
+    case PID_LASER_PISTOL:
+        repair -= 30;
+        if( _CritCountItem( cr, PID_PLASMA_TRANSFORMER ) > 0 )
+            cr.DeleteItem( PID_PLASMA_TRANSFORMER, 1 );
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155210 );
+            return true;
+        }
+        break;
 
 // оружие среднее
-		case PID_COMBAT_SHOTGUN: repair-=15;
-		case PID_SCOPED_HUNTING_RIFLE: repair-=5;
-		case PID_REMINGTON:
-		case PID_10MM_SMG:
-		case PID_TOMMY_GUN:
-		case PID_GREASE_GUN: repair-=10;
-		case PID_HUNTING_RIFLE:
-		case PID_14MM_PISTOL:
-		case PID_ANACONDA: repair-=15;
-		case PID_DESERT_EAGLE:
-		case PID_DESERT_EAGLE_EXT_MAG:
-		case PID_44_MAGNUM_REVOLVER:
-		case PID_44_MAGNUM_SPEEDLOADER: repair-=5;
+    case PID_COMBAT_SHOTGUN:
+        repair -= 15;
+    case PID_SCOPED_HUNTING_RIFLE:
+        repair -= 5;
+    case PID_REMINGTON:
+    case PID_10MM_SMG:
+    case PID_TOMMY_GUN:
+    case PID_GREASE_GUN:
+        repair -= 10;
+    case PID_HUNTING_RIFLE:
+    case PID_14MM_PISTOL:
+    case PID_ANACONDA:
+        repair -= 15;
+    case PID_DESERT_EAGLE:
+    case PID_DESERT_EAGLE_EXT_MAG:
+    case PID_44_MAGNUM_REVOLVER:
+    case PID_44_MAGNUM_SPEEDLOADER:
+        repair -= 5;
 
-			if(_CritCountItem(cr,PID_DRILL)>0)
-				{
-				if(_CritCountItem(cr,PID_METAL_TRASH)>3) cr.DeleteItem(PID_METAL_TRASH,4);
-				else if(_CritCountItem(cr,PID_IRON_DETALS)>0) cr.DeleteItem(PID_IRON_DETALS,1);
-				else if(_CritCountItem(cr,PID_PERED_MEH)>0) cr.DeleteItem(PID_PERED_MEH,1);
-				else if(_CritCountItem(cr,PID_DETAL_MEH)>0) cr.DeleteItem(PID_DETAL_MEH,1);
-				else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155220); return true;}
-				}
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155160); return true;}
-			break;
+        if( _CritCountItem( cr, PID_DRILL ) > 0 )
+        {
+            if( _CritCountItem( cr, PID_METAL_TRASH ) > 3 )
+                cr.DeleteItem( PID_METAL_TRASH, 4 );
+            else if( _CritCountItem( cr, PID_IRON_DETALS ) > 0 )
+                cr.DeleteItem( PID_IRON_DETALS, 1 );
+            else if( _CritCountItem( cr, PID_PERED_MEH ) > 0 )
+                cr.DeleteItem( PID_PERED_MEH, 1 );
+            else if( _CritCountItem( cr, PID_DETAL_MEH ) > 0 )
+                cr.DeleteItem( PID_DETAL_MEH, 1 );
+            else
+            {
+                cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155220 );
+                return true;
+            }
+        }
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155160 );
+            return true;
+        }
+        break;
 // оружие высокого класса
-		case PID_HK_CAWS:
-		case PID_PANCOR_JACKHAMMER:
-		case PID_HK_P90C:
-		case PID_IMPROVED_FLAMETHROWER:
-		case PID_MINIGUN:
-		case PID_AVENGER_MINIGUN:
-		case PID_BOZAR:
-		case PID_LIGHT_SUPPORT_WEAPON:
-		case PID_M60:
-		case PID_GRENADELAUNCHER: repair-=40;
-			if(_CritCountItem(cr,PID_DRILL)>0)
-				{
-				if(_CritCountItem(cr,PID_ROBOT_PARTS)>10) cr.DeleteItem(PID_ROBOT_PARTS,11);
-				else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155230); return true;}
-				}
-			else {cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,155160); return true;}
-			break;
-	}
+    case PID_HK_CAWS:
+    case PID_PANCOR_JACKHAMMER:
+    case PID_HK_P90C:
+    case PID_IMPROVED_FLAMETHROWER:
+    case PID_MINIGUN:
+    case PID_AVENGER_MINIGUN:
+    case PID_BOZAR:
+    case PID_LIGHT_SUPPORT_WEAPON:
+    case PID_M60:
+    case PID_GRENADELAUNCHER:
+        repair -= 40;
+        if( _CritCountItem( cr, PID_DRILL ) > 0 )
+        {
+            if( _CritCountItem( cr, PID_ROBOT_PARTS ) > 10 )
+                cr.DeleteItem( PID_ROBOT_PARTS, 11 );
+            else
+            {
+                cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155230 );
+                return true;
+            }
+        }
+        else
+        {
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 155160 );
+            return true;
+        }
+        break;
+    }
 // конец скрипта выборочного ремонта
 
-	if(FLAG(item.BrokenFlags,BI_BROKEN))
-	{
-		if(FLAG(item.BrokenFlags,BI_HIGHBROKEN)) repair-=100; //было 150
-		else if(FLAG(item.BrokenFlags,BI_NORMBROKEN)) repair-=75; //было 100
-		else if(FLAG(item.BrokenFlags,BI_LOWBROKEN)) repair-=25; // было 50
+    if( FLAG( item.BrokenFlags, BI_BROKEN ) )
+    {
+        if( FLAG( item.BrokenFlags, BI_HIGHBROKEN ) )
+            repair -= 100;                               // было 150
+        else if( FLAG( item.BrokenFlags, BI_NORMBROKEN ) )
+            repair -= 75;                                // было 100
+        else if( FLAG( item.BrokenFlags, BI_LOWBROKEN ) )
+            repair -= 25;                                // было 50
 
-		repair-=item.BrokenCount*50/MAX_BROKENS; //было 100
-		repair=CLAMP(repair,6,95);
+        repair -= item.BrokenCount * 50 / MAX_BROKENS;   // было 100
+        repair = CLAMP( repair, 6, 95 );
 
-		if(repair>=Random(1,100))
-		{
-			item.Deterioration=0;
-			UNSETFLAG(item.BrokenFlags,BI_BROKEN);
-			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_DETERIORATION_REPAIR_SUCC);
-			cr.StatBase[ST_EXPERIENCE]+=40;
-		}
-		else
-		{
-			item.BrokenCount++;
-			if(item.BrokenCount>=MAX_BROKENS) SETFLAG(item.BrokenFlags,BI_NOTRESC);
-			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_DETERIORATION_REPAIR_FAIL);
-		}
-	}
-	// Service
-	else
-	{
-		if(FLAG(item.BrokenFlags,BI_SERVICE)) repair-=25;
-		repair-=item.BrokenCount*50/MAX_BROKENS;
-		repair=CLAMP(repair,6,95);
+        if( repair >= Random( 1, 100 ) )
+        {
+            item.Deterioration = 0;
+            UNSETFLAG( item.BrokenFlags, BI_BROKEN );
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DETERIORATION_REPAIR_SUCC );
+            cr.StatBase[ ST_EXPERIENCE ] += 40;
+        }
+        else
+        {
+            item.BrokenCount++;
+            if( item.BrokenCount >= MAX_BROKENS )
+                SETFLAG( item.BrokenFlags, BI_NOTRESC );
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DETERIORATION_REPAIR_FAIL );
+        }
+    }
+    // Service
+    else
+    {
+        if( FLAG( item.BrokenFlags, BI_SERVICE ) )
+            repair -= 25;
+        repair -= item.BrokenCount * 50 / MAX_BROKENS;
+        repair = CLAMP( repair, 6, 95 );
 
-		if(repair>=Random(1,100))
-		{
-			SETFLAG(item.BrokenFlags,BI_SERVICE);
-			if(activePid==PID_OIL_CAN)
-			{
-				item.Deterioration=0;
-				cr.DeleteItem(PID_OIL_CAN,1);
-			}
-			else
-			{
-				int cnt=repair*MAX_DETERIORATION/100;
-				if(cnt>item.Deterioration) item.Deterioration=0;
-				else item.Deterioration-=cnt;
-			}
-			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_DETERIORATION_SERVICE_SUCC);
-			cr.StatBase[ST_EXPERIENCE]+=20;
-		}
-		else
-		{
-			DeteriorateItem(cr,item,MAX_DETERIORATION/5);
-			cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_DETERIORATION_SERVICE_FAIL);
-		}
-	}
-
-	item.Update();
-	cr.TimeoutBase[TO_SK_REPAIR]=REPAIR_TIMEOUT(cr);
-	return true;
+        if( repair >= Random( 1, 100 ) )
+        {
+            SETFLAG( item.BrokenFlags, BI_SERVICE );
+            if( activePid == PID_OIL_CAN )
+            {
+                item.Deterioration = 0;
+                cr.DeleteItem( PID_OIL_CAN, 1 );
+            }
+            else
+            {
+                int cnt = repair * MAX_DETERIORATION / 100;
+                if( cnt > item.Deterioration )
+                    item.Deterioration = 0;
+                else
+                    item.Deterioration -= cnt;
+            }
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DETERIORATION_SERVICE_SUCC );
+            cr.StatBase[ ST_EXPERIENCE ] += 20;
+        }
+        else
+        {
+            DeteriorateItem( cr, item, MAX_DETERIORATION / 5 );
+            cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DETERIORATION_SERVICE_FAIL );
+        }
+    }
+    // из СДК
+    // SetItemCost(item);
+    item.Update();
+    cr.TimeoutBase[ TO_SK_REPAIR ] = REPAIR_TIMEOUT( cr );
+    return true;
 }
 
-void DeteriorateItem(Critter& cr, Item& item, int deteriorationCount) // Export
+void DeteriorateItem( Critter& cr, Item& item, int deteriorationCount ) // Export
 {
-	if(deteriorationCount<=0 || not item.IsDeteriorable() || FLAG(item.BrokenFlags,BI_ETERNAL) || FLAG(item.BrokenFlags,BI_BROKEN)) return;
+    if( deteriorationCount <= 0 || not item.IsDeteriorable() || FLAG( item.BrokenFlags, BI_ETERNAL ) || FLAG( item.BrokenFlags, BI_BROKEN ) )
+        return;
 
-	item.Deterioration+=deteriorationCount;
-	if(item.Deterioration>=MAX_DETERIORATION)
-	{
-		item.Deterioration=MAX_DETERIORATION;
-		if(!IsHaveBlade(item.GetProtoId())) //pm added
-		{
-			item.BrokenCount++;
+    item.Deterioration += deteriorationCount;
+    if( item.Deterioration >= MAX_DETERIORATION )
+    {
+        item.Deterioration = MAX_DETERIORATION;
+        if( !IsHaveBlade( item.GetProtoId() ) )     // pm added
+        {
+            item.BrokenCount++;
 
-			int brokenLvl=Random(0,item.BrokenCount/(MAX_BROKENS/4));
+            // из сдк
+            // SetItemCost(item);
 
-			if(item.BrokenCount>=MAX_BROKENS || brokenLvl>=3) SETFLAG(item.BrokenFlags,BI_NOTRESC);
-			else if(brokenLvl==2) SETFLAG(item.BrokenFlags,BI_HIGHBROKEN);
-			else if(brokenLvl==1) SETFLAG(item.BrokenFlags,BI_NORMBROKEN);
-			else SETFLAG(item.BrokenFlags,BI_LOWBROKEN);
-		}
-		cr.SayMsg(SAY_NETMSG,TEXTMSG_GAME,STR_DETERIORATION_WEAPON_BROKEN);
-	}
+            int brokenLvl = Random( 0, item.BrokenCount / ( MAX_BROKENS / 4 ) );
 
-	item.Update();
+            if( item.BrokenCount >= MAX_BROKENS || brokenLvl >= 3 )
+                SETFLAG( item.BrokenFlags, BI_NOTRESC );
+            else if( brokenLvl == 2 )
+                SETFLAG( item.BrokenFlags, BI_HIGHBROKEN );
+            else if( brokenLvl == 1 )
+                SETFLAG( item.BrokenFlags, BI_NORMBROKEN );
+            else
+                SETFLAG( item.BrokenFlags, BI_LOWBROKEN );
+        }
+        cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DETERIORATION_WEAPON_BROKEN );
+    }
+
+    item.Update();
 }
 
-void SetDeterioration(Item& item, int deteriorationProcent) // Export
+void SetDeterioration( Item& item, int deteriorationProcent ) // Export
 {
-	if(not item.IsDeteriorable()) return;
-	UNSETFLAG(item.BrokenFlags,BI_BROKEN);
-	deteriorationProcent=CLAMP(deteriorationProcent,0,100);
-	item.Deterioration=MAX_DETERIORATION*deteriorationProcent/100;
-	item.BrokenCount=MAX_BROKENS*deteriorationProcent/100;
-	if(deteriorationProcent==100) SETFLAG(item.BrokenFlags,BI_BROKEN);
-	item.Update();
+    if( not item.IsDeteriorable() )
+        return;
+    UNSETFLAG( item.BrokenFlags, BI_BROKEN );
+    deteriorationProcent = CLAMP( deteriorationProcent, 0, 100 );
+    item.Deterioration = MAX_DETERIORATION * deteriorationProcent / 100;
+    item.BrokenCount = MAX_BROKENS * deteriorationProcent / 100;
+    if( deteriorationProcent == 100 )
+        SETFLAG( item.BrokenFlags, BI_BROKEN );
+    item.Update();
 }
 
-int GetDeteriorationProcent(Item& item) // Export
+int GetDeteriorationProcent( Item& item ) // Export
 {
-	if(not item.IsDeteriorable()) return 0;
-	if(FLAG(item.BrokenFlags,BI_BROKEN)) return 100;
-	int value=item.Deterioration*100/MAX_DETERIORATION;
-	return CLAMP(value,0,100);
+    if( not item.IsDeteriorable() )
+        return 0;
+    if( FLAG( item.BrokenFlags, BI_BROKEN ) )
+        return 100;
+    int value = item.Deterioration * 100 / MAX_DETERIORATION;
+    return CLAMP( value, 0, 100 );
 }
 
-bool IsHaveBlade(uint16 pid)		//pm added
+/* из СДК, проверить есть ли конфликты с нашим динамическим рассчетом
+   void SetItemCost(Item& item)
+   {
+        //item.Cost = item.Proto.Cost * CLAMP(100 - GetDeteriorationProcent(item), 5, 100)/ 100;
+        int wearPercent = GetDeteriorationProcent(item);
+        if (wearPercent == 100)
+        {
+                item.Cost = uint(item.Proto.Cost / 3);
+        }
+        else if (wearPercent > 75)
+        {
+                item.Cost = uint(2 * item.Proto.Cost / 3);
+        }
+        else
+        {
+                item.Cost = 0;
+        }
+   }
+ */
+
+bool IsHaveBlade( uint16 pid )            // pm added
 {
-	if(pid == PID_KNIFE 		||
-	   pid == PID_SPEAR 		||
-	   pid == PID_THROWING_KNIFE	||
-	   pid == PID_RIPPER		||
-	   pid == PID_SPIKED_KNUCKLES	||
-	   pid == PID_COMBAT_KNIFE	||
-	   pid == PID_SHARP_SPEAR	||
-	   pid == PID_SWITCHBLADE 	||
-	   pid == PID_SHIV		||
-	   pid == PID_LIL_JESUS_WEAPON	||
-	   pid == PID_WAKIZASHI_BLADE	)
-	  return true;
-	  
-return false;
-	   
+    if( pid == PID_KNIFE             ||
+        pid == PID_SPEAR             ||
+        pid == PID_THROWING_KNIFE    ||
+        pid == PID_RIPPER            ||
+        pid == PID_SPIKED_KNUCKLES   ||
+        pid == PID_COMBAT_KNIFE      ||
+        pid == PID_SHARP_SPEAR       ||
+        pid == PID_SWITCHBLADE       ||
+        pid == PID_SHIV              ||
+        pid == PID_LIL_JESUS_WEAPON  ||
+        pid == PID_WAKIZASHI_BLADE   )
+        return true;
+
+    return false;
+
 }

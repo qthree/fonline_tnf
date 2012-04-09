@@ -2,75 +2,77 @@
 
 
 
-void _MapInit(Map& map, bool firstTime)
+void _MapInit( Map& map, bool firstTime )
 {
-	map.SetEvent(MAP_EVENT_OUT_CRITTER, "_crOut");
-	map.SetEvent(MAP_EVENT_IN_CRITTER, "_crIn");
+    map.SetEvent( MAP_EVENT_OUT_CRITTER, "_crOut" );
+    map.SetEvent( MAP_EVENT_IN_CRITTER, "_crIn" );
 
 }
 
-void _KindmanInit(Critter& cr, bool firstTime)
+void _KindmanInit( Critter& cr, bool firstTime )
 {
-	cr.ParamBase[MODE_UNLIMITED_AMMO]=1;
-	cr.ParamBase[MODE_INVULNERABLE]=1;
-	cr.ParamBase[MODE_NO_ENEMY_STACK]=1;
-	cr.ParamBase[ST_MELEE_DAMAGE]=9999;
+    cr.ParamBase[ MODE_UNLIMITED_AMMO ] = 1;
+    cr.ParamBase[ MODE_INVULNERABLE ] = 1;
+    cr.ParamBase[ MODE_NO_ENEMY_STACK ] = 1;
+    cr.ParamBase[ ST_MELEE_DAMAGE ] = 9999;
 }
 
-void r_toHex(Critter& master, Critter@ slave, int val)
+void r_toHex( Critter& master, Critter@ slave, int val )
 {
-	Map@ map = master.GetMap();
+    Map@ map = master.GetMap();
 
-	if(map is null) return;
+    if( map is null )
+        return;
 
-	uint16 hexX=0, hexY=0;
+    uint16 hexX = 0, hexY = 0;
 
-	if(!map.GetEntireCoords(val, 0, hexX, hexY)) return;
+    if( !map.GetEntireCoords( val, 0, hexX, hexY ) )
+        return;
 
-	master.TransitToHex(hexX, hexY, 5);
+    master.TransitToHex( hexX, hexY, 5 );
 }
 
-void kind_tele(Critter& master, Critter@ slave, int val)
+void kind_tele( Critter& master, Critter@ slave, int val )
 {
-	if (not valid(master)) return;
-	Location @ loc = GetLocationByPid(val, 0);
-	if(not valid(loc)) {slave.Say(SAY_NETMSG,"Location not found"); return;}
-	Map @ map = loc.GetMapByIndex(0);
-	if(not valid(map))
-		{
-		master.Say(SAY_NETMSG,"Map index not found");
-		return;
-		}
-	master.ToKnockout(KNOCKOUT_ANIM2_DEFAULT((Random(0,1)==1)), 10, master.HexX, master.HexY);
-	master.TransitToMap(map.Id, 0);
-	master.Say(SAY_NETMSG, "Вы видели наверное самый безумный сон в своей жизни, что-то про дорогу и роботов.");
+    if( not valid( master ) )
+        return;
+    Location @ loc = GetLocationByPid( val, 0 );
+    if( not valid( loc ) )
+    {
+        slave.Say( SAY_NETMSG, "Location not found" );
+        return;
+    }
+    Map @ map = loc.GetMapByIndex( 0 );
+    if( not valid( map ) )
+    {
+        master.Say( SAY_NETMSG, "Map index not found" );
+        return;
+    }
+    master.ToKnockout( KNOCKOUT_ANIM2_DEFAULT( ( Random( 0, 1 ) == 1 ) ), 10, master.HexX, master.HexY );
+    master.TransitToMap( map.Id, 0 );
+    master.Say( SAY_NETMSG, "Вы видели наверное самый безумный сон в своей жизни, что-то про дорогу и роботов." );
 }
 
-void _crIn(Map& map, Critter& cr)
+void _crIn( Map& map, Critter& cr )
 {
-	if(cr.IsPlayer() && cr.GetAccess()==ACCESS_CLIENT)
-		{
-		cr.ParamBase[MODE_NO_PVP]=1;
-		cr.AddItem(PID_INFOPAD, 1);
-		cr.AddItem(PID_SKIN_CHANGER, 1);
-		}
+    if( cr.IsPlayer() && cr.GetAccess() == ACCESS_CLIENT )
+    {
+        cr.ParamBase[ MODE_NO_PVP ] = 1;
+        cr.AddItem( PID_INFOPAD, 1 );
+        cr.AddItem( PID_SKIN_CHANGER, 1 );
+    }
 }
 
-void _crOut(Map& map, Critter& cr)
+void _crOut( Map& map, Critter& cr )
 {
-	if(cr.IsPlayer() && cr.GetAccess()==ACCESS_CLIENT)
-	{
-	cr.ParamBase[MODE_NO_PVP]=0;
-	Item@[] items;
-	cr.GetItems(SLOT_INV,items);
-	cr.GetItems(SLOT_HAND1,items);
-	cr.GetItems(SLOT_HAND2,items);
-	map.GetItems(0, items);
-	DeleteItems(items);
-	}
+    if( cr.IsPlayer() && cr.GetAccess() == ACCESS_CLIENT )
+    {
+        cr.ParamBase[ MODE_NO_PVP ] = 0;
+        Item@[] items;
+        cr.GetItems( SLOT_INV, items );
+        cr.GetItems( SLOT_HAND1, items );
+        cr.GetItems( SLOT_HAND2, items );
+        map.GetItems( 0, items );
+        DeleteItems( items );
+    }
 }
-
-
-
-
-

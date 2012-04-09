@@ -1,5 +1,7 @@
 @echo off
 
+@:1
+
 @: Environment
 @set PATH=C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE;%PATH%
 @set PATH=C:\Program Files\Microsoft Visual Studio 9.0\VC\BIN;%PATH%
@@ -34,3 +36,5 @@ link.exe /nologo /dll /incremental:no /machine:I386 ".\\fonline_tnf_client.obj" 
 @del ".\\vc90.idb"
 
 @pause
+
+@goto 1

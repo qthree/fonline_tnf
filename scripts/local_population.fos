@@ -1,4 +1,4 @@
-//sacramento population script
+// sacramento population script
 
 #include "_ai.fos"
 #include "_macros.fos"
@@ -7,447 +7,495 @@
 
 
 // import void ChangeBrokeAndAmmo(Item& item) from "mapgen_paste_items.fos";
-import void ActivateMobScript(Map& map) from "mob";
-import void SetDeterioration(Item& item, int wearProcent) from "repair";
+import void ActivateMobScript( Map& map ) from "mob";
+import void SetDeterioration( Item& item, int wearProcent ) from "repair";
 
 
-#define START_ENT	(30)
-#define END_ENT		(38)
-#define POPUL_MOD	(10)
-#define MAP_SACR_ID	(100)
-#define MAP_TIME_DATA	(1)
-#define ITEM_ACCESSORY	(0)
+#define START_ENT         ( 30 )
+#define END_ENT           ( 38 )
+#define POPUL_MOD         ( 10 )
+#define MAP_SACR_ID       ( 100 )
+#define MAP_TIME_DATA     ( 1 )
+#define ITEM_ACCESSORY    ( 0 )
 
 uint8 timeNum = 0;
 /************
-debug
+   debug
 ************/
 
-uint8 CheckNpcAi(uint16 crType)
+uint8 CheckNpcAi( uint16 crType )
 {
-  uint8 retn = 0;
-  switch(crType)
-  {
-    	case 5:		retn = AIPACKET_SCORPION; break;
-    	case 9: 	retn = AIPACKET_GENERIC_DOG; break;
-    	case 11:	retn = AIPACKET_RAT; break;
-	case 80:	retn = AIPACKET_GECKO; break;
-	case 83:	retn = AIPACKET_GECKO; break;
-    	case 85:	retn = AIPACKET_DEATHCLAW; break;
-    	case 113:	retn = AIPACKET_RAT; break;
-    	case 117:	retn = AIPACKET_RAT; break;
-    	case 119:	retn = AIPACKET_SUPER_MUTANT; break;
-    	case 177:	retn = AIPACKET_FLOATER; break;
-    	case 249:	retn = AIPACKET_CENTAUR; break;
-    	default: retn = 0; break;
-  }
-  return retn;
+    uint8 retn = 0;
+    switch( crType )
+    {
+    case 5:
+        retn = AIPACKET_SCORPION;
+        break;
+    case 9:
+        retn = AIPACKET_GENERIC_DOG;
+        break;
+    case 11:
+        retn = AIPACKET_RAT;
+        break;
+    case 80:
+        retn = AIPACKET_GECKO;
+        break;
+    case 83:
+        retn = AIPACKET_GECKO;
+        break;
+    case 85:
+        retn = AIPACKET_DEATHCLAW;
+        break;
+    case 113:
+        retn = AIPACKET_RAT;
+        break;
+    case 117:
+        retn = AIPACKET_RAT;
+        break;
+    case 119:
+        retn = AIPACKET_SUPER_MUTANT;
+        break;
+    case 177:
+        retn = AIPACKET_FLOATER;
+        break;
+    case 249:
+        retn = AIPACKET_CENTAUR;
+        break;
+    default:
+        retn = 0;
+        break;
+    }
+    return retn;
 }
 
 
-void TeleportNpcToMap(Critter& npc)
+void TeleportNpcToMap( Critter& npc )
 {
-  //Location @ loc = npc.GetMap().GetLocation();
-  //Map @ map = loc.GetMapByIndex(0);
-  //npc.TransitToMap(map.Id, 1);
-	Map @ map = GetMapByPid(GetCritInfo(npc.GetMap().GetProtoId(),0,4), 0);
-	npc.TransitToMap(map.Id, 1);
+    // Location @ loc = npc.GetMap().GetLocation();
+    // Map @ map = loc.GetMapByIndex(0);
+    // npc.TransitToMap(map.Id, 1);
+    Map @ map = GetMapByPid( GetCritInfo( npc.GetMap().GetProtoId(), 0, 4 ), 0 );
+    npc.TransitToMap( map.Id, 1 );
 }
 
-void runmobspawn(Critter& player, int param0, int param1, int param2)
+void runmobspawn( Critter& player, int param0, int param1, int param2 )
 {
-  Map @ map = player.GetMap();
-  AddCritter(map);
+    Map @ map = player.GetMap();
+    AddCritter( map );
 }
 
-void runitemspawn(Critter& player, int param0, int param1, int param2)
+void runitemspawn( Critter& player, int param0, int param1, int param2 )
 {
-  Map @ map = player.GetMap();
-  FillContainer(map);
+    Map @ map = player.GetMap();
+    FillContainer( map );
 }
 
-void ChangeBrokeAndAmmo(Item& item)
+void ChangeBrokeAndAmmo( Item& item )
 {
-	  if(item.IsDeteriorable())					//проверяем ломается ли итем
-	      {
-		SetDeterioration(item, Random(30,90));				//ломаем его
-		if(item.WeaponAmmoCount > 0)
-		{
-		  item.WeaponAmmoCount = Random(0,item.WeaponAmmoCount);
-// 		  CaseAmmoWeaponCount(item, item.WeaponAmmoCount);
-		}
-	      }
+    if( item.IsDeteriorable() )                                         // проверяем ломается ли итем
+    {
+        SetDeterioration( item, Random( 30, 90 ) );                     // ломаем его
+        if( item.WeaponAmmoCount > 0 )
+        {
+            item.WeaponAmmoCount = Random( 0, item.WeaponAmmoCount );
+//                CaseAmmoWeaponCount(item, item.WeaponAmmoCount);
+        }
+    }
 }
 
-void _MapInit(Map& map, bool firstTime)
+void _MapInit( Map& map, bool firstTime )
 {
-  uint[] values = {map.Id};
-  timeNum = CreateTimeEvent(__FullSecond+5*60, "e_SpawnStuff", values, false);
-  map.SetData(MAP_TIME_DATA, timeNum);
-  timeNum = 0;
+    uint[] values = { map.Id };
+    timeNum = CreateTimeEvent( __FullSecond + 5 * 60, "e_SpawnStuff", values, false );
+    map.SetData( MAP_TIME_DATA, timeNum );
+    timeNum = 0;
 }
 
-uint e_SpawnStuff(uint[]@ values)
+uint e_SpawnStuff( uint[] @ values )
 {
 //   uint8 itemPid = 0;
-  Map @ map = GetMap(values[0]);
-  if(!valid(map)) return 0;
-  FillContainer(map);
-  AddCritter(map);
-  EraseTimeEvent(map.GetData(MAP_TIME_DATA));
-  timeNum = CreateTimeEvent(__FullSecond+(60*60*(24+Random(0,23))), "e_SpawnStuff", values, false);
-  map.SetData(MAP_TIME_DATA, timeNum);
-  timeNum = 0;
-  return 0;
+    Map @ map = GetMap( values[ 0 ] );
+    if( !valid( map ) )
+        return 0;
+    FillContainer( map );
+    AddCritter( map );
+    EraseTimeEvent( map.GetData( MAP_TIME_DATA ) );
+    timeNum = CreateTimeEvent( __FullSecond + ( 60 * 60 * ( 24 + Random( 0, 23 ) ) ), "e_SpawnStuff", values, false );
+    map.SetData( MAP_TIME_DATA, timeNum );
+    timeNum = 0;
+    return 0;
 }
 
 string msg;
 
-void FillContainer(Map& map)	//343
+void FillContainer( Map& map ) // 343
 {
-  Item@[] containers;
-  uint16 itemPid = 0; //, temp = 0;
-  map.GetItemsByType(ITEM_CONTAINER , containers);
-  if(valid(containers) && containers.length() != 0)
-  {
-    Item @ item;
-    for(uint16 i = 0; i < containers.length(); i++)
+    Item@[] containers;
+    uint16 itemPid = 0;        // , temp = 0;
+    map.GetItemsByType( ITEM_TYPE_CONTAINER, containers );
+    if( valid( containers ) && containers.length() != 0 )
     {
-      Item@[] contBag;
-      containers[i].GetItems(ITEM_ACCESSORY, contBag);
-       if(valid(contBag) && contBag.length() == 0)
-       {
-	  itemPid = Random(0, satterGroup.length()-1);
- 	  @item = containers[i].AddItem(satterGroup[itemPid], Random(1, satterGroupMod[itemPid]), ITEM_ACCESSORY);
-	  i += Random(0, Random(1,4));
-	  if(valid(item))
-	  {
-	    ChangeBrokeAndAmmo(item);
-// 	    temp++;
-// 	    msg = itemPid;
-//  	    Log(msg);
-	  }
-	  
-	}
+        Item @ item;
+        for( uint16 i = 0; i < containers.length(); i++ )
+        {
+            Item@[] contBag;
+            containers[ i ].GetItems( ITEM_ACCESSORY, contBag );
+            if( valid( contBag ) && contBag.length() == 0 )
+            {
+                itemPid = Random( 0, satterGroup.length() - 1 );
+                @item = containers[ i ].AddItem( satterGroup[ itemPid ], Random( 1, satterGroupMod[ itemPid ] ), ITEM_ACCESSORY );
+                i += Random( 0, Random( 1, 4 ) );
+                if( valid( item ) )
+                {
+                    ChangeBrokeAndAmmo( item );
+//          temp++;
+//          msg = itemPid;
+//          Log(msg);
+                }
+
+            }
 //       else
 //       {msg = "full cont "+contBag.length(); Log(msg);}
+        }
     }
-  }
 //   msg = temp+" of "+containers.length();
 //   Log(msg);
 }
 
-void AddCritter(Map& map) //310
+void AddCritter( Map& map ) // 310
 {
-  Critter@[] npcs;
-  uint16 hexX = 0, hexY = 0, crCount = 0, teamId = 0, temp = 0;
+    Critter@[] npcs;
+    uint16 hexX = 0, hexY = 0, crCount = 0, teamId = 0, temp = 0;
 //   msg = "critterTypes[i]";
-  for(uint8 i = 0; i < GetCritInfo(map.GetProtoId(),i,3); i++)
-  {/*
-    hexX = Random(60, 140);
-    hexY = Random(60, 140);*/
-    crCount = map.GetCritters(GetCritInfo(map.GetProtoId(),i,0), FIND_LIFE | FIND_ONLY_NPC, npcs);
-//     temp = ABS();
-    if(crCount < ABS(GetCritInfo(map.GetProtoId(),i,1) / 5))
+    for( uint8 i = 0; i < GetCritInfo( map.GetProtoId(), i, 3 ); i++ )
     {
-      for(uint8 j = 0; j < map.CountEntire(GetCritInfo(map.GetProtoId(),i,2)); j++)
-      {
-	teamId = Random(24, 33);
-	if(map.GetEntireCoords(GetCritInfo(map.GetProtoId(),i,2), j, hexX, hexY))
-	{
-	  for(uint8 jj = GetCritInfo(map.GetProtoId(),i,1); jj > Random(GetCritInfo(map.GetProtoId(),i,1) / 2, GetCritInfo(map.GetProtoId(),i,1) - crCount); jj--)
-	  {
-	    if(map.IsHexPassed(hexX, hexY))
-	    {
-	      Critter @ npc = map.AddNpc(GetCritInfo(map.GetProtoId(),i,0), hexX, hexY, Random(0,5), null, null, null);
- 	      npc.StatBase[ST_AI_ID] = CheckNpcAi(npc.CrType);
-	      npc.StatBase[ST_TEAM_ID] = teamId;
-// 	      if(valid(npc)) {msg = "hexX= "+npc.HexX+" hexY= "+npc.HexY; Log(msg);}
-	      hexX += Random(1,4);
-	      hexY -= Random(1,4);
-	    }
-	    else
-	    {
-	      hexX -= Random(1,4);
-	      hexY += Random(1,4);
-	    }
-	  }
-	}
-	else {msg =  GetCritInfo(map.GetProtoId(),i,2); Log(msg);}
-      }
-      ActivateMobScript(map);
-    }
-    /*
-    else 
-     {
-    
-//  	crs[i].
-// 	for(uint8 j = 0; j < map.CountEntire(critterSpawn[i]); j++)
-	if(map.GetEntireCoords(1, 0, hexX, hexY))
-	{
-	 for(uint8 ii = 0; ii < npcs.length(); ii++)
-	  {
-	    hexX = Random(60, 140);
-	    hexY = Random(60, 140);
- 	    AddWalkPlane(npcs[ii], AI_PLANE_WALK_PRIORITY , hexX, hexY, Random(0,5), false, 0);
-	    AddMiscPlane(npcs[ii], AI_PLANE_WALK_PRIORITY-1, 0, "TeleportNpcToMap");
- 	    AddWalkPlane(npcs[ii], AI_PLANE_WALK_PRIORITY-2 , hexX, hexY, Random(0,5), false, 0);
-// 	    msg = "crCount = "+crCount;
-// 	    Log(msg);
-	  
-	  }
-	}
-      }*/
-    }
-  }
+        /*
+           hexX = Random(60, 140);
+           hexY = Random(60, 140);*/
+        crCount = map.GetCritters( GetCritInfo( map.GetProtoId(), i, 0 ), FIND_LIFE | FIND_ONLY_NPC, npcs );
+//     temp = ABS();
+        if( crCount < ABS( GetCritInfo( map.GetProtoId(), i, 1 ) / 5 ) )
+        {
+            for( uint8 j = 0; j < map.CountEntire( GetCritInfo( map.GetProtoId(), i, 2 ) ); j++ )
+            {
+                teamId = Random( 24, 33 );
+                if( map.GetEntireCoords( GetCritInfo( map.GetProtoId(), i, 2 ), j, hexX, hexY ) )
+                {
+                    for( uint8 jj = GetCritInfo( map.GetProtoId(), i, 1 ); jj > Random( GetCritInfo( map.GetProtoId(), i, 1 ) / 2, GetCritInfo( map.GetProtoId(), i, 1 ) - crCount ); jj-- )
+                    {
+                        if( map.IsHexPassed( hexX, hexY ) )
+                        {
+                            Critter @ npc = map.AddNpc( GetCritInfo( map.GetProtoId(), i, 0 ), hexX, hexY, Random( 0, 5 ), null, null, null );
+                            npc.StatBase[ ST_AI_ID ] = CheckNpcAi( npc.CrType );
+                            npc.StatBase[ ST_TEAM_ID ] = teamId;
+//            if(valid(npc)) {msg = "hexX= "+npc.HexX+" hexY= "+npc.HexY; Log(msg);}
+                            hexX += Random( 1, 4 );
+                            hexY -= Random( 1, 4 );
+                        }
+                        else
+                        {
+                            hexX -= Random( 1, 4 );
+                            hexY += Random( 1, 4 );
+                        }
+                    }
+                }
+                else
+                {
+                    msg =  GetCritInfo( map.GetProtoId(), i, 2 );
+                    Log( msg );
+                }
+            }
+            ActivateMobScript( map );
+        }
+        /*
+           else
+           {
 
-/****************************************
-/***********************GROUPS***********
-/***************************************/
-int16 GetCritInfo(uint16 mapProto, uint16 i, uint8 type)
-{
-  switch(mapProto)
-  {
-    case 20: switch(type)
-	      {
-		case 0: return critterTypes_20[i];
-		case 1: return critterPopul_20[i];
-		case 2: return critterSpawn_20[i];
-		case 3: return critterTypes_20.length();
-		case 4: return 18;
-	      }
-    case 101: switch(type)
-	      {
-		case 0: return critterTypes_101[i];
-		case 1: return critterPopul_101[i];
-		case 2: return critterSpawn_101[i];
-		case 3: return critterTypes_101.length();
-		case 4: return 100;
-	      }
-    case 103: switch(type)
-	      {
-		case 0: return critterTypes_101[i];
-		case 1: return critterPopul_101[i];
-		case 2: return critterSpawn_101[i];
-		case 3: return critterTypes_101.length();
-		case 4: return 100;
-	      }
-  }
-return 0;
+           //   crs[i].
+           //   for(uint8 j = 0; j < map.CountEntire(critterSpawn[i]); j++)
+            if(map.GetEntireCoords(1, 0, hexX, hexY))
+            {
+             for(uint8 ii = 0; ii < npcs.length(); ii++)
+              {
+                hexX = Random(60, 140);
+                hexY = Random(60, 140);
+                AddWalkPlane(npcs[ii], AI_PLANE_WALK_PRIORITY , hexX, hexY, Random(0,5), false, 0);
+                AddMiscPlane(npcs[ii], AI_PLANE_WALK_PRIORITY-1, 0, "TeleportNpcToMap");
+                AddWalkPlane(npcs[ii], AI_PLANE_WALK_PRIORITY-2 , hexX, hexY, Random(0,5), false, 0);
+           //       msg = "crCount = "+crCount;
+           //       Log(msg);
+
+              }
+            }
+           }*/
+    }
 }
 
-//modoc ghost farm mobs
+/****************************************
+   /***********************GROUPS***********
+   /***************************************/
+int16 GetCritInfo( uint16 mapProto, uint16 i, uint8 type )
+{
+    switch( mapProto )
+    {
+    case 20:
+        switch( type )
+        {
+        case 0:
+            return critterTypes_20[ i ];
+        case 1:
+            return critterPopul_20[ i ];
+        case 2:
+            return critterSpawn_20[ i ];
+        case 3:
+            return critterTypes_20.length();
+        case 4:
+            return 18;
+        }
+    case 101:
+        switch( type )
+        {
+        case 0:
+            return critterTypes_101[ i ];
+        case 1:
+            return critterPopul_101[ i ];
+        case 2:
+            return critterSpawn_101[ i ];
+        case 3:
+            return critterTypes_101.length();
+        case 4:
+            return 100;
+        }
+    case 103:
+        switch( type )
+        {
+        case 0:
+            return critterTypes_101[ i ];
+        case 1:
+            return critterPopul_101[ i ];
+        case 2:
+            return critterSpawn_101[ i ];
+        case 3:
+            return critterTypes_101.length();
+        case 4:
+            return 100;
+        }
+    }
+    return 0;
+}
+
+// modoc ghost farm mobs
 
 const uint16[] critterTypes_20 =
 {
-  80,			//gold gecko
-  83			//silv gecko
+    80,                 // gold gecko
+    83                  // silv gecko
 };
 
 const uint8[] critterPopul_20 =
 {
-  10,			//gold gecko
-  10			//silv gecko
+    10,                 // gold gecko
+    10                  // silv gecko
 };
 
 const uint8[] critterSpawn_20 =
 {
-  52,			//gold gecko
-  151			//silv gecho
+    52,                 // gold gecko
+    151                 // silv gecho
 };
 
 
-//satter east mobs
+// satter east mobs
 
 const uint16[] critterTypes_101 =
 {
-  5,			//radscorpion
-  9,			//dog
-  11,			//rat
-  85,			//little deathclow
-  113,			//bigrat
-  117,			//verybig rat =)
-  119,			//supermutant
-  246,			//floater
-  249			//centaurus
+    5,                  // radscorpion
+    9,                  // dog
+    11,                 // rat
+    85,                 // little deathclow
+    113,                // bigrat
+    117,                // verybig rat =)
+    119,                // supermutant
+    246,                // floater
+    249                 // centaurus
 };
 
 const uint8[] critterPopul_101 =
 {
-  20,			//radscorpion
-  20,			//dog
-  40,			//rat
-  5,			//little deathclow
-  20,			//bigrat
-  7,			//verybig rat =)
-  5,			//supermutant
-  5,			//floater
-  5			//centaurus
+    20,                 // radscorpion
+    20,                 // dog
+    40,                 // rat
+    5,                  // little deathclow
+    20,                 // bigrat
+    7,                  // verybig rat =)
+    5,                  // supermutant
+    5,                  // floater
+    5                   // centaurus
 };
 
 const uint8[] critterSpawn_101 =
 {
-  34,			//radscorpion
-  30,			//dog
-  31,			//rat
-  38,			//little deathclow
-  32,			//bigrat
-  33,			//verybig rat =)
-  37,			//supermutant
-  35,			//floater
-  36			//centaurus
+    34,                 // radscorpion
+    30,                 // dog
+    31,                 // rat
+    38,                 // little deathclow
+    32,                 // bigrat
+    33,                 // verybig rat =)
+    37,                 // supermutant
+    35,                 // floater
+    36                  // centaurus
 };
 
-const uint16[] satterGroup = 
+const uint16[] satterGroup =
 {
-	  PID_FLARE,
-	  PID_ROCK,
-	  PID_PLANT_SPIKE,
-	  PID_STIMPAK,
-	  PID_ANTIDOTE,
-	  PID_NUKA_COLA,
-	  PID_BEER,
-	  PID_BOOZE,
-	  PID_GAMMA_GULP_BEER,
-	  PID_ROENTGEN_RUM,
-	  PID_ROT_GUT,
-	  PID_BOTTLE_CAPS,
-	  PID_REAL_BOTTLE_CAPS,
-	  PID_KNIFE,				//medium chance
-	//PID_COMBAT_KNIFE,
-	//PID_SPEAR,
-	//PID_BRASS_KNUCKLES,
-	  PID_SCORPION_TAIL,
-	  PID_ROPE,
-	  PID_GECKO_PELT,
-	  PID_GOLDEN_GECKO_PELT,
-	  PID_FLINT,
-	  PID_MEAT_JERKY,
-	  PID_RADSCORPION_PARTS,
-	  PID_EMPTY_JET,
-	  PID_BOTTLE_GLASS,
-	  PID_BOTTLE_EMPTY,
-	  PID_PART_OF_ROPE,
-	  PID_METAL_TRASH,
-	  PID_GUNPOWDER,
-	  PID_METAL_ORE,
-	  PID_MINERAL,
-	  PID_TUBE,
-	  PID_STEEL,
-	  PID_BRAHMIN_SKIN,
-	  PID_MEAT,
-	  PID_CIGARETTES,
-	  PID_SHOVEL,
-	  PID_PLANK,
-	  PID_AXE,
-	  PID_LIGHTER,
-	  PID_WATER_FLASK,
-	 // PID_RADIO,
-	  //PID_LEATHER_JACKET,			//low chance
-	  PID_ZIP_GUN,
-	 // PID_9MM_MAUSER,
-	 // PID_10MM_PISTOL,
-	 // PID_14MM_PISTOL,
-	 // PID_DESERT_EAGLE,
-	//  PID_44_MAGNUM_REVOLVER,
-	 // PID_HUNTING_RIFLE,
-	//  PID_SHOTGUN,
-	//  PID_10MM_SMG,
-	  PID_GOLD_NUGGET,
-	  PID_5MM_JHP,
-	  PID_5MM_AP,
-	  PID_7_62MM_AMMO,
-	  PID_9MM_AMMO,
-	  PID_9MM_BALL,
-	  PID_10MM_JHP,
-	  PID_10MM_AP,
-	  PID_14MM_AP,
-	  PID_44_MAGNUM_JHP,
-	  PID_44_FMJ_MAGNUM,
-	  PID_45_CALIBER_AMMO,
-	  PID_223_FMJ,
-	  PID_SHOTGUN_SHELLS,
-	  PID_MULTI_TOOL,
-	 // PID_FIRST_AID_KIT,
-	  PID_VIC_RADIO, 
-	  PID_HYPODERMIC_NEEDLE,
-	  PID_FLAMETHROWER_FUEL
-// 	  0				//dummy
+    PID_FLARE,
+    PID_ROCK,
+    PID_PLANT_SPIKE,
+    PID_STIMPAK,
+    PID_ANTIDOTE,
+    PID_NUKA_COLA,
+    PID_BEER,
+    PID_BOOZE,
+    PID_GAMMA_GULP_BEER,
+    PID_ROENTGEN_RUM,
+    PID_ROT_GUT,
+    PID_BOTTLE_CAPS,
+    PID_REAL_BOTTLE_CAPS,
+    PID_KNIFE,                                  // medium chance
+    // PID_COMBAT_KNIFE,
+    // PID_SPEAR,
+    // PID_BRASS_KNUCKLES,
+    PID_SCORPION_TAIL,
+    PID_ROPE,
+    PID_GECKO_PELT,
+    PID_GOLDEN_GECKO_PELT,
+    PID_FLINT,
+    PID_MEAT_JERKY,
+    PID_RADSCORPION_PARTS,
+    PID_EMPTY_JET,
+    PID_BOTTLE_GLASS,
+    PID_BOTTLE_EMPTY,
+    PID_PART_OF_ROPE,
+    PID_METAL_TRASH,
+    PID_GUNPOWDER,
+    PID_METAL_ORE,
+    PID_MINERAL,
+    PID_TUBE,
+    PID_STEEL,
+    PID_BRAHMIN_SKIN,
+    PID_MEAT,
+    PID_CIGARETTES,
+    PID_SHOVEL,
+    PID_PLANK,
+    PID_AXE,
+    PID_LIGHTER,
+    PID_WATER_FLASK,
+    // PID_RADIO,
+    // PID_LEATHER_JACKET,			//low chance
+    PID_ZIP_GUN,
+    // PID_9MM_MAUSER,
+    // PID_10MM_PISTOL,
+    // PID_14MM_PISTOL,
+    // PID_DESERT_EAGLE,
+    //  PID_44_MAGNUM_REVOLVER,
+    // PID_HUNTING_RIFLE,
+    //  PID_SHOTGUN,
+    //  PID_10MM_SMG,
+    PID_GOLD_NUGGET,
+    PID_5MM_JHP,
+    PID_5MM_AP,
+    PID_7_62MM_AMMO,
+    PID_9MM_AMMO,
+    PID_9MM_BALL,
+    PID_10MM_JHP,
+    PID_10MM_AP,
+    PID_14MM_AP,
+    PID_44_MAGNUM_JHP,
+    PID_44_FMJ_MAGNUM,
+    PID_45_CALIBER_AMMO,
+    PID_223_FMJ,
+    PID_SHOTGUN_SHELLS,
+    PID_MULTI_TOOL,
+    // PID_FIRST_AID_KIT,
+    PID_VIC_RADIO,
+    PID_HYPODERMIC_NEEDLE,
+    PID_FLAMETHROWER_FUEL
+//        0				//dummy
 };
 
 const uint16[] satterGroupMod =
 {
-	5,				//flare
-	10,				//rock
-	10,				//plant spike
-	2,				//stimpack
-	3,				//antidote
-	5,				//nukacola
-	3,				//beer
-	3,				//booz
-	1,				//gamma
-	1,				//roentgen
-	1,				//rot gut
-	20,				//caps
-	40,				//realcaps
-	1,				//knife
-	//1,				//cmb knife
-	//1,				//spear
-	//1,				//bracker knuckles
-	1,				//scorpion tale
-	3,				//rope
-	2,				//gecko pelt
-	1,				//golden gecko pelt
-	1,				//flint
-	1,				//jerky
-	1,				//radscorpion parts
-	3,				//empty jet
-	5,				//glass
-	10,				//bottle empty
-	7,				//part of rope
-	4,				//metal trash
-	4,				//gunPowder
-	2,				//metal ore
-	1,				//mineral
-	3,				//tube
-	4,				//steel
-	1,				//brahmin skin
-	4,				//meat
-	1,				//cigarettes
-	1,				//shovel
-	1,				//plant
-	1,				//axe
-	1,				//lighter
-	1,				//water flask
-	//1,				//radio
-	//1,				//leather jacket
-	1,				//zip gun
-	//1,				//mauser
-	//1,				//10mm
-	//1,				//14mm
-	//1,				//desert eagle
-	//1,				//magnum
-	//1,				//hunting rifle
-	//1,				//shotgun
-	//1,				//10mm smg
-	1,				//gold nugget
-	10,				//5mm jhp
-	10,				//5mm ap
-	10,				//762
-	10,				//9mm
-	10,				//9mm ball
-	20,				//10mm jhp
-	15,				//10mm ap
-	7,				//14mm
-	18,				//44 jhp
-	18,				//44 fmj
-	8,				//45
-	10,				//223
-	8,				//shotgun shell
-	1,				//tool
-	//1,				//med tool
-	1,				//PID_VIC_RADIO
-	5,				//PID_HYPODERMIC_NEEDLE
-	1				//PID_FLAMETHROWER_FUEL
-// 	0				//dummy
+    5,                                  // flare
+    10,                                 // rock
+    10,                                 // plant spike
+    2,                                  // stimpack
+    3,                                  // antidote
+    5,                                  // nukacola
+    3,                                  // beer
+    3,                                  // booz
+    1,                                  // gamma
+    1,                                  // roentgen
+    1,                                  // rot gut
+    20,                                 // caps
+    40,                                 // realcaps
+    1,                                  // knife
+    // 1,				//cmb knife
+    // 1,				//spear
+    // 1,				//bracker knuckles
+    1,                                  // scorpion tale
+    3,                                  // rope
+    2,                                  // gecko pelt
+    1,                                  // golden gecko pelt
+    1,                                  // flint
+    1,                                  // jerky
+    1,                                  // radscorpion parts
+    3,                                  // empty jet
+    5,                                  // glass
+    10,                                 // bottle empty
+    7,                                  // part of rope
+    4,                                  // metal trash
+    4,                                  // gunPowder
+    2,                                  // metal ore
+    1,                                  // mineral
+    3,                                  // tube
+    4,                                  // steel
+    1,                                  // brahmin skin
+    4,                                  // meat
+    1,                                  // cigarettes
+    1,                                  // shovel
+    1,                                  // plant
+    1,                                  // axe
+    1,                                  // lighter
+    1,                                  // water flask
+    // 1,				//radio
+    // 1,				//leather jacket
+    1,                                  // zip gun
+    // 1,				//mauser
+    // 1,				//10mm
+    // 1,				//14mm
+    // 1,				//desert eagle
+    // 1,				//magnum
+    // 1,				//hunting rifle
+    // 1,				//shotgun
+    // 1,				//10mm smg
+    1,                                  // gold nugget
+    10,                                 // 5mm jhp
+    10,                                 // 5mm ap
+    10,                                 // 762
+    10,                                 // 9mm
+    10,                                 // 9mm ball
+    20,                                 // 10mm jhp
+    15,                                 // 10mm ap
+    7,                                  // 14mm
+    18,                                 // 44 jhp
+    18,                                 // 44 fmj
+    8,                                  // 45
+    10,                                 // 223
+    8,                                  // shotgun shell
+    1,                                  // tool
+    // 1,				//med tool
+    1,                                  // PID_VIC_RADIO
+    5,                                  // PID_HYPODERMIC_NEEDLE
+    1                                   // PID_FLAMETHROWER_FUEL
+//      0				//dummy
 };

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Server" />
+	<File name="fonline.h" open="1" top="0" tabpos="3">
+		<Cursor position="5870" topLine="165" />
+	</File>
+	<File name="fonline_tnf.cpp" open="1" top="0" tabpos="1">
+		<Cursor position="5672" topLine="159" />
+	</File>
+	<File name="fonline_tnf.h" open="1" top="0" tabpos="2">
+		<Cursor position="306" topLine="0" />
+	</File>
+	<File name="q_sprites.cpp" open="1" top="1" tabpos="4">
+		<Cursor position="14" topLine="0" />
+	</File>
+	<File name="qmap_tools.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="8039" topLine="289" />
+	</File>
+	<File name="qmap_tools.h" open="1" top="0" tabpos="6">
+		<Cursor position="300" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

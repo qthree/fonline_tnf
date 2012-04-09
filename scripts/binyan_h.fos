@@ -1,4 +1,4 @@
 class binyan
 {
-int value;
+    int value;
 }
