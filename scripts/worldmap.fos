@@ -356,32 +356,71 @@ class CEncounterObject
         return this;
     }
 
-    CEncounterObject@ Dialog( uint dialog ) { DialogId = dialog;
-                                              return this; }
-    CEncounterObject@ Script( string& script ) { ScriptName = script;
-                                                 return this; }
-    CEncounterObject@ Distance( uint distance ) { DistanceLength = distance;
-                                                  return this; }
-    CEncounterObject@ CheckRandom( int value ) { NewCheck( CHECK_RANDOM, 0, 0, value );
-                                                 return this; }
-    CEncounterObject@ CheckParam( uint index, uint8 operator, int value ) { NewCheck( CHECK_PARAM, index, operator, value );
-                                                                            return this; }
-    CEncounterObject@ CheckParamAny( uint index, uint8 operator, int value ) { NewCheck( CHECK_PARAM_ANY, index, operator, value );
-                                                                               return this; }
-    CEncounterObject@ CheckLVar( uint index, uint8 operator, int value ) { NewCheck( CHECK_LVAR, index, operator, value );
-                                                                           return this; }
-    CEncounterObject@ CheckLVarAny( uint index, uint8 operator, int value ) { NewCheck( CHECK_LVAR_ANY, index, operator, value );
-                                                                              return this; }
-    CEncounterObject@ CheckGVar( uint index, uint8 operator, int value ) { NewCheck( CHECK_GVAR, index, operator, value );
-                                                                           return this; }
-    CEncounterObject@ CheckHour( uint8 operator, int value ) { NewCheck( CHECK_HOUR, 0, operator, value );
-                                                               return this; }
-    CEncounterObject@ Ratio( uint ratio ) { RatioValue = ratio;
-                                            return this; }
-    CEncounterObject@ Dead( bool dead ) { IsDead = dead;
-                                          return this; }
-    CEncounterObject@ Slot( uint slot ) { InvSlot = slot;
-                                          return this; }
+    CEncounterObject@ Dialog( uint dialog )
+    {
+        DialogId = dialog;
+        return this;
+    }
+    CEncounterObject@ Script( string& script )
+    {
+        ScriptName = script;
+        return this;
+    }
+    CEncounterObject@ Distance( uint distance )
+    {
+        DistanceLength = distance;
+        return this;
+    }
+    CEncounterObject@ CheckRandom( int value )
+    {
+        NewCheck( CHECK_RANDOM, 0, 0, value );
+        return this;
+    }
+    CEncounterObject@ CheckParam( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_PARAM, index, operator, value );
+        return this;
+    }
+    CEncounterObject@ CheckParamAny( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_PARAM_ANY, index, operator, value );
+        return this;
+    }
+    CEncounterObject@ CheckLVar( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_LVAR, index, operator, value );
+        return this;
+    }
+    CEncounterObject@ CheckLVarAny( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_LVAR_ANY, index, operator, value );
+        return this;
+    }
+    CEncounterObject@ CheckGVar( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_GVAR, index, operator, value );
+        return this;
+    }
+    CEncounterObject@ CheckHour( uint8 operator, int value )
+    {
+        NewCheck( CHECK_HOUR, 0, operator, value );
+        return this;
+    }
+    CEncounterObject@ Ratio( uint ratio )
+    {
+        RatioValue = ratio;
+        return this;
+    }
+    CEncounterObject@ Dead( bool dead )
+    {
+        IsDead = dead;
+        return this;
+    }
+    CEncounterObject@ Slot( uint slot )
+    {
+        InvSlot = slot;
+        return this;
+    }
 
     CEncounterObject@ AddItem( uint16 pid, uint min, uint max, uint slot )
     {
@@ -480,26 +519,56 @@ class CEncounter
         return this;
     }
 
-    CEncounter@ LocationPid( uint16 locationPid ) { LocPid = locationPid;
-                                                    return this; }
-    CEncounter@ Special( bool special ) { IsSpecial = special;
-                                          return this; }
-    CEncounter@ CheckRandom( int value ) { NewCheck( CHECK_RANDOM, 0, 0, value );
-                                           return this; }
-    CEncounter@ CheckParam( uint index, uint8 operator, int value ) { NewCheck( CHECK_PARAM, index, operator, value );
-                                                                      return this; }
-    CEncounter@ CheckParamAny( uint index, uint8 operator, int value ) { NewCheck( CHECK_PARAM_ANY, index, operator, value );
-                                                                         return this; }
-    CEncounter@ CheckLVar( uint index, uint8 operator, int value ) { NewCheck( CHECK_LVAR, index, operator, value );
-                                                                     return this; }
-    CEncounter@ CheckLVarAny( uint index, uint8 operator, int value ) { NewCheck( CHECK_LVAR_ANY, index, operator, value );
-                                                                        return this; }
-    CEncounter@ CheckGVar( uint index, uint8 operator, int value ) { NewCheck( CHECK_GVAR, index, operator, value );
-                                                                     return this; }
-    CEncounter@ CheckHour( uint8 operator, int value ) { NewCheck( CHECK_HOUR, 0, operator, value );
-                                                         return this; }
-    CEncounter@ AssignLVar( uint index, uint8 operator, int value ) { NewCheck( ASSIGN_LVAR, index, operator, value );
-                                                                      return this; }
+    CEncounter@ LocationPid( uint16 locationPid )
+    {
+        LocPid = locationPid;
+        return this;
+    }
+    CEncounter@ Special( bool special )
+    {
+        IsSpecial = special;
+        return this;
+    }
+    CEncounter@ CheckRandom( int value )
+    {
+        NewCheck( CHECK_RANDOM, 0, 0, value );
+        return this;
+    }
+    CEncounter@ CheckParam( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_PARAM, index, operator, value );
+        return this;
+    }
+    CEncounter@ CheckParamAny( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_PARAM_ANY, index, operator, value );
+        return this;
+    }
+    CEncounter@ CheckLVar( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_LVAR, index, operator, value );
+        return this;
+    }
+    CEncounter@ CheckLVarAny( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_LVAR_ANY, index, operator, value );
+        return this;
+    }
+    CEncounter@ CheckGVar( uint index, uint8 operator, int value )
+    {
+        NewCheck( CHECK_GVAR, index, operator, value );
+        return this;
+    }
+    CEncounter@ CheckHour( uint8 operator, int value )
+    {
+        NewCheck( CHECK_HOUR, 0, operator, value );
+        return this;
+    }
+    CEncounter@ AssignLVar( uint index, uint8 operator, int value )
+    {
+        NewCheck( ASSIGN_LVAR, index, operator, value );
+        return this;
+    }
 }
 
 class CEncounterTable
@@ -1398,6 +1467,7 @@ uint GetGlobalMapRelief( uint x, uint y )
 void WorldmapInit()
 {
     LoadImage( IMAGE_RELIEF, "relief_modoc.png", 1, PT_SERVER_MAPS );
+    LoadImage( IMAGE_RELIEF_TNF, "tnf_new_mask.png", 3, PT_SERVER_MAPS );
 
-    #include "worldmap_init.fos"
+    //#include "worldmap_init.fos"
 }

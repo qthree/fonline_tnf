@@ -2,7 +2,7 @@
 
 // ///////  ErlKing  FACTIONS/////////////
 
-uint16[] Modoc_citizens;        // Администрация - профсоюз Модока.
+uint16[] Modoc_citizens;        // Администрация	 Модока.
 uint16[] Modoc_police;          // Полиция Модока.
 uint16[] Modoc_criminal;        // Преступность Модока
 uint16[] Junk_mutants;          // Община собирателей
@@ -238,8 +238,7 @@ void PackageAlarm( Critter& player, int destination )
 void CheckFaction( Critter& cr, bool join )
 {
     GameVar@ faction = GetLocalVar( LVAR_faction, cr.Id );
-    GameVar@ act = GetLocalVar( LVAR_activationStatus, cr.Id );
-    if( faction <= 0 || act == 3 || act == 4 )
+    if( faction <= 0 )
         return;
     if( faction == 1 )
     {

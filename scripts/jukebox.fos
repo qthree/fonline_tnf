@@ -7,7 +7,7 @@
 #define ST_LAST_CONT_ID                       ( 130 ) // Remove it
 #define DIALOG_all_jukebox                    ( 93 )
 
-#define DEFAULT_SONG_COST                     ( 50 )
+#define DEFAULT_SONG_COST                     ( 5 )
 
 #define JUKEBOX_PLAY_BUTTON_IS_ACTIVE_TEXT    ( " Горит кнопка \"Play\"." )
 #define JUKEBOX_STATUS_FREE_TEXT              ( "Ничего не играет." )
@@ -184,7 +184,7 @@ const string[] DiscNames =
     "Five Stars - Atom Bomb Baby",
     "Ella Fitzgerald - Rockin In Rhythm",
     "Ella Fitzgerald - Blue Lou",
-    "Earthworm Jim - New Junk City"
+    "Earthworm Jim - New Junk City",
     "Commodores - Uranium",
     "Chubby Checker - Lets Twist Again",
     "Chris De Burgh - Moonlight And Vodka",

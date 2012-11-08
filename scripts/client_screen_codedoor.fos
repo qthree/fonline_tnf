@@ -148,7 +148,7 @@ class NumberButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick // ,
                 RunServerScriptUnsafe( "general_unsafe@unsafe_openCodeDoor", Instance.GetDoorId(), Instance.GetCode(), Instance.codeSet ? 1 : 0, "", null );
             break;
         case BUTTON_CLOSE:
-            IGUIScreenCallbackHide::HideScreen( 0, 2, 2, 2 );
+            ::HideScreen( 0, 2, 2, 2 );
             break;
         }
     }

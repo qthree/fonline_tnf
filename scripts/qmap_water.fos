@@ -46,6 +46,11 @@ void init_hashes()
     for( uint i = 23; i <= 26; i++ )
         data.insertLast( GetStrHash( dir + shor + i + frm ) );
 
+    data.insertLast( GetStrHash( dir + "slime05.png" ) );
+    data.insertLast( GetStrHash( dir + "slime06.png" ) );
+    data.insertLast( GetStrHash( dir + "slime09.png" ) );
+    data.insertLast( GetStrHash( dir + "slime10.png" ) );
+
     hashes_inited = true;
 }
 

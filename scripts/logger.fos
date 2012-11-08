@@ -8,7 +8,8 @@
 #define LOG_UNIT_TYPE_DEAD            ( 1 )
 #define LOG_UNIT_TYPE_REGISTRATION    ( 2 )
 #define LOG_UNIT_TYPE_LOGIN           ( 3 )
-#define LOG_UNIT_MAX                  ( 4 )
+#define LOG_UNIT_TYPE_GM		(4)
+#define LOG_UNIT_MAX                  ( 5 )
 
 class LogUnit : Serializator
 {
@@ -144,8 +145,11 @@ class LogUnit_Regs : LogUnit
         time = 0;
         ip = 0;
     }
-    LogUnit_Regs@ Add( uint ip, string& name ) { SetTime().Set( ip ).Set( name );
-                                                 return this; }
+    LogUnit_Regs@ Add( uint ip, string& name )
+    {
+        SetTime().Set( ip ).Set( name );
+        return this;
+    }
 
     string@ MakeString()
     {
@@ -167,8 +171,11 @@ class LogUnit_Logins : LogUnit
         ip = 0;
         id = 0;
     }
-    LogUnit_Logins@ Add( uint ip, uint id ) { SetTime().Set( ip ).Set( id );
-                                              return this; }
+    LogUnit_Logins@ Add( uint ip, uint id )
+    {
+        SetTime().Set( ip ).Set( id );
+        return this;
+    }
 
     string@ MakeString()
     {
@@ -176,6 +183,31 @@ class LogUnit_Logins : LogUnit
         if( ( @name = GetPlayerName( id ) ) is null )
             @name = "<ERROR>";
         return MakeTime( time ) + GetPlayerName( id ) + " (" + id + ") from " + GetIpFromUint( ip );
+    }
+}
+
+class LogUnit_GM : LogUnit		//pm
+{
+    uint   time;
+    uint   ip;
+    string name;
+    string command;
+    LogUnit_GM( string & name, string & date )
+    {
+        super( name, date );
+        time = 0;
+        ip = 0;
+    }
+    LogUnit_GM@ Add( uint ip, string& name, string& command )
+    {
+        SetTime().Set( ip ).Set( name ).Set(command);
+        return this;
+    }
+
+    string@ MakeString()
+    {
+        Get( time ).Get( ip ).Get( name ).Get(command);
+        return MakeTime( time ) + name + " from " + GetIpFromUint( ip )+" command "+command;
     }
 }
 
@@ -206,6 +238,7 @@ class Logger : iManagerModule, iManager_critter_init, iManager_critter_dead, iMa
         @logUnits[ LOG_UNIT_TYPE_DEAD ] = LogUnit_Deads( "deads", date );
         @logUnits[ LOG_UNIT_TYPE_REGISTRATION ] = LogUnit_Regs( "regs", date );
         @logUnits[ LOG_UNIT_TYPE_LOGIN ] = LogUnit_Logins( "logins", date );
+	@logUnits[ LOG_UNIT_TYPE_GM ] = LogUnit_GM("GM", date);				//pm
 
         for( uint i = 0, j = logUnits.length(); i < j; i++ )
         {
@@ -301,6 +334,27 @@ class Logger : iManagerModule, iManager_critter_init, iManager_critter_dead, iMa
         }
         return true;
     }
+    
+    void log_gm( Critter& cr, string& name, string& command )			//sorry ;D
+    {
+	uint	ip;
+        /*uint[] ips;
+        cr.GetIp( ips );
+       
+        for( uint i = 0, j = ips.length(); i < j; i++ )
+        {
+            if( ips[ i ] != 0 )
+            {
+                ip = ips[ i ];
+                break;
+            }
+        }
+        */
+        ip = 0;//GetIpFromUint( ip );
+	//string name = CritterGetName(cr.Id);
+        
+        cast< LogUnit_GM >( logUnits[ LOG_UNIT_TYPE_GM ] ).Add( ip, name, command );
+    }
 }
 
 Logger logger;
@@ -318,4 +372,8 @@ void start()
         MANAGER_EVENT_PLAYER_LOGIN |
         MANAGER_EVENT_WORLD_SAVE |
         MANAGER_EVENT_TIME );
+}
+
+void log_gm(Critter& cr, string& name, string& command){
+	logger.log_gm(cr, name, command);
 }

@@ -11,9 +11,7 @@
 #include "fonline.h"
 #pragma warning (pop)
 
-// AngelScript
-#include "angelscript.h"
-#include "scriptarray.h"
+void ClearAllTiles();
 
 void RegisterNativeSprites( asIScriptEngine* engine, bool compiler );
 

@@ -468,6 +468,7 @@ class MapTileData
 
                 NativeSprite@ sprite = AddMapSprite( hexX, hexY, spriteId, 0, __MapHexWidth >> 1, __MapHexHeight >> 1, 23, 0 );
                 sprite.EggType = 5;
+                // TestAnim(uint(TileHashs[hs]), hexX, hexY, 4); //wtf?
             }
             else if( layer == 3 )
             {
@@ -1159,7 +1160,18 @@ void GenerateDesert()
             n = uint( floor( simpN / 2 * sandspr.length() ) );
 
             SetTile( hx0 + x * 2, hy0 + y * 2, false, sprites[ sandspr[ n ] ].Id, 0, 0, 0 );
+
+            /*
+               NativeField@ field = GetField( hx0 + x * 2, hy0 + y * 2 );
+               if( field is null )
+               continue;
+
+               // field.ChangeTileLayer(false, 0, 5);
+               // field.SetTile(false, sprites[sandspr[n]].Id, 1, 0, 0);
+               field.SetTile( false, sprites[ sandspr[ n ] ].Id, 0, 0, 0 );
+             */
             #endif
+
 
             /*if(val>0.05f)
                {

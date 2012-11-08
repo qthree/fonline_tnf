@@ -1,4 +1,5 @@
 #include "_macros.fos"
+#include "_colors.fos"
 
 import void critter_reload_weapon( Critter& cr, Item& weapon, Item@ ammo ) from "main";
 import bool critter_use_item( Critter& cr, Item& item, Critter@ targetCr, Item@ targetItem, Scenery@ targetScen, uint param ) from "main";
@@ -6,6 +7,8 @@ import void CombatAttack( Critter& cr, Critter@ target, ProtoItem& weapon, uint8
 import bool AddAttackPlane( Critter& npc, uint priority, Critter& target, bool run ) from "npc_planes";
 import bool AddWalkPlane( Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut ) from "npc_planes";
 import void Actions( Critter& cr, uint8 actionType, uint16 pickType ) from "context_callback";
+import void HookMeleeAttack( Critter& cr, Critter@ target )  from "handcuffs";                                             // ErlKing
+
 
 void unsafe_contmenu_callback( Critter& player, int id, int screenId, int actionId, string@ command, int[] @ myArr )
 {
@@ -513,14 +516,18 @@ void unsafe_set_arcade_stat( Critter& cr, int locX, int locY, int type, string@ 
     cr.RunClientScript( "client_screen_additional@SendAnimIndex", locX, locY, type, animIndex, null );
 }
 
-import int GetCellMap( uint16 x, uint16 y ) from "globalmap_group";
+import int  GetCellMap( uint16 x, uint16 y ) from "globalmap_group";
+import uint GenerateWasteland( Critter& cr, uint8 x, uint8 y ) from "mapgen_wasteland";
 
 void unsafe_set_arcade_start( Critter& cr, int x, int y, int p2, string@ message, int[] @ p4 )
 {
     int mapId = GetCellMap( x, y );
 
     if( mapId == -1 )
-        return;
+    {
+        mapId = GenerateWasteland( cr, x * 0.1, y * 0.1 );
+    }
+
     Map@ map = GetMap( mapId );
     if( @map == null )
         return;
@@ -911,15 +918,15 @@ void unsafe_hotkey_command( Critter& player, int param0, int param1, int param2,
             player.GetItems( SLOT_HAND1, weapon );
             if( not valid( weapon[ 0 ] ) )
                 return;
-            Item@ ammo = player.GetItem( weapon[ 0 ].WeaponAmmoPid, SLOT_INV );
+            Item@ ammo = player.GetItem( weapon[ 0 ].AmmoPid, SLOT_INV );
 
-            if( valid( ammo ) && weapon[ 0 ].WeaponAmmoCount < weapon[ 0 ].Proto.Weapon_MaxAmmoCount && player.Stat[ ST_CURRENT_AP ] >= 2 )
+            if( valid( ammo ) && weapon[ 0 ].AmmoCount < weapon[ 0 ].Proto.Weapon_MaxAmmoCount && player.Stat[ ST_CURRENT_AP ] >= 2 )
             {
                 critter_reload_weapon( player, weapon[ 0 ], ammo );
                 player.Action( ACTION_RELOAD_WEAPON, 0, weapon[ 0 ] );
                 player.ParamBase[ ST_CURRENT_AP ] -= 200;
             }
-            else if( not valid( ammo ) && weapon[ 0 ].WeaponAmmoCount > 0 && player.Stat[ ST_CURRENT_AP ] >= 2 )
+            else if( not valid( ammo ) && weapon[ 0 ].AmmoCount > 0 && player.Stat[ ST_CURRENT_AP ] >= 2 )
             {
                 critter_reload_weapon( player, weapon[ 0 ], null );
                 player.Action( ACTION_RELOAD_WEAPON, 0, weapon[ 0 ] );
@@ -971,9 +978,9 @@ void unsafe_hex_attack( Critter& player, int hexX, int hexY, int param2, string@
         return;
     }
 
-    bool isFlareGun = ( realweapon[ 0 ].WeaponAmmoPid == PID_FLARE_GUN_AMMO ) && ( mode == 1 ); // pm added flare gun
+    bool isFlareGun = ( realweapon[ 0 ].AmmoPid == PID_FLARE_GUN_AMMO ) && ( mode == 1 ); // pm added flare gun
 
-    bool isRocket = ( realweapon[ 0 ].WeaponAmmoPid == PID_EXPLOSIVE_ROCKET ) || ( realweapon[ 0 ].WeaponAmmoPid == PID_ROCKET_AP ) || ( realweapon[ 0 ].WeaponAmmoPid == PID_ROBO_ROCKET_AMMO ) || ( realweapon[ 0 ].WeaponAmmoPid == PID_GRENADELAUNCHER_AMMO );
+    bool isRocket = ( realweapon[ 0 ].AmmoPid == PID_EXPLOSIVE_ROCKET ) || ( realweapon[ 0 ].AmmoPid == PID_ROCKET_AP ) || ( realweapon[ 0 ].AmmoPid == PID_ROBO_ROCKET_AMMO ) || ( realweapon[ 0 ].AmmoPid == PID_GRENADELAUNCHER_AMMO );
     if( _WeaponSkill( weapon, mode ) != SK_THROWING && !isRocket && !isFlareGun )
         return;
 
@@ -992,10 +999,10 @@ void unsafe_hex_attack( Critter& player, int hexX, int hexY, int param2, string@
 
     if( weapon.Weapon_MaxAmmoCount > 0 )
     {
-        if( realweapon[ 0 ].WeaponAmmoCount == 0 )
+        if( realweapon[ 0 ].AmmoCount == 0 )
             return;
         else
-            @ammo = GetProtoItem( realweapon[ 0 ].WeaponAmmoPid );
+            @ammo = GetProtoItem( realweapon[ 0 ].AmmoPid );
     }
 
 
@@ -1034,7 +1041,7 @@ void unsafe_zombie( Critter& player, int hexX, int hexY, int param2, string@ lex
     }
 
     Map@ map = player.GetMap();
-    Map@ modoc = GetMapByPid( MAP_Modoc, 0 );
+    Map@ modoc = GetMapByPid( MAP_MODOC_Center, 0 );
     if( modoc is null )
         return;
 
@@ -1185,4 +1192,137 @@ void unsafe_say( Critter& player, int param0, int param1, int param2, string@ pa
         return;
     }
     say( player, param0, param1, 0 );
+}
+
+void unsafe_sleep( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
+{
+    if( !valid( player ) )
+        return;
+    if( !player.IsDead() && !player.IsKnockout() && player.GetTimeEvents( CTE_WARNING, null, null, null ) == 0 )
+    {
+        player.StatBase[ ST_CURRENT_AP ] = -100000;
+        player.ToKnockout( KNOCKOUT_ANIM2_DEFAULT( ( param0 == 0 ) ), 5, player.HexX, player.HexY );
+        player.Say( SAY_NETMSG, "вы упали." );
+        player.AddTimeEvent( "cte_sleep", 0, CTE_WARNING, 0 );
+        return;
+    }
+    else if( !player.IsDead() && player.IsKnockout() && player.GetTimeEvents( CTE_WARNING, null, null, null ) != 0 )
+    {
+        player.StatBase[ ST_CURRENT_AP ] = 0;
+        player.EraseTimeEvents( CTE_WARNING );
+        player.Say( SAY_NETMSG, "вы поднимаетесь." );
+        return;
+    }
+
+}
+
+uint cte_sleep( Critter& player, int identifier, uint& rate )
+{
+    if( player.StatBase[ ST_CURRENT_AP ] >= -50000 )
+        player.StatBase[ ST_CURRENT_AP ] = -100000;
+    return 100;
+}
+
+import void InjureCritter( Critter& cr, uint dmg, uint dmgType, uint8 dir, uint attackerId ) from "combat";
+
+import void DragAndDrop( Critter& cr, Critter@ target ) from "handcuffs";
+
+void unsafe_itemhit2( Critter& player, int itemId, int x, int y, string@ param3, int[] @ param4 )
+{
+    if( !( player.IsDead() || player.IsKnockout() ))
+    {
+		if ( player.Timeout[ TO_SK_STEAL ] > 0 )
+		{
+			player.Say( SAY_NETMSG, "Вы не можете бить так часто." );
+			return;
+		}
+		if( ABS( int(x - player.HexX) ) <= 1 && ABS( int(y - player.HexY) ) <= 1 )
+		{
+            player.SetDir( GetDirection( player.HexX, player.HexY, x, y ) );
+			player.GetMap().SetText( x, y, COLOR_GRAY, "cтук" );
+			player.Say( SAY_NETMSG, "Вы постучали." );
+			player.TimeoutBase[ TO_SK_STEAL ] = __FullSecond + REAL_SECOND( 2 );
+			return;
+		}
+		else player.Say( SAY_NETMSG, "Далеко." );
+		return;			
+    }
+}
+
+void unsafe_itemhit( Critter& player, int id, int itemId, int param2, string@ param3, int[] @ param4 )
+{
+    Critter @ target = GetCritter( id );
+
+    if( !( player.IsDead() || player.IsKnockout() ) && valid(target) )
+    {
+		if ( player.Timeout[ TO_SK_STEAL ] > 0 )
+			{
+			player.Say( SAY_NETMSG, "Вы не можете бить так часто." );
+			return;
+			}
+		if ( target.IsDead() )
+			{
+			DragAndDrop( player, target );
+			player.TimeoutBase[ TO_SK_STEAL ] = __FullSecond + REAL_SECOND( 3 );
+			return;
+			}			
+        if( ABS( int(target.HexX - player.HexX) ) <= 1 && ABS( int(target.HexY - player.HexY) ) <= 1 )
+        {
+            Item @ weapon = _CritGetItemHand( player );
+
+            if( !(weapon is null) )
+            {
+                uint16 weight = weapon.Proto.Weight;
+				weight = CLAMP( weight, 2000, 8000 );
+                uint8  ap = weight * 0.001;
+				ap = CLAMP( ap, 2, 8 );
+                if( ap <= player.Stat[ ST_CURRENT_AP ] )
+                {
+                    player.SetDir( GetDirection( player.HexX, player.HexY, target.HexX, target.HexY ) );
+                    _CritAnimateThrow( player );
+                    player.StatBase[ ST_CURRENT_AP ] = 0;
+					
+					if ( player.Skill[ SK_MELEE_WEAPONS ] - target.Stat[ ST_ARMOR_CLASS ] - ( weight * 0.002 ) - target.Stat[ ST_BLOCK ]*50 < Random( 0, 100) )
+						{
+						player.Say( SAY_NETMSG, "Вы промахнулись." );
+						return;
+						}
+                    uint8 strBonus = ( player.Stat[ ST_STRENGTH ] > 6 ? player.Stat[ ST_STRENGTH ] - 6 : 1 );
+                    int   damage = Random( strBonus + player.StatBase[ ST_MELEE_DAMAGE ], strBonus + player.StatBase[ ST_MELEE_DAMAGE ] + ( weight * 0.002 ) );           // every 500g 1dmg point
+                    InjureCritter( target, damage, DAMAGE_NORMAL, target.Dir, player.Id );
+					
+					player.TimeoutBase[ TO_SK_STEAL ] = __FullSecond + REAL_SECOND( 2 );
+                    player.TimeoutBase[ TO_AGGRESSOR ] = __FullSecond + REAL_MINUTE( 1 );
+                    player.TimeoutBase[ TO_BATTLE ] = __FullSecond + REAL_MINUTE( 1 );
+                    target.TimeoutBase[ TO_BATTLE ] = __FullSecond + REAL_MINUTE( 1 );
+
+                    if( target.IsNpc() && target.IsSee( player ) )
+                        target.AddEnemyInStack( player.Id );
+
+                    return;
+                }
+                player.Say( SAY_NETMSG, "Недостаточно очков действия." );
+                return;
+            }
+			else if( 3 <= player.Stat[ ST_CURRENT_AP ] )
+                {
+					player.SetDir( GetDirection( player.HexX, player.HexY, target.HexX, target.HexY ) );
+					_CritAnimateThrow( player );
+					player.StatBase[ ST_CURRENT_AP ] = 0;
+					
+					HookMeleeAttack( player, target );
+					
+					player.TimeoutBase[ TO_SK_STEAL ] = __FullSecond + REAL_SECOND( 2 );
+                    player.TimeoutBase[ TO_AGGRESSOR ] = __FullSecond + REAL_MINUTE( 1 );
+                    player.TimeoutBase[ TO_BATTLE ] = __FullSecond + REAL_MINUTE( 1 );
+                    target.TimeoutBase[ TO_BATTLE ] = __FullSecond + REAL_MINUTE( 1 );
+
+                    if( target.IsNpc() && target.IsSee( player ) ) target.AddEnemyInStack( player.Id );
+                    return;
+                }
+                else player.Say( SAY_NETMSG, "Недостаточно очков действия." );
+                return;			
+        }
+        player.Say( SAY_NETMSG, "Далеко." );
+    }
 }

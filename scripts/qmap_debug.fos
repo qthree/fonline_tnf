@@ -248,7 +248,7 @@ class TextMap
 
         hexX -= hexX % 2;
         hexY -= hexY % 2;
-        Log( "min offset " + hexX + " " + hexY );
+        // Log("min offset "+hexX+" "+hexY);
 
         for( uint i = 0, len = tiles.length(); i < len; i++ )
         {

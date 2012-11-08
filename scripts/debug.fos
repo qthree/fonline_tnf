@@ -6,6 +6,7 @@ import void AffectRadiation( Critter& cr, int value ) from "radiation";
 import void ApplyMutation( Critter& cr ) from "morphes";
 import void _MobInit( Critter& npc, bool firstTime ) from "mob";
 import void FlushScreen( Critter& cr, uint fromColor, uint toColor, uint timeMs ) from "effects";
+import void GM_MobInit( Critter& npc ) from "mob";
 
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Trinitro
@@ -309,7 +310,14 @@ void ctd( Critter& player, int param0, int param1, int param2 )
     Map@ map = daddy.GetMap();
     if( not valid( map ) )
         return;
-    // if(not map.IsHexPassed(daddy.HexX+1, daddy.HexY)) return;
+
+	if( child.ParamBase[ QST_GAMEMODE ] == GAME_START && daddy.GetAccess() <= ACCESS_MODER )
+	{
+    child.Say( SAY_NETMSG, "Игрок в стартовом режиме, его нельзя телепортировать." );
+    return;
+	}
+
+
     uint8 temp_dir = Random( 0, 5 );
     for( uint i = 0; i < 6; i++ )
     {
@@ -400,6 +408,8 @@ void tele( Critter& player, int param0, int param1, int param2 )
         if( not valid( map ) )
             return;
     }
+
+    target.SetWorldPos(loc.WorldX, loc.WorldY);
     target.TransitToMap( map.Id, 0 );
 }
 
@@ -1298,7 +1308,7 @@ void setcodedoor( Critter& cr, int p0, int p1, int p3 )
     if( @item == null )
         return;
 //	item.SetScript("item@_InitCodeDoor");
-    item.Val0 = 4;
+    //item.Val0 = 4;
     item.Val1 = p1 + 1;
     item.Val4 = p3 != 0 ? p3 : Random( pow( 10, item.Val1 ), pow( 10, ( item.Val1 + 1 ) ) - 1 );
     cr.Say( SAY_NETMSG, "code " + item.Val4 );
@@ -1323,7 +1333,7 @@ void GM_mobinit( Critter& player, int param0, int param1, int param2, string@ pa
 {
     Critter@ cr = GetCritter( param0 );
     cr.StatBase[ ST_TEAM_ID ] = 33;
-    _MobInit( cr, true );
+    GM_MobInit( cr );
 }
 
 void GM_GetParam( Critter& player, int crId, int param1, int param2, string@ param3, int[] @ param4 )
@@ -1332,7 +1342,7 @@ void GM_GetParam( Critter& player, int crId, int param1, int param2, string@ par
         crId = player.Id;
     Critter@ toCr = GetCritter( crId );
     if( valid( toCr ) )
-        player.Say( SAY_NETMSG, " " + toCr.Param[ param1 ] );
+        player.Say( SAY_NETMSG, "real "+toCr.ParamBase[param1]+" now " + toCr.Param[ param1 ] );
 }
 
 void GM_SetParam( Critter& player, int crId, int param1, int param2, string@ param3, int[] @ param4 )
@@ -1427,6 +1437,7 @@ void GM_brokeItem( Critter& player, int param0, int param1, int param2, string@ 
         return;
     item.Deterioration = param1;
     player.Say( SAY_NETMSG, "предмет " + item.Id + " сломан на " + param1 );
+	item.Update();
 }
 
 void viewarcadepop( Critter& cr, int clear, int, int )
@@ -1505,6 +1516,26 @@ void itemsetval( Critter& cr, int p0, int p1, int p3 )
     }
 
 }
+
+void itemgetval( Critter& cr, int p0, int p1, int p3 )
+{
+    Item @ item = GetItem( p0 );
+    if( @item == null )
+        return;
+    string msg = "" + item.Val0 + "\n" +
+                 item.Val1 + "\n" +
+                 item.Val2 + "\n" +
+                 item.Val3 + "\n" +
+                 item.Val4 + "\n" +
+                 item.Val5 + "\n" +
+                 item.Val6 + "\n" +
+                 item.Val7 + "\n" +
+                 item.Val8 + "\n" +
+                 item.Val9;
+
+    cr.Say( SAY_NETMSG, msg );
+
+}
 /*
    void testidi(Critter& cr, int p0, int p1, int p3)
    {
@@ -1558,7 +1589,7 @@ void Clone( Critter& player, int param0, int param1, int param2 )
     {
         for( uint i = 0; i <= 565; i++ )
         {
-            cr.ParamBase[ i ] = player.Param[ i ];
+            cr.ParamBase[ i ] = player.ParamBase[ i ];
         }
         player.Say( SAY_NETMSG, "Вы присвоили свои параметры персонажу " + cr.Id );
     }
@@ -1566,7 +1597,7 @@ void Clone( Critter& player, int param0, int param1, int param2 )
     {
         for( uint i = 0; i <= 565; i++ )
         {
-            player.ParamBase[ i ] = cr.Param[ i ];
+            player.ParamBase[ i ] = cr.ParamBase[ i ];
         }
         player.Say( SAY_NETMSG, "Вам присвоенны параметры персонажа " + cr.Id );
     }
@@ -1579,36 +1610,36 @@ void GM_Clone( Critter& player, int param0, int param1, int param2, string@ para
     {
         for( uint i = 0; i <= 80; i++ )
         {
-            player.ParamBase[ i ] = cr.Param[ i ];
+            player.ParamBase[ i ] = cr.ParamBase[ i ];
         }
         for( uint i = 200; i <= 207; i++ )
         {
-            player.ParamBase[ i ] = cr.Param[ i ];
+            player.ParamBase[ i ] = cr.ParamBase[ i ];
         }
         for( uint i = 209; i <= 217; i++ )
         {
-            player.ParamBase[ i ] = cr.Param[ i ];
+            player.ParamBase[ i ] = cr.ParamBase[ i ];
         }
 
         for( uint i = 260; i <= 278; i++ )
         {
-            player.ParamBase[ i ] = cr.Param[ i ];
+            player.ParamBase[ i ] = cr.ParamBase[ i ];
         }
         for( uint i = 300; i <= 439; i++ )
         {
-            player.ParamBase[ i ] = cr.Param[ i ];
+            player.ParamBase[ i ] = cr.ParamBase[ i ];
         }
         for( uint i = 470; i <= 476; i++ )
         {
-            player.ParamBase[ i ] = cr.Param[ i ];
+            player.ParamBase[ i ] = cr.ParamBase[ i ];
         }
         for( uint i = 480; i <= 498; i++ )
         {
-            player.ParamBase[ i ] = cr.Param[ i ];
+            player.ParamBase[ i ] = cr.ParamBase[ i ];
         }
         for( uint i = 550; i <= 565; i++ )
         {
-            player.ParamBase[ i ] = cr.Param[ i ];
+            player.ParamBase[ i ] = cr.ParamBase[ i ];
         }
         player.Say( SAY_NETMSG, "Вам присвоенны параметры персонажа " + cr.Id );
         player.Say( SAY_NETMSG, "Сник цели равен " + cr.Param[ 208 ] );
@@ -1707,4 +1738,279 @@ void arcadehiveclear( Critter& cr, int, int, int )
 void arcadehivedel( Critter& cr, int index, int, int )
 {
     arcadehivedelone( cr, index );
+}
+
+import void ShowInputBoxScreen( Critter& cr, string funcName, uint16 textLength, uint8 flags ) from "main";
+
+void testbox( Critter& cr, int p0, int, int )
+{
+    uint8 flags = 0;
+    SETFLAG( flags, INPUTBOX_CLOSE_ON_ENTER );   // close on enter
+    ShowInputBoxScreen( cr, "debug@unsafe_test_inputbox#mywindow", p0, flags );
+}
+
+void unsafe_test_inputbox( Critter& cr, int skill, int p1, int p2, string@ message, int[] @ p4 )
+{
+    cr.Say( SAY_NORM, "message " + message );
+}
+
+import void DropWild() from "globalmap_group";
+
+void dropwild( Critter& cr, int, int, int )
+{
+    DropWild();
+}
+
+void setworld( Critter& cr, int id, int x, int y )
+{
+    Critter @ target = GetCritter( id > 0 ? id : cr.Id );
+    if( target is null )
+        return;
+
+    target.SetWorldPos( x, y );
+}
+
+void additemsrndpic( Critter& cr, int id, int x, int y )
+{
+    Map @ map = cr.GetMap();
+    if( map is null )
+    {
+        cr.Say( SAY_NETMSG, "map" );
+        return;
+    }
+
+    for( uint8 i = 0; i < x; ++i )
+    {
+        Item @ item = map.AddItem( cr.HexX + ( Random( -10, 10 ) ), cr.HexY + ( Random( -10, 10 ) ), 2004, 1 );
+        if( item is null )
+            continue;
+        /*
+           string = "";
+           brl1000.frm
+         * brl2000.frm
+         * tirs002.frm
+         * weed05.frm
+         * weed08.frm
+         * boxes1.frm
+         * boxes2.frm
+         * boxes3.frm
+         * boxes4.frm
+         * car2.frm
+         * car4.frm
+         * chair1.frm
+         * chair3.frm
+         * njunk5.frm
+         * njunk6.frm
+         * trash3.frm
+         * t
+         */
+
+        uint hash = GetStrHash( "art\\scenery\\corpse1.png" );
+
+
+        item.SetMapPic( hash );
+
+        cr.Say( SAY_NETMSG, "add " + hash );
+    }
+
+}
+
+void delsatmobs( Critter& cr, int id, int x, int y )
+{
+    for( uint8 i = id; i < x; ++i )
+    {
+        Location @ loc = GetLocationByPid( i, 0 );
+        if( loc is null )
+            continue;
+
+        Map @ map = loc.GetMapByIndex( 0 );
+        if( map is null )
+            continue;
+
+        Critter@[] crs;
+        map.GetCritters( 0, FIND_ALL | FIND_ONLY_NPC, crs );
+        Log( "delete len " + crs.length() );
+        for( uint16 ii = 0, jj = crs.length(); ii < jj; ++ii )
+        {
+            if( crs[ ii ] is null )
+                continue;
+
+            Log( "delete " + ii );
+            DeleteNpc( crs[ ii ] );
+        }
+    }
+}
+
+void itemrndpic( Critter& cr, int id, int x, int y )
+{
+    Item @ item = GetItem( id );
+    if( item is null )
+        return;
+
+    uint hash = GetStrHash( "art\\scenery\\corpse1.png" );
+    item.SetMapPic( hash );
+}
+
+void addplant( Critter& cr, int id, int x, int y )
+{
+    Item @ item = cr.AddItem( id, 1 );
+    if( item is null )
+        return;
+
+    item.Val3 = x;
+    item.SetScript( "plant@_InitPlant" );
+
+}
+
+void evilplant( Critter& cr, int id, int, int )
+{
+    cr.GetMap().AddNpc( id, cr.HexX - 3, cr.HexY - 3, 0, null, null, "mob@_MobInit" );
+
+}
+
+void droptime( Critter& cr, int id, int, int )
+{
+    for( uint i = TIMEOUT_BEGIN; i < TIMEOUT_END; i++ )
+    {
+        cr.TimeoutBase[ i ] = 0;
+    }
+}
+
+void addtime( Critter& cr, int id, int, int )
+{
+    uint time = cr.TimeoutBase[ TO_REPLICATION ];
+    if( time > __FullSecond )
+    {
+        time += REAL_SECOND( 10 );
+    }
+    else
+    {
+        time = __FullSecond + REAL_MINUTE( 1 );
+    }
+
+    cr.TimeoutBase[ TO_REPLICATION ] =  time;
+}
+import uint GetTile( Map& map, uint16 hexX, uint16 hexY, uint8 layer ) from "qmap";
+void        gettile( Critter& cr, int id, int, int )
+{
+    Map @ map = cr.GetMap();
+    if( map is null )
+        return;
+    // for(uint8 i = 0; i < 5; ++i){
+    uint hash = map.GetTile( THX( cr.HexX ), THX( cr.HexY ) ); // GetTile(map, THX(cr.HexX), THX(cr.HexY), i);
+    cr.Say( SAY_NETMSG, "tile hash\n* " + hash );
+    // }
+}
+
+void gettiles( Critter& cr, int id, int, int )
+{
+    uint hash0 = GetStrHash( "art/tiles/road02.frm" ),
+         hash1 = GetStrHash( "road02.frm" );
+    cr.Say( SAY_NETMSG, "tile hash\n* " + hash0 + "\ntile hash\n* " + hash1 );
+}
+
+void varset( Critter& cr, int id, int x, int )
+{
+    GameVar@ isStored = GetLocalVar( LIVAR_motel_isStored, id );
+
+    int      val = isStored.GetValue();
+
+    cr.Say( SAY_NETMSG, "" + val );
+
+    if( x > 0 )
+    {
+        uint8 temp = Random( 1, 100 );
+
+        isStored.opAssign( temp );
+    }
+} /*
+
+     void testgetdur(Critter& cr, int id, int, int){
+         Item @ item = GetItem(id);
+         if(item is null) return;
+
+         cr.Say(SAY_NETMSG, "dur "+item.GetDurability());
+     }
+
+     void testsetdur(Critter& cr, int id, int val, int){
+         Item @ item = GetItem(id);
+         if(item is null) return;
+
+         item.SetDurability(val);
+         cr.Say(SAY_NETMSG, "dur "+item.GetDurability());
+     }*/
+
+import void ActivateMobScript( Map& map ) from "mob"; // Export
+
+void testmob( Critter& cr, int id, int val, int )
+{
+    ActivateMobScript( cr.GetMap() );
+}
+
+#define SAT_ENERGY_MAX    ( 28 )
+
+void spawnsateng( Critter& cr, int id, int val, int )
+{
+    Location @ loc;
+    Item @ item;
+    for( uint8 i = 13; i < 25; ++i )
+    {
+        @loc = GetLocation( i );
+        if( loc is null )
+            continue;
+
+        Map @ map = loc.GetMapByIndex( 0 );
+        if( map is null )
+            continue;
+
+        Item@[] conts;
+        map.GetItemsByType( ITEM_TYPE_CONTAINER, conts );
+        // GetItemsByType (int type, Item@[]@+ items)
+        uint16 len = conts.length();
+
+        // uint8 count = 2
+        for( uint16 ii = 0; ii < 2; ++ii )
+        {
+
+            @item = conts[ Random( 0, len - 1 ) ];
+
+            if( !(item is null) )
+            {
+                item.AddItem( PID_MICRO_FUSION_CELL, Random( 1, 3 ), 0 );
+                Log( "SPAWN " + item.HexX + ":" + item.HexY );
+            }
+        }
+    }
+}
+
+void testaccess(Critter& cr, int access, int, int)
+{
+	cr.Say(SAY_NETMSG, (cr.SetAccess(access) ? "set " : "noset ") + cr.GetAccess());
+}
+
+void dropextstat(Critter& cr, int id, int, int){
+	Critter @ tg  = GetCritter(id != 0 ? id : cr.Id);
+	if(tg is null) return;
+
+	for(uint i = ST_STRENGTH; i <= ST_LUCK; ++i){
+		tg.StatBase[STAT_EXT_BEGIN+i] = 0;
+	}
+}
+
+void addflamenpc(Critter& cr, int ,int ,int){
+	Critter @  npc = cr.GetMap().AddNpc( 370, cr.HexX - 3, cr.HexY - 3, 0, null, null, null );
+	if(npc is null) {DeleteNpc(npc); return;}
+
+	addflamenpchand(cr, npc.Id, 0, 0);
+
+}
+
+void addflamenpchand(Critter& cr, int id, int, int){
+	Critter @ npc = GetCritter(id);
+	if(npc is null) {DeleteNpc(npc); return;}
+
+	Item @ weap = npc.AddItem(PID_FLAMER, 1);
+	if(weap is null) {DeleteItem(weap); return;}
+
+	cr.MoveItem(weap.Id, weap.GetCount(), SLOT_HAND1);
 }

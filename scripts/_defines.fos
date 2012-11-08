@@ -55,6 +55,8 @@
 #define GENDER_MALE                              ( 0 )
 #define GENDER_FEMALE                            ( 1 )
 #define GENDER_IT                                ( 2 )
+#define GENDER_SUPERMUTANT                       ( 3 )
+#define GENDER_GHOUL                             ( 4 )
 
 // Items accessory
 #define ACCESSORY_NONE                           ( 0 )
@@ -77,6 +79,9 @@
 #define ITEM_TYPE_GENERIC                        ( 11 )
 #define ITEM_TYPE_WALL                           ( 12 )
 #define ITEM_TYPE_CAR                            ( 13 )
+#define ITEM_TYPE_PLANT                          ( 15 )
+#define ITEM_TYPE_FOOD                           ( 16 )
+
 // User types
 #define ITEM_TYPE_MAGIC                          ( 20 )
 
@@ -113,6 +118,11 @@
 #define ITEM_HOLODISK                            ( 0x20000000 )
 #define ITEM_RADIO                               ( 0x40000000 )
 #define ITEM_CACHED                              ( 0x80000000 ) // Not used
+
+// food flags
+#define FOOD_KNOCKOUT                            ( 0x00000001 )
+#define FOOD_RADIOACTIVE                         ( 0x00000002 )
+#define FOOD_POISONED                            ( 0x00000004 )
 
 // Damage types
 #define DAMAGE_UNCALLED                          ( 0 )
@@ -235,21 +245,20 @@
 //                                          flags    actionExt                                                      item
 #define ACTION_MOVE                              ( 0 )  // l
 #define ACTION_RUN                               ( 1 )  // l
-#define ACTION_SHOW_ITEM                         ( 2 )  // l s      prev slot                                                      +
-#define ACTION_HIDE_ITEM                         ( 3 )  // l s      prev slot                                                      +
-#define ACTION_MOVE_ITEM                         ( 4 )  // l s      prev slot                                                      +
-#define ACTION_USE_ITEM                          ( 5 )  // l s                                                                     +
-#define ACTION_DROP_ITEM                         ( 6 )  // l s      prev slot                                                      +
-#define ACTION_USE_WEAPON                        ( 7 )  // l        fail attack 8 bit, use index (0-2) 4-7 bits, aim 0-3 bits      +
-#define ACTION_RELOAD_WEAPON                     ( 8 )  // l s                                                                     +
-#define ACTION_USE_SKILL                         ( 9 )  // l s      skill index (see SK_*)
-#define ACTION_PICK_ITEM                         ( 10 ) // l s                                                                     +
-#define ACTION_PICK_CRITTER                      ( 11 ) // l        0 - loot, 1 - steal, 2 - push
-#define ACTION_OPERATE_CONTAINER                 ( 12 ) // l s      transfer type * 10 + [0 - get, 1 - get all, 2 - put]           + (exclude get all)
-#define ACTION_BARTER                            ( 13 ) //   s      0 - item taken, 1 - item given                                 +
-#define ACTION_DODGE                             ( 14 ) //          0 - front, 1 - back
-#define ACTION_DAMAGE                            ( 15 ) //          0 - front, 1 - back
-#define ACTION_DAMAGE_FORCE                      ( 24 ) //          0 - front, 1 - back
+#define ACTION_MOVE_ITEM                         ( 2 )  // l s      from slot                                                      +
+#define ACTION_MOVE_ITEM_SWAP                    ( 3 )  // l s      from slot                                                      +
+#define ACTION_USE_ITEM                          ( 4 )  // l s                                                                     +
+#define ACTION_DROP_ITEM                         ( 5 )  // l s      from slot                                                      +
+#define ACTION_USE_WEAPON                        ( 6 )  // l        fail attack 8 bit, use index (0-2) 4-7 bits, aim 0-3 bits      +
+#define ACTION_RELOAD_WEAPON                     ( 7 )  // l s                                                                     +
+#define ACTION_USE_SKILL                         ( 8 )  // l s      skill index (see SK_*)
+#define ACTION_PICK_ITEM                         ( 9 )  // l s                                                                     +
+#define ACTION_PICK_CRITTER                      ( 10 ) // l        0 - loot, 1 - steal, 2 - push
+#define ACTION_OPERATE_CONTAINER                 ( 11 ) // l s      transfer type * 10 + [0 - get, 1 - get all, 2 - put]           + (exclude get all)
+#define ACTION_BARTER                            ( 12 ) //   s      0 - item taken, 1 - item given                                 +
+#define ACTION_DODGE                             ( 13 ) //          0 - front, 1 - back
+#define ACTION_DAMAGE                            ( 14 ) //          0 - front, 1 - back
+#define ACTION_DAMAGE_FORCE                      ( 15 ) //          0 - front, 1 - back
 #define ACTION_KNOCKOUT                          ( 16 ) //   s      0 - knockout anim2begin
 #define ACTION_STANDUP                           ( 17 ) //   s      0 - knockout anim2end
 #define ACTION_FIDGET                            ( 18 ) // l
@@ -289,8 +298,10 @@
 #define CTE_SLOWRELOAD                           ( 10 )
 #define CTE_CHOOSESKIN                           ( 11 )
 #define CTE_DELETECORPSE                         ( 12 )
-
+#define CTE_ARCADEDANGER                         ( 13 )
+#define CTE_LOCALRAD                             ( 14 )
 #define CTE_EXPBAR                               ( 30 ) // expbar
+#define CTE_EVILMINDS                            ( 38 )
 
 #define CTE_TEST                                 ( 39 )
 #define CTE_STUDY                                ( 40 )
@@ -301,6 +312,9 @@
 #define CTE_THROW                                ( 45 )
 #define CTE_BLOOD_TOXIC                          ( 46 )
 #define CTE_MOTEL_ROOM                           ( 47 )
+#define CTE_HUNGER                               ( 48 )
+#define CTE_DYSPNEA                              ( 49 )
+#define CTE_EXP		                         ( 50 )
 // Drugs time events                40 (PID_STIMPAK) .. 1000
 
 // Parameters
@@ -430,10 +444,12 @@
 #define ST_SCALE_FACTOR                          ( 116 ) // Hardcoded
 #define ST_WALK_TIME                             ( 117 ) // Hardcoded
 #define ST_RUN_TIME                              ( 118 ) // Hardcoded
+#define ST_MAX_TALKERS                           ( 119 ) // Hardcoded
+// 120..129 reserved for hardcoded values
 
-#define ST_CELL_X                                ( 119 )
-#define ST_CELL_Y                                ( 120 )
 
+// q3: перенести все с 120 по 149 на 700+
+#define ST_SPEED_MOD                             ( 120 )
 #define ST_ARCADE_DEAD                           ( 121 )
 
 #define ST_LOCALMAP_DIR                          ( 122 )
@@ -442,7 +458,12 @@
 #define ST_EXPERIENCE_MULTIPLIER                 ( 124 ) // expbar
 #define ST_EXPERIENCE_MULTIPLIER_TIME            ( 125 ) // expbar
 
-// 119..129
+#define ST_DYSPNEA                               ( 126 )
+#define ST_THRIST                                ( 127 )
+#define ST_HUNGER                                ( 128 )
+
+#define ST_WAYPOINT_GROUP                        ( 129 )
+
 #define ST_LAST_CONT_ID                          ( 130 )
 #define ST_LAST_DOOR_ID                          ( 131 )
 
@@ -458,7 +479,6 @@
 #define ST_STUDY_EXP                             ( 138 )
 #define ST_STUDY_EXP_MAX                         ( 139 )
 
-// 132..139
 #define ST_LTP_TYPE_DIR_HEX                      ( 140 )
 #define ST_LTP_MAP                               ( 141 )
 #define ST_LTP_TIME                              ( 142 )
@@ -469,21 +489,25 @@
 #define ST_CRSTATUS                              ( 146 )
 #define ST_BLOOD_TOXIC                           ( 147 )
 #define ST_OVERDOSE                              ( 148 )
-// 149..149
+#define ST_BLEED                                 ( 149 )
+
 // Initial values of animation 3d layers
 #define ST_ANIM3D_LAYERS                         ( 150 ) // Hardcoded
 // 150..179 reserved for 30 layers
 
+// q3: перенести все с 180 по 189 на 700+
 #define ST_PARALYSIS_LEVEL                       ( 180 ) // Уровень паралича. TabaK
 #define ST_WARNINGS                              ( 181 ) // Количество предупреждений. TabaK
 #define HANDCUFFS                                ( 182 ) // Параметры наручников. TabaK
 #define ST_MUTATION                              ( 183 ) // Уровень мутации. TabaK.
-// #define ARCADE_MODE                 (184) //Аркадный режим.
+#define ST_ARCADE_DANGER                         ( 184 ) // Уровень невкусности.
 #define LAST_ATTACKED                            ( 185 ) // Id последнего атакованного игрока.
 #define ST_BLOCK                                 ( 186 ) // находится ли игрок в режиме блока
 #define ST_DESEASE                               ( 187 ) // уровень болезни (также для контроля атаковался ли моб аркадой и освежован ли уже)
 #define ST_KILLER_PERSON                         ( 188 ) // ID убийцы персонажа
 #define ST_QMAP                                  ( 189 ) // q3: с какой картой синхронизирован
+#define ST_STAMINA                               ( 190 ) // q3: с какой картой синхронизирован
+#define ST_RADIATION_TIME                        ( 191 ) // Время нахождения в радиактивном гексе
 // 190..199
 
 // / Skills
@@ -509,6 +533,8 @@
 #define SK_BARTER                                ( 215 ) // Hardcoded
 #define SK_GAMBLING                              ( 216 )
 #define SK_OUTDOORSMAN                           ( 217 )
+#define SK_FARMING                               ( 218 )
+#define SK_COOKING                               ( 219 )
 // 218..225
 
 // / Tag skills
@@ -528,7 +554,7 @@
 #define TO_SK_LOCKPICK                           ( 234 )
 #define TO_SK_STEAL                              ( 235 )
 #define TO_SK_OUTDOORSMAN                        ( 236 )
-// 237
+#define TO_DEATH                                 ( 237 ) // 237
 #define TO_BATTLE                                ( 238 ) // Hardcoded
 #define TO_TRANSFER                              ( 239 ) // Hardcoded
 #define TO_REMOVE_FROM_GAME                      ( 240 ) // Hardcoded
@@ -664,6 +690,7 @@
 #define PE_NCR_BARTER                            ( 438 )
 #define PE_NCR_REPAIR                            ( 439 )
 #define PE_COWBOY                                ( 440 )
+#define PE_CANNIBAL                             (441)
 // 441..469
 
 // / Addictions
@@ -811,7 +838,11 @@
 
 #define QST_MEDIUM                               ( 700 )
 #define QST_INVIS                                ( 701 )
+#define QST_VISION                               ( 702 )
 #define QST_GAMEMODE                             ( 703 )
+
+#define ST_CELL_X                                ( 720 )
+#define ST_CELL_Y                                ( 721 )
 
 #define GAME_INVALID                             ( -1 )
 #define GAME_START                               ( 0 )
@@ -1067,7 +1098,7 @@
 
 
 // pm exit grid
-#define EXIT_GRID_PID                            ( 4052 )
+#define EXIT_GRID_PID                            ( 4053 )
 #define EXIT_GRID_DISTATION                      ( 3 )
 
 // Global map fog
@@ -1348,6 +1379,7 @@
 
 // Game images
 #define IMAGE_RELIEF                             ( 0 ) // Global map relief
+#define IMAGE_RELIEF_TNF			(1) //global map relief tnf
 
 // Paths
 // Client and mapper paths
@@ -1450,6 +1482,10 @@
 #define HEAL_THREAD                              ( 0x10 )
 #define HEAL_ANESTETIC                           ( 0x20 )
 
+// inputbox flags
+#define INPUTBOX_CLOSE_ON_ENTER                  ( 0x00000001 )
+// #define INPUTBOX_CLOSE_ON_ENTER			(0x00000002)
+
 
 
 #ifndef SKIP_PRAGMAS
@@ -1483,7 +1519,7 @@
 // /
 
 # pragma crdata "Stat           0 199"
-# pragma crdata "Skill        200 217"
+# pragma crdata "Skill        200 219"
 # pragma crdata "TagSkill     226 229"
 # pragma crdata "Timeout      230 249"
 # pragma crdata "Kill         260 280"
@@ -1513,26 +1549,35 @@
 #  pragma bindfunc "bool Critter::IsAddicted()   -> fonline_tnf.dll Critter_IsAddicted  "
 #  pragma bindfunc "bool Critter::IsOverweight() -> fonline_tnf.dll Critter_IsOverweight"
 
+#  pragma bindfunc "bool Critter::SetAccess(int access) -> fonline_tnf.dll Critter_SetAccess"
+//#  pragma bindfunc "void Critter::SetAccess(uint8 accessLevel) -> fonline_tnf.dll Critter_SetAccess"
 #  pragma bindfunc "void Critter::SetWorldPos(uint16 x, uint16 y) -> fonline_tnf.dll Critter_SetWorldPos" // pm added
 
 #  pragma bindfunc "bool Item::Weapon_IsHtHAttack(uint8 mode)    -> fonline_tnf.dll Item_Weapon_IsHtHAttack   "
 #  pragma bindfunc "bool Item::Weapon_IsGunAttack(uint8 mode)    -> fonline_tnf.dll Item_Weapon_IsGunAttack   "
 #  pragma bindfunc "bool Item::Weapon_IsRangedAttack(uint8 mode) -> fonline_tnf.dll Item_Weapon_IsRangedAttack"
 
+#  pragma bindfunc "int Map::GetScenParam(uint16 tx, uint16 ty, uint protoId, uint8 num) -> fonline_tnf.dll Map_GetScenParam"
+
 // pm added
-// #pragma bindfunc "uint Item::GetDurability() -> fonline_tnf.dll Item_GetDurability"
-// #pragma bindfunc "void Item::SetDurability(uint8 value) -> fonline_tnf.dll Item_SetDurability"
+// #  pragma bindfunc "uint8 Item::GetDurability() -> fonline_tnf.dll Item_GetDurability"
+// #  pragma bindfunc "uint8 Item::SetDurability(uint8 value) -> fonline_tnf.dll Item_SetDurability"
 // #pragma bindfunc "uint Item::GetIndefineValue() -> fonline_tnf.dll Item_GetIndefineValue"
 // #pragma bindfunc "uint Item::SetIndefineValue(uint16 value) -> fonline_tnf.dll Item_SetIndefineValue"
 // #pragma bindfunc "uint Item::GetIndefineStat() -> fonline_tnf.dll Item_GetIndefineStat"
 // #pragma bindfunc "bool Item::IsCanUseByIndefine(Critter& cr) -> fonline_tnf.dll Item_IsCanUseByIndefine"
 // #pragma bindfunc "uint Item::ViewTimeEvent() -> fonline_tnf.dll Item_ViewTimeEvent"
 // #pragma bindfunc "uint Item::CreateTimeEvent(uint16 identifier) -> fonline_tnf.dll Item_CreateTimeEvent"
+#  pragma bindfunc "uint Item::SetMapPic(uint hash) -> fonline_tnf.dll Item_SetMapPic"
+#  pragma bindfunc "uint Item::SetInvPic(uint hash) -> fonline_tnf.dll Item_SetInvPic"
 
 #  pragma bindfunc "uint Map::GetTile(uint16 tx, uint16 ty) -> fonline_tnf.dll Map_GetTile"
 #  pragma bindfunc "uint Map::GetRoof(uint16 tx, uint16 ty) -> fonline_tnf.dll Map_GetRoof"
 #  pragma bindfunc "bool Map::SetTile(uint16 tx, uint16 ty, uint picHash) -> fonline_tnf.dll Map_SetTile"
 #  pragma bindfunc "bool Map::SetRoof(uint16 tx, uint16 ty, uint picHash) -> fonline_tnf.dll Map_SetRoof"
+
+//sql
+//#pragma bindfunc "int MysqlQuery(string& query) -> fonline_tnf.dll MysqlQuery"
 
 # endif
 
@@ -1550,11 +1595,30 @@
 #  pragma bindfunc "bool ItemCl::Weapon_IsGunAttack(uint8 mode)    -> fonline_tnf_client.dll Item_Weapon_IsGunAttack   "
 #  pragma bindfunc "bool ItemCl::Weapon_IsRangedAttack(uint8 mode) -> fonline_tnf_client.dll Item_Weapon_IsRangedAttack"
 
+#  pragma bindfunc "int GetScenParam(uint16 tx, uint16 ty, uint protoId, uint8 num) -> fonline_tnf_client.dll Map_GetScenParam"
+#  pragma bindfunc "uint8 ItemCl::GetDurability() -> fonline_tnf_client.dll Item_GetDurability"
 // pm added
 // #pragma bindfunc "uint ItemCl::GetIndefineValue() -> fonline_tnf_client.dll Item_GetIndefineValue"
 #  pragma bindfunc "void ItemCl::SetInvPic(uint hash) -> fonline_tnf_client.dll Item_SetInvPic"
 // #pragma bindfunc "bool ItemCl::IsCanUseByIndefine(CritterCl& cr) -> fonline_tnf_client.dll Item_IsCanUseByIndefine"
 // #pragma bindfunc "uint ItemCl::GetIndefineStat() -> fonline_tnf_client.dll Item_GetIndefineStat"
+#pragma bindfunc "uint GetHardware(uint[]& array) -> fonline_tnf_client.dll GetHardware"
+/*
+//mysql
+#pragma bindfunc "void MysqlInit() -> fonline_tnf_client.dll MysqlInit"
+#pragma bindfunc "void MysqlClose() -> fonline_tnf_client.dll MysqlClose"
+#pragma bindfunc "void MysqlError(string& error) -> fonline_tnf_client.dll MysqlError"
+#pragma bindfunc "bool MysqlConnect() -> fonline_tnf_client.dll MysqlConnect"
+#pragma bindfunc "int MysqlCheckLogin(string& login, string& pass) -> fonline_tnf_client.dll MysqlCheckLogin"
+#pragma bindfunc "int MysqlSelectDb() -> fonline_tnf_client.dll MysqlSelectDb"
+#pragma bindfunc "int MysqlGetChars(uint id, string& names, string& pass) -> fonline_tnf_client.dll MysqlGetChars"
+//#pragma bindfunc "int MysqlGetCharsName(uint id, string& names) -> fonline_tnf_client.dll MysqlGetCharsName"
+//#pragma bindfunc "int MysqlGetCharsPass(uint id, string& names) -> fonline_tnf_client.dll MysqlGetCharsPass"
+#pragma bindfunc "int MysqlGetChars(uint id, string& names, string& namesReal, string& pass) -> fonline_tnf_client.dll MysqlGetChars"
+*/
+
+
+
 # endif
 
 // /
@@ -1614,6 +1678,18 @@
 # pragma bindfield "const uint   ProtoItem::Ammo_DmgMult -> 308"
 # pragma bindfield "const uint   ProtoItem::Ammo_DmgDiv  -> 312"
 
+# pragma bindfield "const uint16	ProtoItem::Food_Thrist -> 316"
+# pragma bindfield "const uint16	ProtoItem::Food_Restore -> 318"
+# pragma bindfield "const uint	ProtoItem::Food_Flags   -> 320"
+
+// Test function
+# ifdef __SERVER
+#  pragma bindfunc "void TestFunc(string&) -> fonline_test.dll TestFunc"
+# endif
+# ifdef __CLIENT
+#  pragma bindfunc "void TestFunc(string&) -> fonline_test_client.dll TestFunc"
+# endif
+
 #endif // SKIP_PRAGMAS
 
 // ////////////////////////////////
@@ -1621,6 +1697,7 @@
 
 // Бонусы от вторичных навыков при стрельбе.
 #define SECONDARY_SKILLS_BONUS_CAP    ( 125 )
+#define PID_WAYPOINT                  ( 1400 )
 
 // Яйца и матки аркадников. Пошло звучит мля =/
 #define TEAM_DEATHCLAW_METRA          ( 38 )

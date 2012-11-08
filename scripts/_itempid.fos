@@ -251,14 +251,14 @@
 #define PID_JET_ANTIDOTE                      ( 260 )
 #define PID_HEALING_POWDER                    ( 273 )
 #define PID_HYPO                              ( 525 )
-#define PID_BANDAGE                           ( 4 )
-#define PID_ANTISEPTIC                        ( 2 )
+#define PID_BANDAGE                           ( 1321 )
+#define PID_ANTISEPTIC                        ( 1322 )
 
-#define PID_MEDCLIP                           ( 1 )
-#define PID_MEDSPLINT                         ( 5 )
-#define PID_MEDTHREAD                         ( 6 )
-#define PID_MEDNEEDLE                         ( 921 )
-#define PID_ANESTETIC                         ( 7 )
+#define PID_MEDCLIP                           ( 1323 )
+#define PID_MEDSPLINT                         ( 1324 )
+#define PID_MEDTHREAD                         ( 1325 )
+#define PID_MEDNEEDLE                         ( 1326 )
+#define PID_ANESTETIC                         ( 1320 )
 
 // Alcohol
 #define PID_NUKA_COLA                         ( 106 )
@@ -333,6 +333,8 @@
 #define PID_LF_GRAVESITE_2                    ( 375 )
 #define PID_LF_GRAVESITE_3                    ( 376 )
 #define PID_HIDDEN_CONTAINER                  ( 467 )
+
+#define PID_LO_CONTAINER                      ( 904 )
 
 #define PID_KEY_BUNCH                         ( 888 )
 
@@ -543,7 +545,6 @@
 #define PID_REAL_BOTTLE_CAPS                  ( 519 )
 
 // Basic parts
-#define PID_PUMP_PARTS                        ( 98 ) // Trash
 #define PID_SCORPION_TAIL                     ( 92 )
 #define PID_ROPE                              ( 127 )
 #define PID_BROC_FLOWER                       ( 271 )
@@ -559,16 +560,13 @@
 #define PID_BOTTLE_GLASS                      ( 542 ) // Empty glass bottle
 #define PID_BOTTLE_EMPTY                      ( 532 ) // Пустая бутылка
 #define PID_PART_OF_ROPE                      ( 534 ) // Кусок веревки
-#define PID_METAL_TRASH                       ( 475 ) // Металлический мусор
 #define PID_GUNPOWDER                         ( 535 ) // Коробка пороха
 #define PID_METAL_ORE                         ( 536 ) // Железная руда
 #define PID_MINERAL                           ( 537 ) // Минерал
 #define PID_TUBE                              ( 538 ) // Металлическая труба
-#define PID_STEEL                             ( 50 )  // Сталь
 #define PID_BRAHMIN_SKIN                      ( 449 ) // Шкура брамина
 #define PID_MEAT                              ( 539 ) // Мясо
 #define PID_CIGARETTES                        ( 541 ) // Сигареты
-#define PID_RAGS                              ( 572 ) // Кусок материи
 #define PID_NITROGLYCERIN                     ( 573 ) // Нитроглицерин
 #define PID_CHEMICALS                         ( 574 ) // Химикаты
 #define PID_TNT                               ( 575 ) // Тротил
@@ -587,13 +585,11 @@
 #define PID_K9_MOTIVATOR                      ( 488 )
 
 // Special parts
-#define PID_WATER_CHIP                        ( 55 )
+#define PID_CRAFT_E_PART                        ( 55 )
 #define PID_CAR_FUEL_CELL_CONTROLLER          ( 253 ) // For car
 #define PID_CAR_FUEL_INJECTION                ( 254 ) // For car
 #define PID_HY_MAG_PART                       ( 258 )
 #define PID_ROBOT_PARTS                       ( 269 )
-#define PID_COMPUTER_VOICE_MODULE             ( 356 )
-#define PID_V15_COMPUTER_PART                 ( 377 )
 
 // Body parts
 #define PID_TANGLERS_HAND                     ( 114 )
@@ -638,10 +634,12 @@
 #define PID_PARAMEDICS_BAG                    ( 409 ) // +50 doctor
 #define PID_MEDICAL_SUPPLIES                  ( 428 )
 #define PID_BIO_GEL                           ( 440 )
+
+#define PID_RESPIRATOR                        ( 1399 ) // pm
 // Other
-#define PID_SHOVEL                            ( 289 ) // Лопата
-#define PID_PLANK                             ( 297 ) // Лом
-#define PID_AXE                               ( 543 ) // Топор
+#define PID_SHOVEL                            ( 289 )  // Лопата
+#define PID_PLANK                             ( 297 )  // Лом
+#define PID_AXE                               ( 543 )  // Топор
 #define PID_WELDING                           ( 565 )
 #define PID_WELDING_USED                      ( 566 )
 // Special
@@ -697,10 +695,10 @@
 #define PID_POISON_TANK                       ( 418 )
 #define PID_HOWITZER_SHELL                    ( 430 ) // Ammo of turret in SAD
 #define PID_MIRROR_SHADES                     ( 433 ) // Eye glasses
-#define PID_POCKET_LINT                       ( 439 ) // Trash
 #define PID_BALL_GAG                          ( 470 ) // Кляп
 #define PID_DAISIES                           ( 474 ) // Горшок с цветами
 #define PID_BOTTLE_FULL                       ( 533 ) // Полная бутылка
+#define PID_GLASS_BOTTLE_FULL                 ( 1627 ) // Полная стеклянная бутылка
 
 #define PID_DOG_TAGS                          ( 56 )
 #define PID_ELECTRONIC_BUG                    ( 57 )
@@ -832,6 +830,8 @@
 #define PID_DYNAMITE                          ( 51 ) // Has timer
 #define PID_PLASTIC_EXPLOSIVES                ( 85 )
 #define PID_MINE                              ( 544 )
+
+// #define PID_COMPAS
 
 /******************************************************************
 ***************       Misc2                         ***************
@@ -982,6 +982,7 @@
 #define PID_CUENCELL_LOW                      ( 1435 )
 #define PID_MUSH_LOW                          ( 1436 )
 #define PID_RAD_LOW                           ( 1437 )
+#define PID_DARTS_LOW                         ( 1438 )
 #define PID_RAD_MEAT                          ( 1440 )
 #define PID_MANTIS_SHELL                      ( 1441 )
 #define PID_MIRELUK_SHELL                     ( 1442 )
@@ -1001,6 +1002,7 @@
 #define PID_IRON_DETALS                       ( 1475 )
 #define PID_PB_PLATE                          ( 1477 )
 #define PID_PB_FOR_AMMO                       ( 1478 )
+#define PID_WOOD_PART                         ( 1488 )
 #define PID_KOSYAK                            ( 1490 )
 #define PID_FLUTE                             ( 1494 )
 #define PID_PERED_MEH                         ( 1502 )
@@ -1013,7 +1015,6 @@
 #define PID_BANKA_MEH                         ( 1509 )
 #define PID_SPIKE_MEH                         ( 1510 )
 #define PID_ELECTO_MEH                        ( 1511 )
-#define PID_HARD_HIDE                         ( 1512 )
 #define PID_MAG_LENTA                         ( 1513 )
 #define PID_SAMURAI_MAG                       ( 1516 )
 #define PID_DVIGAT_MEH                        ( 1517 )
@@ -1048,7 +1049,49 @@
 #define PID_PHOTO                             ( 1547 )
 #define PID_PILLS                             ( 1548 )
 #define PID_HYPO_BLOOD                        ( 1550 )
+#define PID_REVOLVER_PART                     ( 1680 )   // револьверный барабан
+#define PID_SHORT_TUBE                        ( 1681 )   // короткая труба
+#define PID_TRIGGER                           ( 3852 )
+#define PID_WORKBENCH_TOKEN                   ( 3978 )
+#define PID_FIREPLACE_TOKEN                   ( 3979 )
+#define PID_QUADRO_SHOTGUN                    ( 3983 )
+#define PID_DOUBLE_RIFLE                      ( 3984 )
+#define PID_LOW_SNIPER2                       ( 3985 )
 
+/******************************************************************
+***************       Craft                         ***************
+******************************************************************/
+
+#define PID_CRAFT_L_LINT                      ( 439 ) // pocket lint, карманный мусор
+#define PID_CRAFT_L_RAGS                      ( 572 ) // Кусок материи
+#define PID_CRAFT_L_HIDE                      ( 1512 ) // Кусок кожи
+
+#define PID_CRAFT_E_LAMP                      ( 356 )  // радиодетали
+#define PID_CRAFT_E_PART                      ( 55 )  // примитивная плата
+#define PID_CRAFT_E_CHIP                      ( 377 ) // микросхемы
+
+#define PID_CRAFT_M_JUNK                      ( 98 ) // Trash, мусор
+#define PID_CRAFT_M_BARS                      ( 475 ) // Металлические части
+#define PID_CRAFT_M_STEL                      ( 50 )  // Сложная деталь
+
+/******************************************************************
+***************       Food                          ***************
+******************************************************************/
+
+#define PID_RAT_MEAT       		      ( 1551 )
+#define PID_GECKO_MEAT          	      ( 1552 )
+#define PID_COOKED_MEAT      		      ( 1553 )
+#define PID_COOKED_RAT_MEAT    		      ( 1554 )
+#define PID_COOKED_GECKO_MEAT                 ( 1555 )
+#define PID_COOKED_FISH                       ( 1556 )
+#define PID_FLAPJACK                          ( 1557 )
+#define PID_FLOUR                             ( 1558 )
+#define PID_COOKED_MOLERAT_STOMATCH           ( 1559 ) // фаршированный желудок
+#define PID_SALAD                             ( 1560 )   // салат
+#define PID_CABBAGE                           ( 1615 )
+#define PID_CORN                              ( 1626 )
+#define PID_RAGOUT                            ( 1563 )
+#define PID_MUSH_GREEN                        ( 1564 )   // грибы-звездочки
 
 /******************************************************************
 ***************       Effects                       ***************

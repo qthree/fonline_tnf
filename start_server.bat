@@ -1,5 +1,5 @@
-pause
 :1
+pause
 echo Start
 start /I fonlineserver.exe -start -
 pause

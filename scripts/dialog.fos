@@ -922,11 +922,7 @@ void get_cow( Critter& player, Critter @ npc )
     Critter@[] brahmins;
     Map @ map = player.GetMap();
     Item@ flute = player.GetItem( PID_FLUTE, 0 );
-    if( ( map.GetCritters( NPC_PID_Brahmin, FIND_LIFE_AND_KO | FIND_ONLY_NPC, brahmins ) > 0 ||
-          map.GetCritters( NPC_PID_Brahmin2, FIND_LIFE_AND_KO | FIND_ONLY_NPC, brahmins ) > 0 ||
-          map.GetCritters( NPC_PID_Brahmin3, FIND_LIFE_AND_KO | FIND_ONLY_NPC, brahmins ) > 0 ||
-          map.GetCritters( NPC_PID_WeakBrahmin, FIND_LIFE_AND_KO | FIND_ONLY_NPC, brahmins ) > 0 ||
-          map.GetCritters( NPC_PID_WildBrahmin, FIND_LIFE_AND_KO | FIND_ONLY_NPC, brahmins ) > 0 ) && map.Id == flute.Val1 )
+    if( ( map.GetCritters( NPC_PID_Brahmin, FIND_LIFE_AND_KO | FIND_ONLY_NPC, brahmins ) > 0 ) && map.Id == flute.Val1 )
     {
         for( uint i = 0, ii = brahmins.length(); i < ii; i++ )
         {

@@ -37,12 +37,53 @@ import void AffectRadiation( Critter& cr, int value ) from "radiation";
 // fix_boy@fix_Science
 // fix_boy@fix_Advanced
 // fix_boy@fix_HighTech
+// fix_boy@fix_Cooking
+
+// Крафт-рецепт, требующий скилл ремонта.
+int fix_FreeHands( Critter& cr, int state, CraftItem& craft )
+{
+    if( state == FIXBOY_CRAFT )
+    {
+        cr.TimeoutBase[ TO_SK_REPAIR ] = REPAIR_TIMEOUT( cr );
+        return FIX_TIMEOUT;
+    }
+    return FIXBOY_DEFAULT;
+}
+
+//Крафт-рецепт готовки еды
+int fix_Cooking( Critter& cr, int state, CraftItem& craft )
+{
+    if( state == FIXBOY_CRAFT )
+    {
+        if( !valid(cr.GetMap().GetItem( cr.HexX, cr.HexY, PID_GRAPPLE_HOOK ) ))
+		{
+	    Item@Token = cr.GetItem( PID_WORKBENCH_TOKEN, -1 );
+        if( valid( Token )) DeleteItem( Token );
+	    Item@Token2 = cr.GetItem( PID_FIREPLACE_TOKEN, -1 );
+        if( valid( Token2 )) DeleteItem( Token2 ); 		
+        return FIX_FAIL;
+		}	
+		cr.AddItem( PID_FIREPLACE_TOKEN, 1 );
+        cr.TimeoutBase[ TO_SK_OUTDOORSMAN ] = REPAIR_TIMEOUT( cr ) + SHORT_TO;
+        return FIX_TIMEOUT;
+    }
+    return FIXBOY_DEFAULT;
+}
 
 // Крафт-рецепт, требующий скилл ремонта.
 int fix_Repair( Critter& cr, int state, CraftItem& craft )
 {
     if( state == FIXBOY_CRAFT )
     {
+        if( !valid(cr.GetMap().GetItem( cr.HexX, cr.HexY, PID_GRAPPLE_HOOK ) ))
+		{
+	    Item@Token = cr.GetItem( PID_WORKBENCH_TOKEN, -1 );
+        if( valid( Token )) DeleteItem( Token );
+	    Item@Token2 = cr.GetItem( PID_FIREPLACE_TOKEN, -1 );
+        if( valid( Token2 )) DeleteItem( Token2 ); 		
+        return FIX_FAIL;
+		}	
+		cr.AddItem( PID_WORKBENCH_TOKEN, 1 );
         cr.TimeoutBase[ TO_SK_REPAIR ] = REPAIR_TIMEOUT( cr ) + SHORT_TO;
         return FIX_TIMEOUT;
     }
@@ -54,6 +95,15 @@ int fix_Science( Critter& cr, int state, CraftItem& craft )
 {
     if( state == FIXBOY_CRAFT )
     {
+        if( !valid(cr.GetMap().GetItem( cr.HexX, cr.HexY, PID_GRAPPLE_HOOK ) ))
+		{
+	    Item@Token = cr.GetItem( PID_WORKBENCH_TOKEN, -1 );
+        if( valid( Token )) DeleteItem( Token );
+	    Item@Token2 = cr.GetItem( PID_FIREPLACE_TOKEN, -1 );
+        if( valid( Token2 )) DeleteItem( Token2 ); 		
+        return FIX_FAIL;
+		}	
+		cr.AddItem( PID_WORKBENCH_TOKEN, 1 );
         cr.TimeoutBase[ TO_SK_SCIENCE ] = SCIENCE_TIMEOUT( cr ) + SHORT_TO;
         return FIX_TIMEOUT;
     }
@@ -66,6 +116,15 @@ int fix_Advanced( Critter& cr, int state, CraftItem& craft )
 {
     if( state == FIXBOY_CRAFT )
     {
+        if( !valid(cr.GetMap().GetItem( cr.HexX, cr.HexY, PID_GRAPPLE_HOOK ) ))
+		{
+	    Item@Token = cr.GetItem( PID_WORKBENCH_TOKEN, -1 );
+        if( valid( Token )) DeleteItem( Token );
+	    Item@Token2 = cr.GetItem( PID_FIREPLACE_TOKEN, -1 );
+        if( valid( Token2 )) DeleteItem( Token2 ); 		
+        return FIX_FAIL;
+		}	
+		cr.AddItem( PID_WORKBENCH_TOKEN, 1 );
         cr.TimeoutBase[ TO_SK_REPAIR ] = REPAIR_TIMEOUT( cr ) + MEDIUM_TO;
         cr.TimeoutBase[ TO_SK_SCIENCE ] = SCIENCE_TIMEOUT( cr ) + MEDIUM_TO;
         return FIX_TIMEOUT;
@@ -78,6 +137,15 @@ int fix_HighTech( Critter& cr, int state, CraftItem& craft )
 {
     if( state == FIXBOY_CRAFT )
     {
+        if( !valid(cr.GetMap().GetItem( cr.HexX, cr.HexY, PID_GRAPPLE_HOOK ) ))
+		{
+	    Item@Token = cr.GetItem( PID_WORKBENCH_TOKEN, -1 );
+        if( valid( Token )) DeleteItem( Token );
+	    Item@Token2 = cr.GetItem( PID_FIREPLACE_TOKEN, -1 );
+        if( valid( Token2 )) DeleteItem( Token2 ); 		
+        return FIX_FAIL;
+		}	
+		cr.AddItem( PID_WORKBENCH_TOKEN, 1 );
         cr.TimeoutBase[ TO_SK_REPAIR ] = REPAIR_TIMEOUT( cr ) + HITECH_TO;
         cr.TimeoutBase[ TO_SK_SCIENCE ] = SCIENCE_TIMEOUT( cr ) + HITECH_TO;
         return FIX_TIMEOUT;
@@ -90,6 +158,15 @@ int fix_Science2( Critter& cr, int state, CraftItem& craft )
 {
     if( state == FIXBOY_CRAFT )
     {
+        if( !valid(cr.GetMap().GetItem( cr.HexX, cr.HexY, PID_GRAPPLE_HOOK ) ))
+		{
+	    Item@Token = cr.GetItem( PID_WORKBENCH_TOKEN, -1 );
+        if( valid( Token )) DeleteItem( Token );
+	    Item@Token2 = cr.GetItem( PID_FIREPLACE_TOKEN, -1 );
+        if( valid( Token2 )) DeleteItem( Token2 ); 		
+        return FIX_FAIL;
+		}	
+		cr.AddItem( PID_WORKBENCH_TOKEN, 1 );
         cr.TimeoutBase[ TO_SK_SCIENCE ] = SCIENCE_TIMEOUT( cr ) + SHORT_TO;
         AffectRadiation( cr, 100 );
         return FIX_TIMEOUT;

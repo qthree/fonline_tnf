@@ -42,7 +42,7 @@ bool UseItemOnCar( Critter& cr, Item& car, Item& item ) // Export
     else
         octane = 70;    // Bio energy
 
-    int need = int(car.Proto.Car_TankVolume) - car.CarFuel;
+    int need = int(car.Proto.Car_TankVolume) - car.Charge;
     int count = item.GetCount() * octane;
     if( count > need )
         count = need;
@@ -58,7 +58,7 @@ bool UseItemOnCar( Critter& cr, Item& car, Item& item ) // Export
             DeleteItem( item );
         else
             item.SetCount( newCount );
-        car.CarFuel += count;
+        car.Charge += count;
         cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_CAR_FUEL_TANK_FILL );
     }
 
@@ -86,21 +86,21 @@ bool UseSkillOnCar( Critter& cr, Item& car, int skill ) // Export
     else if( skill == SK_SCIENCE )
     {
         cr.SayMsg( SAY_NETMSG, TEXTMSG_TEXT, STR_CAR_INFO, "$number" + car.LockerId +
-                   "$fuel" + ( car.CarFuel / 100 ) + "$fuel_tank" + ( car.Proto.Car_TankVolume / 100 ) +
-                   "$wear" + ( car.CarDeterioration * 100 / car.Proto.Car_MaxDeterioration ) );
+                   "$fuel" + ( car.Charge / 100 ) + "$fuel_tank" + ( car.Proto.Car_TankVolume / 100 ) +
+                   "$wear" + ( car.Deterioration * 100 / car.Proto.Car_MaxDeterioration ) );
     }
     else if( skill == SK_REPAIR )
     {
-        if( car.CarDeterioration == 0 )
+        if( car.Deterioration == 0 )
             cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_CAR_REPAIR_NO_NEED );
         else if( cr.IsPlayer() && cr.Timeout[ TO_SK_REPAIR ] > 0 )
             cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_SKILL_WEARINESS );
         else
         {
-            int fix = car.CarDeterioration - ( cr.Skill[ SK_REPAIR ] > 0 ? cr.Skill[ SK_REPAIR ] : 1 ) * 100;
+            int fix = car.Deterioration - ( cr.Skill[ SK_REPAIR ] > 0 ? cr.Skill[ SK_REPAIR ] : 1 ) * 100;
             if( fix < 0 )
                 fix = 0;
-            car.CarDeterioration = fix;
+            car.Deterioration = fix;
             cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_CAR_REPAIR_SUCCESS );
             cr.TimeoutBase[ TO_SK_REPAIR ] = REPAIR_TIMEOUT( cr );
             cr.StatBase[ ST_EXPERIENCE ] += 10;

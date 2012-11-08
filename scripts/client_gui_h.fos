@@ -31,21 +31,24 @@ import void GUI_DeleteScreenElements( int screenIndex ) from "client_gui"; // @p
 // Screen
 //
 
-interface IGUIScreenCallbackShow {
+shared interface IGUIScreenCallbackShow
+{
     void OnShow( int p0, int p1, int p2 );
 }
-interface IGUIScreenCallbackHide {
+shared interface IGUIScreenCallbackHide
+{
     void OnHide( int p0, int p1, int p2 );
 }
-interface IGUIScreenCallbackMove {
+shared interface IGUIScreenCallbackMove
+{
     void OnMove( int posX, int posY );
 }
 
-interface IGUIScreenCallbackInit {
+shared interface IGUIScreenCallbackInit {
     void OnInit();
 }                                                   // @pm menu
 
-interface IGUIScreenOpt
+shared interface IGUIScreenOpt
 {
     IGUIScreenOpt@ CallbackShow( IGUIScreenCallbackShow@ callback ); // delault null
     IGUIScreenOpt@ CallbackHide( IGUIScreenCallbackHide@ callback ); // delault null
@@ -58,6 +61,7 @@ interface IGUIScreenOpt
     IGUIScreenOpt@ CloseOnMiss( bool enabled );                      // default false
     IGUIScreenOpt@ AutoCursor( bool enabled, int cursorType );       // default false
     IGUIScreenOpt@ SetElementCount( int8 ElementCount );             // @pm menu
+    IGUIScreenOpt@ Pic( string@ sprName, int path );
 
 
     // Info
@@ -72,20 +76,24 @@ interface IGUIScreenOpt
 // Element
 //
 
-interface IGUIElementCallbackInit       {
+shared interface IGUIElementCallbackInit
+{
     void OnInit();
 }
-interface IGUIElementCallbackDraw       {
+shared interface IGUIElementCallbackDraw
+{
     void OnDraw();
 }
-interface IGUIElementCallbackMouseClick {
+shared interface IGUIElementCallbackMouseClick
+{
     void OnMouseClick( int click );
 }
-interface IGUIElementCallbackKeyPress   {
+shared interface IGUIElementCallbackKeyPress
+{
     void OnKeyPress( uint8 key, uint8 letter );
 }
 
-interface IGUIElementOpt
+shared interface IGUIElementOpt
 {
     IGUIElementOpt@ CallbackInit( IGUIElementCallbackInit@ callback );                           // default null
     IGUIElementOpt@ CallbackDraw( IGUIElementCallbackDraw@ callback );                           // default null
@@ -112,6 +120,8 @@ interface IGUIElementOpt
     IGUIElementOpt@ SetLayer( uint8 layer );
     IGUIElementOpt@ SetSpecialValue( uint value );
     IGUIElementOpt@ SetRenderLayer( uint8 layer );   // pm add
+    IGUIElementOpt@ PicSetFrmCount( uint16 count );
+    IGUIElementOpt@ PicHash(uint hash, uint8 dir);
     // #pm menu
 
 

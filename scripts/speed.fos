@@ -105,8 +105,11 @@ void ChangeCritterSpeed( Critter& cr )
         carryMod = uint( 400 * weight / ( carry ) );
     // if(cr.IsPlayer()) cr.Say(SAY_NETMSG, ""+carryMod);
 
-    walk = uint16( SpeedArray[ cr.CrType * 2 ] + ( ( weight > weight_limitWalk ) ? carryMod : 0 ) + healthMod );
-    run  = uint16( SpeedArray[ cr.CrType * 2 + 1 ]  + carryMod + healthMod );
+    uint8 speedMod = cr.StatBase[ ST_SPEED_MOD ];
+    speedMod = CLAMP( speedMod, 1, 1000 );
+
+    walk = uint16( SpeedArray[ cr.CrType * 2 ] + ( ( weight > weight_limitWalk ) ? carryMod : 0 ) + healthMod ) / ( speedMod * 0.01 );
+    run  = uint16( SpeedArray[ cr.CrType * 2 + 1 ]  + carryMod + healthMod ) / ( speedMod * 0.01 );
 
 
     walk = CLAMP( walk, 400, 1000 );

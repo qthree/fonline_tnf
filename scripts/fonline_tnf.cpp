@@ -1,11 +1,6 @@
 #include "fonline_tnf.h"
 
-// Engine data
-GameOptions*     Game;
-asIScriptEngine* ASEngine;
-void             ( * Log )( const char* frmt, ... );
-
-#include "scriptarray.h"
+#include "fonline_sql.h"
 
 // Extern data definition
 _GlobalVars GlobalVars;
@@ -55,11 +50,6 @@ EXPORT bool Item_Weapon_IsHtHAttack( Item& item, uint8 mode );
 EXPORT bool Item_Weapon_IsGunAttack( Item& item, uint8 mode );
 EXPORT bool Item_Weapon_IsRangedAttack( Item& item, uint8 mode );
 
-// EXPORT uint Item_GetIndefineValue(Item& item); //pm added
-// EXPORT void Item_SetIndefineValue(Item& item, uint16 value); //pm added
-// EXPORT uint Item_GetIndefineCritterStat(Item& item); //pm added
-// EXPORT bool Item_IsCanUseByIndefine(Item& item, CritterMutual& cr);
-
 // Callbacks
 uint GetUseApCost( CritterMutual& cr, Item& item, uint8 mode );
 uint GetAttackDistantion( CritterMutual& cr, Item& item, uint8 mode );
@@ -78,24 +68,89 @@ EXPORT bool Map_SetTile( Map& map, uint16 tx, uint16 ty, uint picHash );
 EXPORT bool Map_SetRoof( Map& map, uint16 tx, uint16 ty, uint picHash );
 
 EXPORT uint Critter_GetItemTransferCount( Critter& cr );
-EXPORT void Critter_GetIp( Critter& cr, CScriptArray* array );
+EXPORT void Critter_GetIp( Critter& cr, ScriptArray* array );
 #endif // __SERVER
 
 /************************************************************************/
 /*                          TNF - includes                              */
 /************************************************************************/
 
+#include "revenge.h"
+
+//#include "winsock2.h"
+//#include "my_global.h"
+# include <windows.h>
+
+
 #ifdef __CLIENT
-# include "q_sprites.cpp"
+# include "q_sprites.h"
+
+//# include <windows.h>
+
+bool CBPaste( ScriptString& str )
+{
+    HGLOBAL hglb;
+    LPTSTR  lptstr;
+
+    if( !IsClipboardFormatAvailable( CF_TEXT ) || !OpenClipboard( NULL ) )
+        return false;
+
+    hglb = GetClipboardData( CF_TEXT );
+    if( hglb )
+    {
+        lptstr = (LPTSTR) GlobalLock( hglb );
+        if( lptstr )
+        {
+            str = lptstr;
+            GlobalUnlock( lptstr );
+        }
+    }
+    CloseClipboard();
+    return str.length() > 0;
+}
+
+EXPORT uint GetHardware(ScriptArray& array )
+{
+    SYSTEM_INFO siSysInfo;
+
+    // Копируем информацию о железе в структуру SYSTEM_INFO.
+
+    GetSystemInfo( &siSysInfo );
+    uint hardwareId = uint(siSysInfo.dwOemId);
+
+    // Отображаем содержимое структуры SYSTEM_INFO.
+    array.Resize(0);
+    array.Grow(siSysInfo.dwOemId);
+    array.Grow(siSysInfo.dwNumberOfProcessors);
+    array.Grow(siSysInfo.dwPageSize);
+    array.Grow(siSysInfo.dwProcessorType);
+
+/*
+    printf("Hardware information: \n");
+       printf("  OEM ID: %u\n", siSysInfo.dwOemId);
+       printf("  Number of processors: %u\n",
+       siSysInfo.dwNumberOfProcessors);
+       printf("  Page size: %u\n", siSysInfo.dwPageSize);
+       printf("  Processor type: %u\n", siSysInfo.dwProcessorType);
+       printf("  Minimum application address: %lx\n",
+       siSysInfo.lpMinimumApplicationAddress);
+       printf("  Maximum application address: %lx\n",
+       siSysInfo.lpMaximumApplicationAddress);
+       printf("  Active processor mask: %u\n",
+       siSysInfo.dwActiveProcessorMask);
+*/
+    return hardwareId;
+}
+
 #endif
 
-#include "qmap_tools.cpp"
+#include "qmap_tools.h"
 
 #ifdef __SERVER
-void RunClientScript( Critter* cr, ScriptString* funcName, int p0, int p1, int p2, ScriptString* p3, CScriptArray* p4 )
+void RunClientScript( Critter* cr, ScriptString* funcName, int p0, int p1, int p2, ScriptString* p3, ScriptArray* p4 )
 {
     _asm {
-        mov eax, 0x004D1EF0
+        mov eax, ENGINE_PTR_FUNC_Cl_RunClientScript
         push    p4
         push    p3
         push    p2
@@ -115,7 +170,7 @@ struct StartCallback
     string module_name;
     string func_name;
 
-    StartCallback( string& mn, string& fn )
+    StartCallback( const char* mn, const char* fn )
     {
         module_name = mn;
         func_name = fn;
@@ -126,29 +181,39 @@ vector< StartCallback* > startCallbacks;
 
 void AddStartCallback( ScriptString& module, ScriptString& func )
 {
-    startCallbacks.push_back( new StartCallback( module.Buffer, func.Buffer ) );
+    startCallbacks.push_back( new StartCallback(module.c_str(), func.c_str() ) );
+    //Log("Register %s in %s\n", startCallbacks.back()->func_name.c_str(), startCallbacks.back()->module_name.c_str());
+    //Log("Register %s in %s\n", func.c_str(), module.c_str());
 }
 
 void CallStartCallbacks()
 {
-    char buff[ 500 ];
+    uint len = startCallbacks.size();
+    Log("Autostart: %u callbacks registered.\n", len);
 
-    for( uint i = 0, j = startCallbacks.size(); i < j; i++ )
+    for( uint i = 0; i < len; i++ )
     {
         StartCallback* sc = startCallbacks[ i ];
         if( sc == NULL )
             continue;
 
-        asIScriptModule* module = ASEngine->GetModule( sc->module_name.c_str() );
+        Log("Start %s@%s... ", sc->module_name.c_str(), sc->func_name.c_str());
+
+        asIScriptModule* module = ASEngine->GetModule( sc->module_name.c_str());
         if( module == NULL )
+        {
+            Log("FAIL! Can't find module.\n");
             continue;
+        }
 
-        int funcId = module->GetFunctionIdByName( sc->func_name.c_str() );
+        int funcId = module->GetFunctionIdByName( sc->func_name.c_str());
         if( funcId == 0 )
+        {
+            Log("FAIL! Can't find function.\n");
             continue;
+        }
 
-        sprintf( buff, "StartCallback: %s@%s\n", sc->module_name.c_str(), sc->func_name.c_str() );
-        Log( buff );
+        Log("Ok.\n");
 
         asIScriptContext* ctx = ASEngine->CreateContext();
         ctx->Prepare( funcId );
@@ -163,46 +228,51 @@ void CallStartCallbacks()
 /* Initialization                                                       */
 /************************************************************************/
 
-int __stdcall DllMain( void* module, unsigned long reason, void* reserved )
-{
-    // In this function all global variables is NOT initialized, use DllMainEx instead
-    return 1;
-}
+// In this functions (DllMain and DllLoad) all global variables is NOT initialized, use FONLINE_DLL_ENTRY instead
+#if defined ( FO_WINDOWS )
+int __stdcall DllMain( void* module, unsigned long reason, void* reserved ) { return 1; }
+#elif defined ( FO_LINUX )
+void __attribute__( ( constructor ) ) DllLoad()   {}
+void __attribute__( ( destructor ) )  DllUnload() {}
+#endif
 
-EXPORT void DllMainEx( bool compiler )
+FONLINE_DLL_ENTRY( isCompiler )
 {
-    // bool compiler - true if script compiled using ASCompiler, false if script compiled in server
-    // In this function all global variables is initialized, if compiled not by compiler
-
     #ifdef __CLIENT
-    RegisterNativeSprite( compiler );
+    RegisterNativeSprites( ASEngine, isCompiler );
+
+    ASEngine->RegisterGlobalFunction( "bool CBPaste(string&)", asFUNCTION( CBPaste ), asCALL_CDECL );
+    ASEngine->RegisterGlobalFunction( "uint GetHardware()", asFUNCTION( GetHardware ), asCALL_CDECL );
     #endif
 
-    RegisterQmapTools( compiler );
+    RegisterQmapTools( ASEngine, isCompiler );
 
     #ifdef __SERVER
     // ASEngine->RegisterObjectMethod("Critter", "void RunClientScript2(string& funcName, int p0, int p1, int p2, string@+ p3, int[]@+ p4)", asFUNCTION(RunClientScript), asCALL_CDECL_OBJFIRST);
-    ASEngine->RegisterGlobalFunction( "void AddStartCallback(string& module, string& func)", asFUNCTION( AddStartCallback ), asCALL_CDECL );
+    ASEngine->RegisterGlobalFunction( "void AddStartCallback(string&, string&)", asFUNCTION( AddStartCallback ), asCALL_CDECL );
     ASEngine->RegisterGlobalFunction( "void CallStartCallbacks()", asFUNCTION( CallStartCallbacks ), asCALL_CDECL );
     #endif
 
-    if( compiler )
+    RegisterNativeSql( ASEngine, isCompiler );
+
+    if( isCompiler )
         return;
 
     // Register callbacks
-    Game->GetUseApCost = &GetUseApCost;
-    Game->GetAttackDistantion = &GetAttackDistantion;
+    FOnline->GetUseApCost = &GetUseApCost;
+    FOnline->GetAttackDistantion = &GetAttackDistantion;
 
     // Register script global vars
     memset( &GlobalVars, 0, sizeof( GlobalVars ) );
-    for( int i = 0; i < ASEngine->GetGlobalPropertyCount(); i++ )
+    for( asUINT i = 0; i < ASEngine->GetGlobalPropertyCount(); i++ )
     {
         const char* name;
         void*       ptr;
-        if( ASEngine->GetGlobalPropertyByIndex( i, &name, NULL, NULL, NULL, &ptr ) < 0 )
+        if( ASEngine->GetGlobalPropertyByIndex( i, &name, NULL, NULL, NULL, NULL, &ptr ) < 0 )
             continue;
 
-        #define REGISTER_GLOBAL_VAR( type, gvar )    else if( !strcmp( # gvar, name ) ) \
+        #define REGISTER_GLOBAL_VAR( type, gvar ) \
+            else if( !strcmp( # gvar, name ) )    \
                 GlobalVars.gvar = (type*) ptr
         REGISTER_GLOBAL_VAR( int, CurX );
         REGISTER_GLOBAL_VAR( int, CurY );
@@ -336,7 +406,7 @@ EXPORT int getParam_MaxWeight( CritterMutual& cr, uint )
 
 /*	//Рассчет скоростей на ходу.
    #ifdef __SERVER
-        if(Game->GameTimeTick < cr.PrevHexTick+2000)
+        if(FOnline->GameTimeTick < cr.PrevHexTick+2000)
         {
                 int weight = cr.GetItemsWeight();
 
@@ -353,14 +423,14 @@ EXPORT int getParam_MaxWeight( CritterMutual& cr, uint )
                         cr.Params[MODE_NO_WALK]=walk;
                         cr.ParamsChanged.push_back(MODE_NO_WALK);
                         cr.ParamsIsChanged[MODE_NO_WALK]=true;
-                        Game->CritterChangeParameter(cr, MODE_NO_WALK);
+                        FOnline->CritterChangeParameter(cr, MODE_NO_WALK);
                 }
                 if(run!=oldRun)
                 {
                         cr.Params[MODE_NO_RUN]=run;
                         cr.ParamsChanged.push_back(MODE_NO_RUN);
                         cr.ParamsIsChanged[MODE_NO_RUN]=true;
-                        Game->CritterChangeParameter(cr, MODE_NO_RUN);
+                        FOnline->CritterChangeParameter(cr, MODE_NO_RUN);
                 }
         }
    #endif
@@ -412,8 +482,8 @@ EXPORT int getParam_MaxCritical( CritterMutual& cr, uint )
 EXPORT int getParam_Ac( CritterMutual& cr, uint )
 {
     // int val = cr.Params[ST_ARMOR_CLASS] + cr.Params[ST_ARMOR_CLASS_EXT] + getParam_Agility(cr, 0) + cr.Params[ST_TURN_BASED_AC]; //TLA
-    int   val = cr.Params[ ST_ARMOR_CLASS ] + cr.Params[ ST_ARMOR_CLASS_EXT ] + ( getParam_Agility( cr, 0 ) * 5 ) + cr.Params[ ST_TURN_BASED_AC ]; // Roleplay
-    Item* armor = cr.ItemSlotArmor;
+    int         val = cr.Params[ ST_ARMOR_CLASS ] + cr.Params[ ST_ARMOR_CLASS_EXT ] + ( getParam_Agility( cr, 0 ) * 5 ) + cr.Params[ ST_TURN_BASED_AC ]; // Roleplay
+    const Item* armor = cr.ItemSlotArmor;
     // if(armor->GetId() && armor->IsArmor()) val += armor->Proto->Armor_AC * (100 - armor->GetWearProc()) / 100; //TLA
     if( armor->GetId() && armor->IsArmor() )
         val -= armor->Proto->Armor_AC;                                        // Roleplay
@@ -422,11 +492,11 @@ EXPORT int getParam_Ac( CritterMutual& cr, uint )
 
 EXPORT int getParam_DamageResistance( CritterMutual& cr, uint index )
 {
-    int   dmgType = index - ST_NORMAL_RESIST + 1;
+    int         dmgType = index - ST_NORMAL_RESIST + 1;
 
-    Item* armor = cr.ItemSlotArmor;
-    int   val = 0;
-    int   drVal = 0;
+    const Item* armor = cr.ItemSlotArmor;
+    int         val = 0;
+    int         drVal = 0;
     switch( dmgType )
     {
     case DAMAGE_NORMAL:
@@ -472,11 +542,11 @@ EXPORT int getParam_DamageResistance( CritterMutual& cr, uint index )
 
 EXPORT int getParam_DamageThreshold( CritterMutual& cr, uint index )
 {
-    int   dmgType = index - ST_NORMAL_ABSORB + 1;
+    int         dmgType = index - ST_NORMAL_ABSORB + 1;
 
-    Item* armor = cr.ItemSlotArmor;
-    int   val = 0;
-    int   dtVal = 0;
+    const Item* armor = cr.ItemSlotArmor;
+    int         val = 0;
+    int         dtVal = 0;
     switch( dmgType )
     {
     case DAMAGE_NORMAL:
@@ -532,7 +602,7 @@ EXPORT int getParam_PoisonResist( CritterMutual& cr, uint )
 
 EXPORT int getParam_Timeout( CritterMutual& cr, uint index )
 {
-    return (uint) cr.Params[ index ] > Game->FullSecond ? (uint) cr.Params[ index ] - Game->FullSecond : 0;
+    return (uint) cr.Params[ index ] > FOnline->FullSecond ? (uint) cr.Params[ index ] - FOnline->FullSecond : 0;
 }
 
 EXPORT int getParam_Reputation( CritterMutual& cr, uint index )
@@ -540,8 +610,8 @@ EXPORT int getParam_Reputation( CritterMutual& cr, uint index )
     #ifdef __SERVER
     if( cr.Params[ index ] == 0x80000000 )
     {
-        Game->CritterChangeParameter( cr, index );
-        cr.Params[ index ] = 0;
+        FOnline->CritterChangeParameter( cr, index );
+        const_cast< int* >( cr.Params )[ index ] = 0;
     }
     #else
     if( cr.Params[ index ] == 0x80000000 )
@@ -553,7 +623,7 @@ EXPORT int getParam_Reputation( CritterMutual& cr, uint index )
 EXPORT void changedParam_Reputation( CritterMutual& cr, uint index, int oldValue )
 {
     if( oldValue == 0x80000000 )
-        cr.Params[ index ] += 0x80000000;
+        const_cast< int* >( cr.Params )[ index ] += 0x80000000;
 }
 
 /************************************************************************/
@@ -632,38 +702,6 @@ EXPORT bool Item_Weapon_IsRangedAttack( Item& item, uint8 mode )
     return skill == SK_SMALL_GUNS || skill == SK_BIG_GUNS || skill == SK_ENERGY_WEAPONS || skill == SK_THROWING;
 }
 
-/*EXPORT uint Item_GetIndefineValue(Item& item)
-   {
-        //uint16 value = (item.Data.ScriptValues[9] != 0 ? item.Data.ScriptValues[9] : item.Proto -> IndefineValue);
-        return item.Proto -> IndefineValue;
-   }
-
-   EXPORT void Item_SetIndefineValue(Item& item, uint16 value)
-   {
-        //item.Data.ScriptValues[9] = value; //IndefineValue
-        return;
-   }
- */
-EXPORT void Item_SetInvPic( Item& item, uint hash )
-{
-    item.Data.PicInvHash = hash;
-    // item.Update();
-    return;
-}
-/*
-   EXPORT uint Item_GetIndefineStat(Item& item)
-   {
-        return item.Proto -> IndefineStat;
-
-   }
-
-   EXPORT bool Item_IsCanUseByIndefine(Item& item, CritterMutual& cr)
-   {
-        uint16 stat = item.Proto -> IndefineStat, value = item.Proto -> IndefineValue;
-        return (value <= cr.Params[stat]);
-   }
- */
-
 /************************************************************************/
 /* Callbacks                                                            */
 /************************************************************************/
@@ -677,16 +715,16 @@ uint GetUseApCost( CritterMutual& cr, Item& item, uint8 mode )
     if( use == USE_USE )
     {
         if( TB_BATTLE_TIMEOUT_CHECK( getParam_Timeout( cr, TO_BATTLE ) ) )
-            apCost = Game->TbApCostUseItem;
+            apCost = FOnline->TbApCostUseItem;
         else
-            apCost = Game->RtApCostUseItem;
+            apCost = FOnline->RtApCostUseItem;
     }
     else if( use == USE_RELOAD )
     {
         if( TB_BATTLE_TIMEOUT_CHECK( getParam_Timeout( cr, TO_BATTLE ) ) )
-            apCost = Game->TbApCostReloadWeapon;
+            apCost = FOnline->TbApCostReloadWeapon;
         else
-            apCost = Game->RtApCostReloadWeapon;
+            apCost = FOnline->RtApCostReloadWeapon;
 
         if( item.IsWeapon() && item.Proto->Weapon_Perk == WEAPON_PERK_FAST_RELOAD )
             apCost--;
@@ -734,11 +772,11 @@ uint GetAttackDistantion( CritterMutual& cr, Item& item, uint8 mode )
 
 int GetNightPersonBonus()
 {
-    if( Game->Hour < 6 || Game->Hour > 18 )
+    if( FOnline->Hour < 6 || FOnline->Hour > 18 )
         return 1;
-    if( Game->Hour == 6 && Game->Minute == 0 )
+    if( FOnline->Hour == 6 && FOnline->Minute == 0 )
         return 1;
-    if( Game->Hour == 18 && Game->Minute > 0 )
+    if( FOnline->Hour == 18 && FOnline->Minute > 0 )
         return 1;
     return -1;
 }
@@ -748,19 +786,19 @@ uint GetAimApCost( int hitLocation )
     switch( hitLocation )
     {
     case HIT_LOCATION_TORSO:
-        return Game->ApCostAimTorso;
+        return FOnline->ApCostAimTorso;
     case HIT_LOCATION_EYES:
-        return Game->ApCostAimEyes;
+        return FOnline->ApCostAimEyes;
     case HIT_LOCATION_HEAD:
-        return Game->ApCostAimHead;
+        return FOnline->ApCostAimHead;
     case HIT_LOCATION_LEFT_ARM:
     case HIT_LOCATION_RIGHT_ARM:
-        return Game->ApCostAimArms;
+        return FOnline->ApCostAimArms;
     case HIT_LOCATION_GROIN:
-        return Game->ApCostAimGroin;
+        return FOnline->ApCostAimGroin;
     case HIT_LOCATION_RIGHT_LEG:
     case HIT_LOCATION_LEFT_LEG:
-        return Game->ApCostAimLegs;
+        return FOnline->ApCostAimLegs;
     case HIT_LOCATION_NONE:
     case HIT_LOCATION_UNCALLED:
     default:
@@ -799,95 +837,81 @@ uint GetMultihex( CritterMutual& cr )
 {
     int mh = cr.Multihex;
     if( mh < 0 )
-        mh = Game->CritterTypes[ cr.BaseType ].Multihex;
+        mh = FOnline->CritterTypes[ cr.BaseType ].Multihex;
     return CLAMP( mh, 0, MAX_HEX_OFFSET );
 }
 
+
 /************************************************************************/
-/*                         TNF - server                                  */
+/*                         TNF - common                                 */
+/************************************************************************/
+
+EXPORT void Item_SetInvPic( Item& item, uint hash )
+{
+    const_cast< uint& >( item.Data.PicInvHash ) = hash;
+    // item.Update();
+    return;
+}
+
+EXPORT void Item_SetMapPic( Item& item, uint hash )
+{
+    const_cast< uint& >( item.Data.PicMapHash ) = hash;
+    return;
+}
+
+/************************************************************************/
+/*                         TNF - server                                 */
 /************************************************************************/
 
 #ifdef __SERVER
 
-/*EXPORT bool Critter_SetAccess(Critter& cr, int access)
+EXPORT bool Critter_SetAccess(Critter& cr, int access)
    {
         if(cr.CritterIsNpc) return false;
-        Client* cl = (Client*)&cr;
+        /*Client* cl = (Client*)&cr;
 
-        cl->Access = 1 << (access);
+        cl->Access = 1 << (access);*/
+        uint8 *a=const_cast<uint8 *>(&((Client*)&cr)->Access);
+        *a=access;
         return true;
-   }*/
+   }
 
 uint GetTiles( Map& map, uint16 hexX, uint16 hexY, bool is_roof, vector< uint >& finded )
 {
-    ProtoMap::TileVec& tiles = map.Proto->Tiles;
+    ProtoMap::TileVec& tiles = const_cast< ProtoMap::TileVec& >( map.Proto->Tiles );
 
     for( uint i = 0, j = tiles.size(); i < j; i++ )
     {
         if( tiles[ i ].HexX != hexX || tiles[ i ].HexY != hexY || tiles[ i ].IsRoof != is_roof )
             continue;
         finded.push_back( tiles[ i ].NameHash );
-        /*
-           char buff[50];
-
-           for(uint r=0; r<50; r++)
-           {
-                buff[r]=0;
-           }
-
-           sprintf(buff,"HexX: %u; HexY: %u; Hash: %x; #",tiles[i].HexX, tiles[i].HexY, tiles[i].NameHash);
-           Log(buff);*/
     }
     return finded.size();
 }
 
 EXPORT uint Map_GetTiles( Map& map, uint16 hexX, uint16 hexY, bool is_roof, ScriptArray& array )
 {
-    ProtoMap::TileVec& tiles = map.Proto->Tiles;
+    vector< uint > finded;
 
-    vector< uint >     finded;
+    if( array.GetElementSize() != 4 )
+        return 0;
 
-    uint               delta = GetTiles( map, hexX, hexY, is_roof, finded );
+    uint delta = GetTiles( map, hexX, hexY, is_roof, finded );
     if( delta == 0 )
         return 0;
 
-    uint                      old_num = array.Buffer->NumElements;
-
-    ScriptArray::ArrayBuffer* newBuffer;
-    newBuffer = (ScriptArray::ArrayBuffer*) new asBYTE[ sizeof( ScriptArray::ArrayBuffer ) - 1 + array.ElementSize * ( old_num + delta ) ];
-    newBuffer->NumElements = old_num + delta;
-
-    memcpy( newBuffer->Data, array.Buffer->Data, old_num * array.ElementSize );
-    // memcpy(newBuffer->Data+old_num*array.ElementSize, finded, old_num*array.ElementSize);
-/*
-        for(uint i=0; i<finded.size(); i++)
-        {
-                //*(uint*)array.Buffer->Data[(old_num+i)*array.ElementSize] = finded[i];
-                memcpy(newBuffer->Data+old_num*array.ElementSize+i*4, (&finded[i]), 4);
-        }
- */
-    uint* p = finded.get_allocator().allocate( finded.size() );
-    memcpy( newBuffer->Data + old_num * array.ElementSize, p, finded.size() * 4 );
-
-    delete[] (asBYTE*) array.Buffer;
-
-    array.Buffer = newBuffer;
+    uint size = array.GetSize();
+    array.Grow( delta );
+    memcpy( array.GetBuffer() + size * 4, &( finded[ 0 ] ), delta * 4 );
 
     return delta;
 }
 
 EXPORT uint Map_GetTile( Map& map, uint16 tx, uint16 ty )
 {
-    // if(map.IsNotValid) return 0;
-    // ProtoMap* pMap = map.Proto;
-    // if(pMap->(Header.MaxHexX/2)<tx || pMap->(Header.MaxHexY/2)<ty) return 0;
-    // return pMap->GetTile(tx, ty);
-
     vector< uint > finded;
-
     if( GetTiles( map, tx * 2, ty * 2, false, finded ) != 1 )
         return 0;
-
     return finded[ 0 ];
 }
 
@@ -931,18 +955,19 @@ EXPORT uint Critter_GetItemTransferCount( Critter& cr )
     return cr.ItemTransferCount;
 }
 
-EXPORT void Critter_GetIp( Critter& cr, CScriptArray* array )
+EXPORT void Critter_GetIp( Critter& cr, ScriptArray* array )
 {
     array->Resize( MAX_STORED_IP );
-    memcpy( array->buffer->data, cr.DataExt->PlayIp, MAX_STORED_IP * 4 );
+    const uint* p = cr.DataExt->PlayIp;
+    memcpy( array->GetBuffer(), p, MAX_STORED_IP * 4 );
 }
 
 // pm added
 
 EXPORT void Critter_SetWorldPos( CritterMutual& cr, uint16 x, uint16 y ) // pm added
 {
-    cr.WorldX = x;
-    cr.WorldY = y;
+    const_cast< uint16& >( cr.WorldX ) = x;
+    const_cast< uint16& >( cr.WorldY ) = y;
 }
 
 /*EXPORT uint Item_GetDurability(Item& item)
@@ -956,4 +981,100 @@ EXPORT void Critter_SetWorldPos( CritterMutual& cr, uint16 x, uint16 y ) // pm a
         return;
    }*/
 
+EXPORT int Map_GetScenParam( Map& map, uint16 tx, uint16 ty, uint protoId, uint8 num )
+{
+    if( num < 0 || num > 10 )
+        return -1;
+
+    const MapObjectVec& obj = map.Proto->SceneriesVec;
+
+    for( MapObjectVecIt it = obj.begin(); it < obj.end(); ++it )
+    {
+        if( ( *it )->MapX != tx || ( *it )->MapY != ty || ( *it )->ProtoId != protoId )
+            continue;
+        return ( *it )->MScenery.Param[ num ];
+    }
+
+    return -1;
+}
+/*
+   EXPORT int Map_GetLightValue(Map& map, uint8[] light)
+   {
+        return 0;
+   }*/
+
+
+/*
+   EXPORT uint8 Item_GetDurability( Item& item )
+   {
+    return item.Data.Rate;
+   }
+
+   EXPORT uint8 Item_SetDurability( Item& item, uint8 val )
+   {
+    item.Data.Rate = val;
+    return 0;
+   }
+ */
+/*
+ EXPORT void Critter_SetAccess(Critter& cr, uint8 accessLevel)
+{
+    //cr.Access = accessLevel;
+    //typedef vector< Client* >                    ClVec;
+    //typedef vector< Client* >::const_iterator    ClVecIt;
+    uint8 *a=const_cast<uint8 *>(&((Client*)&cr)->Access);
+    *a=accessLevel;
+
+/*
+    for( ClVecIt it = ClVec.begin(), end = ClVec.end(); it < end; ++it )
+    {
+        //if( ( *it )->Id != cr.Id )
+          //  continue;
+        //return ( *it )->Access;
+    }
+*
+    return;
+}*/
+
 #endif // __SERVER
+
+#ifdef __CLIENT
+
+EXPORT int Map_GetScenParam( uint16 tx, uint16 ty, uint protoId, uint8 num )
+{
+    if( num < 0 || num > 10 )
+        return -1;
+    /*
+       MapObjectVec &obj = map.Proto->SceneriesVec;
+
+       for(MapObjectVecIt it=obj.begin(); it<obj.end(); ++it)
+       {
+            if((*it)->MapX!=tx || (*it)->MapY!=ty || (*it)->ProtoId!=protoId) continue;
+            return (*it)->MScenery.Param[num];
+       }*/
+
+    uint    width = FOnline->ClientMapWidth;
+    Field   field = FOnline->ClientMap[ ty * width + tx ];
+
+    ItemVec items = field.Items;
+
+    for( ItemVecIt it = items.begin(); it < items.end(); ++it )
+    {
+        const ProtoItem* proto = ( *it )->Proto;
+        if( proto->ProtoId != protoId || ( *it )->Accessory != 2 )
+            continue;                                                            // 2 == ACCESSORY_HEX
+
+        // Map @ map = GetMap((*it)->ACC_HEX.MapId);
+        return proto->StartValue[ num ];
+        //		Data.ScriptValues[num];
+    }
+
+    return -1;
+}
+
+EXPORT uint8 Item_GetDurability( Item& item )
+{
+    return item.Data.Rate;
+}
+
+#endif // __CLIENT

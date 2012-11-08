@@ -123,11 +123,13 @@ uint testInterfaces( ManagerElement@ module )
 #define FOR_ALL          # ( x, i, from, j )                                        for( uint i = from, j = x.length(); i < j; i++ )
 
 // Get From Array, if element is Null than Continue
-#define GFANC            # ( t, x, y, i )             t@ x = y[ i ]; if( x is null ) \
+#define GFANC                                                   \
+    # ( t, x, y, i )             t@ x = y[ i ]; if( x is null ) \
         continue;
 
 // Get From Array, if element is Null or Link is null than Continue
-#define GFANCL           # ( t, x, y, i, l )         t@ x = y[ i ]; if( (x is null) or ( x.l is null ) ) \
+#define GFANCL                                                                      \
+    # ( t, x, y, i, l )         t@ x = y[ i ]; if( (x is null) or ( x.l is null ) ) \
         continue;
 
 uint adding_errors = 0;
@@ -449,8 +451,10 @@ void manager_critter_respawn( Critter& cr )
 
 void manager_map_critter_in( Map& map, Critter& cr )
 {
-    if( cr.IsPlayer() )
-        Log( cr.Id + " map in" );
+    if( cr.IsPlayer() && cr.GetAccess() < ACCESS_MODER )
+    {
+        cr.TimeoutBase[ TO_TRANSFER ] = __FullSecond + ( 15 * __TimeMultiplier );                                            /*Log(cr.Id+" map in");*/
+    }
     FOR_ALL( modules, i, 1, j )
     {
         GFANCL( ManagerElement, module, modules, i, Link );
@@ -466,140 +470,139 @@ void manager_map_critter_in( Map& map, Critter& cr )
 
 void manager_map_critter_out( Map& map, Critter& cr )
 {
-    if( cr.IsPlayer() )
-        Log( cr.Id + " map out" );
-    FOR_ALL( modules, i, 1, j )
-    {
-        GFANCL( ManagerElement, module, modules, i, Link );
-
-        if( FLAG( module.EventFlags, MANAGER_EVENT_MAP_CRITTER_OUT ) )
+    if( cr.IsPlayer() )   /*Log(cr.Id+" map out");*/
+        FOR_ALL( modules, i, 1, j )
         {
-            iManager_map_critter_out@ p = cast< iManager_map_critter_out >( module.Link );
-            if( !p.global_map_critter_out( map, cr ) )
-                break;
+            GFANCL( ManagerElement, module, modules, i, Link );
+
+            if( FLAG( module.EventFlags, MANAGER_EVENT_MAP_CRITTER_OUT ) )
+            {
+                iManager_map_critter_out@ p = cast< iManager_map_critter_out >( module.Link );
+                if( !p.global_map_critter_out( map, cr ) )
+                    break;
+            }
         }
-    }
-}
+        }
 
-void manager_world_save()
-{
-    FOR_ALL( modules, i, 1, j )
-    {
-        GFANCL( ManagerElement, module, modules, i, Link );
-
-        if( FLAG( module.EventFlags, MANAGER_EVENT_WORLD_SAVE ) )
+        void manager_world_save()
         {
-            iManager_world_save@ p = cast< iManager_world_save >( module.Link );
-            if( !p.global_world_save() )
-                break;
+            FOR_ALL( modules, i, 1, j )
+            {
+                GFANCL( ManagerElement, module, modules, i, Link );
+
+                if( FLAG( module.EventFlags, MANAGER_EVENT_WORLD_SAVE ) )
+                {
+                    iManager_world_save@ p = cast< iManager_world_save >( module.Link );
+                    if( !p.global_world_save() )
+                        break;
+                }
+            }
         }
-    }
-}
 
-bool manager_player_registration( uint ip, string& name, uint& textMsg, uint& strNum )
-{
-    FOR_ALL( modules, i, 1, j )
-    {
-        GFANCL( ManagerElement, module, modules, i, Link );
-
-        if( FLAG( module.EventFlags, MANAGER_EVENT_PLAYER_REGISTRATION ) )
+        bool manager_player_registration( uint ip, string& name, uint& textMsg, uint& strNum )
         {
-            iManager_player_registration@ p = cast< iManager_player_registration >( module.Link );
-            if( !p.global_player_registration( ip, name, textMsg, strNum ) )
-                return false;
+            FOR_ALL( modules, i, 1, j )
+            {
+                GFANCL( ManagerElement, module, modules, i, Link );
+
+                if( FLAG( module.EventFlags, MANAGER_EVENT_PLAYER_REGISTRATION ) )
+                {
+                    iManager_player_registration@ p = cast< iManager_player_registration >( module.Link );
+                    if( !p.global_player_registration( ip, name, textMsg, strNum ) )
+                        return false;
+                }
+            }
+
+            return true;
         }
-    }
 
-    return true;
-}
-
-bool manager_player_login( uint ip, string& name, uint id, uint& textMsg, uint& strNum )
-{
-    FOR_ALL( modules, i, 1, j )
-    {
-        GFANCL( ManagerElement, module, modules, i, Link );
-
-        if( FLAG( module.EventFlags, MANAGER_EVENT_PLAYER_LOGIN ) )
+        bool manager_player_login( uint ip, string& name, uint id, uint& textMsg, uint& strNum )
         {
-            iManager_player_login@ p = cast< iManager_player_login >( module.Link );
-            if( !p.global_player_login( ip, name, id, textMsg, strNum ) )
-                return false;
+            FOR_ALL( modules, i, 1, j )
+            {
+                GFANCL( ManagerElement, module, modules, i, Link );
+
+                if( FLAG( module.EventFlags, MANAGER_EVENT_PLAYER_LOGIN ) )
+                {
+                    iManager_player_login@ p = cast< iManager_player_login >( module.Link );
+                    if( !p.global_player_login( ip, name, id, textMsg, strNum ) )
+                        return false;
+                }
+            }
+
+            return true;
         }
-    }
-
-    return true;
-}
 
 
-uint[] OnlinePlayers;
+        uint[] OnlinePlayers;
 
 // import void SetOnline(Critter& cr, bool online) from "manager";
-void SetOnline( Critter& cr, bool online )
-{
-    bool ck = false;
-    for( uint i = 0, j = OnlinePlayers.length(); i < j; i++ )
+    void SetOnline( Critter& cr, bool online )
     {
-        if( OnlinePlayers[ i ] != cr.Id )
-            continue;
-        if( online )
+        bool ck = false;
+        for( uint i = 0, j = OnlinePlayers.length(); i < j; i++ )
         {
-            ck = true;
-            break;
-        }
-        OnlinePlayers.removeAt( i );
-        i--;
-        j--;
-    }
-
-    if( online && !ck )
-        OnlinePlayers.insertLast( cr.Id );
-}
-
-// import uint GetAllPlayers(Critter@[]& crs) from "manager";
-uint GetAllPlayers( Critter@[]& crs )
-{
-    uint len = OnlinePlayers.length();
-    uint j = crs.length();
-    crs.resize( len + j );
-    for( uint i = 0; i < len; i++ )
-    {
-        Critter @ cr = GetCritter( OnlinePlayers[ i ] );
-        if( cr is null )
-        {
+            if( OnlinePlayers[ i ] != cr.Id )
+                continue;
+            if( online )
+            {
+                ck = true;
+                break;
+            }
             OnlinePlayers.removeAt( i );
             i--;
-            len--;
-            continue;
+            j--;
         }
-        @crs[ j++ ] = cr;
+
+        if( online && !ck )
+            OnlinePlayers.insertLast( cr.Id );
     }
-    if( j < crs.length() )
-        crs.resize( j );
-    return j;
-}
+
+// import uint GetAllPlayers(Critter@[]& crs) from "manager";
+    uint GetAllPlayers( Critter@[]& crs )
+    {
+        uint len = OnlinePlayers.length();
+        uint j = crs.length();
+        crs.resize( len + j );
+        for( uint i = 0; i < len; i++ )
+        {
+            Critter @ cr = GetCritter( OnlinePlayers[ i ] );
+            if( cr is null )
+            {
+                OnlinePlayers.removeAt( i );
+                i--;
+                len--;
+                continue;
+            }
+            @crs[ j++ ] = cr;
+        }
+        if( j < crs.length() )
+            crs.resize( j );
+        return j;
+    }
 
 // import uint GetPlayers(Critter& cr, uint16 radius, bool square, Critter@[]& crs) from "manager";
-uint GetPlayers( Critter& cr, uint16 radius, bool square, Critter@[]& crs )
-{
-    return GetPlayers( cr.WorldX, cr.WorldY, radius, square, crs );
-}
+    uint GetPlayers( Critter& cr, uint16 radius, bool square, Critter@[]& crs )
+    {
+        return GetPlayers( cr.WorldX, cr.WorldY, radius, square, crs );
+    }
 
 // import uint GetPlayers(uint16 worldX, uint16 worldY, uint16 radius, bool square, Critter@[]& crs) from "manager";
-uint GetPlayers( uint16 worldX, uint16 worldY, uint16 radius, bool square, Critter@[]& crs )
-{
-    Critter@[] players;
-    uint len = GetAllPlayers( players );
-    for( uint i = 0; i < len; i++ )
+    uint GetPlayers( uint16 worldX, uint16 worldY, uint16 radius, bool square, Critter@[]& crs )
     {
-        int x = players[ i ].WorldX - worldX, y = players[ i ].WorldY - worldY;
-        if( square && ( abs( x ) > radius || abs( y ) > radius ) )
-            continue;                                              // квадартный поиск
-        else if( !square && sqrt( x * x + y * y ) > radius )
-            continue;                                              // радиальный поиск
-        else
+        Critter@[] players;
+        uint len = GetAllPlayers( players );
+        for( uint i = 0; i < len; i++ )
         {
-            crs.insertLast( players[ i ] );
+            int x = players[ i ].WorldX - worldX, y = players[ i ].WorldY - worldY;
+            if( square && ( abs( x ) > radius || abs( y ) > radius ) )
+                continue;                                          // квадартный поиск
+            else if( !square && sqrt( x * x + y * y ) > radius )
+                continue;                                          // радиальный поиск
+            else
+            {
+                crs.insertLast( players[ i ] );
+            }
         }
+        return crs.length();
     }
-    return crs.length();
-}

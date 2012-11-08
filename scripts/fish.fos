@@ -368,32 +368,36 @@ bool fishing( Critter& cr, bool aboveGround )
     else if( roll == 350 )
     {
         cr.Say( SAY_NETMSG, "Вы поймали: " + color_fish + "кастет" );
-        @catch =
-                cr.AddItem( PID_BRASS_KNUCKLES, 1 );
+        @catch
+                =
+                    cr.AddItem( PID_BRASS_KNUCKLES, 1 );
         fh = false;
         femote( cr, "выудил какую-то железку" );
     }
     else if( roll < 365 )
     {
         cr.Say( SAY_NETMSG, "Вы поймали: " + color_fish + "мусор" );
-        @catch =
-                cr.AddItem( PID_PUMP_PARTS, 1 );
+        @catch
+                =
+                    cr.AddItem( PID_CRAFT_M_JUNK, 1 );
         fh = false;
         femote( cr, "выудил мусор" );
     }
     else if( roll == 365 )
     {
         cr.Say( SAY_NETMSG, "Вы поймали: " + color_fish + "бутылку Нюка-колы" );
-        @catch =
-                cr.AddItem( PID_NUKA_COLA, 1 );
+        @catch
+                =
+                    cr.AddItem( PID_NUKA_COLA, 1 );
         fh = false;
         femote( cr, "выудил бутылку" );
     }
     else if( roll < 390 )
     {
         cr.Say( SAY_NETMSG, "Вы поймали: " + color_fish + "плотоядные водоросли" );
-        @catch =
-                cr.AddItem( PID_ALGAE, 1 );
+        @catch
+                =
+                    cr.AddItem( PID_ALGAE, 1 );
         fh = false;
         femote( cr, "выудил водоросли" );
     }
@@ -457,8 +461,9 @@ Item@ catch_fish( Critter& cr, uint8 size, int16 roll_mod )
 
     if( pull_roll + roll_mod > ( size + 1 ) * 10 )
     {
-        @catch =
-                cr.AddItem( PID_FISH_SMALLEST + size, 1 );
+        @catch
+                =
+                    cr.AddItem( PID_FISH_SMALLEST + size, 1 );
 
         if( catch is null )
             return null;

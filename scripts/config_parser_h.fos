@@ -1,7 +1,7 @@
 #ifndef __CONFIG_PARSER_H__
 #define __CONFIG_PARSER_H__
 
-interface iConfig
+shared interface iConfig
 {
     uint      GetSectionsNum();
     iSection@ GetSection( uint n );
@@ -11,14 +11,14 @@ interface iConfig
     bool Write( string& filePatch );
 }
 
-interface iSection
+shared interface iSection
 {
     string& GetName();
     iKey@   GetKey( string& title );
     iKey@   AddKey( string& t, string& v );
 }
 
-interface iKey
+shared interface iKey
 {
     string& GetTitle();
     string& GetVal();

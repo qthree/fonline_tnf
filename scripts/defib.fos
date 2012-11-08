@@ -117,12 +117,12 @@ uint process_defib( Critter@ cr, int& param0, int& param1, int& param2 )
 
     if( onCritter.Anim2Dead <= ANIM2_DEAD_BURST )
     {
-        if( onCritter.IsPlayer() )
+/*        if( onCritter.IsPlayer() )
         {
             GameVar@ act = GetLocalVar( LVAR_activationStatus, onCritter.Id );
             GameVar@ former = GetLocalVar( LVAR_former_act, onCritter.Id );
             act = former;
-        }
+        }*/
         Map@ map = onCritter.GetMap();
         if( onCritter.Anim2Dead == ANIM2_DEAD_BURST )
             cr.ParamBase[ ST_EXPERIENCE ] += 300;

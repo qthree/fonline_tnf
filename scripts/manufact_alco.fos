@@ -15,7 +15,8 @@
 // #define __DEBUG__		// Для отладки.
 
 #include "_macros.fos"
-#include "MsgStr.h"
+// #include "MsgStr.h"
+#include "_msgstr.fos"
 
 #include "manufact_alco_h.fos"
 
@@ -213,7 +214,7 @@ bool UseStill( Critter@ cr, Item@ still, int skill, Item@ item ) // Если обрабат
             timeWorking = 4;
             #endif
             // Событие завершения производства.
-            still.Val3 = CreateTimeEvent( __FullMinute + timeWorking, "e_WorkingComplete", still, true );
+            still.Val3 = CreateTimeEvent( __FullSecond + timeWorking * 60, "e_WorkingComplete", still.Id, true );
             if( still.Val3 == 0 )
             {
                 Log( "Time event WorkingComplete create fail, LastError = " + GetLastError() + "." );
@@ -257,7 +258,7 @@ bool UseStill( Critter@ cr, Item@ still, int skill, Item@ item ) // Если обрабат
         // Событие снятия модернизации.
         if( uprated )
         {
-            still.Val3 = CreateTimeEvent( __FullMinute + TimeToDownrate, "e_DownrateAtBroken", still, true );
+            still.Val3 = CreateTimeEvent( __FullSecond + TimeToDownrate * 60, "e_DownrateAtBroken", still.Id, true );
             if( still.Val3 == 0 )
                 Log( "Time event DownrateAtBroken create fail, LastError = " + GetLastError() + "." );
         }
@@ -323,7 +324,7 @@ bool UseStill( Critter@ cr, Item@ still, int skill, Item@ item ) // Если обрабат
             return true;
         }
         // Проверить наличие достаточного количества деталей.
-        if( cr.CountItem( PID_METAL_TRASH ) < METALTRASH_TOREPAIRCOUNT )
+        if( cr.CountItem( PID_CRAFT_M_BARS ) < METALTRASH_TOREPAIRCOUNT )
         {
             cr.SayMsg( SAY_NETMSG, TEXTMSG_TEXT, 1520 );
             return true;
@@ -351,7 +352,7 @@ bool UseStill( Critter@ cr, Item@ still, int skill, Item@ item ) // Если обрабат
                 Log( "ChgCond return FALSE." );
                 return false;
             }
-            if( not cr.DeleteItem( PID_METAL_TRASH, METALTRASH_TOREPAIRCOUNT ) )
+            if( not cr.DeleteItem( PID_CRAFT_M_BARS, METALTRASH_TOREPAIRCOUNT ) )
                 Log( "DeleteItem fail." );
             cr.TimeoutBase[ TO_SK_REPAIR ] = REPAIR_TIMEOUT( cr );
             cr.SayMsg( SAY_NETMSG, TEXTMSG_TEXT, 1522 );
@@ -385,7 +386,7 @@ bool UseStill( Critter@ cr, Item@ still, int skill, Item@ item ) // Если обрабат
             return true;
         }
         // Ремонт не удался.
-        if( not cr.DeleteItem( PID_METAL_TRASH, Random( 1, METALTRASH_REPAIRFAILCOUNT ) ) )
+        if( not cr.DeleteItem( PID_CRAFT_M_BARS, Random( 1, METALTRASH_REPAIRFAILCOUNT ) ) )
             Log( "DeleteItem fail." );
         cr.TimeoutBase[ TO_SK_REPAIR ] = REPAIR_TIMEOUT( cr );
         cr.SayMsg( SAY_NETMSG, TEXTMSG_TEXT, 1523 );
@@ -636,7 +637,7 @@ bool ChkParam( Item@ still ) // Если значения некорректны - FALSE.
         {
             ok = false;
             Log( "Event for STILL_BROKEN is not exist." );
-            still.Val3 = CreateTimeEvent( __FullMinute + TIME_DOWNRATE_ATBROKEN * 24 * 60, "e_DownrateAtBroken", still, true );
+            still.Val3 = CreateTimeEvent( __FullSecond + TIME_DOWNRATE_ATBROKEN * 24 * 60 * 60, "e_DownrateAtBroken", still.Id, true );
             if( still.Val3 == 0 )
             {
                 Log( "Time event DownrateAtBroken create fail, LastError = " + GetLastError() + "." );
@@ -671,7 +672,7 @@ bool ChkParam( Item@ still ) // Если значения некорректны - FALSE.
         {
             ok = false;
             Log( "Event for STILL_BROKEN is not exist." );
-            still.Val3 = CreateTimeEvent( __FullMinute + TIME_DOWNRATE_ATBROKEN * 24 * 60, "e_DownrateAtBroken", still, true );
+            still.Val3 = CreateTimeEvent( __FullSecond + TIME_DOWNRATE_ATBROKEN * 24 * 60 * 60, "e_DownrateAtBroken", still.Id, true );
             if( still.Val3 == 0 )
             {
                 Log( "Time event DownrateAtBroken create fail, LastError = " + GetLastError() + "." );
@@ -750,7 +751,7 @@ bool ChkParam( Item@ still ) // Если значения некорректны - FALSE.
         {
             ok = false;
             Log( "Event for STILL_B_ACTIVE is not exist." );
-            still.Val3 = CreateTimeEvent( __FullMinute + TIME_WORKING_B + 1, "e_WorkingComplete", still, true );
+            still.Val3 = CreateTimeEvent( __FullSecond + TIME_WORKING_B * 60 + 1, "e_WorkingComplete", still.Id, true );
             if( still.Val3 == 0 )
             {
                 Log( "Time event WorkingComplete create fail, LastError = " + GetLastError() + "." );
@@ -777,7 +778,7 @@ bool ChkParam( Item@ still ) // Если значения некорректны - FALSE.
         {
             ok = false;
             Log( "Event for STILL_S_ACTIVE is not exist." );
-            still.Val3 = CreateTimeEvent( __FullMinute + TIME_WORKING_S + 1, "e_WorkingComplete", still, true );
+            still.Val3 = CreateTimeEvent( __FullSecond + TIME_WORKING_S * 60 + 1, "e_WorkingComplete", still.Id, true );
             if( still.Val3 == 0 )
             {
                 Log( "Time event WorkingComplete create fail, LastError = , " + GetLastError() + "." );

@@ -1,0 +1,827 @@
+// pm
+// login screen (character select)
+
+#include "_client_defines.fos"
+#include "client_gui_h.fos"
+#include "_colors.fos"
+
+//#include "serializator.fos"
+
+#define LOGIN_INPUTBOX_NAME_INDEX     (0)
+#define LOGIN_INPUTBOX_PASS_INDEX     (1)
+
+#define LOGIN_SCREEN_BTN_ENTER          (0)
+#define LOGIN_SCREEN_BTN_REG            (1)
+#define LOGIN_SCREEN_BTN_EXIT           (2)
+#define LOGIN_SCREEN_BTN_REGSHOW        (3)
+
+#define CHARLIST_LENGTH               (5)
+
+import bool ProcessKey( uint8 key, string& text, uint8& letter ) from "client_gui";
+
+CLoginScreen@     outLoginScreen;
+CLoginInputBox@[] inputBoxs;
+CLoginButton@     loginBtn;
+
+string@[]@ uname;   //in login menu player view name
+string@[]@ upass;   //password
+string@[]@ ureal;   //player login
+
+uint forumId = uint(-1);
+
+class CLoginButton : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+
+    IGUIElementOpt@ Options;
+
+    void OnMouseClick(int click){
+            CheckLogin();
+    }
+
+    void OnInit(){
+            //IGUIElementOpt
+            //@loginBtn = this;
+            @Options = GUI_GetElementOptions();
+    }
+
+    void Release(){
+            Options.Realese();
+    }
+
+    void CheckLogin(){
+    MysqlInit();
+            if(MysqlConnect()){
+                if(MysqlSelectDb() == 0){
+                        string login = inputBoxs[LOGIN_INPUTBOX_NAME_INDEX].GetText(), password = inputBoxs[LOGIN_INPUTBOX_PASS_INDEX].GetText();
+
+                        if(login == "" || password == "") {Message("Null length login or password");return;}
+
+                        int r = MysqlCheckLogin(login, password);
+
+                        if(r < 0){
+                            string error = "";
+                            MysqlError(error);
+                            Message("error "+error+" ext code "+r);
+                        }else{
+                            //Message("login exist. id "+r);
+
+
+
+                            forumId = r;
+
+                            if(GetChars(r) <= 0){
+                                    uname.resize(0);
+                                    upass.resize(0);
+                                    ureal.resize(0);
+                            }
+                            //Message("login13");
+                            ::ShowScreen(CLIENT_SCREEN_LOGIN_TNF, 0, 0, 0);
+                        }
+                    }
+                    MysqlClose();
+            }else{
+                    Message("sql connect error");
+            }
+    }
+
+    int GetChars(/*string& names, string& pass, */int r){
+
+                            string namesView = "", pass = "", namesReal = "";
+
+                            //int rP = MysqlGetCharsPass(uint(r), pass), rN = MysqlGetCharsName(uint(r), names);
+                            int rP = MysqlGetAccountChars(uint(r), namesView, namesReal, pass);
+                            if(rP < 0){
+                                string error = "";
+                                MysqlError(error);
+                                Message("error "+error+" ext code "+rP);//+" ext msg "+namesView);
+                            }else{
+
+                                @uname = split( namesView, "&" );
+                                @upass = split( pass, "&" );
+                                @ureal = split( namesReal, "&");
+
+                                if(uname.length() != upass.length() || upass.length() != ureal.length() || uname.length() != ureal.length()) {Message("array length error"); return -1;}
+
+                                for(uint8 i = 0, j = uname.length(); i < j; ++i){
+                                        string name = "names : "+uname[i]+" len " + uname[i].length() + " | login : "+ureal[i]+" len " + ureal[i].length() + " | pass : "+upass[i]+" len " + upass[i].length();
+
+                                        Message("name "+name);
+
+                                }
+                            }
+
+                            return rP;
+    }
+}
+
+class CRegButton : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+        IGUIElementOpt@ Options;
+        CLoginScreen@ Instance;
+
+        CRegButton(CLoginScreen& instance){
+                @Instance = instance;
+        }
+
+        void OnInit(){
+            @Options = GUI_GetElementOptions();
+        }
+
+        void OnMouseClick(int click){
+            NetLogin(3, "test_guy", "test");
+        }
+}
+//265
+class CLoginInputBox :  IGUIElementCallbackMouseClick, IGUIElementCallbackInit, IGUIElementCallbackKeyPress
+{
+    bool Mode;
+    bool Active;
+
+    string Text;
+
+    IGUIElementOpt@ Options;
+
+    CLoginInputBox(bool mode){
+            Mode = mode;
+    }
+
+    void OnMouseClick(int click){
+
+        //SetActive();
+        SwitchState();
+
+        if(Mode){
+        }else{
+        }
+    }
+
+    void OnInit(){
+        @Options = GUI_GetElementOptions();
+
+        uint8 index = (Mode?LOGIN_INPUTBOX_PASS_INDEX:LOGIN_INPUTBOX_NAME_INDEX);
+
+        @inputBoxs[index] = this;
+
+        if(index == LOGIN_INPUTBOX_NAME_INDEX){
+                //SetActive();
+                //State();
+                Active = true;
+                //SwitchState();
+        }else{Active = false;}
+    }
+
+    void OnKeyPress( uint8 key, uint8 letter ){
+        if(letter == 'a'){Message("TEST!");}
+    }
+
+    bool KeyPress(uint8 key){
+           return true;//Options.KeyPress(key);
+    }
+
+    void SetText(string text){
+            Options.Text(text,FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+    }
+
+    string GetText(){
+           return Options.GetText();
+    }
+
+    void TextAdd(uint8 letter){
+            string text = Options.GetText();
+
+            //text.insertLast(letter);
+
+            StrInsLast(text, letter);
+            Options.Text(text,FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+    }
+
+    void TextRm(){
+
+            string text = Options.GetText();
+            if(text.length() > 0){
+
+                //text.removeLast();
+                StrRmLast(text);
+                Options.Text(text,FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+            }
+    }
+
+    void StrInsLast(string& str, uint8 letter){
+            uint len = str.length();
+            str.resize(len+1);
+            str[len] = letter;
+
+    }
+
+    void StrRmLast(string& str){
+            uint len = str.length()-1;
+            if(len >= 0) str.resize(len);
+    }
+
+    void SetActive(){
+           Active = !Active;
+    }
+
+    void State(){
+            Options.Switch(Active);
+    }
+
+    void SwitchState(){
+        SetActive();
+        State();
+
+        uint8 index = (!Mode?LOGIN_INPUTBOX_PASS_INDEX:LOGIN_INPUTBOX_NAME_INDEX);
+        inputBoxs[index].SetActive();
+        inputBoxs[index].State();
+        //inputBoxs[index].SwitchState();
+
+    }
+}
+
+class CLoginScreenButton : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+
+    uint8 Mode;
+    CLoginScreen@ Instance;
+    IGUIElementOpt@ Options;
+
+    CLoginScreenButton(CLoginScreen& instance, uint8 mode){
+            @Instance = instance;
+            Mode = mode;
+    }
+
+    void OnMouseClick(int click){
+
+        string name = "", pass = "";
+        Instance.UserDataGet(name, pass);
+
+        if(Mode == LOGIN_SCREEN_BTN_ENTER){
+                //in-game login actions
+                if(name.length() <= 0 || pass.length() <= 0) return;
+
+                NetLogin(2, name, pass);
+        }else if(Mode == LOGIN_SCREEN_BTN_REG){
+                //register
+                //if(name.length() <= 0 || pass.length() <= 0) return;
+
+                if(forumId == uint(-1)) {Message("wrong forum id. contact with developer"); return;}
+
+                name = Instance.CharCreateInput.GetText();
+                if(name == "") {Message("null char name"); return;}
+
+                if(CheckCharName(name)){
+
+                    string rName = (name+""+Random(1000,9999));
+
+                    if(MysqlInsertCharData(forumId, rName, name, "test") == 0){
+                            NetLogin(3, name, "test");
+                    }else{
+                            string error = "";
+                            MysqlError(error);
+                            Message("char create error : "+error+"\n"+rName);
+                    }
+                }
+        }else if(Mode == LOGIN_SCREEN_BTN_EXIT){
+                if(Instance.IsRegActive()){
+                        ShowReg();
+                }else{
+                        ::HideScreen(CLIENT_SCREEN_LOGIN_TNF, 0, 0, 0);
+                }
+        }else if(Mode == LOGIN_SCREEN_BTN_REGSHOW){
+                ShowReg();
+        }
+    }
+
+    void OnInit(){
+            @Options = GUI_GetElementOptions();
+    }
+
+    bool CheckCharName(string name){
+
+            if(MysqlConnect()){
+                if(MysqlSelectDb() == 0){
+
+                        int r = MysqlCheckCharName(name);
+
+                        Message("r = "+r);
+
+                        if(r != 0){
+                            /*string error = "";
+                            MysqlError(error);
+                            Message("error "+error+" ext code "+r);*/
+                            Message("char exist. enter new name");
+                        }else{
+
+                            return true;
+                        }
+                }
+
+                MysqlClose();
+            }else{
+                    Message("sql connect error");
+            }
+
+        return false;
+    }
+
+    void Visible(){
+        Options.SetVisible(!Options.GetVisible());
+    }
+
+    void ShowReg(){
+        Instance.CharCreatePic.Visible();
+        Instance.CharCreateInput.Visible();
+        Instance.LoginBtn[LOGIN_SCREEN_BTN_REGSHOW].Visible();
+        Instance.LoginBtn[LOGIN_SCREEN_BTN_REG].Visible();
+    }
+}
+
+class CLoginScreenDropBox : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+        //string[] names, pass;
+        IGUIElementOpt@ Options;
+
+        CLoginScreenDropBox(){
+        }
+
+        void OnMouseClick(int click){
+        }
+
+        void OnInit(){
+                @Options = GUI_GetElementOptions();
+
+                //names = uname;
+                //pass = upass;
+        }
+
+
+}
+
+class CLoginScreenCharListElement : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+        uint8           Index;
+
+        IGUIElementOpt@ Options;
+        CLoginScreen@   Instance;
+
+        CLoginScreenCharListElement(CLoginScreen& instance, uint8 index){
+                @Instance = instance;
+
+                Index = index;
+
+                @Instance.CharList.Elements[Index] = this;
+        }
+
+        void OnMouseClick(int click){
+                if(Index < ureal.length()){
+
+                        string name = ureal[Index], pass = upass[Index];
+
+                        /*if(name[name.length()-1] == '\n'){        //deprecated
+                            name.resize(name.length()-1);
+                            Message("delete \n");
+                        }*/
+
+                        Instance.UserDataSet(name, pass);
+                }
+        }
+
+        void OnInit(){
+                @Options = GUI_GetElementOptions();
+
+                //names = uname;
+                //pass = upass;
+
+                if(uname.length() != upass.length() || upass.length() != ureal.length() || uname.length() != ureal.length()) {Message("array length error"); return;}
+
+                if(Index < uname.length() && uname[Index] != ""){
+                        Text(uname[Index]);
+                        //Message(ureal[Index]);
+                }
+        }
+
+        void Text(string text){
+                Options.Text(""+text, FONT_FALLOUT, COLOR_LRED, COLOR_DRED, FT_CENTERX | FT_CENTERY | FT_NOBREAK );
+
+        }
+
+
+}
+
+
+class CLoginScreenCharList : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+        IGUIElementOpt@ Options;
+        CLoginScreenCharListElement@[] Elements;
+        CLoginScreen@   Instance;
+
+        CLoginScreenCharList(CLoginScreen& instance){
+                @Instance = instance;
+                @Instance.CharList = this;
+
+                Elements.resize(CHARLIST_LENGTH);
+        }
+
+        void OnMouseClick(int click){
+        }
+
+        void OnInit(){
+                @Options = GUI_GetElementOptions();
+
+                //names = uname;
+                //pass = upass;
+        }
+
+
+}
+
+class CLoginScreenCharSetlectBtn : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+        uint8 Index;
+
+        CLoginScreenCharSetlectBtn(uint8 index){
+                Index = index;
+        }
+
+        void OnMouseClick(int click){
+        }
+
+        void OnInit(){
+        }
+}
+
+class CLoginScreenCharCreateInput : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+        CLoginScreen@   Instance;
+        IGUIElementOpt@ Options;
+
+        CLoginScreenCharCreateInput(CLoginScreen& instance){
+                @Instance = instance;
+                @Instance.CharCreateInput = this;
+        }//453-617
+
+        void OnMouseClick(int click){
+        }
+
+        void OnInit(){
+            @Options = GUI_GetElementOptions();
+        }
+
+        void SetText(string text){
+            Options.Text(text,FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+        }
+
+        string GetText(){
+           return Options.GetText();
+        }
+
+        void TextAdd(uint8 letter){
+            string text = Options.GetText();
+
+            //text.insertLast(letter);
+
+            StrInsLast(text, letter);
+            Options.Text(text,FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+        }
+
+        void TextRm(){
+
+            string text = Options.GetText();
+            if(text.length() > 0){
+
+                //text.removeLast();
+                StrRmLast(text);
+                Options.Text(text,FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+            }
+        }
+
+        void StrInsLast(string& str, uint8 letter){
+            uint len = str.length();
+            str.resize(len+1);
+            str[len] = letter;
+
+        }
+
+        void StrRmLast(string& str){
+            uint len = str.length()-1;
+            if(len >= 0) str.resize(len);
+        }
+
+        void Visible(){
+            Options.SetVisible(!Options.GetVisible());
+        }
+}
+
+class CLoginScreenCharCreatePic : IGUIElementCallbackInit
+{
+        CLoginScreen@  Instance;
+        IGUIElementOpt@ Options;
+
+        CLoginScreenCharCreatePic(CLoginScreen& instance){
+                @Instance = instance;
+                @Instance.CharCreatePic = this;
+        }
+
+        void OnInit(){
+                @Options = GUI_GetElementOptions();
+        }
+
+        void Visible(){
+            Options.SetVisible(!Options.GetVisible());
+        }
+}
+
+
+class CLoginScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScreenCallbackMove, /*IGUIElementCallbackInit,*/ IGUIElementCallbackKeyPress
+{
+
+    string UserName;
+    string UserPass;
+
+    IGUIScreenOpt@  ScreenOpt;
+    IGUIElementOpt@ InputBoxOpt;
+
+    CLoginScreenCharList@ CharList;
+    CLoginScreenCharCreateInput@ CharCreateInput;
+    CLoginScreenCharCreatePic@   CharCreatePic;
+    CLoginScreenButton@[]        LoginBtn;
+
+    void OnShow( int p0, int p1, int p2 )
+    {
+        //::Message( "OnShow " + p0 + " " + p1 + " " + p2 + "." );
+        @ScreenOpt = GUI_GetScreenOptions();
+        @outLoginScreen = this;
+    }
+
+    void OnHide( int p0, int p1, int p2 )
+    {
+        forumId = uint(-1);
+        //::Message( "OnHide " + p0 + " " + p1 + " " + p2 + "." + "\nforumId "+forumId);
+    }
+
+    void OnMove( int posX, int posY )
+    {
+        ::Message( "OnMove posX " + posX + " posY " + posY );
+        ::Message( "equal posX " + ScreenOpt.GetPosX() + " posY " + ScreenOpt.GetPosY() );
+    }
+/*
+    void OnInit()
+    {
+        @InputBoxOpt = GUI_GetElementOptions();
+    }
+*/
+    void OnKeyPress( uint8 key, uint8 letter )
+    {
+        string letter_ = " ";
+        letter_[ 0 ] = ( letter != 0 ? letter : '?' );
+        //::Message( "OnKeyPress key code " + key + " letter " + letter_ + "." );
+    }
+
+    void UserDataGet(string& name, string& pass){
+            name = UserName;
+            pass = UserPass;
+    }
+
+    void UserDataSet(string name, string pass){
+            UserName = name;
+            UserPass = pass;
+    }
+
+    bool IsRegActive(){
+            //return (CharCreateInput.Options.GetVisible() && CharCreatePic.Options.GetVisible() && LoginBtn[LoginBtn.length()-1].Options.GetVisible());
+            Message("reg active "+CharCreateInput.Options.GetVisible() + " " + CharCreatePic.Options.GetVisible());
+            return (CharCreateInput.Options.GetVisible() && CharCreatePic.Options.GetVisible());
+    }
+}
+/*      show code to Tim_i_on ^_^
+class CCharShowStatAdditional : IGUIElementCallbackInit, IGUIElementCallbackDraw
+{
+        int iXpos = 0, iYpos = 0;
+        IGUIElemntOpt@ Options;
+
+        CCharShowStatAdditional(){
+        }
+
+        void OnInit(){
+                @Options = GUI_GetElementOptions();
+
+                iXpos = Options.GetPosX();
+                iYpos = Options.GetPosY();
+        }
+
+        void OnDraw(){
+
+                uint16 uYoff = 0;
+
+                CritterCl@  crChoo = GetChosen();
+                if(crChoo is null) return;
+
+                for(uint8 i = 0; i < 18; ++i){
+                        //int iX = iXpos, iY = iYpos;
+
+                        DrawText( ""+crChoo.StatBase[200+i], iXpos, iYpos + iYoff, 50, 200, COLOR_RED, FONT_FALLOUT, 0 );
+
+                        iYoff += 10;
+                }
+        }
+}
+
+void InitTestScreen(){
+
+        CCharShowStatAdditional testElement;
+        GUI_AddScreenElement( CLIENT_SCREEN_CHARACTER, "bigredup.frm", 150, 80 )
+        .CallbackInit(testElement)
+        .CallbackDraw(testElement);
+
+}
+
+*/
+
+void InitLoginScreen()
+{
+
+    inputBoxs.resize(2);
+
+    CLoginButton LoginButton;
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_LOGIN, "ebut_out.frm", 150, 80 )
+        .CallbackMouseClick( LoginButton )
+        .DownPic( "ebut_in.frm" );
+
+    CLoginInputBox LoginInputName(false);
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_LOGIN, "loginscreen_input_up.png", 120, 40 )
+        .CallbackMouseClick( LoginInputName )
+        .CallbackInit(LoginInputName)
+        .DownPic( "loginscreen_input_dn.png" );
+
+    CLoginInputBox LoginInputPass(true);
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_LOGIN, "loginscreen_input_up.png", 120, 60 )
+        .CallbackMouseClick( LoginInputPass )
+        .CallbackInit(LoginInputPass)
+        .DownPic( "loginscreen_input_dn.png" );
+
+    CLoginScreen LoginScreen;
+    GUI_CreateScreen( CLIENT_SCREEN_LOGIN_TNF, "loginscreen_main.png" )
+        .CallbackShow( LoginScreen )
+        .CallbackHide( LoginScreen )
+        //.CallbackMove( LoginScreen )
+        .CanMove( false )
+        // .Position(155,111)
+        .Modal( false )
+        .Multiinstance( true );
+
+    //LoginInputName.SwitchState();
+
+    CLoginScreenCharList LoginCharList(LoginScreen);
+    GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "loginscreen_charlist.png", 115, 60 )
+            //.CallbackMouseClick(LoginCharList )
+            .CallbackInit(LoginCharList);
+            //.DownPic( "loginscreen_input_dn.png" );
+
+    uint16 offsetY = 0;
+
+    for(uint8 i = 0; i < CHARLIST_LENGTH; ++i){
+
+            CLoginScreenCharListElement LoginCharListElement(LoginScreen, i);
+            GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "loginscreen_input_up.png", 120, 60+offsetY )
+                    .CallbackMouseClick(LoginCharListElement )
+                    .CallbackInit(LoginCharListElement)
+                    .DownPic( "loginscreen_input_dn.png" );
+
+            offsetY += 16;
+    }
+
+
+    CLoginScreenButton LoginScreenEnter(LoginScreen, LOGIN_SCREEN_BTN_ENTER);
+    GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "bigredup.frm", 120, 160 )
+            .CallbackMouseClick(LoginScreenEnter )
+            .CallbackInit(LoginScreenEnter)
+            .DownPic( "bigreddn.frm" );
+
+    CLoginScreenButton LoginScreenExit(LoginScreen, LOGIN_SCREEN_BTN_EXIT);
+    GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "bigredup.frm", 180, 160 )
+            .CallbackMouseClick(LoginScreenExit)
+            .CallbackInit(LoginScreenExit)
+            .DownPic( "bigreddn.frm" );
+
+    CLoginScreenButton LoginScreenShReg(LoginScreen, LOGIN_SCREEN_BTN_REGSHOW);  //register window show button
+    GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "bigredup.frm", 150, 180 )
+            .CallbackMouseClick(LoginScreenShReg)
+            .CallbackInit(LoginScreenShReg)
+            .DownPic( "bigreddn.frm" );
+
+
+    CLoginScreenCharCreatePic LoginCharCreatePic(LoginScreen);
+    GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "loginscreen_charlist.png", 115, 60 )
+        //.CallbackMouseClick( LoginInputPass )
+        .SetVisible(false)
+        .CallbackInit(LoginCharCreatePic);
+        //.DownPic( "loginscreen_input_dn.png" );
+
+    CLoginScreenCharCreateInput LoginCharCreate(LoginScreen);
+    GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "loginscreen_input_dn.png", 120, 65 )
+            .CallbackMouseClick(LoginCharCreate)
+            .CallbackInit(LoginCharCreate)
+            .SetVisible(false);
+
+
+
+
+    CLoginScreenButton LoginScreenHdReg(LoginScreen, LOGIN_SCREEN_BTN_REGSHOW);  //register window hide button
+    GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "bigredup.frm", 150, 200 )
+            .CallbackMouseClick(LoginScreenHdReg)
+            .CallbackInit(LoginScreenHdReg)
+            .SetVisible(false)
+            .DownPic( "bigreddn.frm" );
+
+    CLoginScreenButton LoginScreenReg(LoginScreen, LOGIN_SCREEN_BTN_REG);       //in game register btn
+    GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "bigredup.frm", 150, 120 )
+            .CallbackMouseClick(LoginScreenReg )
+            .CallbackInit(LoginScreenReg)
+            .SetVisible(false)
+            .DownPic( "bigreddn.frm" );
+
+
+    LoginScreen.LoginBtn.insertLast(LoginScreenEnter);
+    LoginScreen.LoginBtn.insertLast(LoginScreenReg);
+    LoginScreen.LoginBtn.insertLast(LoginScreenExit);
+    LoginScreen.LoginBtn.insertLast(LoginScreenShReg);
+    LoginScreen.LoginBtn.insertLast(LoginScreenHdReg);
+
+
+
+/*
+    CRegButton regButton();
+    GUI_AddScreenElement( CLIENT_SCREEN_LOGIN_TNF, "ebut_out.frm", 150, 80 )
+        .CallbackMouseClick( regButton )
+        .CallbackInit(regButton)
+        .DownPic( "ebut_in.frm" );
+
+    CRegButton regButton1();
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_REGISTRATION, "ebut_out.frm", 150, 80 )
+        .CallbackMouseClick( regButton1 )
+        .CallbackInit(regButton1)
+        .DownPic( "ebut_in.frm" );
+
+
+
+    LoginScreenButton buttonExit;
+    GUI_AddScreenElement( CLIENT_SCREEN_TEST, "ebut_out.frm", 10, 200 )
+        .CallbackMouseClick( buttonExit )
+        .DownPic( "ebut_in.frm" );
+
+    LoginScreenButton2 buttonAction;
+    GUI_AddScreenElement( CLIENT_SCREEN_TEST, "ageoff.frm", 70, 50 )
+        .CallbackMouseClick( buttonAction )
+        .DownPic( "ageon.frm" )
+        .Text( "action", FONT_FALLOUT, COLOR_LRED, COLOR_DRED, FT_CENTERX | FT_CENTERY | FT_NOBREAK );
+
+    GUI_AddScreenElement( CLIENT_SCREEN_TEST, "charwin.frm", 170, 60 )
+    .CallbackInit( LoginScreen )
+    .CallbackKeyPress( LoginScreen )
+    .Text( "type here", FONT_FALLOUT, COLOR_DGREEN, COLOR_RED, FT_CENTERX | FT_CENTERY )
+    .TextInput( true, 50, COLOR_LGREEN );*/
+}
+
+//EXPORT
+
+
+void LoginSetText(uint8 key, uint8 letter){               //export to cient_gui.fos -> screen_key_press
+
+        uint8 index = (inputBoxs[LOGIN_INPUTBOX_NAME_INDEX].Active ? LOGIN_INPUTBOX_NAME_INDEX : LOGIN_INPUTBOX_PASS_INDEX);
+        /*if(key != DIK_BACK){
+            inputBoxs[index].TextAdd(letter);
+        }else{
+            inputBoxs[index].TextRm();
+        }*/
+        uint8 testLetter = 0;
+        string text = inputBoxs[index].GetText();
+        ProcessKey(key, text, testLetter);
+        inputBoxs[index].SetText(text);
+        //inputBoxs[index].KeyPress(key);
+}
+
+void LoginTabPress(){
+        uint8 index = (inputBoxs[LOGIN_INPUTBOX_NAME_INDEX].Active ? LOGIN_INPUTBOX_NAME_INDEX : LOGIN_INPUTBOX_PASS_INDEX);
+
+        inputBoxs[index].SwitchState();
+}
+
+void LoginEnterPress(){
+        if(!(loginBtn is null)){
+                loginBtn.Release();
+        }
+}
+
+void LoginInputCharName(uint8 key, uint8 letter){               //export to cient_gui.fos -> screen_key_press
+    if(outLoginScreen is null) Message("null out screen");
+    Message(""+key+" "+letter);
+
+    uint8 testLetter = 0;
+    string text = outLoginScreen.CharCreateInput.GetText();
+    ProcessKey(key, text, testLetter);
+    outLoginScreen.CharCreateInput.SetText(text);
+}
+
+bool LoginIsRegActive(){
+    return (outLoginScreen !is null && outLoginScreen.IsRegActive());
+}

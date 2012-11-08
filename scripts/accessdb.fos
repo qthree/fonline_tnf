@@ -1,0 +1,497 @@
+//access database script
+//pm
+
+/*
+ * format :
+ * Name:Pass:Acce
+ */
+
+#include "_global_events.fos"
+
+#include "_defines.fos"
+#include "_macros.fos"
+
+#define ACCESS_DB_PATH		(".\\")
+#define ACCESS_DB_NAME		("access.db")
+
+#define ACCESS_DB_TEST		(":")
+#define ACCESS_DB_EOL		("\n")
+
+AccessDB AccountDataBase;
+AccessDbManager accessdbManager;
+
+void AccountDataBaseInit(){
+	AccountDataBase.DbLoad();
+}
+
+void AccountDataBaseMaster(){
+	AccountDataBase.DbAccountAdd("master", "master", 3);
+}
+
+void AccountDataBaseCheck(string accountPass){
+	AccountDataBase.DbAccountExist(accountPass);
+}
+
+void AcconuntDataBaseAuth(Critter& cr, string accountPass){
+	AccountDataBase.DbAuthtorize(cr, accountPass);
+}
+
+
+void CritterAccessDrop(Critter& cr, uint id){
+	//Critter @ tar = GetCritter(cr.GetAccess() >= ACCESS_ADMIN ? (id != 0 ? id : cr.Id) : cr.Id);
+	Critter @ tar = GetCritter(id != 0 ? id : cr.Id);
+	if(tar is null) return;
+
+	tar.SetAccess(0);
+	testdbsetuse(tar.StatBase[ST_ACCESS_LEVEL], false);
+
+	string msg = ""+"Access droped for critter : "+tar.Id+"\naccount name : "+testdbgetaccname(tar.StatBase[ST_ACCESS_LEVEL]);
+	cr.Say(SAY_NETMSG, msg);
+	Log(msg);
+
+	tar.StatBase[ST_ACCESS_LEVEL] = 0;
+
+}
+
+void start()
+{
+    iManagerModule@  module = accessdbManager;
+    iManagerElement@ manager = manager_add_module( module, "accessdb", 100 );
+    if( manager is null )
+        return;
+
+    //manager.GetEventFlags() = 0;
+
+    //manager.GetTimeChangeCall() = 0;
+}
+
+
+class AccessDbManager : iManagerModule, iManager_loop//, iManager_critter_init
+{
+	AccessDbManager()
+	{
+		AddStartCallback( "accessdb", "start" );
+	}
+
+	bool manager_init()
+	{
+		// вызывается в порядке приоритетов
+		AccountDataBaseInit();
+		return true;
+	}
+
+	 uint global_loop()
+    {
+        return uint( -1 );
+    }
+}
+
+class AccessDB
+{
+	string[] AccountName;
+	string[] AccountPass;
+	uint8[]	 AccountAcce;
+	bool[]   AccountInUse;
+	bool[]   AccountActive;
+
+	AccessDB(){
+		DbVirtualClear();
+	}
+
+	void DbLoad(){
+		file f;
+
+		if(f.open(ACCESS_DB_PATH+ACCESS_DB_NAME, "r") != -1){
+
+			DbVirtualClear(); //clear db
+
+			while(!f.isEndOfFile()){
+				string line = "";
+				f.readLine(line);
+				//string@[] @ layer = split( word2, LINE_TOKEN );
+				if(line.length() > 0){
+					string@[]@ fields = split(line, ACCESS_DB_TEST);
+
+					if(fields.length % 4 != 0){
+						Log("Account DB !load : fields count error");
+						return;
+					}
+
+					for(uint8 i = 0, j = fields.length(); i < j; ++i){
+						if(i % 4 == 0){
+
+							int temp = 0;
+							string stemp = fields[i+2];
+
+							stemp.resize(1);
+
+							StrToInt(stemp, temp);
+							//Log("access level " + stemp + " "+ temp+" len "+stemp.length());
+
+							AccountName.insertLast(fields[i]);
+							AccountPass.insertLast(fields[i+1]);
+							AccountAcce.insertLast(uint8(temp));
+							AccountInUse.insertLast(false);
+
+							stemp = fields[i+3];
+							stemp.resize(1);
+
+							StrToInt(stemp, temp);
+
+							AccountActive.insertLast(temp > 0 ? true : false);
+
+							//Log("Account load "+AccountName[AccountName.length()-1]+" "+AccountPass[AccountPass.length()-1]+" "+AccountAcce[AccountAcce.length()-1]);
+						}
+					}
+				}
+			};
+
+			Log("Account DB load successful, accounts : "+AccountName.length());
+
+			f.close();
+		}
+	}
+
+	private bool DbSave(){
+		file f;
+
+		if(f.open(ACCESS_DB_PATH+ACCESS_DB_NAME, "w") != -1){
+			string line = "";
+			for(uint8 i = 0, j = AccountName.length(); i < j; ++i){
+				line += AccountName[i]+ACCESS_DB_TEST+AccountPass[i]+ACCESS_DB_TEST+AccountAcce[i]+/*ACCESS_DB_TEST+(AccountInUse[i] ? "1":"0")+*/ACCESS_DB_TEST+(AccountActive[i] ? "1":"0")+"\n";
+			}
+
+			f.writeString(line);
+
+			f.close();
+
+			return true;
+		}
+
+		return false;
+	}
+	void CritterAccessDrop(Critter& cr){
+
+	}
+
+	private void DbAccountInsert(string line){
+		file f;
+
+		if(DbAccountCheck(line, 1) == -1) {Log("Account exist");}
+
+		if(f.open(ACCESS_DB_PATH+ACCESS_DB_NAME, "a") != -1){
+			f.writeString(line);
+
+			f.close();
+		}else{
+			Log("error open "+ACCESS_DB_NAME);
+		}
+	}
+	/*
+	private void DbAccountInsert(string account, string pass, uint8 access){
+
+		AccountName.insertLast(account);
+		AccountPass.insertLast(pass);
+		AccountAcce.insertLast(access);
+
+		DbSave();
+	}*/
+
+ 	private int DbAccountCheck(string line, uint8 deep){
+
+		string@[]@ fields = split(line, ACCESS_DB_TEST);
+
+		for(uint8 i = 0, j = AccountName.length(); i < j; ++i){
+
+			if(AccountName[i] == fields[0]){
+				//Log("find level 0");
+				if(deep > 0) {/*Log("find level 1 "+AccountAcce[i]);*/return (AccountPass[i] == fields[1] ? i : -1);}
+					else return i;
+			}
+		}
+
+		return -1;
+	}
+
+	private bool DbAccountCheckActive(int index){
+            return (index != -1 && index < AccountActive.length() && AccountActive[index]);
+	}
+
+	private bool DbAccountCheckUse(int index){
+            if(index != -1 && index < AccountInUse.length()){
+                    return AccountInUse[index];
+            }
+            return true;
+	}
+
+	private void DbVirtualClear(){
+
+		AccountName.resize(0);
+		AccountPass.resize(0);
+		AccountAcce.resize(0);
+		AccountInUse.resize(0);
+		AccountActive.resize(0);
+	}
+
+	private string FormatAccount(string account, string pass, uint8 access/*, bool inUse, bool isActive*/){
+		return (""+account+ACCESS_DB_TEST+pass+ACCESS_DB_TEST+access+/*ACCESS_DB_TEST+inUse+ACCESS_DB_TEST+isActive+*/ACCESS_DB_EOL);
+	}
+
+	private bool DbSetAccess(Critter& cr, int index){
+		if(index != -1 && index < AccountName.length()){
+			cr.SetAccess(AccountAcce[index]);
+			cr.StatBase[ST_ACCESS_LEVEL] = index;
+			cr.Say(SAY_NETMSG, "Access changed to "+AccountAcce[index]);
+			Log("Access changed for player : "+GetPlayerName(cr.Id)+" AccessAccount : " + AccountName[index] + " AccessLevel : " + AccountAcce[index]);
+
+			AccountSetUse(index, true);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	private bool DbAccountChangePass(int index, string neWpass){
+		if(index != -1){
+			AccountPass[index] = neWpass;
+			return true;
+		}
+		return false;
+	}
+
+	string DbAccountGetName(int index){
+		if(index >= 0 && index < AccountName.length()){
+			return AccountName[index];
+		}
+
+		return "Index error.";
+	}
+
+	bool DbAuthtorize(Critter& cr, string account, string pass){
+
+		int index = DbAccountCheck(FormatAccount(account, pass, 0), 1);
+
+		/*if(!DbAccountCheckActive(index)) {
+		    cr.Say(SAY_NETMSG, "account is disabled");
+		    return false;
+		}
+		if(DbAccountCheckUse(index)){
+		    cr.Say(SAY_NETMSG, "account is already in use");
+		    return false;
+		}*/
+
+		//Log("index check "+index);
+		return DbSetAccess(cr, index);
+
+	}
+
+	bool DbAuthtorize(Critter& cr, string accountPass){
+
+		int index = DbAccountCheck(accountPass, 1);
+		/*if(!DbAccountCheckActive(index)) {
+		    cr.Say(SAY_NETMSG, "account is disabled");
+		    return false;
+		}
+		if(DbAccountCheckUse(index)){
+		    cr.Say(SAY_NETMSG, "account is already in use");
+		    return false;
+		}*/
+
+		//Log("index check "+index);
+		return DbSetAccess(cr, index);
+
+	}
+	/* deprecated
+	void DbAccountAdd(string name, string pass, uint8 access){
+		DbAccountInsert(FormatAccount(name, pass, access));
+	}*/
+
+	void DbAccountAdd(string account, string pass, uint8 access){
+
+		if(account.length() <= 0 || pass.length() <= 0) {Log("Null length account or pass"); return;}
+		access = CLAMP(access, ACCESS_CLIENT, ACCESS_ADMIN);
+
+		AccountName.insertLast(account);
+		AccountPass.insertLast(pass);
+		AccountAcce.insertLast(access);
+		AccountInUse.insertLast(false);
+		AccountActive.insertLast(true);
+
+		DbAccountInsert(FormatAccount(account, pass, access));
+	}
+	/*
+	void DbAccountAdd(string line){
+
+		if(line.length() <= 0) {Log("Null length account or pass"); return;}
+		//access = CLAMP(access, ACCESS_CLIENT, ACCESS_ADMIN);
+
+		AccountName.insertLast(account);
+		AccountPass.insertLast(pass);
+		AccountAcce.insertLast(access);
+
+		DbAccountInsert(line);
+	}*/
+
+	bool DbAccountExist(string accountPass){
+		return (DbAccountCheck(accountPass, 1) != -1);
+	}
+
+	bool DbAccountExist(string account, string pass){
+		return (DbAccountCheck(FormatAccount(account, pass, 0), 1) != -1);
+	}
+
+	void DbAccountChangePass(Critter& cr, string account, string pass, string neWpass){
+
+		int index = DbAccountCheck(FormatAccount(account, pass, 0), 1);
+		string msg = "";
+		if(DbAccountChangePass(index, neWpass)){
+			msg = "password changed";
+			DbSave();
+		}else{
+			msg = "password NOT changed";
+		}
+
+		cr.Say(SAY_NETMSG, msg);
+
+		return;
+	}
+
+	void DbAccountChangePass(Critter& cr, string line){
+
+		string@[]@ sA = split(line, ACCESS_DB_TEST);
+		if(sA.length() % 3 != 0) return;
+
+		int index = DbAccountCheck(FormatAccount(sA[0], sA[1], 0), 1);
+		string msg = "";
+		if(DbAccountChangePass(index, sA[2])){
+			msg = "password changed";
+			DbSave();
+		}else{
+			msg = "password NOT changed";
+		}
+
+		cr.Say(SAY_NETMSG, msg);
+
+		return;
+	}
+
+	void DbAccountChangePassAdmin(Critter& cr, string line){
+
+		if(cr.GetAccess() <= ACCESS_ADMIN) {cr.Say(SAY_NETMSG, "access denied."); return;}
+
+		string@[]@ sA = split(line, ACCESS_DB_TEST);
+		if(sA.length() % 2 != 0) return;
+
+		int index = DbAccountCheck(FormatAccount(sA[0], " ", 0), 1);
+		string msg = "";
+		if(DbAccountChangePass(index, sA[1])){
+			msg = "password changed";
+			DbSave();
+		}else{
+			msg = "password NOT changed";
+		}
+
+		cr.Say(SAY_NETMSG, msg);
+	}
+
+	void DbAccountChangePassAdmin(Critter& cr, string account, string neWpass){
+
+		if(cr.GetAccess() <= ACCESS_ADMIN) {cr.Say(SAY_NETMSG, "access denied."); return;}
+
+		int index = DbAccountCheck(FormatAccount(account, " ", 0), 0);
+		string msg = "";
+		if(DbAccountChangePass(index, neWpass)){
+			msg = "password changed";
+			DbSave();
+		}else{
+			msg = "password NOT changed";
+		}
+
+		cr.Say(SAY_NETMSG, msg);
+	}
+
+	void DbSave_(){
+		if(!DbSave()) Log("AccessDb SAVE error");
+	}
+
+	void DbList(Critter& cr){
+
+		for(uint8 i = 0, j = AccountName.length(); i< j; ++i){
+			string msg = "Acc : "+AccountName[i]+"\tPass "+AccountPass[i]+"\tAcce "+AccountAcce[i];
+			cr.Say(SAY_NETMSG, msg);
+		}
+
+		cr.Say(SAY_NETMSG, "accounts in base : "+AccountName.length());
+	}
+
+	void AccountSetActive(int index, bool active){
+	    if(index != -1 && index < AccountActive.length()){
+            AccountActive[index] = active;
+            DbSave();
+	    }
+	}
+
+    void AccountSetUse(int index, bool use){
+	    if(index != -1 && index < AccountInUse.length()){
+            AccountInUse[index] = use;
+	    }
+	}
+}
+
+void testdbload(Critter& cr, int, int, int){
+	AccountDataBaseInit();
+}
+
+void testdbmaster(Critter& cr, int, int, int){
+	AccountDataBaseMaster();
+}
+
+bool testdbauth(Critter& cr, string account, string pass){
+	return AccountDataBase.DbAuthtorize(cr, account+pass);
+}
+
+bool testdbauth(Critter& cr, string accountPass){
+	return AccountDataBase.DbAuthtorize(cr, accountPass);
+}
+
+void testdbchangepass(Critter& cr, string account, string pass, string neWpass){
+	AccountDataBase.DbAccountChangePass(cr, account, pass, neWpass);
+}
+
+void testdbchangepass(Critter& cr, string line){
+	AccountDataBase.DbAccountChangePass(cr, line);
+}
+
+void testdbchangepassadmin(Critter& cr, string line){
+	AccountDataBase.DbAccountChangePassAdmin(cr, line);
+}
+
+void testdbchangepassadmin(Critter& cr, string account, string neWpass){
+	AccountDataBase.DbAccountChangePassAdmin(cr, account, neWpass);
+}
+
+void testdbaccountadd(Critter& cr, string account, string pass, uint8 access){
+	AccountDataBase.DbAccountAdd(account, pass, access);
+}
+/*
+void testdbaccountadd(Critter& cr, string line){
+	AccountDataBase.DbAccountAdd(account, pass, access);
+}*/
+
+void testdblist(Critter& cr){
+	AccountDataBase.DbList(cr);
+}
+
+string testdbgetaccname(int index){		//export for logger
+	return AccountDataBase.DbAccountGetName(index);
+}
+
+void testdbsetactive(int index, bool active){
+    AccountDataBase.AccountSetActive(index, active);
+}
+
+void testdbsetuse(int index, bool use){
+    AccountDataBase.AccountSetActive(index, use);
+}
+

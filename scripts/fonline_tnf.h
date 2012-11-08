@@ -11,10 +11,6 @@
 #include "fonline.h"
 #pragma warning (pop)
 
-// AngelScript
-#include "angelscript.h"
-EXPORT extern asIScriptEngine* ASEngine;
-
 // Script global variables
 struct _GlobalVars
 {

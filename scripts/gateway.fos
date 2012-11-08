@@ -10,32 +10,46 @@ void t_EnterHex( Critter& cr, Scenery& trigger, bool entered, uint8 dir, int val
     if( cr.IsNpc() )
         return;
 
-    int ck = cr.ParamBase[ QST_GAMEMODE ];
+    int      ck = cr.ParamBase[ QST_GAMEMODE ];
 
-    if( entered && ( ( ck != GAME_ADVENTURE && ck != GAME_SURVIVAL && ck != GAME_TEST ) || cr.Karma[ KARMA_SEPARATED ] != 0 ) )
+    GameVar@ citizenship = GetLocalVar( LVAR_modoc_citizenship, cr.Id );
+    GameVar@ border_mode = GetGlobalVar( GVAR_inf_modoc_border_mode );
+    GameVar@ faction = GetLocalVar( LVAR_faction, cr.Id );
+
+    if( entered && border_mode.GetValue() != 5 && ( citizenship.GetValue() <= 1 && cr.Param[ QST_INVIS ] == 0 ||
+                                                    citizenship.GetValue() == 10 ||
+                                                    ( border_mode.GetValue() == 1 && citizenship.GetValue() <= 2 ) ||
+                                                    ( border_mode.GetValue() == 2 && citizenship.GetValue() <= 3 ) ||
+                                                    ( border_mode.GetValue() == 3 && citizenship.GetValue() <= 3 ) ||
+                                                    ( border_mode.GetValue() == 4 && ( faction.GetValue() == 0 || faction.GetValue() >= 3 ) ) ) )
     {
         // Log("нелегал");
         if( val == 5 )
         {
-            if( cr.Perk[ PE_EXPERT_EXCREMENT ] >= 3 )
+            if( border_mode.GetValue() <= 2 && citizenship.GetValue() == 1 )
             {
-                cr.Say( SAY_EMOTE_ON_HEAD, "показывает пропуск" );
-                return;
-            }
-            else if( cr.Perk[ PE_EXPERT_EXCREMENT ] >= 1 )
-            {
-                cr.PerkBase[ PE_EXPERT_EXCREMENT ] -= 1;
-                if( cr.Perk[ PE_EXPERT_EXCREMENT ] == 1 )
+                if( border_mode.GetValue() == 0 && ( cr.Dir == 0 || cr.Dir == 5 || cr.Dir == 4 ) )
+                {
                     cr.Say( SAY_EMOTE_ON_HEAD, "показывает пропуск" );
-                else
+                    return;
+                }
+                else if( cr.Dir == 1 || cr.Dir == 2 || cr.Dir == 3 )
+                {
+                    citizenship.opAssign( 0 );
                     cr.Say( SAY_EMOTE_ON_HEAD, "сдает пропуск охране" );
+                    return;
+                }
+                else
+                    AttackAndCatch( cr );
             }
+            else if( border_mode.GetValue() <= 2 && citizenship.GetValue() == 2 && ( cr.Dir == 1 || cr.Dir == 2 || cr.Dir == 3 ) )
+                return;
             else
                 AttackAndCatch( cr );
         }
         else if( val == 4 )
         {
-            if( cr.Perk[ PE_EXPERT_EXCREMENT ] >= 1 )
+            if( citizenship.GetValue() == 1 && border_mode.GetValue() == 0 )
                 return;
             // Log("кричим");
             Critter@ gu = null;
@@ -45,7 +59,7 @@ void t_EnterHex( Critter& cr, Scenery& trigger, bool entered, uint8 dir, int val
                 if( (tgu is null) || GetDistantion( cr.HexX, cr.HexY, tgu.HexX, tgu.HexY ) > 15 || !tgu.IsSee( cr ) )
                     continue;
                 @gu = tgu;
-                if( tgu.Param[ ST_DIALOG_ID ] != 330 )
+                if( tgu.Param[ ST_DIALOG_ID ] == 330 )
                     break;
             }
             if( gu is null )
@@ -90,7 +104,7 @@ void AttackAndCatch( Critter& cr )
             continue;
 
         uint len = GetDistantion( cr.HexX, cr.HexY, guard.HexX, guard.HexY );
-        if( len > 25 || !guard.IsSee( cr ) )
+        if( len > 25 || !guard.IsSee( cr ) || ( cr.GetMap().Id != guard.GetMap().Id ) )
             continue;
 
         AddAttackPlane( guard, 0, cr, -10 );
@@ -115,6 +129,8 @@ void _KoAndCatch( Critter& cr, uint anim2begin, uint anim2idle, uint anim2end, u
 
             if( (guard is null) )
                 continue;
+            if( cr.GetMap().Id != guard.GetMap().Id )
+                continue;
 
             EraseAttackPlane( guard, cr );
 
@@ -134,47 +150,61 @@ void _KoAndCatch( Critter& cr, uint anim2begin, uint anim2idle, uint anim2end, u
 bool catch( Critter& cr )
 {
 
-    Map@ map = cr.GetMap();
-
+    Map @ map = cr.GetMap();
     if( map is null )
         return false;
-
-    uint16 hexX = 0, hexY = 0;
-
-    if( !map.GetEntireCoords( 58, 0, hexX, hexY ) )
-        return false;
-
-    Item@ toCont = map.GetItem( hexX, hexY, 188 );        // ищем шкаф с pid 188 на гексе #58
-
-    if( valid( toCont ) )
+    Location @ loc = map.GetLocation();
+    if( ( loc.GetProtoId() >= 1 && loc.GetProtoId() <= 4 ) || loc.GetProtoId() == 6 )
     {
-        Item@[] items;
-        cr.GetItems( SLOT_INV, items );
-        cr.GetItems( SLOT_HAND1, items );
-        cr.GetItems( SLOT_HAND2, items );
-
-        MoveItems( items,  toCont, cr.Id ); // прячем вещички в шкаф с замком 300
+        Map @ map2 = GetLocationByPid( 5, 0 ).GetMapByIndex( 0 );
+        if( map2 is null )
+        {
+            Log( "gw map" );
+            return false;
+        }
+        bool ch = false;
+        ch = cr.TransitToMap( map2.Id, 0 );
+        return ch;
     }
-
-    uint last = map.GetData( 55 );          // в какую клетку в последний раз пихали
 
     bool ch = false;
-
-    for( uint i = 0; i < 3 && !ch; i++ ) // пробуем засунуть в одну из клеток по очереди
-    {
-        if( !map.GetEntireCoords( 55 + last, 0, hexX, hexY ) )
-            continue;
-
-        ch = cr.TransitToHex( hexX, hexY, 2 );
-
-        last += 1;
-        if( last > 2 )
-            last = 0;
-    }
-
-    map.SetData( 55, last );
-
+    ch = cr.TransitToHex( 120 + Random( -5, 5 ), 240 + Random( -5, 5 ), 2 );
+    cr.Say( SAY_NETMSG, "вас выкинули из города" );
     return ch;
+
+/*	uint16 hexX=0, hexY=0;
+
+        if(!map.GetEntireCoords (58, 0, hexX, hexY)) return false;
+
+        Item@ toCont = map.	GetItem(hexX, hexY, 188); //ищем шкаф с pid 188 на гексе #58
+
+        if(valid(toCont))
+        {
+                Item@[] items;
+                cr.GetItems(SLOT_INV,items);
+                cr.GetItems(SLOT_HAND1,items);
+                cr.GetItems(SLOT_HAND2,items);
+
+                MoveItems(items,  toCont, cr.Id); //прячем вещички в шкаф с замком 300
+        }
+
+        uint last = map.GetData(55); // в какую клетку в последний раз пихали
+
+        bool ch=false;
+
+        for(uint i=0; i<3 && !ch; i++) //пробуем засунуть в одну из клеток по очереди
+        {
+                if(!map.GetEntireCoords(55+last, 0, hexX, hexY)) continue;
+
+                ch = cr.TransitToHex(hexX, hexY, 2);
+
+                last+=1; if(last>2) last=0;
+        }
+
+        map.SetData(55, last);
+
+        return ch;
+ */
 }
 
 void addGuard( Critter& npc )

@@ -1,4 +1,4 @@
-Proto]
+[Proto]
 Pid=2049
 Type=10
 PicMapName=art\scenery\grid_exit.frm
@@ -520,6 +520,15 @@ Grid.Type=1
 Pid=4045
 Type=10
 PicMapName=art\misc\ext3grd7.frm
+PicInvName=art\inven\reserved.frm
+Flags=30
+DisableEgg=1
+Grid.Type=1
+
+[Proto]
+Pid=4046
+Type=10
+PicMapName=art\misc\ext3grd8.frm
 PicInvName=art\inven\reserved.frm
 Flags=30
 DisableEgg=1

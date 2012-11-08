@@ -33,6 +33,9 @@ import void InjureCritter( Critter& cr, uint dmg, uint dmgType, uint8 dir, uint 
 
 bool _UseCapsOnNukeMachine( Critter& player, Scenery& scenery, int skill, Item@ item )
 {
+    player.SayMsg( SAY_NETMSG, TEXTMSG_TEXT, STR_EMPTY );
+    return true;
+	
     if( !valid( item ) )
         return false;
 

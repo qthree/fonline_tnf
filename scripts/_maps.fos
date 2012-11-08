@@ -11,17 +11,57 @@
 
 // #define LOCATION_IS_OCEAN #(locPid)                 ((locPid)>=LOCATION_Den && (locPid)<=LOCATION_OceanTrader) //q tla water
 
-#define LOCATION_Lakecity                      ( 1 )
-#define LOCATION_Junkyard                      ( 2 )
-#define LOCATION_Modoc                         ( 3 )
-#define LOCATION_Bridge                        ( 5 )
-#define LOCATION_Heaven                        ( 6 )
-#define LOCATION_BanditCave                    ( 7 )
-#define LOCATION_Phoenix                       ( 8 )
-#define LOCATION_Sacramento                    ( 20 )
-#define LOCATION_StartMap                      ( 50 )
-#define LOCATION_Ghostfarm                     ( 60 )
+//Modoc
+#define LOCATION_Modoc_Rich						( 1 )
+#define LOCATION_Modoc_Admin					( 2 )
+#define LOCATION_Modoc_Mine						( 3 )
+#define LOCATION_Modoc_Slum						( 4 )
+#define LOCATION_Modoc_Center					( 5 )
+#define LOCATION_Modoc_Sawmill					( 6 )
+//approaches
+#define LOCATION_Modoc_1_1						( 7 )
+#define LOCATION_Modoc_1_2						( 8 )
+#define LOCATION_Modoc_1_3						( 9 )
+#define LOCATION_Modoc_2_1						( 10 )
+#define LOCATION_Modoc_2_2						( 11 )
+#define LOCATION_Modoc_2_3						( 12 )
 
+
+//Sutter
+#define LOCATION_Sutter_1_1						( 13 )
+#define LOCATION_Sutter_1_2						( 14 )
+#define LOCATION_Sutter_1_3						( 15 )
+#define LOCATION_Sutter_1_4						( 16 )
+#define LOCATION_Sutter_2_1						( 17 )
+#define LOCATION_Sutter_2_4						( 18 )
+#define LOCATION_Sutter_3_1						( 19 )
+#define LOCATION_Sutter_3_4						( 20 )
+#define LOCATION_Sutter_4_1						( 21 )
+#define LOCATION_Sutter_4_2						( 22 )
+#define LOCATION_Sutter_4_3						( 23 )
+#define LOCATION_Sutter_4_4						( 24 )
+#define LOCATION_Sutter_Center					( 25 )
+
+
+//Lake
+#define LOCATION_Lakecity                      ( 40 )
+
+//Phoenix
+#define LOCATION_Phoenix                       ( 41 )
+
+//Junkyard
+#define LOCATION_Junkyard                      ( 42 )
+
+
+//other
+#define LOCATION_Bridge                        ( 90 )
+#define LOCATION_Cell 	                       ( 91 )
+#define LOCATION_StartMap                      ( 92 )
+#define LOCATION_Dream		                   ( 93 )
+#define LOCATION_Arcade		                   ( 94 )
+#define LOCATION_Deadloc	                   ( 95 )
+
+/*
 #define LOCATION_Modoc_1                       ( 1 )
 #define LOCATION_Modoc_2                       ( 2 )
 #define LOCATION_Modoc_3                       ( 3 )
@@ -52,153 +92,149 @@
 #define LOCATION_lake                          ( 40 )
 #define LOCATION_junkyard                      ( 41 )
 #define LOCATION_phoenix                       ( 42 )
-
-#define LOCATION_TechBunker                    ( 21 )
-
+*/
 
 // для roleplay сервера
 #define LOCATION_IS_CITY                       # (locPid)                  ( LocIsCity( ( locPid ) ) )
 
-uint[] CityPids =
+bool LocIsModoc( uint locPid )
 {
-    LOCATION_Lakecity, LOCATION_Junkyard, LOCATION_Modoc, LOCATION_Sacramento, LOCATION_Ghostfarm,
-    LOCATION_Modoc_1, LOCATION_Modoc_2, LOCATION_Modoc_3, LOCATION_Modoc_4, LOCATION_Modoc_5, LOCATION_Modoc_6,
-    LOCATION_ModocApp_1, LOCATION_ModocApp_2, LOCATION_ModocApp_3, LOCATION_ModocApp_4, LOCATION_ModocApp_5, LOCATION_ModocApp_6,
-    LOCATION_lake,
-    LOCATION_junkyard,
-    LOCATION_phoenix,
-    LOCATION_Satter_0_0, LOCATION_Satter_0_1, LOCATION_Satter_0_2, LOCATION_Satter_0_3,
-    LOCATION_Satter_1_0, LOCATION_Satter_center, LOCATION_Satter_1_3,
-    LOCATION_Satter_2_0, LOCATION_Satter_2_3,
-    LOCATION_Satter_3_0, LOCATION_Satter_3_1, LOCATION_Satter_3_2, LOCATION_Satter_3_3
-};
+    return (locPid<=LOCATION_Modoc_Sawmill);
+}
 
 bool LocIsCity( uint locPid )
 {
-    for( uint i = 0, j = CityPids.length(); i < j; i++ )
-    {
-        if( CityPids[ i ] == locPid )
-            return true;
-    }
-    return false;
+    return (locPid<=LOCATION_Sutter_Center || locPid==LOCATION_Lakecity || locPid==LOCATION_Junkyard);
 }
 
-uint[] MaskedPids = { LOCATION_Phoenix };
 bool LocIsMasked( uint locPid )
 {
-    for( uint i = 0, j = MaskedPids.length(); i < j; i++ )
-    {
-        if( MaskedPids[ i ] == locPid )
-            return true;
-    }
-    return false;
+    return (locPid==LOCATION_Phoenix);
 }
-
-uint[] HiddenPids = { LOCATION_BanditCave };
 
 bool LocIsHidden( uint locPid )
 {
-    for( uint i = 0, j = HiddenPids.length(); i < j; i++ )
-    {
-        if( HiddenPids[ i ] == locPid )
-            return true;
-    }
     return false;
 }
-
-#define LOCATION_SpecialFirstSpecial           ( 50 )    // Todo
-#define LOCATION_SpecialToxicEncounter         ( 51 )
-#define LOCATION_SpecialShuttleEncounter       ( 52 )
-#define LOCATION_SpecialBunkerBoS              ( 53 )    // Todo
-#define LOCATION_SpecialTruckNukaCola          ( 54 )    // Todo
-#define LOCATION_SpecialGuardianEncounter      ( 55 )
-#define LOCATION_SpecialUfo                    ( 56 )    // Todo
-#define LOCATION_SpecialCafeEncounter          ( 57 )
-#define LOCATION_SpecialPariahsEncounter       ( 58 )
-#define LOCATION_SpecialMadBrahminEncounter    ( 59 )
-#define LOCATION_SpecialWhaleEncounter         ( 60 )
-#define LOCATION_SpecialHeadEncounter          ( 61 )
-#define LOCATION_SpecialHolyEncounter1         ( 62 )
-#define LOCATION_SpecialHolyEncounter2         ( 63 )
-#define LOCATION_SpecialWoodsmanEncounter      ( 64 )
-#define LOCATION_SpecialUnwashedEncounter      ( 65 )
-#define LOCATION_SpecialBridgeEncounter        ( 66 )
-#define LOCATION_SpecialTeleportEncounter      ( 67 )
-#define LOCATION_SpecialWastelandChildren      ( 68 )
-#define LOCATION_SpecialKotW                   ( 69 )
-
-#define LOCATION_DesertEncounter1              ( 101 )
-#define LOCATION_DesertEncounter2              ( 102 )
-#define LOCATION_DesertEncounter3              ( 103 )
-#define LOCATION_DesertEncounter4              ( 104 )
-#define LOCATION_DesertEncounter5              ( 105 )
-#define LOCATION_DesertEncounter6              ( 106 )
-#define LOCATION_DesertEncounter7              ( 107 )
-#define LOCATION_DesertEncounter8              ( 108 )
-#define LOCATION_DesertEncounter9              ( 109 )
-#define LOCATION_DesertEncounter10             ( 110 )
-#define LOCATION_DesertEncounter11             ( 111 )
-#define LOCATION_DesertEncounter12             ( 112 )
-
-#define LOCATION_MountainEncounter1            ( 121 )
-#define LOCATION_MountainEncounter2            ( 122 )
-#define LOCATION_MountainEncounter3            ( 123 )
-#define LOCATION_MountainEncounter4            ( 124 )
-#define LOCATION_MountainEncounter5            ( 125 )
-#define LOCATION_MountainEncounter6            ( 126 )
-
-#define LOCATION_CavernEncounter0              ( 140 )
-#define LOCATION_CavernEncounter1              ( 141 )
-#define LOCATION_CavernEncounter2              ( 142 )
-#define LOCATION_CavernEncounter3              ( 143 )
-#define LOCATION_CavernEncounter4              ( 144 )
-#define LOCATION_CavernEncounter5              ( 145 )
-
-#define LOCATION_CityEncounter1                ( 161 )
-#define LOCATION_CityEncounter2                ( 162 )
-#define LOCATION_CityEncounter3                ( 163 )
-#define LOCATION_CityEncounter4                ( 164 )
-#define LOCATION_CityEncounter5                ( 165 )
-#define LOCATION_CityEncounter6                ( 166 )
-#define LOCATION_CityEncounter7                ( 167 )
-#define LOCATION_CityEncounter8                ( 168 )
-
-#define LOCATION_CoastEncounter1               ( 181 )
-#define LOCATION_CoastEncounter2               ( 182 )
-#define LOCATION_CoastEncounter3               ( 183 )
-#define LOCATION_CoastEncounter4               ( 184 )
-#define LOCATION_CoastEncounter5               ( 185 )
-#define LOCATION_CoastEncounter6               ( 186 )
-#define LOCATION_CoastEncounter7               ( 187 )
-#define LOCATION_CoastEncounter8               ( 188 )
-#define LOCATION_CoastEncounter9               ( 189 )
-#define LOCATION_CoastEncounter10              ( 190 )
-#define LOCATION_CoastEncounter11              ( 191 )
-
-#define LOCATION_OceanEncounter1               ( 193 )
-#define LOCATION_OceanEncounter2               ( 194 )
-#define LOCATION_OceanEncounter3               ( 195 )
-#define LOCATION_OceanEncounter4               ( 196 )
-#define LOCATION_OceanEncounter5               ( 197 )
-// #define LOCATION_OceanRaft                          (196) //q tla water
-// #define LOCATION_OceanTrader                        (197) //q tla water
-
-#define LOCATION_Quest_Dappo_Lost_Caravan      ( 203 )
-#define LOCATION_Quest_Sid_And_Nancy           ( 212 )
 
 // ************************************************************************/
 // * Maps                                                                 */
 // ************************************************************************/
 
-#define MAP_Modoc                              ( 18 )
+#define MAP_PATTERN_BLANK					   ( 191 )
 
-#define MAP_e_cave0_in                         ( 349 )
-#define MAP_e_cave1_in                         ( 351 )
-#define MAP_e_cave2_in                         ( 353 )
-#define MAP_e_cave3_in                         ( 355 )
-#define MAP_e_cave4_in                         ( 357 )
-#define MAP_e_cave5_in                         ( 359 )
-#define MAP_e_coast5_cave                      ( 392 )
+#define MAP_MODOC_11				(1)
+#define MAP_MODOC_11_UP				(2)
+#define MAP_MODOC_11_DN				(3)
+
+#define MAP_MODOC_12				(4)
+#define MAP_MODOC_12_DN				(5)
+
+#define MAP_MODOC_13				(6)
+#define MAP_MODOC_13_DN				(7)
+
+#define MAP_MODOC_21				(9)
+
+#define MAP_MODOC_22				(10)
+#define MAP_MODOC_22_UP				(11)
+#define MAP_MODOC_22_UP_1			(12)
+
+#define MAP_MODOC_23				(13)
+#define MAP_MODOC_23_DN				(14)
+
+#define MAP_MODOC_APP_11			(15)
+#define MAP_MODOC_APP_12			(16)
+#define MAP_MODOC_APP_13			(17)
+#define MAP_MODOC_APP_21			(18)
+#define MAP_MODOC_APP_22			(19)
+#define MAP_MODOC_APP_23			(20)
+
+#define MAP_MODOC_Center                       ( 10 )
+
+#define MAP_PHOENIX	                           ( 30 )
+#define MAP_PHOENIX_DN                         ( 31 )
+
+#define MAP_JUNKYARD	                       ( 35 )
+#define MAP_JUNKYARD_DN                        ( 36 )
+
+#define MAP_SUTTER_11                          ( 60 )
+#define MAP_SUTTER_11_DN                       ( 61 )
+#define MAP_SUTTER_12                          ( 63 )
+#define MAP_SUTTER_12_DN                       ( 64 )
+#define MAP_SUTTER_13                          ( 65 )
+#define MAP_SUTTER_13_DN                       ( 66 )
+#define MAP_SUTTER_14                          ( 67 )
+#define MAP_SUTTER_14_DN                       ( 68 )
+
+#define MAP_SUTTER_21                          ( 69 )
+#define MAP_SUTTER_21_DN                       ( 70 )
+#define MAP_SUTTER_24                          ( 71 )
+#define MAP_SUTTER_24_DN                       ( 72 )
+#define MAP_SUTTER_31                          ( 73 )
+#define MAP_SUTTER_31_DN                       ( 74 )
+#define MAP_SUTTER_34                          ( 75 )
+#define MAP_SUTTER_34_DN                       ( 76 )
+
+#define MAP_SUTTER_41                          ( 77 )
+#define MAP_SUTTER_41_DN                       ( 78 )
+#define MAP_SUTTER_42                          ( 79 )
+#define MAP_SUTTER_42_DN                       ( 80 )
+#define MAP_SUTTER_43                          ( 81 )
+#define MAP_SUTTER_43_DN                       ( 82 )
+#define MAP_SUTTER_44                          ( 83 )
+#define MAP_SUTTER_44_DN                       ( 84 )
+
+#define MAP_SUTTER_CENTER                      ( 88 )
+#define MAP_SUTTER_CENTER_DN                   ( 89 )
+#define MAP_SUTTER_CENTER_DN_2                 ( 59 )
+#define MAP_SUTTER_CENTER_UP                   ( 90 )
+#define MAP_SUTTER_CENTER_UP_1                 ( 91 )
+
+#define MAP_UTILITY_START	                   ( 92 )
+#define MAP_UTILITY_ARCADE	                   ( 94 )
+
+//BIOMS
+
+//#define MAP_ROAD_VERT_BEGIN			(300) //random encounters
+//#define MAP_ROAD_VERT_END			(300)
+
+//#define MAP_ROAD_HOR_BEGIN			(305) //random encounters
+//#define MAP_ROAD_HOR_END			(305)
+
+#define MAP_ROAD_BEGIN				(300)
+
+#define MAP_WASTELAND_BEGIN			(400) //random encounters
+#define MAP_WASTELAND_END			(403)
+
+#define MAP_ENCOUNTER_IN_GROUP			(5)
+
+#define MAP_VERT				(0)
+#define MAP_HORZ				(1)
+#define MAP_CROS				(2)
+#define MAP_TPRT				(3)
+#define MAP_TPLT				(4)
+#define MAP_DNRT				(5)
+#define MAP_DNLT				(6)
+
+#define MAP_TOPP				(35)
+#define MAP_DOWN				(36)
+#define MAP_LEFT				(37)
+#define MAP_RGHT				(38)
+/*
+# vert	   -- locpids
+# horiznt -- locpids + 5
+# cross   -- locpids + 10
+# t-r     -- locspids + 15
+# t-l     -- locspids + 20
+# d-r     -- locspids + 25
+# d-l     -- locspids + 30
+# 
+# for roads:
+# top     -- locspids + 35
+# down    -- locspids + 36
+# left    -- locspids + 37
+# right   -- locspids + 38
+*/
 
 // ************************************************************************/
 // *                                                                      */

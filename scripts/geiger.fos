@@ -2,7 +2,7 @@
 // Geiger counter
 #include "_macros.fos"
 #include "_colors.fos"
-
+#include "_defines.fos"
 /*
  # Geiger
    {10350}{}{Geiger counter has no charges left.}
@@ -45,6 +45,11 @@
 #define STR_GEIGER_ADD_CHARGE     ( 10356 )
 #define STR_GEIGER_CUR_CHARGE     ( 10357 )
 
+#define RADIATION_POWER_MIN		  ( 1 )
+#define RADIATION_TIME_MIN		  ( 60 )
+
+import void AffectRadiation( Critter& cr, int value ) from "radiation";
+
 bool UseGeiger( Critter& cr, Item& geiger ) // Export
 {
     if( geiger.Val1 == 1 )
@@ -85,7 +90,7 @@ bool UseGeiger( Critter& cr, Item& geiger ) // Export
 bool UseItemOnGeiger( Critter& cr, Item& geiger, Item& item ) // Export
 {
     uint16 itemPid = item.GetProtoId();
-    if( ( itemPid == PID_SMALL_ENERGY_CELL || itemPid == PID_MICRO_FUSION_CELL ) && uint( geiger.Val2 ) < geiger.Proto.StartValue_2 )
+    if( ( itemPid == PID_SMALL_ENERGY_CELL || itemPid == PID_MICRO_FUSION_CELL ) && geiger.Val2 < geiger.Proto.StartValue_2 )
     {
         uint needCharge = geiger.Proto.StartValue_2 - geiger.Val2;
         uint charge = ( itemPid == PID_SMALL_ENERGY_CELL ? GEIGER_ENERGY_CHARGE : GEIGER_FUSION_CHARGE );
@@ -95,7 +100,7 @@ bool UseItemOnGeiger( Critter& cr, Item& geiger, Item& item ) // Export
         if( needItems > item.GetCount() )
             needItems = item.GetCount();
         geiger.Val2 += needItems * charge;
-        if( uint( geiger.Val2 ) > geiger.Proto.StartValue_2 )
+        if( geiger.Val2 > geiger.Proto.StartValue_2 )
             geiger.Val2 = geiger.Proto.StartValue_2;
         geiger.Update();
         _SubItem( item, needItems );
@@ -180,4 +185,64 @@ uint e_Geiger( uint[] @ values )
 
     geiger.Update();
     return geiger.Val2 == 0 ? 0 : GEIGER_DURATION;
+}
+
+uint cte_LocalRad( Critter& cr, int identifier, uint& rates )
+{
+if(rates > 0)
+{
+	Scenery@ trigger = cr.GetMap().GetScenery(cr.HexX, cr.HexY, PID_TRIGGER);
+	uint8 triggerPower = cr.GetMap().GetScenParam( cr.HexX, cr.HexY, PID_TRIGGER, 0 );
+	if(!(trigger is null))
+	{
+		if(rates < triggerPower  )
+		{
+			rates = triggerPower ;
+			return 10;
+		}
+	}
+	AffectRadiation(cr, rates);
+	rates--;
+	return(RADIATION_TIME_MIN - triggerPower  ) *  __TimeMultiplier;
+}
+else
+{
+	Scenery@ trigger = cr.GetMap().GetScenery(cr.HexX, cr.HexY, PID_TRIGGER);
+	if(!(trigger is null))
+	{
+		rates = cr.GetMap().GetScenParam( cr.HexX, cr.HexY, PID_TRIGGER, 0 );
+		return 10;
+	}
+}
+return 0;
+}
+
+void LocalRad( Critter& cr, Scenery& trigger, bool entered, uint8 dir, int radLvl )
+{
+	uint[] rates;
+	
+	uint8 timeCount = cr.GetTimeEvents( CTE_LOCALRAD, null, null, rates );
+	if( entered )
+	{
+		Item @ geiger = _CritGetItemHand(cr);
+		if(!(geiger is null))
+		{
+			if( geiger.GetProtoId() == PID_GEIGER_COUNTER )
+			{
+				cr.Say(SAY_NETMSG, "Счетчик Гейгера, издавая непрерывный, треск показал "+radLvl+" на дисплее.");
+			}
+			if(timeCount > 0)
+			{
+				if(rates[0] < radLvl)
+				{
+					rates[0] = radLvl;
+				}
+			}
+		else
+		{
+			cr.AddTimeEvent ("cte_LocalRad", 0, CTE_LOCALRAD, radLvl);
+		}
+		}
+	}
+return;
 }

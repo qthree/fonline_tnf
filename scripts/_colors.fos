@@ -7,6 +7,7 @@
 #define COLOR_LIGHT             # ( color, light )( COLOR_CHANGE_ALPHA( __GetColor( ( ( color >> 16 ) & 0xFF ) + light, ( ( color >> 8 ) & 0xFF ) + light, ( color & 0xFF ) + light ), ( color >> 24 ) & 0xFF ) )
 #ifndef CLAMP
 # define CLAMP                  # ( x, low, high )( ( ( x ) > ( high ) ) ? ( high ) : ( ( ( x ) < ( low ) ) ? ( low ) : ( x ) ) )
+# define ABS                    # (val)                ( ( ( val ) > 0 ) ? ( val ) : -( val ) )
 #endif
 
 uint __GetColor( int r, int g, int b )
@@ -15,6 +16,37 @@ uint __GetColor( int r, int g, int b )
     g = CLAMP( g, 0, 255 );
     b = CLAMP( b, 0, 255 );
     return COLOR_RGB( r, g, b );
+}
+
+uint __GetGradient( uint colorStart, uint colorEnd, uint8 pos )
+{
+    pos = CLAMP( pos, 1, 100 );
+
+    int aS = ( colorStart >> 24 ) & 0xFF,
+        rS = ( ( colorStart >> 16 ) & 0xFF ),
+        gS = ( ( colorStart >> 8 ) & 0xFF ),
+        bS = ( ( colorStart ) & 0xFF ),
+
+        aE = ( colorEnd >> 24 ) & 0xFF,
+        rE = ( ( colorEnd >> 16 ) & 0xFF ),
+        gE = ( ( colorEnd >> 8 ) & 0xFF ),
+        bE = ( ( colorEnd ) & 0xFF );
+
+    // As = ABS(as - aE);
+    rS = ABS( rE - int( rS * ( pos * 0.01 ) ) );
+    gS = ABS( gE - int( gS * ( pos * 0.01 ) ) );
+    bS = ABS( bE - int( bS * ( pos * 0.01 ) ) );
+
+    return __GetColor( rS, gS, bS );
+}
+
+uint __GetColor(uint8& a, uint8& r, uint8& g, uint8& b, uint color){
+	    a = ( color >> 24 ) & 0xFF;
+	    r = ( ( color >> 16 ) & 0xFF );
+	    g = ( ( color >> 8 ) & 0xFF );
+	    b = ( ( color ) & 0xFF );
+	    
+	    return 0;
 }
 
 // Iface

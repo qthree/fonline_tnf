@@ -104,7 +104,7 @@ class SniperPattern : CommonPattern
         if( !valid( weap ) )
             return false;
 
-        ProtoItem @ ammo = GetProtoItem( weap.WeaponAmmoPid );
+        ProtoItem @ ammo = GetProtoItem( weap.AmmoPid );
         if( !valid( ammo ) )
             return false;
 

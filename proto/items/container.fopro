@@ -1005,8 +1005,10 @@ Container.MagicHandsGrnd=1
 [Proto]
 Pid=211
 Type=8
+ScriptModule=item
+ScriptFunc=_BonesInit
 PicMapName=art\items\v13bones.frm
-PicInvName=art\inven\reserved.frm
+PicInvName=art\inven\annabone.frm
 Flags=268439582
 DisableEgg=1
 Weight=4535
@@ -1014,7 +1016,7 @@ Volume=1
 SoundId=48
 Material=5
 Container.ContVolume=10
-Container.CannotPickUp=1
+Container.CannotPickUp=0
 Container.MagicHandsGrnd=1
 
 [Proto]
@@ -1746,6 +1748,19 @@ Weight=30
 Volume=1
 SoundId=65
 Material=1
+Container.ContVolume=200
+
+[Proto]
+Pid=904
+Type=8
+PicMapName=art\items\reserved.frm
+PicInvName=art\inven\reserved.frm
+Flags=268439580
+DisableEgg=1
+Weight=45359
+Volume=1
+SoundId=48
+Material=3
 Container.ContVolume=200
 
 [Proto]

@@ -24,11 +24,11 @@ bool CheckRadioNameChar( string name )
     for( uint i = 0; i < name.length(); i++ )
     {
         if( not (         // char ranges
-                                ( ( name[ i ] >= 'a' ) and ( name[ i ] <= 'z' ) ) or
-                                ( ( name[ i ] >= 'A' ) and ( name[ i ] <= 'Z' ) ) or
-                                ( ( name[ i ] >= 'à' ) and ( name[ i ] <= 'ÿ' ) ) or
-                                ( ( name[ i ] >= 'À' ) and ( name[ i ] <= 'ß' ) ) or
-                                ( ( name[ i ] >= '0' ) and ( name[ i ] <= '9' ) ) ) )
+                                        ( ( name[ i ] >= 'a' ) and ( name[ i ] <= 'z' ) ) or
+                                        ( ( name[ i ] >= 'A' ) and ( name[ i ] <= 'Z' ) ) or
+                                        ( ( name[ i ] >= 'à' ) and ( name[ i ] <= 'ÿ' ) ) or
+                                        ( ( name[ i ] >= 'À' ) and ( name[ i ] <= 'ß' ) ) or
+                                        ( ( name[ i ] >= '0' ) and ( name[ i ] <= '9' ) ) ) )
             return false;
         if( lastChar == name[ i ] )
             return false;

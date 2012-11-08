@@ -175,17 +175,17 @@ bool npc_plane_run( Critter& npc, NpcPlane& plane, int reason, uint& r0, uint& r
     {
         // Special weapons
         uint16 npcPid = npc.GetProtoId();
-        if( npcPid == NPC_PID_FireGecko || npcPid == NPC_PID_ToughFireGecko )
+        if( npcPid == NPC_PID_FireGecko )
         {
             Item@ weap = npc.GetItem( PID_FIRE_GECKO_FLAME_WEAPON, -1 );
-            if( valid( weap ) && weap.WeaponAmmoCount > 0 )
+            if( valid( weap ) && weap.AmmoCount > 0 )
             {
                 r0 = weap.Id;
                 r1 = 0;
                 return true;
             }
         }
-        else if( npcPid == NPC_PID_SporePlant || npcPid == NPC_PID_SporePlant2 )
+        else if( npcPid == NPC_PID_SporePlant )
         {
             Critter@ target = GetCritter( r0 );
             if( GetCrittersDistantion( npc, target ) > 2 )
@@ -336,7 +336,7 @@ bool npc_plane_run( Critter& npc, NpcPlane& plane, int reason, uint& r0, uint& r
         uint8      mode = 0;
         ProtoItem@ weapon = npc.GetSlotProto( SLOT_HAND1, mode );
         int        use = _WeaponModeUse( mode );
-        ProtoItem@ ammo = ( weapon.Weapon_MaxAmmoCount > 0 && weapon.Weapon_Caliber != 0 ? GetProtoItem( _CritGetItemHand( npc ).WeaponAmmoPid ) : null );
+        ProtoItem@ ammo = ( weapon.Weapon_MaxAmmoCount > 0 && weapon.Weapon_Caliber != 0 ? GetProtoItem( _CritGetItemHand( npc ).AmmoPid ) : null );
         int        wpnDist = _WeaponMaxDist( weapon, use );
         int        multihex = npc.GetMultihex() + target.GetMultihex();
 
@@ -581,8 +581,8 @@ bool CogitateFiring( Critter& cr, uint& mode, uint& aim ) // in: targetId, 0; ou
         return false;
     ProtoItem@ protoWeapon = GetProtoItem( weapon.GetProtoId() );
     ProtoItem@ protoAmmo = null;
-    if( weapon.WeaponAmmoPid != 0 )
-        @protoAmmo = GetProtoItem( weapon.WeaponAmmoPid );
+    if( weapon.AmmoPid != 0 )
+        @protoAmmo = GetProtoItem( weapon.AmmoPid );
     if( protoWeapon.Weapon_Skill_0 == SK_UNARMED || protoWeapon.Weapon_Skill_0 == SK_MELEE_WEAPONS ) // assuming all modes melee
     {
         mode = 0;
@@ -868,14 +868,14 @@ bool CheckBattleWeapon( Critter& npc, Item& weapon )
         return false;
     if( FLAG( weapon.Flags, ITEM_TWO_HANDS ) && ( npc.Damage[ DAMAGE_LEFT_ARM ] != 0 || npc.Damage[ DAMAGE_RIGHT_ARM ] != 0 ) )
         return false;
-    if( npc.Mode[ MODE_UNLIMITED_AMMO ] == 0 && weapon.Proto.Weapon_MaxAmmoCount > 0 && weapon.WeaponAmmoCount == 0 && !IsAmmoForWeapon( npc, weapon ) )
+    if( npc.Mode[ MODE_UNLIMITED_AMMO ] == 0 && weapon.Proto.Weapon_MaxAmmoCount > 0 && weapon.AmmoCount == 0 && !IsAmmoForWeapon( npc, weapon ) )
         return false;
     return true;
 }
 
 bool IsAmmoForWeapon( Critter& npc, Item& weapon )
 {
-    if( npc.CountItem( weapon.WeaponAmmoPid ) > 0 )
+    if( npc.CountItem( weapon.AmmoPid ) > 0 )
         return true;
     if( npc.CountItem( weapon.Proto.Weapon_DefaultAmmoPid ) > 0 )
         return true;

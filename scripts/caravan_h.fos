@@ -77,27 +77,40 @@
 
 
 // управление квестовой переменной
-#define _SetPlayerJoinFirst                   # ( cr, crv ) { if( GetQuestState( cr, crv.CaravanId ) == CARAVAN_QUEST_TAKEN ) \
-                                                                  SetQuestState( cr, crv.CaravanId, CARAVAN_PLAYER_JOIN_FIRST ); }                           // при первом присоединении должен быть взят квест
-#define _SetPlayerSuccessFirst                # ( cr, crv ) { if( GetQuestState( cr, crv.CaravanId ) == CARAVAN_PLAYER_JOIN_FIRST ) \
-                                                                  SetQuestState( cr, crv.CaravanId, CARAVAN_SUCCESS_FIRST ); }                               // для первого выполнения, должно быть первое присоединение
+#define _SetPlayerJoinFirst                                                         \
+    # ( cr, crv ) { if( GetQuestState( cr, crv.CaravanId ) == CARAVAN_QUEST_TAKEN ) \
+                        SetQuestState( cr, crv.CaravanId, CARAVAN_PLAYER_JOIN_FIRST ); }                                                                     // при первом присоединении должен быть взят квест
+#define _SetPlayerSuccessFirst                                                            \
+    # ( cr, crv ) { if( GetQuestState( cr, crv.CaravanId ) == CARAVAN_PLAYER_JOIN_FIRST ) \
+                        SetQuestState( cr, crv.CaravanId, CARAVAN_SUCCESS_FIRST ); }                                                                         // для первого выполнения, должно быть первое присоединение
 #define _SetPlayerThieft                      # ( cr, crv ) { SetQuestState( cr, crv.CaravanId, CARAVAN_FAILURE_PLAYER_THIEFT ); } // при воровстве или атаке всегда ставится статус
-#define _SetPlayerAbandoned                   # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_PLAYER_JOIN_FIRST || q == CARAVAN_PLAYER_JOIN_NEXT ) \
-                                                                  SetQuestState( cr, crv.CaravanId, CARAVAN_FAILURE_PLAYER_ABANDONED ); }                    // статус "покинул караван" только для тех кто "присоединился"
-#define _SetPlayerDead                        # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_PLAYER_JOIN_FIRST || q == CARAVAN_PLAYER_JOIN_NEXT ) \
-                                                                  SetQuestState( cr, crv.CaravanId, CARAVAN_FAILURE_PLAYER_DEAD ); }                         // аналогично при смерти игрока
-#define _SetCaravanLeaderDead                 # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_PLAYER_JOIN_FIRST || q == CARAVAN_PLAYER_JOIN_NEXT ) \
-                                                                  SetQuestState( cr, crv.CaravanId, CARAVAN_FAILURE_CARAVANLEADER_DEAD ); }                  // аналогично при смерти караванщика
+#define _SetPlayerAbandoned                                                                                                            \
+    # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_PLAYER_JOIN_FIRST || q == CARAVAN_PLAYER_JOIN_NEXT ) \
+                        SetQuestState( cr, crv.CaravanId, CARAVAN_FAILURE_PLAYER_ABANDONED ); }                                                              // статус "покинул караван" только для тех кто "присоединился"
+#define _SetPlayerDead                                                                                                                 \
+    # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_PLAYER_JOIN_FIRST || q == CARAVAN_PLAYER_JOIN_NEXT ) \
+                        SetQuestState( cr, crv.CaravanId, CARAVAN_FAILURE_PLAYER_DEAD ); }                                                                   // аналогично при смерти игрока
+#define _SetCaravanLeaderDead                                                                                                          \
+    # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_PLAYER_JOIN_FIRST || q == CARAVAN_PLAYER_JOIN_NEXT ) \
+                        SetQuestState( cr, crv.CaravanId, CARAVAN_FAILURE_CARAVANLEADER_DEAD ); }                                                            // аналогично при смерти караванщика
 #define _SetPlayerKillLeader                  # ( cr, crv ) { SetQuestState( cr, crv.CaravanId, CARAVAN_FAILURE_PLAYER_KILL_LEADER ); }
-#define _SetJoinNext                          # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_QUEST_COMPLETE ) \
-                                                                  SetQuestState( cr, crv.CaravanId, CARAVAN_PLAYER_JOIN_NEXT ); }
-#define _SetSuccessNext                       # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_PLAYER_JOIN_NEXT ) \
-                                                                  SetQuestState( cr, crv.CaravanId, CARAVAN_SUCCESS_NEXT ); }                                        // после первого или последующего успеха
+#define _SetJoinNext                                                                               \
+    # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_QUEST_COMPLETE ) \
+                        SetQuestState( cr, crv.CaravanId, CARAVAN_PLAYER_JOIN_NEXT ); }
+#define _SetSuccessNext                                                                              \
+    # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_PLAYER_JOIN_NEXT ) \
+                        SetQuestState( cr, crv.CaravanId, CARAVAN_SUCCESS_NEXT ); }                                                                                  // после первого или последующего успеха
 #define _SetPlayerJoin                        # ( cr, crv ) { uint q = GetQuestState( cr, crv.CaravanId ); if( q == CARAVAN_QUEST_TAKEN ) { _SetPlayerJoinFirst( cr, crv ); } if( q == CARAVAN_QUEST_COMPLETE ) { _SetJoinNext( cr, crv ); } }
-bool _CanPlayerJoinCaravan( Critter& cr, CaravanInfo& crv ) { uint q = GetQuestState( cr, crv.CaravanId );
-                                                              return ( q == CARAVAN_QUEST_COMPLETE || q == CARAVAN_NOQUEST || q == CARAVAN_QUEST_TAKEN ); }          // после первого, последующего успеха или при взятом квесте
-bool _GetPlayerQuestFailed( Critter& cr, CaravanInfo& crv ) { uint q = GetQuestState( cr, crv.CaravanId );
-                                                              return ( q >= CARAVAN_FAILURE_PLAYER_THIEFT && q <= CARAVAN_FAILURE_PLAYER_KILL_LEADER ); }            // игрок завалил ранее квест
+bool _CanPlayerJoinCaravan( Critter& cr, CaravanInfo& crv )
+{
+    uint q = GetQuestState( cr, crv.CaravanId );
+    return ( q == CARAVAN_QUEST_COMPLETE || q == CARAVAN_NOQUEST || q == CARAVAN_QUEST_TAKEN );
+}                                                                                                                                                                    // после первого, последующего успеха или при взятом квесте
+bool _GetPlayerQuestFailed( Critter& cr, CaravanInfo& crv )
+{
+    uint q = GetQuestState( cr, crv.CaravanId );
+    return ( q >= CARAVAN_FAILURE_PLAYER_THIEFT && q <= CARAVAN_FAILURE_PLAYER_KILL_LEADER );
+}                                                                                                                                                                    // игрок завалил ранее квест
 
 // Debug Log
 // #define DL#(s) (Log(s))

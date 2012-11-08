@@ -530,6 +530,32 @@ bool updateNick( CritterCl& cr )
         else
             cr.NameOnHead = color_login + cr.Name + s_crid;
     }
+    else if( cr.Param[ QST_MEDIUM ] != 0 )
+    {
+        if( cr.IsPlayer() && cr.Param[ QST_MEDIUM ] == 2 )
+        {
+            cr.Name = "";
+            cr.NameOnHead = "";
+        }
+        if( cr.IsPlayer() && cr.Param[ QST_MEDIUM ] == 3 )
+        {
+            @s_temp = cr.Lexems;
+            if( !(s_temp is null) )
+            {
+                cr.Name = s_temp;
+                cr.NameOnHead = s_temp + s_crid;
+            }
+        }
+        if( cr.IsPlayer() && cr.Param[ QST_MEDIUM ] >= 4 )
+        {
+            @s_temp = GetName( cr.Param[ QST_MEDIUM ] );
+            if( !(s_temp is null) )
+            {
+                cr.Name = s_temp;
+                cr.NameOnHead = s_temp + s_crid;
+            }
+        }
+    }
     else if( !(s_temp is null) )
     {
         if( cr.IsPlayer() )

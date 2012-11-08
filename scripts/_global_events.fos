@@ -79,46 +79,46 @@ import bool manager_player_login( uint ip, string& name, uint id, uint& textMsg,
 
 #ifndef __MAIN_MODULE__
 
-interface iManagerModule {
+shared interface iManagerModule {
     bool manager_init();
 }
-interface iManager_loop {
+shared interface iManager_loop {
     uint global_loop();
 }
-interface iManager_critter_init {
+shared interface iManager_critter_init {
     bool global_critter_init( Critter& cr, bool firstTime );
 }
-interface iManager_critter_finish {
+shared interface iManager_critter_finish {
     bool global_critter_finish( Critter& cr, bool toDelete );
 }
-interface iManager_critter_idle {
+shared interface iManager_critter_idle {
     bool global_critter_idle( Critter& cr );
 }
-interface iManager_critter_dead {
+shared interface iManager_critter_dead {
     bool global_critter_dead( Critter& cr, Critter@ killer );
 }
-interface iManager_critter_respawn {
+shared interface iManager_critter_respawn {
     bool global_critter_respawn( Critter& cr );
 }
-interface iManager_map_critter_in {
+shared interface iManager_map_critter_in {
     bool global_map_critter_in( Map& map, Critter& cr );
 }
-interface iManager_map_critter_out {
+shared interface iManager_map_critter_out {
     bool global_map_critter_out( Map& map, Critter& cr );
 }
-interface iManager_world_save {
+shared interface iManager_world_save {
     bool global_world_save();
 }
-interface iManager_player_registration {
+shared interface iManager_player_registration {
     bool global_player_registration( uint ip, string& name, uint& textMsg, uint& strNum );
 }
-interface iManager_player_login {
+shared interface iManager_player_login {
     bool global_player_login( uint ip, string& name, uint id, uint& textMsg, uint& strNum );
 }
-interface iManager_time {
+shared interface iManager_time {
     bool global_time( int8 type );
 }
-interface iManagerElement
+shared interface iManagerElement
 {
     iManagerModule@ GetLink();
     uint            GetId();

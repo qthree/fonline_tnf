@@ -479,10 +479,10 @@ bool e_1_Repair( Item& item, Critter& cr, Item@ usedItem ) // firebarrel
             {
                 NeededItem( cr, PID_LIGHTER );
                 return true;
-            }                                                                                                                                          // full, but inactive		//in active now
+            }                                                                                                                                              // full, but inactive		//in active now
 
         // break;
-        /*case 1: if(usedItem.GetProtoId() == PID_LIGHTER)      {EnterItem(item, usedItem, 1); return true;} else {NeededItem(cr, PID_LIGHTER); break;}	*/// full, but inactive
+        /*case 1: if(usedItem.GetProtoId() == PID_LIGHTER)      {EnterItem(item, usedItem, 1); return true;} else {NeededItem(cr, PID_LIGHTER); break;}	*/ // full, but inactive
         case 1:
             if( usedItem.GetProtoId() == PID_FIREWOOD )
             {
@@ -738,7 +738,7 @@ bool e_3_Repair( Item& item, Critter& cr, Item@ usedItem ) // firebarrel
                 return true;
             }
         case 1:
-            if( usedItem.GetProtoId() == PID_STEEL )
+            if( usedItem.GetProtoId() == PID_CRAFT_M_STEL )
             {
                 EnterItem( item, usedItem, 3 );
                 item.Val4 = 0;
@@ -746,7 +746,7 @@ bool e_3_Repair( Item& item, Critter& cr, Item@ usedItem ) // firebarrel
             }
             else
             {
-                NeededItem( cr, PID_STEEL );
+                NeededItem( cr, PID_CRAFT_M_STEL );
                 return true;
             }
         }
@@ -887,7 +887,7 @@ uint e_CactusCharge( uint[] @ values )
 
     switch(item.Val4)
     {
-      case 0: if(usedItem.GetProtoId() == PID_STEEL)	{EnterItem(item, usedItem, 5); return true;} else {NeededItem(cr, PID_STEEL); break;}
+      case 0: if(usedItem.GetProtoId() == PID_CRAFT_M_STEL)	{EnterItem(item, usedItem, 5); return true;} else {NeededItem(cr, PID_CRAFT_M_STEL); break;}
       case 1: if(usedItem.GetProtoId() == PID_STIMPAK)	{EnterItem(item, usedItem, 5); return true;} else {NeededItem(cr, PID_STIMPAK); break;}
       case 2: if(usedItem.GetProtoId() == PID_MOTOR)    {EnterItem(item, usedItem, 1); return true;} else {NeededItem(cr, PID_MOTOR); break;}
       case 3: if(usedItem.GetProtoId() == PID_JET)      {EnterItem(item, usedItem, 4); return true;} else {NeededItem(cr, PID_JET); break;}

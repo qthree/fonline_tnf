@@ -30,37 +30,42 @@
 // void    UnloadMap(MapperMap@+ map)
 // bool    SaveMap(MapperMap@+ map, string& fileName, int pathType)
 // bool    ShowMap(MapperMap@+ map)
-// int     GetLoadedMaps(MapperMap@[]@+ maps) const
+// int     GetLoadedMaps(MapperMap@[]@+ maps)
 // void    DeleteObject(MapperObject@+ obj)
 // void    DeleteObjects(MapperObject@[]& objects)
 // void    SelectObject(MapperObject@+ obj, bool set)
 // void    SelectObjects(MapperObject@[]& objects, bool set)
-// MapperObject@+ GetSelectedObject() const
-// uint    GetSelectedObjects(MapperObject@[]@+ objects) const
-// void    GetMousePosition(int& x, int& y) const
+// MapperObject@+ GetSelectedObject()
+// uint    GetSelectedObjects(MapperObject@[]@+ objects)
+// MapperObject@+ GetMonitorObject(int x, int y, bool ignoreInterface = false)
+// void    GetMousePosition(int& x, int& y)
 // uint    GetMapFileNames(string@+ dir, string@[]@+ names)
 //
-// ProtoItem@+ GetProtoItem(uint16 protoId) const
+// ProtoItem@+ GetProtoItem(uint16 protoId)
 // bool    LoadDat(string& datName)
 // void    MoveScreen(uint16 hexX, uint16 hexY, uint speed)
-// int     GetKeybLang() const
+// int     GetKeybLang()
 // string@ GetIfaceIniStr(string& key)
+// bool    LoadFont(int font, string& fontFileName)
+// void    SetDefaultFont(int font, uint color)
+// void    MouseClick(int x, int y, int button, int cursor)
+// void    KeyboardPress(uint8 key1, uint8 key2)
 //
-// void    Log(string& text) const
-// string@ GetLastError() const
-// int     Random(int minimum, int maximum) const
-// uint    GetTick() const
-// uint    GetAngelScriptProperty(int property) const
+// void    Log(string& text)
+// string@ GetLastError()
+// int     Random(int minimum, int maximum)
+// uint    GetTick()
+// uint    GetAngelScriptProperty(int property)
 // void    SetAngelScriptProperty(int property, uint value)
 //
-// void    GetHexCoord(uint16 fromHx, uint16 fromHy, uint16& toHx, uint16& toHy, float angle, uint dist) const
-// uint    GetPathLength(uint16 fromHx, uint16 fromHy, uint16 toHx, uint16 toHy, uint cut) const
-// bool    GetHexPos(uint16 hx, uint16 hy, int& x, int& y) const
-// bool    GetMonitorHex(int x, int y, uint16& hx, uint16& hy) const
+// void    GetHexCoord(uint16 fromHx, uint16 fromHy, uint16& toHx, uint16& toHy, float angle, uint dist)
+// uint    GetPathLength(uint16 fromHx, uint16 fromHy, uint16 toHx, uint16 toHy, uint cut)
+// bool    GetHexPos(uint16 hx, uint16 hy, int& x, int& y)
+// bool    GetMonitorHex(int x, int y, uint16& hx, uint16& hy)
 // void    MoveHexByDir(uint16& hexX, uint16& hexY, uint8 dir, uint steps)
-// uint    GetDistantion(uint16 hexX1, uint16 hexY1, uint16 hexX2, uint16 hexY2) const
-// uint8   GetDirection(uint16 fromX, uint16 fromY, uint16 toX, uint16 toY) const
-// uint8   GetOffsetDir(uint16 hx, uint16 hy, uint16 tx, uint16 ty, float offset) const
+// uint    GetDistantion(uint16 hexX1, uint16 hexY1, uint16 hexX2, uint16 hexY2)
+// uint8   GetDirection(uint16 fromX, uint16 fromY, uint16 toX, uint16 toY)
+// uint8   GetOffsetDir(uint16 hx, uint16 hy, uint16 tx, uint16 ty, float offset)
 //
 // void    Message(string& text)
 // void    Message(int textMsg, uint strNum)
@@ -94,7 +99,7 @@
 // void    TabSetItemPids(int tab, string@+ subTab, uint16[]@+ itemPids)
 // void    TabSetCritterPids(int tab, string@+ subTab, uint16[]@+ critterPids)
 // void    TabDelete(int tab)
-// void    TabSelect(int tab, string@+ subTab)
+// void    TabSelect(int tab, string@+ subTab, bool show = false)
 // void    TabSetName(int tab, string@+ subName)
 
 // / MapperObject
@@ -559,10 +564,10 @@ void InitializeTabs()
     pids.resize( 0 );
     pids.insertLast( PID_BOTTLE_CAPS );
     pids.insertLast( PID_FIRST_AID_KIT );
-    pids.insertLast( PID_STEEL );
+    pids.insertLast( PID_CRAFT_M_STEL );
     pids.insertLast( PID_DYNAMITE );
     pids.insertLast( PID_STEALTH_BOY );
-    pids.insertLast( PID_WATER_CHIP );
+    pids.insertLast( PID_CRAFT_E_PART );
     pids.insertLast( PID_DOG_TAGS );
     pids.insertLast( PID_ELECTRONIC_BUG );
     pids.insertLast( PID_HOLODISK );
@@ -581,7 +586,7 @@ void InitializeTabs()
     pids.insertLast( PID_MOTOR );
     pids.insertLast( PID_DOCTORS_BAG );
     pids.insertLast( PID_SCORPION_TAIL );
-    pids.insertLast( PID_PUMP_PARTS );
+    pids.insertLast( PID_CRAFT_M_JUNK );
     pids.insertLast( PID_GOLD_LOCKET );
     pids.insertLast( PID_LIGHTER );
     pids.insertLast( PID_GUNS_AND_BULLETS );
@@ -688,11 +693,11 @@ void InitializeTabs()
     pids.insertLast( PID_PRESIDENTIAL_PASS );
     pids.insertLast( PID_RANGER_PIN );
     pids.insertLast( PID_RANGER_MAP );
-    pids.insertLast( PID_COMPUTER_VOICE_MODULE );
+    pids.insertLast( PID_CRAFT_E_LAMP );
     pids.insertLast( PID_ROBOT_MOTIVATOR );
     pids.insertLast( PID_GECK );
     pids.insertLast( PID_V15_KEYCARD );
-    pids.insertLast( PID_V15_COMPUTER_PART );
+    pids.insertLast( PID_CRAFT_E_CHIP );
     pids.insertLast( PID_FIELD_MEDIC_KIT );
     pids.insertLast( PID_PARAMEDICS_BAG );
     pids.insertLast( PID_EXP_LOCKPICK_SET );
@@ -717,7 +722,7 @@ void InitializeTabs()
     pids.insertLast( PID_DECK_OF_CARDS );
     pids.insertLast( PID_MARKED_DECK_OF_CARDS );
     pids.insertLast( PID_TEMPLE_KEY );
-    pids.insertLast( PID_POCKET_LINT );
+    pids.insertLast( PID_CRAFT_L_LINT );
     pids.insertLast( PID_BIO_GEL );
     pids.insertLast( PID_BLONDIE_DOG_TAG );
     pids.insertLast( PID_ANGEL_EYES_DOG_TAG );
@@ -748,7 +753,7 @@ void InitializeTabs()
     pids.insertLast( PID_BECKY_BOOK );
     pids.insertLast( PID_ELRON_MEMBER_HOLO );
     pids.insertLast( PID_DAISIES );
-    pids.insertLast( PID_METAL_TRASH );
+    pids.insertLast( PID_CRAFT_M_BARS );
     pids.insertLast( PID_ENLIGHTENED_ONE_LETTER );
     pids.insertLast( PID_BROADCAST_HOLODISK );
     pids.insertLast( PID_SIERRA_MISSION_HOLODISK );
@@ -804,7 +809,7 @@ void InitializeTabs()
     pids.insertLast( PID_USED_GECK );
     pids.insertLast( PID_WELDING );
     pids.insertLast( PID_WELDING_USED );
-    pids.insertLast( PID_RAGS );
+    pids.insertLast( PID_CRAFT_L_RAGS );
     pids.insertLast( PID_NITROGLYCERIN );
     pids.insertLast( PID_CHEMICALS );
     pids.insertLast( PID_TNT );
@@ -1742,6 +1747,40 @@ string ClearTiles( string str )
 
     return "Done. Deleted " + deleted + " tiles.";
 }
+
+string ClearClones( string str )
+{
+    MapperMap@ map = GetActiveMap();
+    if( map is null )
+        return "Map not loaded.";
+
+    uint deleted = 0;
+    for( uint hx = 0; hx < map.Width; hx++ )
+    {
+        for( uint hy = 0; hy < map.Height; hy++ )
+        {
+			MapperObject@[] objects;
+            uint len = GetObjects(hx, hy, 0, MAP_OBJECT_SCENERY|MAP_OBJECT_ITEM, 0, objects);
+			for(uint i=0; i<len; i++)
+			{
+				if(objects[i] is null) continue;
+				uint16 pid = objects[i].ProtoId;
+				for(uint k=i+1; k<len; k++)
+				{
+					if((objects[k] !is null) and (objects[k].ProtoId==pid))
+					{
+						DeleteObject(objects[k]);
+						objects[k]=null;
+						deleted++;
+					}
+				}
+			}
+        }
+    }
+
+    return "Done. Deleted " + deleted + " items.";
+}
+
 
 // Map parameters
 string MapTime( string str )

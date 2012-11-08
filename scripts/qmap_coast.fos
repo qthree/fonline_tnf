@@ -27,7 +27,12 @@ void init_hashes()
     @data = hashes_coast[ HASHES_COAST_WEST ];
     data.resize( 0 );
     for( uint i = 1; i <= 7; i++ )
-        data.insertLast( GetStrHash( dir + SHORE + "0" + i + frm ) );                           // AddHashCoast(HASHES_COAST_WEST, GetStrHash(dir+SHORE+"0"+i+frm));
+        data.insertLast( GetStrHash( dir + SHORE + "0" + i + frm ) );               // AddHashCoast(HASHES_COAST_WEST, GetStrHash(dir+SHORE+"0"+i+frm));
+
+    for( uint i = 1; i <= 9; i++ )
+        data.insertLast( GetStrHash( dir + "brick0" + i + ".frm" ) );               // pm added
+    for( uint i = 10; i <= 16; i++ )
+        data.insertLast( GetStrHash( dir + "brick" + i + ".frm" ) );
 //	#ifdef TNF_DLL_INIT_HASHES_COAST
 //	InitHashesCoast(HASHES_COAST_WEST, data, data.length());
 //	#endif
@@ -38,6 +43,11 @@ void init_hashes()
     for( uint i = 10; i <= 18; i++ )
         data.insertLast( GetStrHash( dir + seas0 + i + frm ) );
 
+    for( uint i = 1; i <= 9; i++ )
+        data.insertLast( GetStrHash( dir + "brick0" + i + ".frm" ) );               // pm added
+    for( uint i = 10; i <= 16; i++ )
+        data.insertLast( GetStrHash( dir + "brick" + i + ".frm" ) );
+
 //	#ifdef TNF_DLL_INIT_HASHES_COAST
 //	InitHashesCoast(HASHES_COAST_NORTH, data, data.length());
 //	#endif
@@ -47,6 +57,11 @@ void init_hashes()
     for( uint i = 5; i <= 11; i++ )
         data.insertLast( GetStrHash( dir + shor + ( ( i < 10 ) ? "0" : "" ) + i + frm ) );
 
+    for( uint i = 1; i <= 9; i++ )
+        data.insertLast( GetStrHash( dir + "brick0" + i + ".frm" ) );               // pm added
+    for( uint i = 10; i <= 16; i++ )
+        data.insertLast( GetStrHash( dir + "brick" + i + ".frm" ) );
+
 //	#ifdef TNF_DLL_INIT_HASHES_COAST
 //	InitHashesCoast(HASHES_COAST_EAST, data, data.length());
 //	#endif
@@ -55,6 +70,11 @@ void init_hashes()
     data.resize( 0 );
     for( uint i = 1; i <= 3; i++ )
         data.insertLast( GetStrHash( dir + shor + "0" + i + frm ) );
+
+    for( uint i = 1; i <= 9; i++ )
+        data.insertLast( GetStrHash( dir + "brick0" + i + ".frm" ) );               // pm added
+    for( uint i = 10; i <= 16; i++ )
+        data.insertLast( GetStrHash( dir + "brick" + i + ".frm" ) );
 
 //	#ifdef TNF_DLL_INIT_HASHES_COAST
 //	InitHashesCoast(HASHES_COAST_SOUTH, data, data.length());
@@ -67,6 +87,11 @@ void init_hashes()
     data.insertLast( GetStrHash( dir + shor + "04" + frm ) );
     data.insertLast( GetStrHash( dir + shor + "20" + frm ) );
 
+    for( uint i = 1; i <= 9; i++ )
+        data.insertLast( GetStrHash( dir + "brick0" + i + ".frm" ) );               // pm added
+    for( uint i = 10; i <= 16; i++ )
+        data.insertLast( GetStrHash( dir + "brick" + i + ".frm" ) );
+
 //	#ifdef TNF_DLL_INIT_HASHES_COAST
 //	InitHashesCoast(HASHES_COAST_OUT, data, data.length());
 //	#endif
@@ -77,6 +102,11 @@ void init_hashes()
     data.insertLast( GetStrHash( dir + shor + "18" + frm ) );
     data.insertLast( GetStrHash( dir + shor + "15" + frm ) );
     data.insertLast( GetStrHash( dir + shor + "17" + frm ) );
+
+    for( uint i = 1; i <= 9; i++ )
+        data.insertLast( GetStrHash( dir + "brick0" + i + ".frm" ) );               // pm added
+    for( uint i = 10; i <= 16; i++ )
+        data.insertLast( GetStrHash( dir + "brick" + i + ".frm" ) );
 
 //	#ifdef TNF_DLL_INIT_HASHES_COAST
 //	InitHashesCoast(HASHES_COAST_IN, data, data.length());

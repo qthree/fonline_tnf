@@ -1217,7 +1217,7 @@ Material=1
 [Proto]
 Pid=4668
 Type=9
-PicMapName=art\scenery\reserved.frm
+PicMapName=art\scenery\gate_door.frm
 PicInvName=art\inven\reserved.frm
 Corner=1
 Flags=268440092
@@ -1304,7 +1304,7 @@ Type=9
 PicMapName=art\scenery\vltdr002.frm
 PicInvName=art\inven\reserved.frm
 Corner=1
-Flags=268439580
+Flags=268440092
 DisableEgg=1
 Weight=500000
 SoundId=65

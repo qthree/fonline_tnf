@@ -13,12 +13,17 @@ import void SetChosenTabBullOver( bool enable ) from "chosen_tabs"; // Export
 import void SetChosenTabBleed( bool enable ) from "chosen_tabs";    // Export
 import void SetChosenTabBldTox( bool enable ) from "chosen_tabs";   // Export
 
-#endif
+
+#endif // __CLIENT
 
 #ifndef __CLIENT
 import void PerkUp( Critter& cr, uint perk ) from "perks";
 import void PerkDown( Critter& cr, uint perk ) from "perks";
-#endif
+#endif // __CLIENT
+
+#ifdef __SERVER
+import void ChangeCritterSpeed( Critter& cr ) from "speed";
+#endif // __SERVER
 
 #ifndef __CLIENT
 void changedParam_Hp( Critter& cr, uint, int oldValue )
@@ -64,9 +69,9 @@ void changedParam_Experience( Critter& cr, uint, int oldValue )
                     cr.StatBase[ ST_UNSPENT_SKILL_POINTS ] = 99;                               // Clamp skill points
                 // cr.StatBase[ST_MAX_LIFE]+=2+cr.StatBase[ST_ENDURANCE]/2+cr.Perk[PE_LIFEGIVER]*4; // Add max hp //Roleplay
                 // cr.StatBase[ST_MAX_LIFE]+=2+cr.Perk[PE_LIFEGIVER]*4; // combat system
-                cr.StatBase[ ST_MAX_LIFE ] += cr.Perk[ PE_LIFEGIVER ] * 4;                     // qthree
+                // cr.StatBase[ST_MAX_LIFE]+=cr.Perk[PE_LIFEGIVER]*4; //qthree
                 if( ( level % 3 ) == 0 )
-                    cr.StatBase[ ST_MAX_LIFE ] += cr.StatBase[ ST_ENDURANCE ];                 // qthree
+                    cr.StatBase[ ST_MAX_LIFE ] += cr.StatBase[ ST_ENDURANCE ];                        // qthree
 
                 if( ( level % perkUp ) == 0 )
                 {
@@ -97,7 +102,7 @@ void changedParam_Hide( Critter& cr, uint, int oldValue )
 
 void changedParam_FastShot( Critter& cr, uint, int oldValue )
 {
-    cr.ModeBase[ MODE_NO_AIM ] = ( cr.Trait[ TRAIT_FAST_SHOT ] != 0 ? 1 : 0 );
+//    cr.ModeBase[ MODE_NO_AIM ] = ( cr.Trait[ TRAIT_FAST_SHOT ] != 0 ? 1 : 0 );
 }
 
 int NextLevelNeedExp( Critter& cr ) // Export
@@ -105,6 +110,13 @@ int NextLevelNeedExp( Critter& cr ) // Export
     int level = cr.Stat[ ST_LEVEL ];
     return NUMERICAL_NUMBER( level ) * 1000;
 }
+
+int NextLevelNeedExpStat( int level ) // Export //pm edit
+{
+    //int level = cr.Stat[ ST_LEVEL ];
+    return NUMERICAL_NUMBER( level ) * 1000;
+}
+
 
 int getParamDialog_Intellect( Critter@ master, Critter@ slave, uint index )
 {
@@ -157,6 +169,66 @@ void changedParam_CritterStatus( CritterCl& cr, uint, int oldValue ) // pm added
     SetChosenTabBldTox( FLAG( cr.StatBase[ ST_CRSTATUS ], CR_STATUS_BLOOD_TOXIC ) ? true : false );
 }
 #endif
+
+#ifdef __SERVER
+import void InjureCritter( Critter& cr, uint dmg, uint dmgType, uint8 dir, uint attackerId ) from "combat";
+
+
+const int8[] hunger_array = {-5,	-4,	-4,	-3,	-2,	-1,	-1,	-1,	0,	0};
+const int8[] thrist_array = {-4,	-3,	-3,	-2,	-1,	-1,	-1,	0,	0,	0};
+
+void changedParam_Hunger( Critter& cr, uint, int oldValue )
+{
+	cr.StatBase[ ST_HUNGER ] = CLAMP( cr.StatBase[ ST_HUNGER ], 0, 999 );
+
+        for(uint8 i = ST_STRENGTH; i <= ST_LUCK; ++i){
+		
+		if(i == ST_CHARISMA || i == ST_LUCK) continue;
+		cr.StatBase[STAT_EXT_BEGIN+i] += hunger_array[cr.StatBase[ST_HUNGER] * 0.01] - hunger_array[oldValue * 0.01];
+	}
+}
+
+void changedParam_Thrist( Critter& cr, uint, int oldValue )
+{
+	cr.StatBase[ ST_THRIST ] = CLAMP( cr.StatBase[ ST_THRIST ], 0, 999 );
+
+        for(uint8 i = ST_STRENGTH; i <= ST_LUCK; ++i){
+		
+		if(i == ST_CHARISMA || i == ST_LUCK) continue;
+		cr.StatBase[STAT_EXT_BEGIN+i] += thrist_array[cr.StatBase[ST_THRIST] * 0.01] - thrist_array[oldValue * 0.01];
+	}
+}
+
+void changedParam_Dyspnea( Critter& cr, uint, int oldValue )
+{
+    if(cr.IsNpc()) {cr.StatBase[ ST_DYSPNEA ] = 100; return;}
+  
+    cr.StatBase[ ST_DYSPNEA ] = CLAMP( cr.StatBase[ ST_DYSPNEA ], 0, 100 );
+    
+    int16 armorPid = (valid(_CritGetItemArmor(cr)) ? -1 : _CritGetItemArmor(cr).GetProtoId());
+    bool isPowerArmor = ( armorPid == PID_POWERED_ARMOR  || armorPid == PID_HARDENED_POWER_ARMOR || armorPid == PID_ADVANCED_POWER_ARMOR || armorPid == PID_ADVANCED_POWER_ARMOR_MK2); //for apa and pa
+    
+    if( cr.StatBase[ ST_DYSPNEA ] <= 50 && !cr.IsDead() && cr.Param[ QST_GAMEMODE ] != GAME_START && !isPowerArmor)
+      // && !(/* cr.GetAccess() < ACCESS_MODER || */cr.Param[ QST_GAMEMODE ] == GAME_TEST ) )
+    {
+
+        InjureCritter( cr, 5 - (cr.StatBase[ST_DYSPNEA] * 0.1), DAMAGE_NORMAL, cr.Dir, 0 );
+	cr.TimeoutBase[TO_BATTLE] = 0;
+	
+	if(cr.StatBase[ ST_DYSPNEA ] <= 10)
+		cr.ToKnockout( KNOCKOUT_ANIM2_DEFAULT( false ), 5, cr.HexX, cr.HexY );
+	
+        //cr.Say( SAY_NETMSG, "Вы умерли от удушья." );
+    }
+
+}
+
+void changedParam_SpeedMod( Critter& cr, uint, int oldValue )
+{
+    ChangeCritterSpeed( cr );
+}
+
+#endif // __SERVER
 
 /*#ifdef __CLIENT Good/Evil system, not used
    #include "_colors.fos"
@@ -251,6 +323,8 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
     _param_[ SK_BARTER ] += 0 + 4 * _param_[ ST_CHARISMA ];
     _param_[ SK_GAMBLING ] += 0 + 5 * _param_[ ST_LUCK ];
     _param_[ SK_OUTDOORSMAN ] += 0 + 2 * ( _param_[ ST_ENDURANCE ] + _param_[ ST_INTELLECT ] );
+    _param_[ SK_FARMING] += 0 + 2 * (_param_[ST_INTELLECT]);
+    _param_[ SK_COOKING] += 0 + 2 * (_param_[ST_AGILITY]);
 
     if( _param_[ TAG_SKILL1 ] != 0 )
         _param_[ _param_[ TAG_SKILL1 ] ] += 30;                      // Roleplay
@@ -278,8 +352,8 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
         _param_[ ST_CRITICAL_CHANCE ] += 10;
     if( _param_[ TRAIT_HEAVY_HANDED ] != 0 )
         _param_[ ST_MAX_CRITICAL ] -= 30;
-    if( _param_[ TRAIT_FAST_SHOT ] != 0 )
-        _param_[ MODE_NO_AIM ] = 1;
+    //if( _param_[ TRAIT_FAST_SHOT ] != 0 )
+    //    _param_[ MODE_NO_AIM ] = 1;
 
     #ifdef __CLIENT
     // Runtime calculations, only for client registration
@@ -303,6 +377,17 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
     _param_[ ST_CURRENT_HP ] = _param_[ ST_MAX_LIFE ];
     _param_[ ST_CURRENT_AP ] = _param_[ ST_ACTION_POINTS ] * 100;
     _param_[ ST_EXPERIENCE_MULTIPLIER ] = 1;
+
+    _param_[ ST_HUNGER ] = 999;
+    _param_[ ST_THRIST ] = 999;
+    _param_[ ST_DYSPNEA ] = 100;
+    _param_[ ST_SPEED_MOD ] = 100;
+    
+     for(uint8 i = ST_STRENGTH; i <= ST_LUCK; ++i){ //wtf?!
+
+		if(i == ST_CHARISMA || i == ST_LUCK) continue;
+		_param_[STAT_EXT_BEGIN+i] = -9;
+     }
 }
 
 #ifdef __CLIENT
@@ -357,6 +442,9 @@ bool CritterGenerateCheck( int[]& data ) // Export to client_main@player_data_ch
             return false;
         }
     }
+
+    if( data[ ST_BODY_TYPE ] == 0 )
+        data[ ST_BODY_TYPE ] = ( data[ ST_GENDER ] == 0 ? 62 : 61 );
     // guys
     // 98 96 93 92 91 89 88 87 84 82 78 77 72 64 62 57 56 48 45 44 43 42 41 40 39 31
 

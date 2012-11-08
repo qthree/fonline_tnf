@@ -696,7 +696,7 @@ void SaveFastPanel( bool local )
     // f.close();
 
     __tempFastText = line;
-    Message( "save" );
+    // Message("save");
     return;
     // } else Message("Can't open "+FILE_NAME);
     /**/
@@ -826,15 +826,11 @@ void LoadPanel( int p0, int p1, int p2, string@ word2, int[] @ p4 ) // p0 - 0 fr
 
     if( p0 != 0 )
     {
-        word2 = __tempFastText;
-        if( p0 < 2 )
-            Message( "load local" );
+        word2 = __tempFastText;                              /*if(p0 < 2) Message("load local");*/
     }
     else
     {
-        SaveFastPanel( true );
-        Message( "load server" );
-        __tempFastText = word2;
+        SaveFastPanel( true ); /*Message("load server");*/ __tempFastText = word2;
     }
     string@[] @ layer = split( word2, LINE_TOKEN );
     uint8 length = layer.length();
@@ -892,7 +888,7 @@ void LoadPanel( int p0, int p1, int p2, string@ word2, int[] @ p4 ) // p0 - 0 fr
 void SavePanelUnsafe( int p0, int p1, int p2, string@ p3, int[] @ p4 )
 {
     uint8  length = fastPanelBtns.length();
-    Message( "" + length );
+//      Message(""+length);
     string line = "";
     for( uint8 i = 0; i < length; i++ )
     {
@@ -948,7 +944,7 @@ int8 ChangeLayer( int8 layer )
         {
             fastPanelBtns[ i ].SetVisible( true );
             GetPic( fastPanelBtns[ i ] );
-            Message( "" + layer );
+//                      Message(""+layer);
         }
     }
     fastLayerDisplay.Text( "" + layer, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
@@ -961,7 +957,7 @@ void GetActiveLayer( IGUIElementOpt@[] @ activeBtnLayer )
        string text = fastLayerDisplay.GetText();
        int layerNum = 0;
        StrToInt(text, layerNum);
-     */                                                                                             // q3: Зачем это все?
+     */                                                                                                                   // q3: Зачем это все?
     for( uint8 i = 0; i < fastPanelBtns.length(); i++ )
     {
         if( fastPanelBtns[ i ].GetLayer() == 0 )

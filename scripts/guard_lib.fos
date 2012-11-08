@@ -312,7 +312,7 @@ class CGuardsManager
         if( FindInArray( Observing, player.Id, idx ) ) // если нашли
             if( AlertCount[ idx ] <= 0 )               // если нет притензий
                 DelObserving( idx );
-                                                       // забываем про него
+        // забываем про него
     }
 
     // Вызывается если криттер освободился от задания

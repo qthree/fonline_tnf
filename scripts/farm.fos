@@ -71,8 +71,9 @@ bool dig( Critter& player )
     if( !ltp_inited )
         ltp_init();
 
-    GameVar@ cant_dig = GetLocalVar( LMVAR_cant_dig, map.Id );
-    if( cant_dig.GetValue() == 1 )
+    //GameVar@ cant_dig = GetLocalVar( LMVAR_cant_dig, map.Id );
+    //if( cant_dig.GetValue() == 1 )
+	if(player.GetAccess()<ACCESS_MODER && map.GetProtoId()!=MAP_PATTERN_BLANK)
     {
         player.Say( SAY_NETMSG, "Здесь копать нельзя." );
         return true;

@@ -1,89 +1,281 @@
-#include <new>
+
+#include "q_sprites.h"
+#include "revenge.h"
 
 // #define DISABLE_NEW
 
-/*
-   Names in FOnline, item 11615
-   Addres = 006CF7D8
-   Sectio = .data
-   Typ = Debug data
-   Nam = ?Self@FOClient@@2PAV1@A
-   Comment =
+#include <windows.h>
 
-   Names in FOnline, item 9436
-   Addres = 005002E0
-   Sectio = .text
-   Typ = Debug data
-   Nam = ?InsertSprite@Sprites@@QAEAAVSprite@@HHHHHHIPAIPAF1PAEPA_N@Z
-   Comment =
- */
+
+//#include <d3d9.h>
+//	#include <d3dx9.h>
+//#include <D3DX9Effect.h>
+
+
+//IDirect3D9**         direct3d           = ;
+//IDirect3DDevice9**   direct3d_device    = ;
+
+void* ENGINE_PTR_METHOD_InsertSprite;
+void* ENGINE_PTR_METHOD_AnimLoad;
+void* ENGINE_PTR_METHOD_ShowMainScreen;
+
+//void* ENGINE_PTR_METHOD_DrawPoints = 0x0051ECB0;
+
+//LoadEffect
+/*
+struct UPrepPoint
+{
+    int16 x, y;
+    uint un1, un2;
+    D3DCOLOR color;
+
+    UPrepPoint()
+    {
+        x=0; y=0;
+        un1=0; un2=0;
+        color=0;
+    }
+    void Set(uint16 ax, uint16 ay, D3DCOLOR acolor)
+    {
+        x=ax; y=ay; color=acolor;
+    }
+};
+
+typedef vector<UPrepPoint> UPrepPointVec;
+
+struct CSpriteManager
+{
+    uint v1;
+    uint v2;
+    uint v3;
+    IDirect3D9* direct3d;
+    IDirect3DDevice9*   direct3d_device;
+
+    int DrawPoints(UPrepPointVec* vec, D3DPRIMITIVETYPE ptype, void* p1, uint v2, uint v3)
+    {
+        int retval=0;
+        _asm {
+            push v3
+            push v2
+            push p1
+            push ptype
+            push vec
+            mov ecx, this
+            mov eax, 0x0051ECB0
+            call eax
+            mov retval, eax
+        }
+        return retval;
+    }
+    void Flush()
+    {
+        _asm {
+            mov ecx, this
+            mov eax, 0x0051E660
+            call eax
+        }
+    }
+} *SpriteManager = (CSpriteManager*)0x2F85510;
+*/
+
+//int CSpriteManager::DrawPoints(void* vec, D3DPRIMITIVETYPE ptype, void* p1, uint v2, uint v3) = ;
 
 typedef vector< Sprite* >           SprVec;
 typedef vector< Sprite* >::iterator SprVecIt;
 
-
-struct SAnim
+struct SAnim          // AnyFrames
 {
-    uint* SprId;
-    void* p2;
-    void* p3;
-    uint  SprCount;             // max sprIndex + 1
-    uint  CurSpr;
+    uint*   SprId;
+    uint16* p2;       // offsX?			//+0x4
+    uint16* p3;       // offsY?			//+0x8
+    uint    SprCount; // max sprIndex + 1	//+0xC
+    uint    CurSpr;   // +0x10
 };
 
 typedef vector< SAnim** >           AnimVec;
 typedef vector< SAnim** >::iterator AnimVecIt;
 
-struct MainData
+struct CSprites
 {
-    uint   unnamed[ 22 ];
-    uint16 MapWidth;
-    uint16 MapHeight;
-    Field* Map;                                 // fields
-    uint8* hexValidBeginIt;
-    uint8* hexValidEndIt;
-    uint   unnamed2[ 25 ];
-    struct
-    {
-        SprVec  Sprites;
-        uint    ValidSprites;
+    SprVec  SpritesVec;
+    uint    ValidSprites;
 
-        Sprite* AddSprite( int drawOrderType, int hexX, int hexY, uint un4, int scrX, int scrY, uint sprId, uint un8, uint un9, uint un10, uint un11, uint un12 )
-        {
-            Sprite* spr = NULL;
-            _asm {
-                mov eax, 0x005002E0
-                mov ecx, this
-                push    un12
-                push    un11
-                push    un10
-                push    un9
-                push    un8
-                push    sprId
-                push    scrY
-                push    scrX
-                push    un4
-                push    hexY
-                push    hexX
-                push    drawOrderType
-                call eax
-                mov spr, eax
-            }
-            return spr;
+    Sprite* InsertSprite( int drawOrderType, int hexX, int hexY, uint un4, int scrX, int scrY, uint sprId, uint un8, uint un9, uint un10, uint un11, uint un12 )
+    {
+        Sprite* spr = NULL;
+        _asm {
+            mov eax, ENGINE_PTR_METHOD_InsertSprite
+            mov ecx, this
+            push    un12
+            push    un11
+            push    un10
+            push    un9
+            push    un8
+            push    sprId
+            push    scrY
+            push    scrX
+            push    un4
+            push    hexY
+            push    hexX
+            push    drawOrderType
+            call eax
+            mov spr, eax
         }
-    } SpriteManager;
-    uint    unnamed3[ 537 ];
-    AnimVec Anims;
+        return spr;
+    }
 };
 
-MainData* GameMain;
+struct CAnims
+{
+    AnimVec VAnims;
+
+    uint    AnimLoad( uint hash, uint dir, uint val )
+    {
+        uint animId = 0;
+        _asm {
+            mov eax, ENGINE_PTR_METHOD_AnimLoad
+            mov ecx, this
+            push    val
+            push    dir
+            push    hash
+            call eax
+            mov animId, eax
+        }
+        return animId;
+    }
+};
+
+
+struct IMEC // Interface Main Engine Class
+{
+    void*     pFOnine;
+
+    //uint*     unnamed1;
+    //uint*     unnamed2;
+    char*     pass;
+    void**    p1;
+    void**    p2;
+    uint16*   MapWidth;
+    uint16*   MapHeight;
+    Field**   Map;                               // fields
+    uint8**   hexValidBeginIt;
+    uint8**   hexValidEndIt;
+    //uint**    unnamed3;
+    CSprites* Sprites;
+    //uint*     unnamed4;
+    uint*     mainState;
+    //uint*     unnamed4_5;
+    uint*     doConnect;
+    //uint*     unnamed5;
+    CAnims*   Anims;
+    CritterCl** RegCritter;
+
+    void ShowMainScreen(uint screen)
+    {
+        uint pointer = (uint)this->pFOnine;
+        _asm {
+                mov eax, ENGINE_PTR_METHOD_ShowMainScreen
+                mov ecx, pointer
+                push    screen
+                call eax
+            }
+    }
+
+} GameMain;
+
+struct CFOnlineD3D
+{
+    uint     unnamed1;
+    uint     unnamed2;
+    char     pass[ 16 ];
+    void*    p1;
+    void*    p2;
+    uint16   MapWidth;
+    uint16   MapHeight;
+    Field*   Map;             // fields
+    uint8*   hexValidBeginIt;
+    uint8*   hexValidEndIt;
+    uint     unnamed3[ 25 ];  // d3d
+    CSprites Sprites;
+    uint     unnamed4[ 88 ]; // d3d
+    uint     mainState;
+    uint     unnamed4_5[ 353 ]; // d3d
+    uint     doConnect;
+    uint     unnamed5[ 104 ]; // d3d
+    CAnims   Anims;
+    uint     unnamed6[ 3171 ];
+    CritterCl* RegCritter;
+}* FOnlineD3D;
+
+struct CFOnlineOGL
+{
+    uint     unnamed1;
+    uint     unnamed2;
+    char     pass[ 16 ];
+    void*    p1;
+    void*    p2;
+    uint16   MapWidth;
+    uint16   MapHeight;
+    Field*   Map;             // fields
+    uint8*   hexValidBeginIt;
+    uint8*   hexValidEndIt;
+    uint     unnamed3[ 33 ];  // ogl
+    CSprites Sprites;
+    uint     unnamed4[ 558 ]; // ogl
+    CAnims   Anims;
+}* FOnlineOGL;
+
+/*struct ResNode
+   {
+        void* p1;
+        void* below;	//0x08
+        void* above;	//0x0C
+        uint Hash; //0x10
+        uint val; //0x14
+        SAnim* Anim; //0x18
+   }*/
+
+struct CResourceManager
+{
+    void* p1;           // +0x00		//vec?
+    void* p2;           // +0x04		//vec?
+    void* p3;           // +0x08		//vec?
+    void* p4;           // +0x0C		//0
+    void* p5;           // +0x10		//0
+    void* p6;           // +0x14		//trash
+    void* p7;           // +0x18		//trash
+    void* p8;           // +0x1C		//0
+    uint  v1;           // +0x20		//2
+    // ---anims---
+    void* p10;          // +0x24		//0
+    void* p11;          // +0x28		//ResNodes
+    void* p12;          // +0x2C
+    void* p13;          // +0x30
+    // void* p14;	//+0x34
+
+    /*SAnim* GetAnim( uint hash, uint dir, uint val )
+       {
+        SAnim* anim = NULL;
+        _asm {
+            mov eax, 0x004D7E80
+            mov ecx, this
+            push    val
+            push    dir
+            push    hash
+            call eax
+            mov anim, eax
+        }
+        return anim;
+       }*/
+    // 004D7E80  .text     Debug data  ?GetAnim@ResourceManager@@QAEPAUAnyFrames@@IHH@Z
+}* ResourceManager;
 
 EXPORT uint GetSprId( uint animId, int sprIndex )
 {
-    if( ( GameMain->Anims.size() <= animId ) || ( sprIndex != 0 ) )
+    if( ( GameMain.Anims->VAnims.size() <= animId ) || ( sprIndex != 0 ) )
         return 0;
 
-    SAnim* anim = *GameMain->Anims[ animId ];
+    SAnim* anim = *( GameMain.Anims->VAnims[ animId ] );
 
     if( anim->SprId )
     {
@@ -95,32 +287,26 @@ EXPORT uint GetSprId( uint animId, int sprIndex )
     return 0;
 }
 
-EXPORT bool SetTile( uint16 hexX, uint16 hexY, bool isRoof, uint animId, uint8 layer, int16 offsX, int16 offsY )
+EXPORT bool Field_SetTile( bool isRoof, uint animId, uint8 layer, int16 offsX, int16 offsY, Field* field )
 {
-    Field* field = GetField( hexX, hexY );
-
-    if( field == NULL )
-        return false;
-
     // char buff[200];
 
     Field::TileVec* tiles;
     if( isRoof )
-        tiles = &( field->Roofs );
+        tiles = &field->Roofs;
     else
-        tiles = &( field->Tiles );
+        tiles = &field->Tiles;
 
-    if( GameMain->Anims.size() <= animId )
+    if( GameMain.Anims->VAnims.size() <= animId )
         return false;
 
-    void* anim = (void*) ( *GameMain->Anims[ animId ] );
+    void* anim = (void*) ( *( GameMain.Anims->VAnims[ animId ] ) );
 
     if( anim == NULL )
         return false;
 
     Field::TileVec::iterator It = tiles->begin(), ItEnd = tiles->end();
     uint                     len = tiles->size();
-
 
     #ifdef DISABLE_NEW
     if( It == 0 )
@@ -167,6 +353,19 @@ EXPORT bool SetTile( uint16 hexX, uint16 hexY, bool isRoof, uint animId, uint8 l
     It->OffsY = offsY;
     It->Layer = layer;
 
+    return true;
+}
+
+EXPORT bool SetTile( uint16 hexX, uint16 hexY, bool isRoof, uint animId, uint8 layer, int16 offsX, int16 offsY )
+{
+    Field* field = GetField( hexX, hexY );
+
+    if( field == NULL )
+        return false;
+
+    if( !Field_SetTile( isRoof, animId, layer, offsX, offsY, field ) )
+        return false;
+
     if( isRoof && field->RoofNum == 0 )
     {
         for( int i = 0; i < 4; i++ )
@@ -205,22 +404,49 @@ EXPORT bool SetTile( uint16 hexX, uint16 hexY, bool isRoof, uint animId, uint8 l
 
 EXPORT Sprite* AddMapSprite( uint16 hexX, uint16 hexY, uint animId, int sprIndex, int offsX, int offsY, int drawOrderType, int drawOffsY )
 {
-    uint   sprId = *( ( *GameMain->Anims[ animId ] )->SprId );
+    uint   sprId = *( ( *( GameMain.Anims->VAnims[ animId ] ) )->SprId );
 
-    Field* field = GameMain->Map + ( hexY * GameMain->MapWidth + hexX );
+    Field* field = *GameMain.Map + ( hexY * ( *GameMain.MapWidth ) + hexX );
 
-    return GameMain->SpriteManager.AddSprite( drawOrderType, hexX, hexY + drawOffsY, 0, field->ScrX + offsX, field->ScrY + offsY, sprId, 0, 0, 0, 0, 0 );
+    return GameMain.Sprites->InsertSprite( drawOrderType, hexX, hexY + drawOffsY, 0, field->ScrX + offsX, field->ScrY + offsY, sprId, 0, 0, 0, 0, 0 );
 }
+
+// SAnim* anim123 = NULL;
+
+EXPORT uint TestAnim( uint hash, uint16 hexX, uint16 hexY, uint val )
+{
+    // if(anim123 != NULL)
+    // {
+//		return 3;
+    // }
+
+    uint animId = GameMain.Anims->AnimLoad( hash, 0, val );
+
+    // anim123 = ResourceManager->GetAnim(hash, 0, val);
+    // if(anim123 == NULL) return 1;
+    if( animId == 0 )
+        return 1;
+
+    // uint sprId = *(anim123->SprId);
+    uint    sprId = *( ( *( GameMain.Anims->VAnims[ animId ] ) )->SprId );
+
+    Field*  field = GetField( hexX, hexY );
+    Sprite* spr = GameMain.Sprites->InsertSprite( 24, hexX, hexY, 0, field->ScrX, field->ScrY, sprId, 0, 0, 0, 0, 0 );
+    if( spr == NULL )
+        return 2;
+    return 0;
+}
+
 
 EXPORT Sprite* GetSprite( uint sprId, uint16 hexX, uint16 hexY )
 {
-    SprVecIt sprIt = GameMain->SpriteManager.Sprites.begin();
-    uint     count = GameMain->SpriteManager.ValidSprites;
+    SprVecIt sprIt = GameMain.Sprites->SpritesVec.begin();
+    uint     count = GameMain.Sprites->ValidSprites;
 
-    if( count == 0 || sprId >= GameMain->Anims.size() )
+    if( count == 0 || sprId >= GameMain.Anims->VAnims.size() )
         return NULL;
 
-    SAnim* anim = *GameMain->Anims[ sprId ];
+    SAnim* anim = *( GameMain.Anims->VAnims[ sprId ] );
 
     if( anim->SprId )
     {
@@ -239,8 +465,8 @@ EXPORT Sprite* GetSprite( uint sprId, uint16 hexX, uint16 hexY )
 
 EXPORT Sprite* GetSpriteDOT( int dot, uint16 hexX, uint16 hexY )
 {
-    SprVecIt sprIt = GameMain->SpriteManager.Sprites.begin();
-    uint     count = GameMain->SpriteManager.ValidSprites;
+    SprVecIt sprIt = GameMain.Sprites->SpritesVec.begin();
+    uint     count = GameMain.Sprites->ValidSprites;
 
     if( count == 0 )
         return NULL;
@@ -265,8 +491,8 @@ EXPORT Sprite* GetSpriteDOT( int dot, uint16 hexX, uint16 hexY )
 
 EXPORT void SortSprites()
 {
-    SprVecIt sprIt = GameMain->SpriteManager.Sprites.begin();
-    uint     count = GameMain->SpriteManager.ValidSprites;
+    SprVecIt sprIt = GameMain.Sprites->SpritesVec.begin();
+    uint     count = GameMain.Sprites->ValidSprites;
     // SprVecIt sprEnd = sprIt+count;
 
     for( uint i = 0; i < count; i++ )
@@ -300,16 +526,16 @@ EXPORT void Sprite_RecalcOrder( int hexY, Sprite* sprite )
 
 EXPORT Sprite* GetMonitorSprite( int x, int y )
 {
-    SprVecIt sprIt = GameMain->SpriteManager.Sprites.begin();
-    uint     count = GameMain->SpriteManager.ValidSprites;
+    SprVecIt sprIt = GameMain.Sprites->SpritesVec.begin();
+    uint     count = GameMain.Sprites->ValidSprites;
 
     if( count == 0 )
         return NULL;
 
     if( x == 0 && y == 0 )
     {
-        x = int(Game->MouseX * Game->SpritesZoom);
-        y = int(Game->MouseY * Game->SpritesZoom);
+        x = int(FOnline->MouseX * FOnline->SpritesZoom);
+        y = int(FOnline->MouseY * FOnline->SpritesZoom);
     }
 
     // SprVecIt sprEnd = sprIt+count;
@@ -320,7 +546,7 @@ EXPORT Sprite* GetMonitorSprite( int x, int y )
 
         if( spr->Valid != false )
         {
-            if( Game->IsSpriteHit( spr, x, y, true ) )
+            if( FOnline->IsSpriteHit( spr, x, y, true ) )
             {
                 return spr;
             }
@@ -488,8 +714,13 @@ void fillNoiseBuffer( float* buffer, uint8 size )
     center  =  Noise2d(x, y) / 4;
    }
  */
-void GenerateDesert( CScriptArray* array, uint size )
+void GenerateDesert( ScriptArray* array, uint size )
 {
+    if( array->GetElementSize() != sizeof( float ) )
+    {
+        Log( "GenerateDesert: Error! Wrong type of array." );
+        return;
+    }
     array->Resize( size * size );
 
     /*float buffer5[5*5];
@@ -504,7 +735,7 @@ void GenerateDesert( CScriptArray* array, uint size )
        float buffer75[75*75];
        fillNoiseBuffer(buffer75, 75);*/
 
-    float* buffer = (float*) array->buffer->data;
+    float* buffer = (float*) array->GetBuffer();
     fillNoiseBuffer( buffer, size );
 
     /*for(int y=0, i=0; y<75; y++)
@@ -521,84 +752,508 @@ void GenerateDesert( CScriptArray* array, uint size )
     // memcpy(array->buffer->data, buffer, size*size*sizeof(float));
 }
 
-void RegisterNativeSprite( bool compiler )
+void Field_ClearTiles( bool roofs, Field* field )
 {
-    STATIC_ASSERT( offsetof( MainData, MapWidth )              == 0x58  );
-    STATIC_ASSERT( offsetof( MainData, SpriteManager )              == 0xCC  ); // 28
-    // STATIC_ASSERT(offsetof(MainData, ValidSprites)              == 0xB0  );
-    STATIC_ASSERT( offsetof( MainData, Anims )              == 0x940  );        // 918
+    if( roofs )
+        field->Roofs.clear();
+    else
+        field->Tiles.clear();
+}
 
+void ClearAllTiles()
+{
+    Field* field = *GameMain.Map;
+    for(uint i=0, len = (*GameMain.MapWidth)*(*GameMain.MapHeight); i<len; i++)
+    {
+        if(!field) continue;
+        field->Tiles.clear();
+        field->Roofs.clear();
+        field++;
+    }
+
+}
+
+void Field_ChangeTileLayer( bool isRoof, uint8 fromLayer, uint8 toLayer, Field* field )
+{
+    Field::TileVec* tiles;
+    if( isRoof )
+        tiles = &( field->Roofs );
+    else
+        tiles = &( field->Tiles );
+
+    for( Field::TileVec::iterator It = tiles->begin(), ItEnd = tiles->end(); It < ItEnd; It++ )
+    {
+        if( It->Layer == fromLayer )
+            It->Layer = toLayer;
+    }
+}
+
+//004830E0  FOnlineD3D.?NetDisconnect@FOClient@@QAEXXZ(guessed void)
+EXPORT void NetDisconnect()
+{
+    void* p = GameMain.pFOnine;
+    _asm {
+        mov ecx, p
+        mov eax, 0x004830E0
+        call eax
+    }
+}
+
+
+void NetLogin(uint mode, ScriptString* login, ScriptString* pass)
+{
+    NetDisconnect();
+
+    switch(mode)
+    {
+        case 1: break; //коннект без логина и пароля, для скачивания кеша
+        case 2: //обычный логин
+        {
+            if(login==NULL || pass==NULL) return;
+            uint passlen = pass->length(), loglen = login->length();
+            if(passlen>14 || passlen<3 || loglen<FOnline->MinNameLength || loglen>FOnline->MaxNameLength) return;
+
+            memcpy(GameMain.pass, pass->c_str(), passlen+1);
+
+            const_cast<ScriptString&>(FOnline->Name) = *login;
+
+            break;
+        }
+        case 3: //регистрация
+        {
+            if(login==NULL || pass==NULL) return;
+            uint passlen = pass->length(), loglen = login->length();
+            if(passlen>14 || passlen<3 || loglen<FOnline->MinNameLength || loglen>FOnline->MaxNameLength) return;
+
+            GameMain.ShowMainScreen(2);
+/*
+            char buf[100];
+            itoa((uint)*GameMain.RegCritter, buf, 16);
+            MessageBoxA(0, buf, "rty", 0);
+*/
+            if(*GameMain.RegCritter)
+            {
+                const_cast<ScriptString&>((*GameMain.RegCritter)->Name) = *login;
+                memcpy((void*)(*GameMain.RegCritter)->PasswordReg, pass->c_str(), passlen);
+/*
+                MessageBoxA(0, (*GameMain.RegCritter)->Name.c_str(), "rty", 0);
+                MessageBoxA(0, (*GameMain.RegCritter)->PasswordReg, "rty", 0);
+*/
+                break;
+            }
+            return;
+
+        }
+
+        case 4: return; // сэйв/лоад сингла
+
+             //const_cast<int&>((*GameMain.RegCritter)->Params[ST_STRENGTH]) = 10;
+/*        case 5:
+        {
+            //(*GameMain.mainState) = 2;
+             GameMain.ShowMainScreen(2);
+        }
+        return;
+        case 6:
+        {
+             GameMain.ShowMainScreen(0);
+        }
+        return;
+*/
+        default: return;  // дисконнект
+    }
+
+    *GameMain.doConnect = mode;
+}
+
+
+
+// class QDrawSystem
+// {} qDrawSystem;
+
+/*
+struct CUSTOMVERTEX
+{
+    float x,y,z;
+    D3DCOLOR diffuse;
+};
+
+
+
+struct FOEffect
+{
+    uint un1, un2;
+    ID3DXEffect* dxeffect;
+    uint EffectFlags,
+    EffectParam,
+    un3, un4;
+    D3DXHANDLE TechniqueSimple;
+    uint un5, un6, un7, un8, un9, un10, un11, un12, un13, un14, un15,
+    EffectVariables;
+};
+
+
+#define M_PI       3.14159265358979323846
+
+ID3DXEffect* g_pEffect = NULL;
+
+float xqwe = 0,
+xqwe_step = M_PI/128;
+
+int8 efinit = 0;
+
+IDirect3DVertexBuffer9 *pVB = NULL;
+IDirect3DIndexBuffer9  *pIB = NULL;
+
+D3DXHANDLE ViewProj = NULL;
+
+int NumVerts = 6;
+int NumTriangles = 4;
+int NumInds = 6;
+
+//IDirect3DBaseTexture9 texNoise;
+
+bool InitTestEffect(IDirect3DDevice9* d3dDevice)
+{
+    DWORD dwShaderFlags = 0;
+    ID3DXBuffer* err = NULL;
+
+    HRESULT res = D3DXCreateEffectFromFile(
+        d3dDevice,
+        "data\\effects\\Primitive_2.fx",
+        NULL, // CONST D3DXMACRO* pDefines,
+        NULL, // LPD3DXINCLUDE pInclude,
+        dwShaderFlags,
+        NULL, // LPD3DXEFFECTPOOL pPool,
+        &g_pEffect,
+        &err );
+
+    if(g_pEffect==NULL) Log("FAAAAAAIL!!! %x \n", res);
+    else Log("GOOOOD!!! %x \n", res);
+
+    if(err!=NULL) Log("err: %s ", (char*)err->GetBufferPointer());
+
+    ViewProj = g_pEffect->GetParameterBySemantic(NULL, "VIEWPROJECTION");
+
+
+
+    //hex
+
+    CUSTOMVERTEX VertiHex[] =
+    {
+        {0,     0.1,   1.0,   0xFFFF0000},
+        {0.2,  0.05,   1.0,   0xFFFF0000},
+        {0.2, -0.05,   1.0,   0xFFFF0000},
+        {0,    -0.1,   1.0,   0xFFFF0000},
+        {-0.2, -0.05,  1.0,   0xFFFF0000},
+        {-0.2,  0.05,  1.0,   0xFFFF0000}
+    };
+
+    const unsigned short VertiHexInds[]={
+        0,1,2,3,4,5
+    };
+
+    HRESULT hr = 0;
+   void * pBuf = NULL;
+
+   //вершины
+
+
+
+   hr = d3dDevice->CreateVertexBuffer( sizeof(CUSTOMVERTEX) * NumVerts, 0, D3DFVF_XYZ| D3DFVF_DIFFUSE, D3DPOOL_DEFAULT, &pVB, 0);
+   if( FAILED(hr) ) return false;
+
+    hr = pVB->Lock( 0, sizeof(CUSTOMVERTEX) * NumVerts, &pBuf, 0 );
+    if( FAILED(hr) ) return false;
+    memcpy( pBuf, VertiHex, sizeof(CUSTOMVERTEX) * NumVerts);
+    pVB->Unlock();
+
+
+    //индексы
+
+    hr = d3dDevice->CreateIndexBuffer( sizeof(short) * NumInds,
+    0, D3DFMT_INDEX16, D3DPOOL_DEFAULT,&pIB, 0);
+    if( FAILED(hr) ) return false;
+
+    hr = pIB->Lock( 0, sizeof(short) * NumInds, &pBuf, 0 );
+    if( FAILED(hr) ) return false;
+    memcpy( pBuf, VertiHexInds, sizeof(short) * NumInds);
+    pIB->Unlock();
+
+
+
+    return(!FAILED(res));
+}
+
+int TestDirect3d(uint test_type)
+{
+    if((SpriteManager->direct3d==0) || (SpriteManager->direct3d_device==0)) return -10;
+    IDirect3DDevice9* d3dDevice = SpriteManager->direct3d_device;
+
+
+    if(efinit==0)
+    {
+        efinit = InitTestEffect(d3dDevice)?1:-1;
+        if(efinit<0) Log("Load test effect failed.");
+        else Log("Load test effect done.");
+    }
+    else if(efinit<0) return -1;
+
+    //return 0;
+
+
+
+    if(xqwe>=(M_PI*2)) xqwe=0;
+
+    switch(test_type)
+    {
+        case 3:
+        {
+            UPrepPointVec pvec;
+            pvec.resize(5);
+            float cc = cos(xqwe), cs = sin(xqwe);
+            int icc = (uint)((cc+1.0f)*0x7C), ics = (uint)((cs+1.0f)*0x7C);
+
+            int cposx = 400+cc*100, cposy = 300-cs*100;
+
+            cc*=100.0f; cs*=100.0f;
+
+            pvec[0].Set(cposx+cc, cposy+cs, D3DCOLOR_ARGB(0xff, icc, 0xff-icc, 0));
+            pvec[1].Set(cposx-cc, cposy-cs, D3DCOLOR_ARGB(0xff, icc, icc, 0xff-icc));
+            pvec[2].Set(cposx+cs, cposy+cc, D3DCOLOR_ARGB(0xff, ics, ics, 0xff-ics));
+            pvec[3].Set(cposx-cs, cposy-cc, D3DCOLOR_ARGB(0xff, ics, 0xff-ics, 0));
+            pvec[4].Set(cposx+cc, cposy+cs, D3DCOLOR_ARGB(0xff, icc, 0xff-icc, 0));
+            SpriteManager->DrawPoints(&pvec, D3DPT_LINESTRIP, 0, 0, 0);
+
+            break;
+        }
+        case 2:
+        {
+            SpriteManager->Flush();
+
+            FOEffect* effect = *((FOEffect**)(((char*)SpriteManager)+0x218));
+
+            if(effect==NULL) break;
+
+            ID3DXEffect* dxeffect = effect->dxeffect;
+
+            if(dxeffect==NULL) break;
+
+            CUSTOMVERTEX Vertices[] =
+            {
+                {0,    0,    1.0, 0xFFFF0000},
+                {cos(xqwe),    sin(xqwe),  1.0, 0xFF0000FF}
+            };
+
+            d3dDevice->SetFVF( D3DFVF_XYZ| D3DFVF_DIFFUSE );
+
+            dxeffect->SetTechnique(effect->TechniqueSimple);
+
+            uint passes;
+            dxeffect->Begin(&passes, effect->EffectFlags);
+            for(uint i=0; i<passes; i++)
+            {
+                dxeffect->BeginPass(i);
+                d3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, 1, (void*)Vertices, sizeof(CUSTOMVERTEX));
+                dxeffect->EndPass();
+            }
+            dxeffect->End();
+
+            break;
+        }
+
+        case 0:
+        {
+            if(g_pEffect==NULL) {break;}
+
+           d3dDevice->SetFVF( D3DFVF_XYZ| D3DFVF_DIFFUSE );
+
+           d3dDevice->SetStreamSource( 0, pVB, 0, sizeof(CUSTOMVERTEX) );
+           d3dDevice->SetIndices(pIB);
+
+
+
+            uint cPasses=0;
+            // Apply the technique contained in the effect
+
+            g_pEffect->SetTechnique("Simple");
+
+            g_pEffect->SetMatrix( ViewProj, (D3DXMATRIX*)0x007BA048);
+
+            g_pEffect->Begin(&cPasses, 0);
+
+            for (uint iPass = 0; iPass < cPasses; iPass++)
+            {
+                g_pEffect->BeginPass(iPass);
+
+                // Only call CommitChanges if any state changes have happened
+                // after BeginPass is called
+                //g_pEffect->CommitChanges();
+
+                //d3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 1, (void*)Vertices, sizeof(CUSTOMVERTEX));
+                d3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, NumVerts, 0, NumTriangles);
+
+                // Render the mesh with the applied technique
+                //g_pMesh->DrawSubset(0);
+
+                g_pEffect->EndPass();
+            }
+            g_pEffect->End();
+
+
+            break;
+        }
+    }
+
+    xqwe+=xqwe_step;
+
+    return 0;
+}
+*/
+void RegisterNativeSprites( asIScriptEngine* engine, bool compiler )
+{
+    STATIC_ASSERT( offsetof( CFOnlineOGL, MapWidth )                            == 0x20  );
+    STATIC_ASSERT( offsetof( CFOnlineD3D, MapWidth )                                == 0x20  );
+    STATIC_ASSERT( offsetof( CFOnlineD3D, Sprites )                              == 0x94  ); // d3d
+    STATIC_ASSERT( offsetof( CFOnlineOGL, Sprites )                          == 0xB4  );     // ogl
+
+    STATIC_ASSERT( offsetof( CFOnlineD3D, mainState)                         == 0x204  ); // d3d
+
+    STATIC_ASSERT( offsetof( CFOnlineD3D, doConnect)                         == 0x78c  ); // d3d
+
+    STATIC_ASSERT( offsetof( CFOnlineD3D, Anims )                           == 0x930  );     // d3d
+    STATIC_ASSERT( offsetof( CFOnlineOGL, Anims )                           == 0x97C  );     // ogl
+
+    STATIC_ASSERT( offsetof( CFOnlineD3D, RegCritter )                           == 0x3AC8  );     // d3d
+
+/*    char buf[30];
+    itoa(offsetof( CFOnlineD3D, doConnect ), buf, 16);
+    Log(buf);
+*/
     int r;
 
     // Register the type
-    r = ASEngine->RegisterObjectType( "NativeSprite", 0 /*sizeof(Sprite)*/, asOBJ_REF );
+    r = engine->RegisterObjectType( "NativeSprite", 0 /*sizeof(Sprite)*/, asOBJ_REF );
 
     // Registering the addref/release behaviours
-    r = ASEngine->RegisterObjectBehaviour( "NativeSprite", asBEHAVE_ADDREF, "void f()", asFUNCTION( Blank_Ref ), asCALL_CDECL_OBJLAST );
-    r = ASEngine->RegisterObjectBehaviour( "NativeSprite", asBEHAVE_RELEASE, "void f()", asFUNCTION( Blank_Ref ), asCALL_CDECL_OBJLAST );
+    r = engine->RegisterObjectBehaviour( "NativeSprite", asBEHAVE_ADDREF, "void f()", asFUNCTION( Blank_Ref ), asCALL_CDECL_OBJLAST );
+    r = engine->RegisterObjectBehaviour( "NativeSprite", asBEHAVE_RELEASE, "void f()", asFUNCTION( Blank_Ref ), asCALL_CDECL_OBJLAST );
 
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "int DrawOrderType", offsetof( Sprite, DrawOrderType ) );
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "uint DrawOrderPos", offsetof( Sprite, DrawOrderPos ) );
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "uint TreeIndex", offsetof( Sprite, TreeIndex ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "int DrawOrderType", offsetof( Sprite, DrawOrderType ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "uint DrawOrderPos", offsetof( Sprite, DrawOrderPos ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "uint TreeIndex", offsetof( Sprite, TreeIndex ) );
 
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "uint SprId", offsetof( Sprite, SprId ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "uint SprId", offsetof( Sprite, SprId ) );
 
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "int HexX", offsetof( Sprite, HexX ) );
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "int HexY", offsetof( Sprite, HexY ) );
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "int ScrX", offsetof( Sprite, ScrX ) );
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "int ScrY", offsetof( Sprite, ScrY ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "int HexX", offsetof( Sprite, HexX ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "int HexY", offsetof( Sprite, HexY ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "int ScrX", offsetof( Sprite, ScrX ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "int ScrY", offsetof( Sprite, ScrY ) );
 
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "int EggType", offsetof( Sprite, EggType ) );
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "int ContourType", offsetof( Sprite, ContourType ) );
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "uint ContourColor", offsetof( Sprite, ContourColor ) );
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "uint Color", offsetof( Sprite, Color ) );
-    r = ASEngine->RegisterObjectProperty( "NativeSprite", "uint FlashMask", offsetof( Sprite, FlashMask ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "int EggType", offsetof( Sprite, EggType ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "int ContourType", offsetof( Sprite, ContourType ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "uint ContourColor", offsetof( Sprite, ContourColor ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "uint Color", offsetof( Sprite, Color ) );
+    r = engine->RegisterObjectProperty( "NativeSprite", "uint FlashMask", offsetof( Sprite, FlashMask ) );
 
-    r = ASEngine->RegisterObjectMethod( "NativeSprite", "uint GetSprId()", asFUNCTION( Sprite_GetSprId_proxy ), asCALL_CDECL_OBJLAST );
-    r = ASEngine->RegisterObjectMethod( "NativeSprite", "void GetPos(int&, int&)", asFUNCTION( Sprite_GetPos_proxy ), asCALL_CDECL_OBJLAST );
-    r = ASEngine->RegisterObjectMethod( "NativeSprite", "void RecalcOrder(int)", asFUNCTION( Sprite_RecalcOrder ), asCALL_CDECL_OBJLAST );
+    r = engine->RegisterObjectMethod( "NativeSprite", "uint GetSprId()", asFUNCTION( Sprite_GetSprId_proxy ), asCALL_CDECL_OBJLAST );
+    r = engine->RegisterObjectMethod( "NativeSprite", "void GetPos(int&, int&)", asFUNCTION( Sprite_GetPos_proxy ), asCALL_CDECL_OBJLAST );
+    r = engine->RegisterObjectMethod( "NativeSprite", "void RecalcOrder(int)", asFUNCTION( Sprite_RecalcOrder ), asCALL_CDECL_OBJLAST );
 
-    r = ASEngine->RegisterGlobalFunction( "NativeSprite@ GetSprite(uint, uint16, uint16)", asFUNCTION( GetSprite ), asCALL_CDECL );
-    r = ASEngine->RegisterGlobalFunction( "NativeSprite@ GetSpriteDOT(int, uint, uint)", asFUNCTION( GetSpriteDOT ), asCALL_CDECL );
-    r = ASEngine->RegisterGlobalFunction( "NativeSprite@ GetMonitorSprite(int, int)", asFUNCTION( GetMonitorSprite ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "NativeSprite@ GetSprite(uint, uint16, uint16)", asFUNCTION( GetSprite ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "NativeSprite@ GetSpriteDOT(int, uint, uint)", asFUNCTION( GetSpriteDOT ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "NativeSprite@ GetMonitorSprite(int, int)", asFUNCTION( GetMonitorSprite ), asCALL_CDECL );
 
-    r = ASEngine->RegisterGlobalFunction( "void SortSprites()", asFUNCTION( SortSprites ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "void SortSprites()", asFUNCTION( SortSprites ), asCALL_CDECL );
 
-    r = ASEngine->RegisterGlobalFunction( "NativeSprite@ AddMapSprite(uint16, uint16, uint, int, int, int, int, int)", asFUNCTION( AddMapSprite ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "NativeSprite@ AddMapSprite(uint16, uint16, uint, int, int, int, int, int)", asFUNCTION( AddMapSprite ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "uint TestAnim(uint, uint16, uint16, uint)", asFUNCTION( TestAnim ), asCALL_CDECL );
 
-    r = ASEngine->RegisterGlobalFunction( "bool SetTile(uint16, uint16, bool, uint, uint8, int16, int16)", asFUNCTION( SetTile ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "bool SetTile(uint16, uint16, bool, uint, uint8, int16, int16)", asFUNCTION( SetTile ), asCALL_CDECL );
 
-    r = ASEngine->RegisterGlobalFunction( "uint GetSprId(uint, int)", asFUNCTION( GetSprId ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "uint GetSprId(uint, int)", asFUNCTION( GetSprId ), asCALL_CDECL );
 
 
 
-    r = ASEngine->RegisterObjectType( "NativeField", 0 /*sizeof(Sprite)*/, asOBJ_REF );
+    r = engine->RegisterObjectType( "NativeField", 0 /*sizeof(Sprite)*/, asOBJ_REF );
 
-    r = ASEngine->RegisterObjectBehaviour( "NativeField", asBEHAVE_ADDREF, "void f()", asFUNCTION( Blank_Ref ), asCALL_CDECL_OBJLAST );
-    r = ASEngine->RegisterObjectBehaviour( "NativeField", asBEHAVE_RELEASE, "void f()", asFUNCTION( Blank_Ref ), asCALL_CDECL_OBJLAST );
+    r = engine->RegisterObjectBehaviour( "NativeField", asBEHAVE_ADDREF, "void f()", asFUNCTION( Blank_Ref ), asCALL_CDECL_OBJLAST );
+    r = engine->RegisterObjectBehaviour( "NativeField", asBEHAVE_RELEASE, "void f()", asFUNCTION( Blank_Ref ), asCALL_CDECL_OBJLAST );
 
-    r = ASEngine->RegisterObjectProperty( "NativeField", "bool ScrollBlock", offsetof( Field, ScrollBlock ) );
-    r = ASEngine->RegisterObjectProperty( "NativeField", "bool IsWall", offsetof( Field, IsWall ) );
-    r = ASEngine->RegisterObjectProperty( "NativeField", "bool IsWallSAI", offsetof( Field, IsWallSAI ) );
-    r = ASEngine->RegisterObjectProperty( "NativeField", "bool IsWallTransp", offsetof( Field, IsWallTransp ) );
-    r = ASEngine->RegisterObjectProperty( "NativeField", "bool IsScen", offsetof( Field, IsScen ) );
-    r = ASEngine->RegisterObjectProperty( "NativeField", "bool IsExitGrid", offsetof( Field, IsExitGrid ) );
-    r = ASEngine->RegisterObjectProperty( "NativeField", "bool IsNotPassed", offsetof( Field, IsNotPassed ) );
-    r = ASEngine->RegisterObjectProperty( "NativeField", "bool IsNotRaked", offsetof( Field, IsNotRaked ) );
-    r = ASEngine->RegisterObjectProperty( "NativeField", "bool IsNoLight", offsetof( Field, IsNoLight ) );
+    r = engine->RegisterObjectProperty( "NativeField", "bool ScrollBlock", offsetof( Field, ScrollBlock ) );
+    r = engine->RegisterObjectProperty( "NativeField", "bool IsWall", offsetof( Field, IsWall ) );
+    r = engine->RegisterObjectProperty( "NativeField", "bool IsWallSAI", offsetof( Field, IsWallSAI ) );
+    r = engine->RegisterObjectProperty( "NativeField", "bool IsWallTransp", offsetof( Field, IsWallTransp ) );
+    r = engine->RegisterObjectProperty( "NativeField", "bool IsScen", offsetof( Field, IsScen ) );
+    r = engine->RegisterObjectProperty( "NativeField", "bool IsExitGrid", offsetof( Field, IsExitGrid ) );
+    r = engine->RegisterObjectProperty( "NativeField", "bool IsNotPassed", offsetof( Field, IsNotPassed ) );
+    r = engine->RegisterObjectProperty( "NativeField", "bool IsNotRaked", offsetof( Field, IsNotRaked ) );
+    r = engine->RegisterObjectProperty( "NativeField", "bool IsNoLight", offsetof( Field, IsNoLight ) );
 
-    r = ASEngine->RegisterGlobalFunction( "NativeField@ GetField(uint16, uint16)", asFUNCTION( GetField ), asCALL_CDECL );
+    r = engine->RegisterObjectMethod( "NativeField", "bool SetTile(bool, uint, uint8, int16, int16)", asFUNCTION( Field_SetTile ), asCALL_CDECL_OBJLAST );
+    r = engine->RegisterObjectMethod( "NativeField", "void ClearTiles(bool)", asFUNCTION( Field_ClearTiles ), asCALL_CDECL_OBJLAST );
+    r = engine->RegisterObjectMethod( "NativeField", "void ChangeTileLayer(bool, uint8, uint8)", asFUNCTION( Field_ChangeTileLayer ), asCALL_CDECL_OBJLAST );
 
-    r = ASEngine->RegisterGlobalFunction( "void GenerateDesert(float[]&, uint)", asFUNCTION( GenerateDesert ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "NativeField@ GetField(uint16, uint16)", asFUNCTION( GetField ), asCALL_CDECL );
 
+    r = engine->RegisterGlobalFunction( "void GenerateDesert(float[]&, uint)", asFUNCTION( GenerateDesert ), asCALL_CDECL );
+
+    r = engine->RegisterGlobalFunction( "void NetLogin(uint, string@, string@)", asFUNCTION( NetLogin ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "void NetDisconnect()", asFUNCTION( NetDisconnect ), asCALL_CDECL );
+
+//    r = engine->RegisterGlobalFunction( "int TestDirect3d(uint)", asFUNCTION( TestDirect3d ), asCALL_CDECL );
 
     if( compiler )
         return;
 
-    // GameMain = ((MainData* (__cdecl *)(void))((char*)(Game->GetDrawingSprites)+0x22))();
+    if( *( (uint8*) 0x00401042 ) == 0xC3 ) // D3D
+    {
+        FOnlineD3D = *( (CFOnlineD3D**) ENGINE_PTR_STRUCT_FOClient_D3D );
 
-    _asm {
-        MOV EAX, DWORD PTR DS :[ 0x006CF7D8 ]
-        mov             GameMain,               eax
+        GameMain.pFOnine = (void*)FOnlineD3D;
+
+        GameMain.pass = FOnlineD3D->pass;
+
+        GameMain.MapWidth = &FOnlineD3D->MapWidth;
+        GameMain.MapHeight = &FOnlineD3D->MapHeight;
+        GameMain.Map = &FOnlineD3D->Map;
+        GameMain.hexValidBeginIt = &FOnlineD3D->hexValidBeginIt;
+        GameMain.hexValidEndIt = &FOnlineD3D->hexValidEndIt;
+        GameMain.Sprites = &FOnlineD3D->Sprites;
+
+        GameMain.mainState = &FOnlineD3D->mainState;
+
+        GameMain.doConnect = &FOnlineD3D->doConnect;
+
+        GameMain.Anims = &FOnlineD3D->Anims;
+
+        GameMain.RegCritter = &FOnlineD3D->RegCritter;
+
+        ResourceManager = *( (CResourceManager**) ENGINE_PTR_STRUCT_ResourceManager_D3D );
+
+        ENGINE_PTR_METHOD_InsertSprite          = (void*) ENGINE_PTR_METHOD_InsertSprite_D3D;
+        ENGINE_PTR_METHOD_AnimLoad              = (void*) ENGINE_PTR_METHOD_AnimLoad_D3D;
+        ENGINE_PTR_METHOD_ShowMainScreen        = (void*) ENGINE_PTR_METHOD_ShowMainScreen_D3D;
     }
+    else      // OGL
+    {
+        FOnlineOGL = *( (CFOnlineOGL**) ENGINE_PTR_STRUCT_FOClient_OGL );
+
+        GameMain.pFOnine = (void*)FOnlineOGL;
+
+        GameMain.MapWidth = &FOnlineOGL->MapWidth;
+        GameMain.MapHeight = &FOnlineOGL->MapHeight;
+        GameMain.Map = &FOnlineOGL->Map;
+        GameMain.hexValidBeginIt = &FOnlineOGL->hexValidBeginIt;
+        GameMain.hexValidEndIt = &FOnlineOGL->hexValidEndIt;
+        GameMain.Sprites = &FOnlineOGL->Sprites;
+        GameMain.Anims = &FOnlineOGL->Anims;
+
+        ResourceManager = *( (CResourceManager**) ENGINE_PTR_STRUCT_ResourceManager_OGL );
+
+        ENGINE_PTR_METHOD_InsertSprite          = (void*) ENGINE_PTR_METHOD_InsertSprite_OGL;
+        ENGINE_PTR_METHOD_AnimLoad                      = (void*) ENGINE_PTR_METHOD_AnimLoad_OGL;
+
+    }
+
 }

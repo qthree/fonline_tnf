@@ -123,7 +123,7 @@ class SlayerPattern : CommonPattern
         if( !valid( weap ) )
             return false;
 
-        ProtoItem @ ammo = GetProtoItem( weap.WeaponAmmoPid );
+        ProtoItem @ ammo = GetProtoItem( weap.AmmoPid );
 
         // Скопировано из основного обработчика
         cr.TimeoutBase[ TO_AGGRESSOR ] = __FullSecond + REAL_MINUTE( 1 );

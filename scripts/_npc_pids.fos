@@ -1,30 +1,58 @@
 #ifndef __NPC_PIDS__
 #define __NPC_PIDS__
 
-#define NPC_PID_SmallSilverGecko         ( 80 )
+
+#define NPC_PID_RegularRat               ( 310 )
+#define NPC_PID_Mantis                   ( 311 )
+#define NPC_PID_Ant                      ( 312 )
+#define NPC_PID_RegularPigRat            ( 313 )
+#define NPC_PID_Molerat                  ( 314 )
+#define NPC_PID_MutatedMolerat           ( 315 )
+#define NPC_PID_SmallSilverGecko         ( 316 )
+#define NPC_PID_GoldenGecko              ( 317 )
+#define NPC_PID_WildDog                  ( 318 )
+#define NPC_PID_SmallRadscorpion         ( 319 )
+#define NPC_PID_LargeRadscorpion         ( 320 )
+#define NPC_PID_Brahmin                  ( 321 )
+#define NPC_PID_SporePlant               ( 322 )
+#define NPC_PID_Alien                    ( 323 )
+#define NPC_PID_SmDeathclaw              ( 324 )
+#define NPC_PID_Deathclaw                ( 325 )
+#define NPC_PID_ToughDeathclaw           ( 326 )
+#define NPC_PID_FireGecko                ( 327 )
+#define NPC_PID_Centaur                  ( 328 )
+#define NPC_PID_Floater                  ( 329 )
+#define NPC_PID_MirelurkWeak             ( 330 )  // Болотник ядовитый
+
+#define NPC_PID_BanditMale               ( 337 )
+#define NPC_PID_BanditFemale             ( 338 )
+#define NPC_PID_MauraderMale             ( 339 )
+#define NPC_PID_RaiderMale               ( 340 )
+#define NPC_PID_RaiderFemale             ( 341 )
+#define NPC_PID_MaleSlaver               ( 342 )
+#define NPC_PID_MaleSlaver2              ( 343 )
+#define NPC_PID_ToughMaleThug            ( 344 )
+#define NPC_PID_ToughFemaleThug          ( 345 )
+#define NPC_PID_MaleTrapper              ( 346 )
+#define NPC_PID_GreenGhoul               ( 347 )
+#define NPC_PID_WhiteGhoul               ( 348 )
+#define NPC_PID_Supermutant              ( 349 )
+
+#define NPC_PID_Ball                     ( 490 )  // Мячик
+
+/*
 #define NPC_PID_ToughSilverGecko         ( 81 )
-#define NPC_PID_GoldenGecko              ( 83 )
 #define NPC_PID_ToughGoldenGecko         ( 86 )
-#define NPC_PID_FireGecko                ( 240 )
 #define NPC_PID_ToughFireGecko           ( 241 )
 
-#define NPC_PID_SmallRadscorpion         ( 5 )
 #define NPC_PID_SmallRadscorpion2        ( 355 )
-#define NPC_PID_LargeRadscorpion         ( 6 )
 #define NPC_PID_LargeRadscorpion2        ( 356 )
 #define NPC_PID_LargeRadscorpion3        ( 357 )
 
-#define NPC_PID_RegularRat               ( 11 )
 #define NPC_PID_Rat                      ( 266 )
-#define NPC_PID_RegularPigRat            ( 112 )
 #define NPC_PID_ToughPigRat              ( 113 )
-#define NPC_PID_Molerat                  ( 110 )
 #define NPC_PID_GreaterMolerat           ( 111 )
-#define NPC_PID_MutatedMolerat           ( 117 )
 
-#define NPC_PID_Ant                      ( 382 )
-
-#define NPC_PID_SporePlant               ( 16 )
 #define NPC_PID_SporePlant2              ( 481 )
 
 #define NPC_PID_MasterMerchantFemale     ( 61 )
@@ -36,44 +64,33 @@
 #define NPC_PID_HealthyMaleSlave         ( 20 )
 #define NPC_PID_MaleOrphan               ( 50 )
 #define NPC_PID_FemaleOrphan             ( 51 )
-#define NPC_PID_MaleSlaver               ( 217 )
 #define NPC_PID_FemaleSlaver             ( 218 )
 #define NPC_PID_CuteFemaleSlave          ( 17 )
 #define NPC_PID_StrongMaleSlave          ( 22 )
 #define NPC_PID_GenericFemaleSlave       ( 27 )
 #define NPC_PID_GenericMaleSlave         ( 28 )
 
-#define NPC_PID_MaleTrapper              ( 95 )
 #define NPC_PID_FemaleTrapper            ( 96 )
 #define NPC_PID_MeleeThugMale            ( 32 )
 #define NPC_PID_MeleeThugFemale          ( 33 )
 
-#define NPC_PID_BanditMale               ( 212 )
-#define NPC_PID_BanditFemale             ( 213 )
 
 #define NPC_PID_AverageMerchantMale      ( 58 )
 #define NPC_PID_WeakMeleeGuardMale       ( 69 )
 #define NPC_PID_WeakMeleeGuardFemale     ( 70 )
 
-#define NPC_PID_MaleSlaver2              ( 58 )
 
 #define NPC_PID_ToughFemaleThug          ( 31 )
 
-#define NPC_PID_ToughMaleThug            ( 30 )
-#define NPC_PID_ToughFemaleThug          ( 31 )
 #define NPC_PID_FemaleCombatSlave        ( 23 )
 #define NPC_PID_MaleCombatSlave          ( 24 )
 
-#define NPC_PID_Brahmin                  ( 10 )
 #define NPC_PID_Brahmin2                 ( 191 )
 #define NPC_PID_Brahmin3                 ( 404 )
 #define NPC_PID_WeakBrahmin              ( 114 )
 #define NPC_PID_WildBrahmin              ( 219 )
 
-#define NPC_PID_Mantis                   ( 12 )
 #define NPC_PID_MediumMantis             ( 216 )
-
-#define NPC_PID_WildDog                  ( 82 )
 
 #define NPC_PID_HomesteaderMale          ( 220 )
 #define NPC_PID_HomesteaderFemale        ( 221 )
@@ -82,22 +99,13 @@
 #define NPC_PID_BigGunGuardMale          ( 48 )
 #define NPC_PID_BigGunGuardFemale        ( 49 )
 
-#define NPC_PID_GenericGhoul             ( 159 )
 
-#define NPC_PID_RaiderMale               ( 238 )
-#define NPC_PID_RaiderFemale             ( 239 )
-
-#define NPC_PID_Alien                    ( 242 )
 #define NPC_PID_ToughAlien               ( 243 )
 
-#define NPC_PID_SmDeathclaw              ( 7 )
-#define NPC_PID_Deathclaw                ( 8 )
 #define NPC_PID_SmToughDeathclaw         ( 244 )
-#define NPC_PID_ToughDeathclaw           ( 245 )
 
-#define NPC_PID_Centaur                  ( 248 )
+
 #define NPC_PID_MeanCentaur              ( 249 )
-#define NPC_PID_Floater                  ( 246 )
 #define NPC_PID_NastyFloater             ( 247 )
 
 #define NPC_PID_EnclavePatrolMale        ( 250 )
@@ -126,7 +134,6 @@
 
 #define NPC_PID_FemaleHomesteader        ( 221 )
 
-#define NPC_PID_MauraderMale             ( 263 )
 #define NPC_PID_MauraderFemale           ( 264 )
 
 #define NPC_PID_MasterTraderFemale       ( 61 )
@@ -161,9 +168,7 @@
 #define NPC_PID_MaleGunThug              ( 36 )
 #define NPC_PID_FemaleGunThug            ( 37 )
 
-#define NPC_PID_MirelurkWeak             ( 487 )  // Болотник ядовитый
 #define NPC_PID_MirelurkTough            ( 488 )  // Болотник прочный (PE_SLAYER, PE_BETTER_CRITICALS)
-#define NPC_PID_Ball                     ( 490 )  // Мячик
 
 #define NPC_PID_CaveRobber_male_1        ( 499 )  // Рандомные бандиты в пещерах
 #define NPC_PID_CaveRobber_female_1      ( 500 )
@@ -171,6 +176,8 @@
 #define NPC_PID_CaveRobber_female_2      ( 502 )
 #define NPC_PID_CaveRobber_male_3        ( 503 )
 #define NPC_PID_CaveRobber_female_3      ( 504 )
+
+*/
 
 /*const uint16[] Pids_AllNpc={
         NPC_PID_SmallSilverGecko,NPC_PID_ToughSilverGecko,NPC_PID_GoldenGecko,NPC_PID_ToughGoldenGecko,NPC_PID_FireGecko,NPC_PID_ToughFireGecko,
@@ -208,7 +215,8 @@
         NPC_PID_MaleHunter,NPC_PID_FemaleHunter,
         NPC_PID_MaleCannibal,NPC_PID_FemaleCannibal,
         NPC_PID_HolyMan,NPC_PID_HolyWoman,
-        NPC_PID_MaleNomad,NPC_PID_FemaleNomad
+        NPC_PID_MaleNomad,NPC_PID_FemaleNomad,
+        NPC_PID_GreenGhoul, NPC_PID_WhiteGhoul, NPC_PID_Supermutant
    };*/
 
 #endif // __NPC_PIDS__

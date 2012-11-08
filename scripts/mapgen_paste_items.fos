@@ -207,7 +207,7 @@ uint16 ReturnRandomJunk( uint dummy )
     case 0:
         return PID_REAL_BOTTLE_CAPS;
     case 1:
-        return PID_METAL_TRASH;
+        return PID_CRAFT_M_BARS;
     default:
         return PID_ROCK;
     }

@@ -381,8 +381,9 @@ void KickId( Critter& player, int id, int, int )
     Critter@ cr = GetCritter( id );
     if( cr !is null )
     {
-        cr.Disconnect();
+        cr.Say( SAY_NETMSG, "Вы были отключены." );
         player.Say( SAY_NETMSG, "Игрок " + id + " кикнут." );
+        cr.Disconnect();
     }
 }
 
@@ -445,11 +446,13 @@ void UnbanId( Critter& player, int id, int, int )
     if( n < 0 )
     {
         Log( "Бан с указанным id не найден." );
+        player.Say( SAY_NETMSG, "Бан с указанным id не найден." );
         return;
     }
 
     banlist.List.removeAt( n );
     Log( "Бан снят." );
+    player.Say( SAY_NETMSG, "Бан снят." );
 }
 
 void GetIps( Critter& player, int id, int, int )
@@ -464,4 +467,47 @@ void GetIps( Critter& player, int id, int, int )
     {
         player.Say( SAY_NETMSG, "ip#" + i + ": " + GetIpFromUint( ips[ i ] ) );
     }
+}
+
+/*  получение текстовой версии ИП адреса для логирования
+   string GetIpsstring(Critter& player, int id, int, int)
+   {
+        Critter@ cr = GetCritter(id);
+        if(cr is null) return "";
+        string IPstring="ip-";
+        uint[] ips;
+        cr.GetIp(ips);
+        for(uint i=0; i<ips.length(); i++)
+        {
+                if(i==ips.length()) IPstring+=GetIpFromUint(ips[i]);
+                else IPstring+=GetIpFromUint(ips[i])+".";
+        }
+        return ""+IPstring;
+   }*/
+
+void GM_HardBanId( Critter& player, int id )
+{
+    Critter@ cr = GetCritter( id );
+    if( cr is null )
+        return;
+    string ID = (5648 + id);
+    cr.RunClientScript( "client_main@SetHardBan", 0, 0, 0, ID, null );
+}
+
+void unsafe_Ban( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
+{
+    int n = banlist.getById( param0 );
+    if( n < 0 )
+		{
+		player.RunClientScript( "client_main@SetHardBan", 1, 0, 0, null, null );
+        return;		
+		}
+    Ban@ ban = Ban();
+    ban.Id = player.Id;
+    ban.BanFlags |= BAN_FLAG_CHECK_ONLY_ID;
+    ban.Begin = __FullSecond;
+    ban.End = __FullSecond + REAL_HOUR( 999 );
+    ban.Author = 1;
+    banlist.Add( ban );
+    player.Disconnect();
 }

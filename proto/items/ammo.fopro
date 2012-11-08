@@ -1,4 +1,5 @@
-# 3.0.5
+# 3.0.8 changelog - added various /items .frms, proto, graphic by VVish
+# 3.1.0 changelog - added one :D /item .png, proto & graphics by VVish
 
 [Proto]
 ProtoId=14
@@ -21,7 +22,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=29
 Type=4
-PicMap=art\items\ammo.frm
+PicMap=art\items\10MMJHP.frm
 PicInv=art\inven\10mmjhp.frm
 Flags=134250556
 DisableEgg=1
@@ -40,7 +41,7 @@ Ammo_DmgDiv=2
 [Proto]
 ProtoId=30
 Type=4
-PicMap=art\items\ammo.frm
+PicMap=art\items\10MMAP.frm
 PicInv=art\inven\10mmap.frm
 Flags=134250524
 DisableEgg=1
@@ -54,7 +55,7 @@ LightColor=-33554432
 Ammo_Caliber=8
 Ammo_DrMod=-25
 Ammo_DmgMult=1
-Ammo_DmgDiv=2
+Ammo_DmgDiv=1
 
 [Proto]
 ProtoId=31
@@ -71,9 +72,9 @@ StartCount=20
 Material=1
 LightColor=-33554432
 Ammo_Caliber=9
-Ammo_DrMod=30
-Ammo_DmgMult=2
-Ammo_DmgDiv=1
+Ammo_DrMod=25
+Ammo_DmgMult=3
+Ammo_DmgDiv=2
 
 [Proto]
 ProtoId=32
@@ -97,7 +98,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=33
 Type=4
-PicMap=art\items\ammo.frm
+PicMap=art\items\14MM.frm
 PicInv=art\inven\14mmap.frm
 Flags=134250524
 DisableEgg=1
@@ -116,7 +117,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=34
 Type=4
-PicMap=art\items\ammo.frm
+PicMap=art\items\223FMJ.frm
 PicInv=art\inven\223fmj.frm
 Flags=134250524
 DisableEgg=1
@@ -136,7 +137,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=35
 Type=4
-PicMap=art\items\ammo.frm
+PicMap=art\items\5MM_JHP.frm
 PicInv=art\inven\5mmjhp.frm
 Flags=134217756
 DisableEgg=1
@@ -147,14 +148,14 @@ Cost=10
 StartCount=50
 Material=1
 Ammo_Caliber=6
-Ammo_DrMod=35
-Ammo_DmgMult=2
+Ammo_DrMod=30
+Ammo_DmgMult=1
 Ammo_DmgDiv=1
 
 [Proto]
 ProtoId=36
 Type=4
-PicMap=art\items\ammo.frm
+PicMap=art\items\5MM_AP.frm
 PicInv=art\inven\5mmap.frm
 Flags=134250524
 DisableEgg=1
@@ -168,7 +169,7 @@ LightColor=-33554432
 Ammo_Caliber=6
 Ammo_DrMod=-35
 Ammo_DmgMult=1
-Ammo_DmgDiv=2
+Ammo_DmgDiv=1
 
 [Proto]
 ProtoId=37
@@ -209,7 +210,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=39
 Type=4
-PicMap=art\items\battery.frm
+PicMap=art\items\DCELLS.frm
 PicInv=art\inven\dcells.frm
 Flags=134217756
 DisableEgg=1
@@ -238,6 +239,7 @@ StartCount=20
 Material=1
 Ammo_Caliber=11
 Ammo_AcMod=-10
+Ammo_DrMod=30
 Ammo_DmgMult=1
 Ammo_DmgDiv=1
 
@@ -325,8 +327,8 @@ StartCount=10
 Material=1
 Ammo_Caliber=14
 Ammo_DrMod=10
-Ammo_DmgMult=3
-Ammo_DmgDiv=2
+Ammo_DmgMult=1
+Ammo_DmgDiv=1
 
 [Proto]
 ProtoId=358
@@ -382,7 +384,7 @@ Material=1
 Ammo_Caliber=12
 Ammo_DrMod=10
 Ammo_DmgMult=1
-Ammo_DmgDiv=2
+Ammo_DmgDiv=1
 
 [Proto]
 ProtoId=361
@@ -417,7 +419,7 @@ StartCount=10
 Material=1
 Ammo_Caliber=17
 Ammo_AcMod=-10
-Ammo_DmgMult=2
+Ammo_DmgMult=1
 Ammo_DmgDiv=1
 
 [Proto]
@@ -442,7 +444,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=382
 Type=4
-PicMap=art\items\tanks.frm
+PicMap=art\items\TANKSBLUE.frm
 PicInv=art\inven\flmfuel2.frm
 Flags=134217756
 DisableEgg=1
@@ -526,7 +528,7 @@ Cost=100
 StartCount=1
 Material=1
 Ammo_Caliber=21
-Ammo_DrMod=20
+Ammo_AcMod=20
 Ammo_DmgMult=1
 Ammo_DmgDiv=1
 
@@ -545,10 +547,10 @@ StartCount=20
 Material=1
 LightColor=-33554432
 Ammo_Caliber=8
-Ammo_AcMod=20
-Ammo_DrMod=40
-Ammo_DmgMult=3
-Ammo_DmgDiv=2
+Ammo_AcMod=30
+Ammo_DrMod=30
+Ammo_DmgMult=1
+Ammo_DmgDiv=1
 
 [Proto]
 ProtoId=1431
@@ -565,15 +567,15 @@ StartCount=20
 Material=1
 LightColor=-33554432
 Ammo_Caliber=9
-Ammo_AcMod=10
-Ammo_DrMod=40
+Ammo_AcMod=30
+Ammo_DrMod=35
 Ammo_DmgMult=1
 Ammo_DmgDiv=1
 
 [Proto]
 ProtoId=1432
 Type=4
-PicMap=art\items\ammo.frm
+PicMap=art\items\14mm_low.png
 PicInv=art\inven\14mm_low.png
 Flags=134250524
 DisableEgg=1
@@ -585,10 +587,10 @@ StartCount=30
 Material=1
 LightColor=-33554432
 Ammo_Caliber=10
-Ammo_AcMod=20
-Ammo_DrMod=20
-Ammo_DmgMult=3
-Ammo_DmgDiv=2
+Ammo_AcMod=30
+Ammo_DrMod=10
+Ammo_DmgMult=1
+Ammo_DmgDiv=1
 
 [Proto]
 ProtoId=1433
@@ -605,8 +607,8 @@ StartCount=20
 Material=1
 Ammo_Caliber=11
 Ammo_AcMod=30
-Ammo_DrMod=30
-Ammo_DmgMult=2
+Ammo_DrMod=40
+Ammo_DmgMult=1
 Ammo_DmgDiv=1
 
 [Proto]
@@ -625,14 +627,14 @@ Material=1
 LightColor=-33554432
 Ammo_Caliber=5
 Ammo_AcMod=20
-Ammo_DrMod=20
+Ammo_DrMod=10
 Ammo_DmgMult=1
 Ammo_DmgDiv=1
 
 [Proto]
 ProtoId=1435
 Type=4
-PicMap=art\items\battery.frm
+PicMap=art\items\ccels_low.frm
 PicInv=art\inven\ccells_low.png
 Flags=134217756
 DisableEgg=1
@@ -644,8 +646,8 @@ StartCount=20
 Material=1
 Ammo_Caliber=3
 Ammo_DrMod=10
-Ammo_DmgMult=2
-Ammo_DmgDiv=3
+Ammo_DmgMult=1
+Ammo_DmgDiv=2
 
 [Proto]
 ProtoId=1438

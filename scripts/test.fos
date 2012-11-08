@@ -784,8 +784,8 @@ void GlobalCar( Critter& iam, int crId, int, int )
         for( uint i = 0; i < items.length(); i++ )
         {
             Item@ car = items[ i ];
-            car.CarFuel = car.Proto.Car_TankVolume;
-            car.CarDeterioration = 0;
+            car.Charge = car.Proto.Car_TankVolume;
+            car.Deterioration = 0;
             car.Update();
             iam.Say( SAY_NETMSG, "Done." );
         }
@@ -886,8 +886,9 @@ void NpcReturn( Critter& cr, int replTime, int, int )
 }
 
 #include "_npc_pids.fos"
-const uint16[] pids = { 54, 54, 54, 54, NPC_PID_MaleOrphan, NPC_PID_FemaleOrphan, NPC_PID_HealthyFemaleSlave, NPC_PID_HealthyMaleSlave, NPC_PID_HealthyFemaleSlave, NPC_PID_HealthyMaleSlave, NPC_PID_HealthyFemaleSlave, NPC_PID_HealthyMaleSlave, NPC_PID_MaleOrphan, NPC_PID_FemaleOrphan, NPC_PID_HealthyFemaleSlave, NPC_PID_HealthyMaleSlave, NPC_PID_AverageMerchantMale, NPC_PID_WeakMeleeGuardMale, NPC_PID_RaiderMale, NPC_PID_RaiderFemale };
+//const uint16[] pids = { 54, 54, 54, 54, NPC_PID_MaleOrphan, NPC_PID_FemaleOrphan, NPC_PID_HealthyFemaleSlave, NPC_PID_HealthyMaleSlave, NPC_PID_HealthyFemaleSlave, NPC_PID_HealthyMaleSlave, NPC_PID_HealthyFemaleSlave, NPC_PID_HealthyMaleSlave, NPC_PID_MaleOrphan, NPC_PID_FemaleOrphan, NPC_PID_HealthyFemaleSlave, NPC_PID_HealthyMaleSlave, NPC_PID_AverageMerchantMale, NPC_PID_WeakMeleeGuardMale, NPC_PID_RaiderMale, NPC_PID_RaiderFemale };
 
+/*
 void AddHostile( Critter& iam, int, int, int )
 {
     Map@     map = iam.GetMap();
@@ -897,7 +898,7 @@ void AddHostile( Critter& iam, int, int, int )
     hostile.StatBase[ ST_TEAM_ID ] = 19;
     // hostile.SetStat(ST_REPLICATION_TIME,Random(5,10));
     CreateTimeEvent( __FullSecond, "e_HostileMove", hostile.Id, true );
-}
+}*/
 
 uint SufferingLastTime = 0;
 uint e_HostileMove( uint[] @ values )
@@ -1136,8 +1137,8 @@ void CreateCar( Critter& cr, int pid, int ox, int oy )
     if( not valid( car ) || car.GetType() != ITEM_TYPE_CAR )
         return;
 
-    car.CarFuel = car.Proto.Car_TankVolume;
-    car.CarDeterioration = 0;
+    car.Charge = car.Proto.Car_TankVolume;
+    car.Deterioration = 0;
 
     uint keyId = Random( 10000, 50000 );
     car.LockerId = keyId;
@@ -1156,8 +1157,8 @@ void CreateCarPersonal( Critter& cr, int pid, int crId, int oy )
     if( not valid( car ) || car.GetType() != ITEM_TYPE_CAR )
         return;
 
-    car.CarFuel = car.Proto.Car_TankVolume;
-    car.CarDeterioration = 0;
+    car.Charge = car.Proto.Car_TankVolume;
+    car.Deterioration = 0;
     _CarSetNoLockpick( car );
 
     uint keyId = _CritEyesDoorId( crId );
@@ -1176,7 +1177,7 @@ void AllTo3d( Critter& cr, int, int, int )
     cr.GetMap().GetCritters( 0, FIND_ALL | FIND_ONLY_NPC, critters );
     for( uint i = 0, j = critters.length(); i < j; i++ )
     {
-        int rnd = Random( 200, 228 );
+        int rnd = Random( 290, 316 );
         critters[ i ].ChangeCrType( rnd );
         critters[ i ].StatBase[ ST_BASE_CRTYPE ] = rnd;
     }
@@ -1919,4 +1920,30 @@ void toLife( Critter& cr, int, int, int )
 void toKO( Critter& cr, int, int, int )
 {
     cr.ToKnockout( KNOCKOUT_ANIM2_DEFAULT( true ), 1000, cr.HexX, cr.HexY );
+}
+
+#pragma bindfunc "bool TestScriptCallNative(string&, string&) -> fonline_test.dll TestScriptCallNative"
+void testScriptCall( Critter&, int, int, int )
+{
+    if( TestScriptCallNative( "test", "double TestScriptCallAS(int v1, uint64 v2, float v3, string@ v4)" ) )
+        Log( "testScriptCall success." );
+    else
+        Log( "testScriptCall fail." );
+}
+double TestScriptCallAS( int v1, uint64 v2, float v3, string@ v4 )
+{
+    Log( "TestScriptCall: " + v1 + ", " + v2 + ", " + v3 + ", " + v4 + "." );
+    return 1.234567890;
+}
+
+#pragma bindfunc "void StringExample() -> fonline_test.dll StringExample"
+void testStringExample( Critter&, int, int, int )
+{
+    StringExample();
+}
+
+
+void animate( Critter& cr, int anim1, int anim2, int )
+{
+    cr.Animate( anim1, anim2, null, true, true );
 }

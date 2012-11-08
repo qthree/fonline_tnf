@@ -19,6 +19,8 @@ import void SetHiveData( int[] hivedata ) from "client_main";
 
 #define STR_PARAM_START    ( 10000 )
 
+#define STR_UPDATE_INFO    ( 1500000 )
+
 
 #define BT_BRAHMIN         ( 15 )
 #define BT_DOG             ( 16 )
@@ -80,6 +82,7 @@ void SetHivePos( int16 x, int16 y, int16 realX, int16 realY, int16 type, uint8 c
     // Message(""+isCollX+" "+isCollY);
 
     hiveBtnsOpt[ count ].SetVisible( isCollX && ShowRespawnButtonsLevel( type, choo.StatBase[ ST_LEVEL ] ) );
+    // hiveBtnsOpt[count].Position(x,y);
 
     // Message("zoom "+__GmapZoom+" offset x "+__GmapOffsetX+" y "+__GmapOffsetY+" type "+type);
 
@@ -326,7 +329,12 @@ void InitScreenAddiotional()
         .DownPic( "PRFSLDON.FRM" );
         axistY += 15;
     }
+    // /////////////////
 
+    LoginUpdateInfo updateInfo();
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_LOGIN, "updateinfopic_nocol.png", 180, -360 )
+    .CallbackInit( updateInfo )
+    .Position( "UpdateLog" );
 
     // ////////////////
 
@@ -377,6 +385,9 @@ void InitScreenAddiotional()
     .DownPic( "chosen_tab.png" )
     .Text( "Готово", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
     // ////////////////
+
+
+
 }
 
 // ///////////////////
@@ -571,6 +582,36 @@ class GlobalMapArcadeText : IGUIElementCallbackInit
 
 }
 
+class LoginUpdateInfo : IGUIElementCallbackInit
+{
+    IGUIElementOpt@ Options;
+
+    LoginUpdateInfo() {}
+
+    void OnInit()
+    {
+        @Options = GUI_GetElementOptions();
+        string text = GetMsgStr( TEXTMSG_GAME, STR_UPDATE_INFO );      // "Добавлен пневмопих.";
+
+        string@[] @ temp_lines = split( text, "@" );
+        text = "";
+        for( uint16 i = 0, j = temp_lines.length(); i < j; ++i )
+        {
+            string@[] @ temp_tabs = split( temp_lines[ i ], "#" );
+            for( uint16 ii = 0, jj = temp_tabs.length(); ii < jj; ++ii )
+            {
+                // Message(""+temp_tabs[i]);
+                text += temp_tabs[ ii ] + "\t";
+            }
+            text += "\n";
+
+
+        }
+
+        Options.Text( text, FONT_FALLOUT, COLOR_GREEN, COLOR_GREEN, 0 );
+    }
+}
+
 // ///////////////////
 
 class InventoryCollectionButton : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
@@ -692,7 +733,7 @@ class CharacterSkinSelectButton : IGUIElementCallbackInit, IGUIElementCallbackMo
         switch( ButtonClass )
         {
         case BUTTON_DONE:
-            IGUIScreenCallbackHide::HideScreen( 0, 2, 2, 2 );
+            ::HideScreen( 0, 2, 2, 2 );
             break;
         case BUTTON_UP:
             Instance.Count >= animIndex.length() - 1 ? Instance.Count = 0 : Instance.Count++;

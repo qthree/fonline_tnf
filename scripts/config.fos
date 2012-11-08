@@ -13,85 +13,83 @@
 
 #  include "_time.fos"
 
-void InitializeGame()                  // Export
+void InitializeGame()                    // Export
 {
     // / Init global vars
-    __ScriptRunSuspendTimeout = 25000; // In milliseconds
-    __ScriptRunMessageTimeout = 5000;  // In milliseconds
-    __LoggingVars = false;
-    __FreeExp = false;
-    __RegulatePvP = false;
-    __DisableTcpNagle = true;
-    __DisableZlibCompression = false;
-    __FloodSize = 2048;   // In bytes
-    __NoAnswerShuffle = true;
-    __FixBoyDefaultExperience = 100;
-    __SneakDivider = 4;
-    __LevelCap = 12;
-    __LevelCapAddExperience = true;
-    __LookNormal = 30;
-    __LookMinimum = 0;
-    __CritterIdleTick = 10000;
-    __TurnBasedTick = 30000;
-    __Breaktime = 1200;
-    __TimeoutTransfer = 0;
-    __TimeoutBattle = REAL_SECOND( 10 );
-    __ApRegeneration = 3000;
-    __RtApCostCritterWalk = 0;   // 1 AP == 100, maximim 255
-    __RtApCostCritterRun = 25;   // 1 AP == 100, maximim 255
+    __ScriptRunSuspendTimeout   = 25000; // In milliseconds
+    __ScriptRunMessageTimeout   = 5000;  // In milliseconds
+    __LoggingVars               = false;
+    __DisableTcpNagle           = true;
+    __DisableZlibCompression    = false;
+    __FloodSize                 = 2048;         // In bytes
+    __NoAnswerShuffle           = true;
+    __FixBoyDefaultExperience   = 0;
+    __SneakDivider              = 4;
+    __LevelCap                  = 12;
+    __LevelCapAddExperience     = true;
+    __LookNormal                = 30;
+    __LookMinimum               = 0;
+    __CritterIdleTick           = 10000;
+    __TurnBasedTick             = 30000;
+    __Breaktime                 = 1200;
+    __TimeoutTransfer           = 0;
+    __TimeoutBattle             = REAL_SECOND( 10 );
+    __ApRegeneration            = 3000;
+    __RtApCostCritterWalk       = 0;            // 1 AP == 100, maximim 255
+    __RtApCostCritterRun        = 25;           // 1 AP == 100, maximim 255
     __RtApCostMoveItemContainer = 0;
     __RtApCostMoveItemInventory = 2;
-    __RtApCostPickItem = 1;
-    __RtApCostDropItem = 1;
-    __RtApCostReloadWeapon = 2;
-    __RtApCostPickCritter = 1;
-    __RtApCostUseItem = 3;
-    __RtApCostUseSkill = 2;
-    __RtAlwaysRun = false;
-    __TbApCostCritterMove = 1;
+    __RtApCostPickItem          = 1;
+    __RtApCostDropItem          = 1;
+    __RtApCostReloadWeapon      = 2;
+    __RtApCostPickCritter       = 1;
+    __RtApCostUseItem           = 3;
+    __RtApCostUseSkill          = 2;
+    __RtAlwaysRun               = false;
+    __TbApCostCritterMove       = 1;
     __TbApCostMoveItemContainer = 0;
     __TbApCostMoveItemInventory = 2;
-    __TbApCostPickItem = 3;
-    __TbApCostDropItem = 2;
-    __TbApCostReloadWeapon = 2;
-    __TbApCostPickCritter = 3;
-    __TbApCostUseItem = 3;
-    __TbApCostUseSkill = 3;
-    __TbAlwaysRun = false;
-    __ApCostAimEyes = 1;
-    __ApCostAimHead = 1;
-    __ApCostAimGroin = 1;
-    __ApCostAimTorso = 1;
-    __ApCostAimArms = 1;
-    __ApCostAimLegs = 1;
-    __HitAimEyes = 60;
-    __HitAimHead = 40;
-    __HitAimGroin = 30;
-    __HitAimTorso = 0;
-    __HitAimArms = 30;
-    __HitAimLegs = 20;
-    __RunOnCombat = true;
-    __RunOnTransfer = true;
-    __GlobalMapWidth = 19;      // max 100 //реальные - 7
-    __GlobalMapHeight = 19;     // max 100 //реальные - 12
-    __GlobalMapZoneLength = 50; // max 500
-    __GlobalMapMaxGroupCount = 10;
+    __TbApCostPickItem          = 3;
+    __TbApCostDropItem          = 2;
+    __TbApCostReloadWeapon      = 2;
+    __TbApCostPickCritter       = 3;
+    __TbApCostUseItem           = 3;
+    __TbApCostUseSkill          = 3;
+    __TbAlwaysRun               = false;
+    __ApCostAimEyes             = 1;
+    __ApCostAimHead             = 1;
+    __ApCostAimGroin            = 1;
+    __ApCostAimTorso            = 1;
+    __ApCostAimArms             = 1;
+    __ApCostAimLegs             = 1;
+    __HitAimEyes                = 60;
+    __HitAimHead                = 40;
+    __HitAimGroin               = 30;
+    __HitAimTorso               = 0;
+    __HitAimArms                = 30;
+    __HitAimLegs                = 20;
+    __RunOnCombat               = true;
+    __RunOnTransfer             = true;
+    __GlobalMapWidth            = 19;           // max 100 //реальные - 7
+    __GlobalMapHeight           = 19;           // max 100 //реальные - 12
+    __GlobalMapZoneLength       = 50;           // max 500
+    __GlobalMapMaxGroupCount    = 10;
     __GlobalMapMoveTime         = 250;
     __EncounterTime             = 5000;
-    __DeadHitPoints = -30;
-    __BagRefreshTime = 60;   // Real minutes
-    __WisperDist = 2;
-    __ShoutDist = 100;
-    __CustomItemCost = true;
-    __RegistrationTimeout = 0;               // In real seconds, 0 to disable
-    __AccountPlayTime = 0;                   // *60; // In real seconds, 0 to disable
-    __TalkDistance = 3;
-    __MinNameLength = 3;                     // Minimum 1
-    __MaxNameLength = 14;                    // Maximum 30
-    __DlgTalkMinTime = 100000;
-    __DlgBarterMinTime = 50000;
+    __DeadHitPoints             = -30;
+    __BagRefreshTime            = 60;           // Real minutes
+    __WisperDist                = 2;
+    __ShoutDist                 = 100;
+    __CustomItemCost            = true;
+    __RegistrationTimeout       = 0;         // In real seconds, 0 to disable
+    __AccountPlayTime           = 0;         // *60; // In real seconds, 0 to disable
+    __TalkDistance              = 3;
+    __NpcMaxTalkers             = 1;
+    __MinNameLength             = 3;         // Minimum 1
+    __MaxNameLength             = 14;        // Maximum 30
+    __DlgTalkMinTime            = 100000;
+    __DlgBarterMinTime          = 50000;
     __MinimumOfflineTime        = 180000;    // 3 minutes
-
     // Look modifiers
     __LookChecks = 0;                        // See Look checks in _defines.fos
     __LookChecks |= LOOK_CHECK_DIR;          // Nerfe look by directions of look
@@ -107,7 +105,7 @@ void InitializeGame()                  // Export
     __LookSneakDir3 = 0;                     // Nerfe 0% of opponent sneak with back look
     __LookSneakDir4 =  0;                    // Nerfe 0% of opponent sneak with back look (Square geometry)
     __LookChecks |= LOOK_CHECK_SNEAK_WEIGHT; // Nerfe sneak by current weight
-    __LookWeight = 10;                       // Lost 1 sneak point per 200 gramm
+    __LookWeight = 10;                       // Lost 1 sneak point per 10 gramm
     __LookChecks |= LOOK_CHECK_TRACE;        // Tracing for wall aviablility
     __LookChecks |= LOOK_CHECK_SCRIPT;       // Allow bool check_look(...) in main.fos, all other defines ignored
     // __LookChecks |= LOOK_CHECK_ITEM_SCRIPT; // Allow bool check_trap_look(...) in main.fos, for items with ITEM_TRAP flag
@@ -244,10 +242,15 @@ void InitializeGame()                  // Export
     SetParameterChangeBehaviour( ST_EXPERIENCE, "parameters@changedParam_Experience" );
     SetParameterChangeBehaviour( ST_UNSPENT_PERKS, "parameters@changedParam_UnspentPerks" );
 
-    SetParameterChangeBehaviour( ST_LEVEL, "parameters@changedParam_CritterStatus" );  // pm added
+    SetParameterChangeBehaviour( ST_CRSTATUS, "parameters@changedParam_CritterStatus" );  // pm added
     #  endif
 
-    // / Registration parameters
+    #  ifdef __SERVER
+    SetParameterChangeBehaviour( ST_HUNGER, "parameters@changedParam_Hunger" );
+    SetParameterChangeBehaviour( ST_THRIST, "parameters@changedParam_Thrist" );
+    SetParameterChangeBehaviour( ST_DYSPNEA, "parameters@changedParam_Dyspnea" );
+    #  endif // __SERVER
+             // / Registration parameters
     for( uint i = ST_STRENGTH; i <= ST_LUCK; i++ )
         SetRegistrationParameter( i, true );
     for( uint i = TAG_SKILL1; i <= TAG_SKILL3; i++ )

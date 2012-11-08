@@ -4,7 +4,7 @@
 import bool AddAttackPlane( Critter& npc, uint priority, Critter& target, bool run ) from "npc_planes";
 import bool AddWalkPlane( Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut ) from "npc_planes";
 
-#define TIME_MUL    ( 1 )
+#define TIME_MUL    ( 4 )
 
 /*
    uint cte_(Critter& cr, int identifier, uint& rate)
@@ -82,6 +82,7 @@ void _InitTutorial( Critter& cr, bool firstTime )
     cr.ModeBase[ MODE_NO_PUSH ] = 1;
     cr.ModeBase[ MODE_NO_ENEMY_STACK ] = 1;
     cr.ModeBase[ MODE_NO_UNARMED ] = 1;
+    cr.ParamBase[ QST_INVIS ] = 50;
     cr.SetEvent( CRITTER_EVENT_TALK, "_tutorial_talk" );
     cr.SetEvent( CRITTER_EVENT_SHOW_CRITTER, "_tutorial_on_sight" );
 }
@@ -730,6 +731,8 @@ uint cte_firegecko( Critter& cr, int identifier, uint& rate )  // Показ опасност
         cr.StatBase[ ST_VAR3 ] = newby.Id;
         newby.ModeBase[ MODE_NO_WALK ] = 1;
         newby.ModeBase[ MODE_NO_RUN ] = 1;
+        newby.ModeBase[ MODE_NO_STEAL ] = 1;
+		newby.ModeBase[ MODE_NO_LOOT ] = 1;
         cr.StatBase[ ST_VAR1 ]++;
     }
     else if( event == 1 )
@@ -809,6 +812,8 @@ uint cte_firegecko( Critter& cr, int identifier, uint& rate )  // Показ опасност
         weapon.Update();
         newby.ModeBase[ MODE_NO_WALK ] = 1;
         newby.ModeBase[ MODE_NO_RUN ] = 1;
+		newby.ModeBase[ MODE_NO_STEAL ] = 1;
+		newby.ModeBase[ MODE_NO_LOOT ] = 1;		
         cr.StatBase[ ST_VAR3 ] = newby.Id;
         cr.StatBase[ ST_VAR1 ]++;
     }
@@ -873,6 +878,8 @@ uint cte_firegecko( Critter& cr, int identifier, uint& rate )  // Показ опасност
         }
         gecko.StatBase[ ST_VAR1 ] = 100;
         newby.StatBase[ ST_VAR1 ] = 100;
+		newby.ModeBase[ MODE_NO_STEAL ] = 1;
+		newby.ModeBase[ MODE_NO_LOOT ] = 1;	
         cr.StatBase[ ST_VAR2 ] = gecko.Id;
         Item@ weapon = newby.AddItem( PID_HUNTING_RIFLE, 1 );
         newby.MoveItem( weapon.Id, 1, SLOT_HAND1 );
@@ -925,6 +932,12 @@ uint cte_firegecko( Critter& cr, int identifier, uint& rate )  // Показ опасност
         }
         newby2.StatBase[ ST_VAR1 ] = 100;
         newby3.StatBase[ ST_VAR1 ] = 100;
+		newby.ModeBase[ MODE_NO_STEAL ] = 1;
+		newby.ModeBase[ MODE_NO_LOOT ] = 1;	
+		newby2.ModeBase[ MODE_NO_STEAL ] = 1;
+		newby2.ModeBase[ MODE_NO_LOOT ] = 1;	
+		newby3.ModeBase[ MODE_NO_STEAL ] = 1;
+		newby3.ModeBase[ MODE_NO_LOOT ] = 1;	
         Item@ weapon2 = newby2.AddItem( PID_HUNTING_RIFLE, 1 );
         newby2.MoveItem( weapon2.Id, 1, SLOT_HAND1 );
         weapon2.Update();
@@ -1211,6 +1224,12 @@ uint cte_rules( Critter& cr, int identifier, uint& rate )  // Правила сервера
         guard.StatBase[ ST_VAR1 ] = 100;
         guard2.StatBase[ ST_VAR1 ] = 100;
         lol.StatBase[ ST_VAR1 ] = 100;
+		guard.ModeBase[ MODE_NO_STEAL ] = 1;
+		guard.ModeBase[ MODE_NO_LOOT ] = 1;	
+		guard2.ModeBase[ MODE_NO_STEAL ] = 1;
+		guard2.ModeBase[ MODE_NO_LOOT ] = 1;
+		lol.ModeBase[ MODE_NO_STEAL ] = 1;
+		lol.ModeBase[ MODE_NO_LOOT ] = 1;
         guard.AddItem( PID_HUNTING_RIFLE, 1 );
         guard2.AddItem( PID_HUNTING_RIFLE, 1 );
         guard.ModeBase[ MODE_NO_WALK ] = 1;
@@ -1314,6 +1333,7 @@ uint cte_roles_raider( Critter& cr, int identifier, uint& rate )  // Обучение ос
     Critter@ raider = GetCritter( cr.Stat[ ST_VAR2 ] );
     Critter@ raider2 = GetCritter( cr.Stat[ ST_VAR3 ] );
     Critter@ lol = GetCritter( cr.Stat[ ST_VAR4 ] );
+    Item@[] items;	
     switch( cr.StatBase[ ST_VAR1 ] )
     {
     case 0:
@@ -1371,6 +1391,13 @@ uint cte_roles_raider( Critter& cr, int identifier, uint& rate )  // Обучение ос
         }
         raider.Say( SAY_EMOTE_ON_HEAD, "Нарушение правил сервера 11 и 9" );
         raider2.Say( SAY_EMOTE_ON_HEAD, "Нарушение правил сервера 11 и 9" );
+        raider.GetItems( SLOT_INV, items );
+        raider.GetItems( SLOT_HAND1, items );
+        raider.GetItems( SLOT_HAND2, items );
+        raider2.GetItems( SLOT_INV, items );
+        raider2.GetItems( SLOT_HAND1, items );
+        raider2.GetItems( SLOT_HAND2, items );
+        DeleteItems( items );		
         raider.ToDead( ANIM2_DEAD_PULSE, cr );
         raider2.ToDead( ANIM2_DEAD_PULSE, cr );
         break;
@@ -1545,6 +1572,8 @@ uint cte_roles_raider( Critter& cr, int identifier, uint& rate )  // Обучение ос
     {
         Map @ map = cr.GetMap();
         Critter@ raider = map.AddNpc( 217, cr.HexX - 9, cr.HexY - 2, 2, null, null, null );
+		raider.ModeBase[ MODE_NO_STEAL ] = 1;
+		raider.ModeBase[ MODE_NO_LOOT ] = 1;		
         raider.StatBase[ ST_VAR1 ] = 113;
         cr.StatBase[ ST_VAR2 ] = raider.Id;
         if( valid( raider ) )
@@ -1559,6 +1588,8 @@ uint cte_roles_raider( Critter& cr, int identifier, uint& rate )  // Обучение ос
         Map @ map = cr.GetMap();
         Critter@ raider2 = map.AddNpc( 30, cr.HexX - 13, cr.HexY - 2, 2, null, null, null );
         raider2.StatBase[ ST_VAR1 ] = 113;
+		raider2.ModeBase[ MODE_NO_STEAL ] = 1;
+		raider2.ModeBase[ MODE_NO_LOOT ] = 1;
         cr.StatBase[ ST_VAR3 ] = raider2.Id;
         if( valid( raider2 ) )
             raider2.AddItem( PID_HUNTING_RIFLE, 1 );
@@ -1572,6 +1603,8 @@ uint cte_roles_raider( Critter& cr, int identifier, uint& rate )  // Обучение ос
         Map @ map = cr.GetMap();
         Critter@ lol = map.AddNpc( 92, cr.HexX - 12, cr.HexY + 8, 5, null, null, null );
         lol.StatBase[ ST_VAR1 ] = 113;
+		lol.ModeBase[ MODE_NO_STEAL ] = 1;
+		lol.ModeBase[ MODE_NO_LOOT ] = 1;
         cr.StatBase[ ST_VAR4 ] = lol.Id;
         lol.ModeBase[ MODE_NO_WALK ] = 1;
         lol.ModeBase[ MODE_NO_RUN ] = 1;
@@ -1597,10 +1630,16 @@ uint cte_roles_raider( Critter& cr, int identifier, uint& rate )  // Обучение ос
             raider.AddItem( PID_HUNTING_RIFLE, 1 );
         raider.ModeBase[ MODE_NO_WALK ] = 1;
         raider.ModeBase[ MODE_NO_RUN ] = 1;
+		raider.ModeBase[ MODE_NO_STEAL ] = 1;
+		raider.ModeBase[ MODE_NO_LOOT ] = 1;
         raider2.ModeBase[ MODE_NO_WALK ] = 1;
         raider2.ModeBase[ MODE_NO_RUN ] = 1;
+		raider2.ModeBase[ MODE_NO_STEAL ] = 1;
+		raider2.ModeBase[ MODE_NO_LOOT ] = 1;
         lol.ModeBase[ MODE_NO_WALK ] = 1;
         lol.ModeBase[ MODE_NO_RUN ] = 1;
+		lol.ModeBase[ MODE_NO_STEAL ] = 1;
+		lol.ModeBase[ MODE_NO_LOOT ] = 1;
         cr.StatBase[ ST_VAR1 ]++;
         return 8 * TIME_MUL;
     }
@@ -1619,10 +1658,16 @@ uint cte_roles_raider( Critter& cr, int identifier, uint& rate )  // Обучение ос
             raider.AddItem( PID_HUNTING_RIFLE, 1 );
         raider.ModeBase[ MODE_NO_WALK ] = 1;
         raider.ModeBase[ MODE_NO_RUN ] = 1;
+		raider.ModeBase[ MODE_NO_STEAL ] = 1;
+		raider.ModeBase[ MODE_NO_LOOT ] = 1;
         raider2.ModeBase[ MODE_NO_WALK ] = 1;
         raider2.ModeBase[ MODE_NO_RUN ] = 1;
+		raider2.ModeBase[ MODE_NO_STEAL ] = 1;
+		raider2.ModeBase[ MODE_NO_LOOT ] = 1;
         lol.ModeBase[ MODE_NO_WALK ] = 1;
         lol.ModeBase[ MODE_NO_RUN ] = 1;
+		lol.ModeBase[ MODE_NO_STEAL ] = 1;
+		lol.ModeBase[ MODE_NO_LOOT ] = 1;
         raider.ModeBase[ MODE_NO_HOME ] = 1;
         raider2.ModeBase[ MODE_NO_HOME ] = 1;
         lol.StatBase[ ST_VAR1 ] = 113;

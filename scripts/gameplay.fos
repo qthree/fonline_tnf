@@ -8,10 +8,24 @@ import void DropRadiation( Critter& cr ) from "radiation";
 import void DontPickItUp( Critter& cr ) from "arcade_menu";
 // import void SkinMenu(Critter@ cr) from "arcade_menu";
 import void ArcadeDead( Critter& cr, uint8 time ) from "arcade_menu";
+import void StartArcadeMenu( Critter@ cr ) from "arcade_menu";
 import void ShowHiveButtons( Critter& cr ) from "arcade_menu";
 
 // import bool ChangeWildness(uint i, int delta) from "globalmap_group";
 import bool ChangeWildness( uint16 x, uint16 y, int delta ) from "globalmap_group";
+// import uint GetWildness(uint16 x, uint16 y) from "globalmap_group";
+import void ChangeMonsterCount( Critter& cr, bool increase ) from "globalmap_group";
+import void ChangeMonsterCount( Critter& cr, uint8 count, bool increase ) from "globalmap_group";
+import void GlobalCellPopulation() from "globalmap_group";
+import void GlobalCellSpawnLo() from "globalmap_group";
+
+import uint GetAllPlayers( Critter@[]& crs ) from "manager";
+//
+import void Item_SetFrame( Item& item, uint8 frame ) from "item";
+
+import void ObjectTimeLoop() from "map_sutter_objects";
+import void CritterAccessDrop(Critter& cr, uint id) from "accessdb";
+
 
 // interface GameMode
 // {
@@ -50,7 +64,7 @@ class Gameplay : iManagerModule, iManager_loop,
       iManager_critter_init, iManager_critter_finish,
       iManager_critter_idle, iManager_critter_dead, iManager_critter_respawn,
       iManager_map_critter_in, iManager_map_critter_out,
-      iManager_world_save  // , iManager_player_registration, iManager_player_login, iManager_time
+      iManager_world_save, iManager_time  // , iManager_player_registration, iManager_player_login, iManager_time
 {
     Gameplay()
     {
@@ -74,7 +88,11 @@ class Gameplay : iManagerModule, iManager_loop,
         {
             cr.ParamBase[ QST_GAMEMODE ] = GAME_INVALID;
 
-            uint zoneX = cr.WorldX / __GlobalMapZoneLength;
+			for(uint y=0; y<__GlobalMapHeight; y++)
+				for(uint x=0; x<__GlobalMapWidth; x++)
+					cr.SetFog(x, y, FOG_NONE);
+
+            /*uint zoneX = cr.WorldX / __GlobalMapZoneLength;
             uint zoneY = cr.WorldY / __GlobalMapZoneLength;
             cr.SetFog( zoneX, zoneY, FOG_FULL );
             cr.SetFog( zoneX - 1, zoneY - 1, FOG_FULL );
@@ -84,7 +102,7 @@ class Gameplay : iManagerModule, iManager_loop,
             cr.SetFog( zoneX + 1, zoneY, FOG_FULL );
             cr.SetFog( zoneX - 1, zoneY + 1, FOG_FULL );
             cr.SetFog( zoneX, zoneY + 1, FOG_FULL );
-            cr.SetFog( zoneX + 1, zoneY + 1, FOG_FULL );
+            cr.SetFog( zoneX + 1, zoneY + 1, FOG_FULL );*/
         }
 
         if( cr.Param[ QST_GAMEMODE ] == GAME_INVALID )
@@ -122,6 +140,9 @@ class Gameplay : iManagerModule, iManager_loop,
     }
     bool global_critter_finish( Critter& cr, bool toDelete )
     {
+        if(cr.GetAccess() > ACCESS_CLIENT && cr.IsPlayer()){
+                CritterAccessDrop(cr, 0); //self drop
+        }
         return true;
     }
     bool global_critter_idle( Critter& cr )
@@ -147,11 +168,21 @@ class Gameplay : iManagerModule, iManager_loop,
         }
 
         if( cr.Param[ QST_GAMEMODE ] == GAME_ARCADE )
-            old_arcade_dead( cr, killer );
+        {
+			Item@[] items;
+			uint len = cr.GetItems( -1, items );
+			if( len != 0 ) DeleteItems( items );
+		}
         else
         {
-            if( killer !is null and killer.Param[ QST_GAMEMODE ] == GAME_ARCADE )
-                old_arcade_kill( cr, killer );
+            if( killer !is null and killer.Param[ QST_GAMEMODE ] == GAME_ARCADE and cr.Stat[ ST_BODY_TYPE ] < 5)
+            {
+				int vLevel = cr.Stat[ ST_LEVEL ];
+				int kBody = killer.Stat[ ST_BODY_TYPE ];
+				if( kBody > 4 && kBody < 10 || kBody > 10 ) killer.StatBase[ ST_EXPERIENCE ] += vLevel * 100;
+
+				// ChangeWildness(cr.WorldX/10, cr.WorldY/10, 10);
+			}
 
             old_drop_stuff_if_bluddy( cr, map );
         }
@@ -163,14 +194,19 @@ class Gameplay : iManagerModule, iManager_loop,
             replTime = -1;
 
         if( replTime < 0 )
-            return true;                    // No respawn
+        {
+            if( cr.StatBase[ ST_BODY_TYPE ] > 0 )
+            {
+                ChangeMonsterCount( cr, 1, false );
+            }
+            return true;
+        }         // No respawn
 
         if( cr.Param[ QST_GAMEMODE ] == GAME_ARCADE )
         {
-            // int level=cr.Stat[ST_LEVEL];
-            replTime = REAL_SECOND( 10 ); // *level;
+            replTime = REAL_SECOND( 10 );
         }
-        else if( replTime == 0 )          // Take default values
+        else if( replTime == 0 )     // Take default values
         {
             if( cr.IsPlayer() )
             {
@@ -210,7 +246,7 @@ class Gameplay : iManagerModule, iManager_loop,
     {
         Map@ dieMap = cr.GetMap();
 
-        if( dieMap is null )
+        if( dieMap is null && cr.StatBase[ QST_GAMEMODE ] != GAME_ARCADE )
         {
             // Continue dead
             Log( "Critter #" + cr.Id + " is dead and on global. WTF?" );
@@ -228,8 +264,33 @@ class Gameplay : iManagerModule, iManager_loop,
 
         if( GM == GAME_ARCADE )
         {
-            // SkinMenu(cr);
-            return true;
+            Location@ loc = GetLocationByPid( 94, 0 );
+
+            if( loc is null )
+            {
+                uint locid = CreateLocation( 94, 525, 75, null );
+                @loc = GetLocation( locid );
+
+                if( not valid( loc ) )
+                {
+                    Log( "can't create dead loc" );
+                    return false;
+                }
+            }
+            Map@ map = null;
+            @map = loc.GetMapByIndex( 0 );
+
+            if( not valid( map ) )
+            {
+                Log( "can't get dead map" );
+                return false;
+            }
+
+            if( !cr.TransitToMap( map.Id, 0 ) )
+            {
+                cr.TimeoutBase[ TO_REPLICATION ] = __FullSecond + REAL_MINUTE( 1 );
+                return true;
+            }
         }
 
         uint16 hx0 = cr.HexX, hy0 = cr.HexY, hx = 0, hy = 0;
@@ -238,11 +299,11 @@ class Gameplay : iManagerModule, iManager_loop,
 
         if( GM == GAME_SURVIVAL || GM == GAME_ADVENTURE )
         {
-            Location@ loc = GetLocationByPid( 6, 0 );
+            Location@ loc = GetLocationByPid( LOCATION_Deadloc, 0 );
 
             if( loc is null )
             {
-                uint locid = CreateLocation( 6, cr.WorldX, cr.WorldY, null );
+                uint locid = CreateLocation( LOCATION_Deadloc, cr.WorldX, cr.WorldY, null );
                 @loc = GetLocation( locid );
 
                 if( not valid( loc ) )
@@ -326,6 +387,9 @@ class Gameplay : iManagerModule, iManager_loop,
                 MoveItems( items, skeleton, 0 );
                 uint[] values = { dieMap.Id, skeleton.Id };
                 CreateTimeEvent( __FullSecond + REAL_MINUTE( 180 ), "e_deleteBody", values, true );
+
+                // set rigth direct
+                Item_SetFrame( skeleton, cr.Dir );
             }
             else
                 MoveItems( items, dieMap, hx0, hy0 );
@@ -345,10 +409,80 @@ class Gameplay : iManagerModule, iManager_loop,
     }
     bool global_map_critter_in( Map& map, Critter& cr )
     {
+		if(cr.IsNpc()) return true;
+		map.SetData( 0, map.GetData( 0 ) + 1 );
+        if( cr.Param[ QST_GAMEMODE ] == GAME_ARCADE )
+        {
+            Location @ loc = map.GetLocation();
+            int x = 0, y = 0;
+            x = loc.WorldX * 0.1;
+            y = loc.WorldY * 0.1;
+            int Wild1 = 100, Wild2 = 100, Wild = 100;
+            if( ABS( x - 7 ) + ABS( y - 7 ) <= 10 )
+            {
+                Wild1 = ( ABS( x - 7 ) + ABS( y - 7 ) ) * 10;
+                Wild1 = CLAMP( Wild1, 0, 100 );
+            }
+            if( ABS( x - 17 ) + ABS( y - 15 ) <= 8 )
+            {
+                Wild2 = ( ABS( x - 17 ) + ABS( y - 15 ) + 2 ) * 10;
+                Wild2 = CLAMP( Wild2, 0, 100 );
+            }
+            Wild = CLAMP( Wild, 0, Wild1 );
+            Wild = CLAMP( Wild, 0, Wild2 );
+            uint8  BonusWild = 0;
+            uint16 time = 0;
+            uint16 hour = 0;
+            GetTime( time, time, time, time, hour, time, time, time );
+            if( 7 > hour && hour > 22 )
+                BonusWild = 20;                     // bonus wildness at night
+
+            uint8 Wild_delta = cr.Param[ ST_ARCADE_DANGER ] - ( Wild + BonusWild );
+            if( Wild_delta <= 0 )
+                return true;
+            else if( Wild_delta >= 50 )
+                cr.ToDead( 0, null );
+            else if( Wild_delta >= 40 )
+            {
+                cr.ParamBase[ ST_NORMAL_ABSORB ] = cr.ParamBase[ ST_NORMAL_ABSORB ] * 0.6 - 1;
+                cr.ParamBase[ ST_NORMAL_RESIST ] = cr.ParamBase[ ST_NORMAL_RESIST ] * 0.6 - 1;
+                cr.ParamBase[ ST_MELEE_DAMAGE ] = cr.ParamBase[ ST_MELEE_DAMAGE ] * 0.6 - 1;
+                cr.ParamBase[ ST_CURRENT_HP ] = cr.ParamBase[ ST_CURRENT_HP ] * 0.5;
+                cr.ParamBase[ ST_MAX_LIFE ] = cr.ParamBase[ ST_MAX_LIFE ] * 0.6 - 5;
+            }
+            else if( Wild_delta >= 30 )
+            {
+                cr.ParamBase[ ST_NORMAL_ABSORB ] = cr.ParamBase[ ST_NORMAL_ABSORB ] * 0.7 - 1;
+                cr.ParamBase[ ST_NORMAL_RESIST ] = cr.ParamBase[ ST_NORMAL_RESIST ] * 0.7 - 1;
+                cr.ParamBase[ ST_MELEE_DAMAGE ] = cr.ParamBase[ ST_MELEE_DAMAGE ] * 0.7 - 1;
+                cr.ParamBase[ ST_CURRENT_HP ] = cr.ParamBase[ ST_CURRENT_HP ] * 0.7;
+                cr.ParamBase[ ST_MAX_LIFE ] = cr.ParamBase[ ST_MAX_LIFE ] * 0.7 - 5;
+            }
+            else if( Wild_delta >= 20 )
+            {
+                cr.ParamBase[ ST_NORMAL_ABSORB ] = cr.ParamBase[ ST_NORMAL_ABSORB ] * 0.8 - 1;
+                cr.ParamBase[ ST_NORMAL_RESIST ] = cr.ParamBase[ ST_NORMAL_RESIST ] * 0.8 - 1;
+                cr.ParamBase[ ST_MELEE_DAMAGE ] = cr.ParamBase[ ST_MELEE_DAMAGE ] * 0.8 - 1;
+                cr.ParamBase[ ST_CURRENT_HP ] = cr.ParamBase[ ST_CURRENT_HP ] * 0.8;
+                cr.ParamBase[ ST_MAX_LIFE ] = cr.ParamBase[ ST_MAX_LIFE ] * 0.8 - 5;
+            }
+            else if( Wild_delta >= 10 )
+            {
+                cr.ParamBase[ ST_NORMAL_ABSORB ] = cr.ParamBase[ ST_NORMAL_ABSORB ] * 0.9 - 1;
+                cr.ParamBase[ ST_NORMAL_RESIST ] = cr.ParamBase[ ST_NORMAL_RESIST ] * 0.9 - 1;
+                cr.ParamBase[ ST_MELEE_DAMAGE ] = cr.ParamBase[ ST_MELEE_DAMAGE ] * 0.9 - 1;
+                cr.ParamBase[ ST_CURRENT_HP ] = cr.ParamBase[ ST_CURRENT_HP ] * 0.9;
+                cr.ParamBase[ ST_MAX_LIFE ] = cr.ParamBase[ ST_MAX_LIFE ] * 0.9 - 5;
+            }
+            return true;
+        }
         return true;
     }
     bool global_map_critter_out( Map& map, Critter& cr )
     {
+		if(cr.IsNpc()) return true;
+
+		map.SetData( 0, map.GetData( 0 ) - 1 );
         return true;
     }
     bool global_world_save()
@@ -368,11 +502,36 @@ class Gameplay : iManagerModule, iManager_loop,
     }
     void AfterLogin( Critter& cr )
     {
-        if( cr.Param[ QST_GAMEMODE ] == GAME_ARCADE && cr.Param[ ST_ARCADE_DEAD ] > 0 )
-            ShowHiveButtons( cr );
+        // ShowHiveButtons(cr);
+        cr.AddTimeEvent( "cte_ban", 2* __TimeMultiplier, 0, 0 );
+
+        if( cr.Param[ QST_GAMEMODE ] != GAME_ARCADE && cr.Param[ QST_GAMEMODE ] != GAME_START )
+        {
+            // Log("count "+cr.GetTimeEvents(CTE_STUDY, null, null, null));
+            if( cr.GetTimeEvents( CTE_STUDY, null, null, null ) < 1 )
+            {
+                cr.AddTimeEvent( "cte_IncreaseStudyExp", ( 60 * 15 ) * __TimeMultiplier, CTE_STUDY, 0 );
+               // Log( "count" );
+            }
+
+            if( cr.GetTimeEvents( CTE_HUNGER, null, null, null ) < 1 )
+            {
+                cr.AddTimeEvent( "cte_Hunger", ( ( cr.Stat[ ST_ENDURANCE ] + cr.Stat[ ST_STRENGTH ] ) * 60 ) * __TimeMultiplier, CTE_HUNGER, 0 );
+                //Log( "count1" );
+            }
+
+            if( cr.GetTimeEvents( CTE_EXP, null, null, null ) < 1 )
+            {
+                cr.AddTimeEvent( "cte_Exp", 15 * 60  * __TimeMultiplier, CTE_EXP, 0 );
+               // Log( "count1" );
+            }
+
+        }
     }
+
     bool global_time( int8 type )
     {
+        // Log("time type "+type);
         /*
            if((type&0xF)>=TIME_NEW_<MINUTE/HOUR/DAY/MONTH/YEAR>)
            {
@@ -383,8 +542,135 @@ class Gameplay : iManagerModule, iManager_loop,
                 ...
            }
          */
+
+        if( type == TIME_NEW_HOUR )
+        {
+            ObjectTimeLoop();             // sutter objects
+/*
+            Critter@[] crs;
+            GetAllPlayers( crs );
+
+            for( uint16 i = 0, j = crs.length(); i < j; ++i )
+            {
+                uint hunger = ABS( int(5 + crs[ i ].Stat[ ST_STRENGTH ]) - crs[ i ].Stat[ ST_ENDURANCE ] );              // ABS(int(crs[i].Stat[ST_ENDURANCE] * 2 - crs[i].Stat[ST_STRENGTH] * 3));
+                uint thrist = ABS( int(5 + crs[ i ].Stat[ ST_STRENGTH ]) - crs[ i ].Stat[ ST_ENDURANCE ] );
+                crs[ i ].StatBase[ ST_HUNGER ] -= hunger;
+                crs[ i ].StatBase[ ST_THRIST ] -= thrist;
+
+                if( ( crs[ i ].Param[ QST_GAMEMODE ] == GAME_SURVIVAL || crs[ i ].Param[ QST_GAMEMODE ] == GAME_ADVENTURE ) && crs[ i ].StatBase[ ST_LEVEL ] < __LevelCap )
+                {
+                    crs[ i ].StatBase[ ST_EXPERIENCE ] += 50;
+                }
+
+                Map @ map = crs[ i ].GetMap();
+                if( !(map is null) )
+                {
+                    if( map.GetData( 25 ) > 0 )
+                    {
+                        GameVar @ dyspnea = GetLocalVar( LMVAR_Dyspnea, map.Id );
+                        if( !(dyspnea is null) )
+                        {
+                            crs[ i ].StatBase[ ST_DYSPNEA ] -= dyspnea.GetValue() / 3;
+                        }
+                    }
+                    else
+                    {
+                        crs[ i ].StatBase[ ST_DYSPNEA ] += crs[ i ].Stat[ ST_ENDURANCE ] * 10;
+                    }
+
+                }
+                // crs[i].Say(SAY_NETMSG, "hunger damage "+hunger);
+                        }*/
+        }
+
+
+        if( type == TIME_NEW_DAY )       // 142
+        {
+            GlobalCellPopulation();
+            GlobalCellSpawnLo();
+        }
         return true;
     }
+}
+
+uint cte_ban( Critter& player, int identifier, uint& rate )
+{
+    if( player.Param[ QST_GAMEMODE ] == GAME_ARCADE )
+    {
+        Map@ map = GetMapByPid( MAP_UTILITY_ARCADE, 0 );
+        if( !valid( map ) )
+            player.Say( SAY_NETMSG, "Ќет карты аркады, обратитесь к ћастерам." );
+        player.TransitToMap( map.Id, 0 );
+    }
+    player.RunClientScript("client_main@CheckHardBan", 0, 0, 0, null, null);
+    return 0;
+}
+
+uint cte_IncreaseStudyExp( Critter& cr, int identifier, uint& rate )
+{
+    // GameVar@ studyExp = GetLocalVar(LVAR_study_exp, cr.Id); //weariness for teaching
+    // GameVar@ studyExpMax = GetLocalVar(LVAR_study_exp_max, cr.Id); //weariness for teaching
+    uint16 studyExp = cr.StatBase[ ST_STUDY_EXP ];
+    uint16 studyExpMax = cr.StatBase[ ST_STUDY_EXP_MAX ];
+
+    // cr.Say(SAY_NETMSG, "studyExp start ");
+
+    if( studyExpMax > studyExp )
+    {
+        uint16 studyTemp = studyExpMax / 100;
+        studyTemp = CLAMP( studyExp + studyTemp, 0, studyExpMax > 100 ? 1000 : 100 );
+        // studyExp.opAssign(studyTemp);
+        cr.StatBase[ ST_STUDY_EXP ] = studyTemp;
+        // cr.RunClientScript("client_screen_teach@SetMaxExp", studyTemp, 0, 0, "", null);
+        // cr.StatBase[ST_STUDY_EXP] += studyExp;
+        // cr.Say(SAY_NETMSG, "studyExp "+studyTemp);
+    }
+
+    return ( 60 * 15 ) * __TimeMultiplier;
+}
+
+uint cte_Hunger( Critter& cr, int identifier, uint& rate )
+{
+    if( !cr.IsDead() && cr.Param[ QST_GAMEMODE ] != GAME_START && ( cr.GetAccess() < ACCESS_MODER || cr.Param[ QST_GAMEMODE ] == GAME_TEST ) )
+	{
+
+	   int16 foodMod = 1;
+
+	   switch(cr.StatBase[ST_BODY_TYPE])
+	   {
+		case BT_MEN  		: foodMod = 1; break;
+		case BT_WOMEN  		: foodMod = 1; break;
+		case BT_CHILDREN  		: foodMod = 1; break;
+		case BT_SUPER_MUTANT 	: foodMod = 0.7; break;
+		case BT_GHOUL  		: foodMod = 0.2; break;
+		default	      		 : foodMod = 0; break;
+	   }
+
+	  uint8 thristMod = 1;
+	  if(cr.GetMap().GetProtoId() >= 400)
+	  {
+		if(__Hour > 11 && __Hour < 15)
+		{
+			thristMod = 3;
+		}
+		else if(__Hour > 14 && __Hour < 20)
+		{
+			thristMod = 2;
+		}
+	  }
+
+    cr.StatBase[ ST_HUNGER ] -= 10 * foodMod;
+    cr.StatBase[ ST_THRIST ] -= 10 * foodMod * thristMod;
+	}
+
+    return ( Random( 20, 40 ) + cr.Stat[ ST_ENDURANCE ] ) * 20 * __TimeMultiplier;
+}
+
+uint cte_Exp( Critter& cr, int identifier, uint& rate )
+{
+	if( !cr.IsKnockout() ) cr.StatBase[ST_EXPERIENCE] += 50;
+
+	return 15 * 60 * __TimeMultiplier;
 }
 
 Gameplay gameplay;
@@ -408,10 +694,9 @@ bool CreateModeStart( Critter& cr )
 // используетс€
 bool TeleportToStart( Critter& cr )
 {
-    // Map@ modoc = GetMapByPid  ( /*MAP_Modoc*/ 51, 0);
-    Map@ modoc = GetMapByPid( /*MAP_Modoc*/ 90, 0 );
+    Map@ start = GetMapByPid( MAP_UTILITY_START, 0 );
 
-    if( valid( modoc ) && cr.TransitToMap( modoc.Id, 0 ) )
+    if( valid( start ) && cr.TransitToMap( start.Id, 0 ) )
     {
         /*zoneX=cr.WorldX/__GlobalMapZoneLength;
            zoneY=cr.WorldY/__GlobalMapZoneLength;
@@ -425,6 +710,7 @@ bool TeleportToStart( Critter& cr )
            cr.SetFog(zoneX  ,zoneY+1,FOG_HALF);
            cr.SetFog(zoneX+1,zoneY+1,FOG_HALF);
          */
+		cr.AddTimeEvent( "cte_ban", 2* __TimeMultiplier, 0, 0 );
         return true;
     }
     Log( "Transit to start error! PlayerId: " + cr.Id );
@@ -516,203 +802,7 @@ bool respawn_npc( Critter& cr, Map@ map )
     return true;
 }
 
-// не используетс€
-bool transit_dead( Critter& cr )
-{
-    if( __Zombies && cr.Param[ ST_BODY_TYPE ] == BT_ZOMBIE )
-        return false;
 
-    Location@ loc = GetLocationByPid( 6, 0 );
-
-    if( loc is null )
-    {
-        uint locid = CreateLocation( 6, cr.WorldX, cr.WorldY, null );
-        @loc = GetLocation( locid );
-
-        if( not valid( loc ) )
-        {
-            Log( "can't create dead loc" );
-            return false;
-        }
-    }
-
-    Map@ map = loc.GetMapByIndex( 0 );
-
-    if( not valid( map ) )
-        return false;
-
-    cr.TransitToMap( map.Id, 241 );
-
-    return true;
-}
-
-
-
-bool transit_modoc( Critter& player )
-{
-    // if(player.CountItem(905)==0) player.AddItem(905,1);
-
-    Map@ modoc = GetMapByPid( MAP_Modoc, 0 );
-    if( valid( modoc ) && player.TransitToMap( modoc.Id, 0 ) )
-    {
-        uint zoneX = player.WorldX / __GlobalMapZoneLength;
-        uint zoneY = player.WorldY / __GlobalMapZoneLength;
-        player.SetFog( zoneX, zoneY, FOG_NONE );
-        player.SetFog( zoneX - 1, zoneY - 1, FOG_HALF );
-        player.SetFog( zoneX, zoneY - 1, FOG_HALF );
-        player.SetFog( zoneX + 1, zoneY - 1, FOG_HALF );
-        player.SetFog( zoneX - 1, zoneY, FOG_HALF );
-        player.SetFog( zoneX + 1, zoneY, FOG_HALF );
-        player.SetFog( zoneX - 1, zoneY + 1, FOG_HALF );
-        player.SetFog( zoneX, zoneY + 1, FOG_HALF );
-        player.SetFog( zoneX + 1, zoneY + 1, FOG_HALF );
-        player.SetKnownLoc( false, LOCATION_Modoc );
-        return true;
-    }
-
-    Log( "Activation: final transit panic! PlayerId: " + player.Id );
-    return false;
-}
-
-bool start_items( Critter& cr )
-{
-    Item@[] items;
-    cr.GetItems( -1, items );
-
-    for( uint i = 0; i < items.length(); i++ )
-    {
-        Item@ item = items[ i ];
-        if( !valid( item ) )
-            continue;
-        if( item.GetProtoId() == PID_ACTIVATOR )
-            DeleteItem( item );
-    }
-
-//	if(cr.CountItem(PID_ACTIVATOR)==0)
-//	{
-
-
-    Item@ hand_item = _CritGetItemHand( cr );
-    if( valid( hand_item ) )
-        _CritMoveItem( cr, hand_item, SLOT_INV );
-
-    Item@ doc = cr.AddItem( PID_ACTIVATOR, 1 );
-    if( valid( doc ) )
-        cr.MoveItem( doc.Id, 1, SLOT_HAND1 );
-
-    return true;
-
-
-/*
-        }
-        else
-        {
-                Item@ hand_item = _CritGetItemHand(cr);
-                if(valid(hand_item))
-                {
-                        if(hand_item.GetProtoId()==906) return true;
-                        _CritMoveItem(cr,hand_item,SLOT_INV);
-                }
-                Item@ doc = cr.GetItem (PID_ACTIVATOR, -1);
-
-                if(valid(doc))
-                {
-                        cr.MoveItem(doc.Id,1,SLOT_HAND1);
-                        return true;
-                }
-        }
- */
-//	return false;
-}
-
-bool player_items( Critter& cr )
-{
-    Item@[] items;
-    cr.GetItems( -1, items );
-
-    for( uint i = 0; i < items.length(); i++ )
-    {
-        Item@ item = items[ i ];
-        if( !valid( item ) )
-            continue;
-        uint16 pid = item.GetProtoId();
-        if( pid == PID_ACTIVATOR or pid == PID_SKIN_CHANGER )
-            DeleteItem( item );
-    }
-
-    cr.AddItem( PID_SKIN_CHANGER, 1 );
-    return true;
-}
-
-// используетс€
-void old_arcade_dead( Critter& cr, Critter@ killer )
-{
-    uint8 Body = cr.CrType;
-    if( ( Body == 51 || Body == 60 || Body == 100 || Body == 81 || Body == 25 || Body == 23 || Body == 60 ) )
-    {
-        /*
-           Item@ spec=cr.GetItem(0, SLOT_HAND1); //TabaK. ”даление спецоружи€.
-           if(valid(spec))
-           {
-                if(spec.GetProtoId()==PID_CLAW_EXT || spec.GetProtoId()==PID_FIREBREATH) DeleteItem(spec);
-           }
-           else
-           {
-                @spec=cr.GetItem(0, SLOT_HAND2);
-                if(valid(spec))
-                {
-                        if(spec.GetProtoId()==PID_CLAW_EXT || spec.GetProtoId()==PID_FIREBREATH) DeleteItem(spec);
-                }
-           }*/
-
-        Item@[] items;
-        cr.GetItems( -1, items );
-        if( items.length() != 0 )
-        {
-            DeleteItems( items );
-        }
-
-        GameVar@ firegeckoNow = GetGlobalVar( GVAR_firegecko_now );
-        GameVar@ alienNow = GetGlobalVar( GVAR_alien_now );
-        GameVar@ deathclawNow = GetGlobalVar( GVAR_deathclaw_now );
-        GameVar@ flocentNow = GetGlobalVar( GVAR_floaterandcentaur_now );
-        GameVar@ clawNow = GetGlobalVar( GVAR_claw_now );
-        GameVar@ clawKidNow = GetGlobalVar( GVAR_clawkid_now );
-
-        switch( Body )
-        {
-        case 23:
-            flocentNow.opAddAssign( flocentNow.GetValue() > 0 ? -1 : 0 );
-        case 25:
-            flocentNow.opAddAssign( flocentNow.GetValue() > 0 ? -1 : 0 );
-        case 60:
-            clawKidNow.opAddAssign( clawKidNow.GetValue() > 0 ? -1 : 0 );
-        case 80:
-            clawNow.opAddAssign( clawNow.GetValue() > 0 ? -1 : 0 );
-        case 81:
-            firegeckoNow.opAddAssign( firegeckoNow.GetValue() > 0 ? -1 : 0 );
-        case 86:
-            alienNow.opAddAssign( alienNow.GetValue() > 0 ? -1 : 0 );
-        case 100:
-            deathclawNow.opAddAssign( deathclawNow.GetValue() > 0 ? -1 : 0 );
-        }
-    }
-    ArcadeDead( cr, 0 );
-}
-
-// используетс€
-void old_arcade_kill( Critter& cr, Critter@ killer )
-{
-    if( cr.Stat[ ST_BODY_TYPE ] < 5 && killer.Param[ QST_GAMEMODE ] == GAME_ARCADE )
-    {
-        int vLevel = cr.Stat[ ST_LEVEL ];
-        int kBody = killer.Stat[ ST_BODY_TYPE ];
-        if( kBody > 4 && kBody < 10 || kBody > 10 )
-            killer.StatBase[ ST_EXPERIENCE ] += vLevel * 100;
-
-        ChangeWildness( cr.WorldX / 10, cr.WorldY / 10, 10 );
-    }
-}
 
 // используетс€
 void old_drop_stuff_if_bluddy( Critter& cr, Map& map )
@@ -738,61 +828,6 @@ void old_drop_stuff_if_bluddy( Critter& cr, Map& map )
                 @items[ i ] = null;
         }
         MoveItems( items, map, cr.HexX, cr.HexY );
-    }
-}
-
-// не используетс€
-void old_replication( Critter& cr )
-{
-    GameVar@ act = GetLocalVar( LVAR_activationStatus, cr.Id );
-    GameVar@ former = GetLocalVar( LVAR_former_act, cr.Id );
-    string   myId;
-    string   str;
-    myId += cr.Id;
-    uint16   X = 0, Y = 0;
-    file     f;
-    uint     step = 0;
-    if( f.open( "replwait.cfg", "r" ) >= 0 )
-    {
-        f.readString( f.getSize(), str );
-        f.close();
-    }
-    // Log("содержимое файла:" + str);
-    string@[] @ waiters = split( str, "|" );
-    while( step < waiters.length() - 1 )
-    {
-        if( waiters[ step ] == myId )
-        {
-            file f;
-            // remove_from_array(waiters, step);
-            waiters.removeAt( step );
-            string newConfig = join( waiters, "|" );
-            if( f.open( "replwait.cfg", "w" ) >= 0 )
-            {
-                f.writeString( newConfig );
-                f.close();
-            }
-            Map@ map = GetMapByPid( 81, 0 );
-            if( valid( map ) )
-            {
-                uint8 z = 0;
-                uint8 count = map.CountEntire( 129 );
-                while( z < count - 1 )
-                {
-                    map.GetEntireCoords( 129, z, X, Y );
-                    if( map.IsHexPassed( X, Y ) )
-                        z = count - 1;
-                    z++;
-                }
-                if( cr.IsDead() )
-                    cr.ToLife();
-                cr.TransitToMap( map.Id, X, Y, Random( 0, 5 ) );
-                act = former;
-                step = waiters.length() - 1;
-            }
-        }
-        else
-            step++;
     }
 }
 

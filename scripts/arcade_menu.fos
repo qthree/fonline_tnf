@@ -2,26 +2,26 @@
 
 #include "_macros.fos"
 
-#define BT_BRAHMIN             ( 15 )
-#define BT_DOG                 ( 16 )
-#define BT_RAT_GRIZLY          ( 19 )
-#define BT_SCORP               ( 22 )
-#define BT_FLOATER             ( 23 )
-#define BT_RAT                 ( 24 )
-#define BT_CENTAUR             ( 25 )
-#define BT_CLAW                ( 51 )
-#define BT_MANTIS              ( 52 )
-#define BT_RAT_PIG             ( 55 )
-#define BT_SCORP_SMALL         ( 59 )
-#define BT_CLAW_SMALL          ( 60 )
-#define BT_GECKO_SILVER        ( 67 )
-#define BT_GECKO_GOLD          ( 68 )
-#define BT_RAT_KING            ( 76 )
-#define BT_ALIEN               ( 80 )
-#define BT_GECKO_FIRE          ( 81 )
-#define BT_ALIEN_QUEEN         ( 86 )
-#define BT_GIGANT_ANT          ( 97 )
-#define BT_CLAW_KING           ( 100 )
+#define SKIN_BRAHMIN           ( 15 )
+#define SKIN_DOG               ( 16 )
+#define SKIN_RAT_GRIZLY        ( 19 )
+#define SKIN_SCORP             ( 22 )
+#define SKIN_FLOATER           ( 23 )
+#define SKIN_RAT               ( 24 )
+#define SKIN_CENTAUR           ( 25 )
+#define SKIN_CLAW              ( 51 )
+#define SKIN_MANTIS            ( 52 )
+#define SKIN_RAT_PIG           ( 55 )
+#define SKIN_SCORP_SMALL       ( 59 )
+#define SKIN_CLAW_SMALL        ( 60 )
+#define SKIN_GECKO_SILVER      ( 67 )
+#define SKIN_GECKO_GOLD        ( 68 )
+#define SKIN_RAT_KING          ( 76 )
+#define SKIN_ALIEN             ( 80 )
+#define SKIN_GECKO_FIRE        ( 81 )
+#define SKIN_ALIEN_QUEEN       ( 86 )
+#define SKIN_GIGANT_ANT        ( 97 )
+#define SKIN_CLAW_KING         ( 100 )
 
 #define GMAP_WIDTH             ( 7 )
 #define GMAP_HEIGH             ( 12 )
@@ -33,15 +33,22 @@
 
 #define ANYDATA_ARCADE_HIVE    "ARCADE_HIVE"
 
-import void skin( Critter& player, int playerId, int crType, int param2 ) from "skins";
+import void skin( Critter& cr, int crType ) from "skins";
 import void ChangeCritterSpeed( Critter& cr ) from "speed"; // pm add
 // uint16[]  body = {24, 52, 97, 55, 67, 16, 68, 15, 19, 76, 59, 22, 60, 80, 25, 51, 23, 86, 100, 81};
 //  Index:         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17,  18, 19.
 // uint16[] realbody(8,0);
 
+import uint GetAllPlayers( Critter@[]& crs ) from "manager";
+// import uint GetWildness(uint16 x, uint16 y) from "globalmap_group";
 
 void unsafe_arcade( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
 {
+    if( player.Param[ QST_GAMEMODE ] != GAME_START )
+    {
+        player.Say( SAY_NETMSG, "ошибка, обратитесь к Мастерам" );
+        return;
+    }
     if( player.Stat[ ST_LEVEL ] > 1 || player.Stat[ ST_EXPERIENCE ] > 0 || player.Stat[ ST_MUTATION ] > 0 )
     {
         player.SayMsg( SAY_NETMSG, TEXTMSG_GAME, 106941 );
@@ -62,14 +69,37 @@ void unsafe_arcade( Critter& player, int param0, int param1, int param2, string@
     }
     else
     {
-        player.Say( SAY_NETMSG, "Включен аркадный режим игры. Выбор существа через " + DEATH_TIMEOUT + " секунд." );
-        player.ParamBase[ QST_GAMEMODE ] = GAME_ARCADE;
-        ArcadeDead( player, 0 );
+        // player.Say(SAY_NETMSG, "Включен аркадный режим игры. Выбор существа через "+DEATH_TIMEOUT+" секунд.");
+        // ArcadeDead(player, DEATH_TIMEOUT);
         // SkinMenu(player);
+
+        player.ParamBase[ QST_GAMEMODE ] = GAME_ARCADE;
+        Map@ map = GetMapByPid( 94, 0 );
+        if( !valid( map ) )
+        {
+            player.Say( SAY_NETMSG, "Нет карты аркады, обратитесь к Мастерам." );
+            return;
+        }
+        player.Say( SAY_NETMSG, "Включен аркадный режим игры." );
+        player.TransitToMap( map.Id, 0 );
     }
     return;
 }
 // ////////////////
+
+void _InitArcadeWell( Item& item, bool firstTime )
+{
+    item.SetEvent( ITEM_EVENT_SKILL, "e_WellPick" );
+}
+
+bool e_WellPick( Item& item, Critter& cr, int skill )
+{
+    if( ( skill == SKILL_PICK_ON_GROUND ) && ( item.Accessory == ACCESSORY_HEX ) )
+    {
+        StartArcadeMenu( cr );
+    }
+    return false;
+}
 
 void ShowHiveButtons( Critter& cr )
 {
@@ -78,7 +108,7 @@ void ShowHiveButtons( Critter& cr )
         GetArcadeData( arcadeHive );
     else
     {
-        Log( "arcade death time event error" );
+        Log( "arcade show buttons error" );
         return;
     }
     cr.RunClientScript( "client_screen_additional@SendHiveInfo", 0, 0, 0, null, arcadeHive );
@@ -88,29 +118,507 @@ void ArcadeDead( Critter& cr, uint8 time )
 {
     // cr.Say(SAY_NETMSG, "dead");
     // uint16[] id = {cr.Id};
-    CreateTimeEvent( __FullSecond + REAL_MS( ( time > 0 ? time : DEATH_TIMEOUT ) * 1000 ), "e_arcade_dead", cr.Id, true );
+    // CreateTimeEvent(__FullSecond+REAL_MS((time > 0 ? time : DEATH_TIMEOUT)*1000), "e_arcade_dead", cr.Id, true);
     // cr.Say(SAY_NETMSG, "dead2");
     // cr.RunClientScript("client_screen_additional@ShowGlobalMap", 0, 0, 0, null, arcadeHive);
+
+    if( cr.GetTimeEvents( CTE_ARCADEDANGER, null, null, null ) == 0 )
+    {
+        cr.Say( SAY_NETMSG, "Вы умерли, ждите 30 секунд до воскрешения." );
+        cr.AddTimeEvent( "cte_arcade_dead", REAL_SECOND( 30 ), CTE_ARCADEDANGER, 0 );
+    }
 }
+
+uint cte_arcade_dead( Critter& cr, int identifier, uint& rate )
+{
+    Log( "arcade respawn try" );
+    Map@ map = GetMapByPid( 94, 0 );
+    if( !valid( map ) )
+        return 0;
+    Map@ map2 = cr.GetMap();
+    if( !valid( map ) || map.GetProtoId() != 94 )
+        cr.TransitToMap( map.Id, 0 );
+    cr.StatBase[ ST_ARCADE_DEAD ] = 1;
+    cr.ToLife();
+    Log( "arcade respawn done" );
+    return 0;
+}
+
+void StartArcadeMenu( Critter@ cr ) // Export
+{
+    cr.ParamBase[ QST_GAMEMODE ] = GAME_ARCADE;
+    cr.StatBase[ ST_ARCADE_DEAD ] = 1;
+    Critter@[] crs;
+    GetAllPlayers( crs );
+    bool thereistarget = false;
+    uint j = 0, max = crs.length();
+    if( max < 2 )
+        return;
+
+    int    BonusWild = 0;
+    uint16 time = 0;
+    uint16 hour = 0;
+    GetTime( time, time, time, time, hour, time, time, time );
+    if( 7 > hour && hour > 22 )
+        BonusWild = 20;                     // bonus wildness at night
+
+    for( uint i = 0; i < max; i++ )
+    {
+        j = Random( 0, max - 1 );
+        if( not valid( crs[ j ] ) )
+            continue;
+        Map@ map = crs[ j ].GetMap();
+        if( not valid( map ) )
+            continue;
+        if( crs[ j ].Param[ QST_GAMEMODE ] == GAME_TEST || crs[ j ].Param[ QST_GAMEMODE ] == GAME_START || crs[ j ].Param[ QST_GAMEMODE ] == GAME_ARCADE ||
+            crs[ j ].GetAccess() >= ACCESS_MODER || crs[ j ].IsDead() )
+            continue;
+        if( map.GetProtoId() != 91 && ( map.GetProtoId() < 15 || map.GetProtoId() > 20 ) )
+            continue;
+
+        Location @ loc = map.GetLocation();
+        int x = 0, y = 0;
+        x = loc.WorldX * 0.1;
+        y = loc.WorldY * 0.1;
+        int Wild1 = 100, Wild2 = 100, Wild = 100;
+        if( ABS( x - 7 ) + ABS( y - 7 ) <= 10 )
+        {
+            Wild1 = ( ABS( x - 7 ) + ABS( y - 7 ) ) * 10;
+            Wild1 = CLAMP( Wild1, 0, 100 );
+        }
+        if( ABS( x - 17 ) + ABS( y - 15 ) <= 8 )
+        {
+            Wild2 = ( ABS( x - 17 ) + ABS( y - 15 ) + 2 ) * 10;
+            Wild2 = CLAMP( Wild2, 0, 100 );
+        }
+        Wild = CLAMP( Wild, 0, Wild1 );
+        Wild = CLAMP( Wild, 0, Wild2 );
+
+
+        int level = cr.Stat[ ST_LEVEL ];
+        int danger = crs[ j ].ParamBase[ ST_ARCADE_DANGER ];
+
+        if( ( Wild + BonusWild ) < danger )
+            continue;
+
+        if( Wild > 0 )
+        {
+            Wild = Wild + BonusWild;
+            int delta = Wild - danger;
+            cr.ParamBase[ ST_KILLER_PERSON ] = crs[ j ].Id;
+            cr.ParamBase[ ST_VAR0 ] = Wild;
+            thereistarget = true;
+            if( Wild < 50 )
+            {
+                if( Wild >= 40 /*&& level >=6*/ )
+                    cr.ShowScreen( SCREEN_DIALOGBOX, 12, "answer_StartArcadeMenu_1" );
+                else if( Wild >= 30 /*&& level >=4*/ )
+                    cr.ShowScreen( SCREEN_DIALOGBOX, 10, "answer_StartArcadeMenu_1" );
+                else if( Wild >= 20 /*&& level >=2*/ )
+                    cr.ShowScreen( SCREEN_DIALOGBOX, 7, "answer_StartArcadeMenu_1" );
+                else
+                    cr.ShowScreen( SCREEN_DIALOGBOX, 4, "answer_StartArcadeMenu_1" );
+                cr.Say( SAY_DIALOGBOX_TEXT, "Цель в городских окраинах, доступно " + delta + " едениц агрессии" );
+                cr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "2 Крыса" );
+                cr.Say( SAY_DIALOGBOX_BUTTON( 1 ), "2 Мантис" );
+                cr.Say( SAY_DIALOGBOX_BUTTON( 2 ), "2 муравей" );
+                cr.Say( SAY_DIALOGBOX_BUTTON( 3 ), "4 м. скорпион" );
+                if( Wild >= 20 /*&& level >=2*/ )
+                {
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 4 ), "7 свинокрыс" );
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 5 ), "10 собака" );
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 6 ), "10 гекко" );
+                }
+                if( Wild >= 30 /*&& level >=4*/ )
+                {
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 7 ), "12 кротокрыс" );
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 8 ), "15 большой скорпион" );
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 9 ), "15 золотой гекко" );
+                }
+                if( Wild >= 40 /*&& level >=6*/ )
+                {
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 10 ), "20 мутант кротокрыс" );
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 11 ), "25 малый коготь" );
+                }
+            }
+            if( Wild >= 50 )
+            {
+                if( Wild >= 100 /*&& level >=12*/ )
+                    cr.ShowScreen( SCREEN_DIALOGBOX, 9, "answer_StartArcadeMenu_2" );
+                else if( Wild >= 70 /*&& level >=9*/ )
+                    cr.ShowScreen( SCREEN_DIALOGBOX, 8, "answer_StartArcadeMenu_2" );
+                else if( Wild >= 60 /*&& level >=6*/ )
+                    cr.ShowScreen( SCREEN_DIALOGBOX, 6, "answer_StartArcadeMenu_2" );
+                else
+                    cr.ShowScreen( SCREEN_DIALOGBOX, 4, "answer_StartArcadeMenu_2" );
+                cr.Say( SAY_DIALOGBOX_TEXT, "Цель в диких землях, доступно " + delta + " едениц агрессии" );
+                cr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "20 волк" );
+                cr.Say( SAY_DIALOGBOX_BUTTON( 1 ), "20 большой скорп" );
+                cr.Say( SAY_DIALOGBOX_BUTTON( 2 ), "25 мутант кротокрыс" );
+                cr.Say( SAY_DIALOGBOX_BUTTON( 3 ), "25 малый коготь" );
+                if( Wild >= 60 /*&& level >=6*/ )
+                {
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 4 ), "50 огнегекко" );
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 5 ), "40 большой коготь" );
+                }
+                if( Wild >= 70 /*&& level >=9*/ )
+                {
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 6 ), "35 летатель" );
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 7 ), "35 кентавр" );
+                }
+                if( Wild >= 100 /*&& level >=12*/ )
+                {
+                    cr.Say( SAY_DIALOGBOX_BUTTON( 8 ), "100 серый коготь" );
+                }
+            }
+        }
+    }
+    if( !thereistarget )
+    {
+        cr.ShowScreen( SCREEN_DIALOGBOX, 1, "answer_StartArcadeMenu_No" );
+        cr.Say( SAY_DIALOGBOX_TEXT, "Сейчас нет доступных аркаде целей, попробуйте попозже" );
+        cr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "Проверить еще раз" );
+    }
+}
+
+void answer_StartArcadeMenu_No( Critter& player, uint answerI, string& answerS )
+{
+    if( answerI == 0 )
+    {
+        StartArcadeMenu( player );
+    }
+}
+
+void answer_StartArcadeMenu_1( Critter& player, uint answerI, string& answerS )
+{
+    Critter@ targetCr = GetCritter( player.ParamBase[ ST_KILLER_PERSON ] );
+    if( targetCr is null )
+        return;
+    int Wild = player.ParamBase[ ST_VAR0 ];
+    if( answerI == 0 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 10;
+        if( Wild <= 10 )
+            set_arcade_stat( player, SKIN_RAT, 0 );
+        else if( Wild <= 20 )
+            set_arcade_stat( player, SKIN_RAT, 1 );
+        else
+            set_arcade_stat( player, SKIN_RAT, 2 );
+        JumpToTarget( player, targetCr, 2 );
+    }
+    if( answerI == 1 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 10;
+        if( Wild <= 10 )
+            set_arcade_stat( player, SKIN_MANTIS, 0 );
+        else if( Wild <= 20 )
+            set_arcade_stat( player, SKIN_MANTIS, 1 );
+        else
+            set_arcade_stat( player, SKIN_MANTIS, 2 );
+        JumpToTarget( player, targetCr, 2 );
+    }
+    if( answerI == 2 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 10;
+        if( Wild <= 10 )
+            set_arcade_stat( player, SKIN_GIGANT_ANT, 0 );
+        else if( Wild <= 20 )
+            set_arcade_stat( player, SKIN_GIGANT_ANT, 1 );
+        else
+            set_arcade_stat( player, SKIN_GIGANT_ANT, 2 );
+        JumpToTarget( player, targetCr, 2 );
+    }
+    if( answerI == 3 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 10;
+        if( Wild <= 10 )
+            set_arcade_stat( player, SKIN_SCORP_SMALL, 0 );
+        else if( Wild <= 20 )
+            set_arcade_stat( player, SKIN_SCORP_SMALL, 1 );
+        else
+            set_arcade_stat( player, SKIN_SCORP_SMALL, 2 );
+        JumpToTarget( player, targetCr, 4 );
+    }
+    if( answerI == 4 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 20;
+        if( Wild <= 20 )
+            set_arcade_stat( player, SKIN_RAT_PIG, 0 );
+        else if( Wild <= 30 )
+            set_arcade_stat( player, SKIN_RAT_PIG, 1 );
+        else
+            set_arcade_stat( player, SKIN_RAT_PIG, 2 );
+        JumpToTarget( player, targetCr, 7 );
+    }
+    if( answerI == 5 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 20;
+        if( Wild <= 20 )
+            set_arcade_stat( player, SKIN_DOG, 0 );
+        else if( Wild <= 30 )
+            set_arcade_stat( player, SKIN_DOG, 1 );
+        else
+            set_arcade_stat( player, SKIN_DOG, 2 );
+        JumpToTarget( player, targetCr, 10 );
+    }
+    if( answerI == 6 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 20;
+        if( Wild <= 20 )
+            set_arcade_stat( player, SKIN_GECKO_SILVER, 0 );
+        else if( Wild <= 30 )
+            set_arcade_stat( player, SKIN_GECKO_SILVER, 1 );
+        else
+            set_arcade_stat( player, SKIN_GECKO_SILVER, 2 );
+        JumpToTarget( player, targetCr, 10 );
+    }
+    if( answerI == 7 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 30;
+        if( Wild <= 30 )
+            set_arcade_stat( player, SKIN_RAT_GRIZLY, 0 );
+        else
+            set_arcade_stat( player, SKIN_RAT_GRIZLY, 1 );
+        JumpToTarget( player, targetCr, 12 );
+    }
+    if( answerI == 8 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 30;
+        if( Wild <= 30 )
+            set_arcade_stat( player, SKIN_SCORP, 0 );
+        else
+            set_arcade_stat( player, SKIN_SCORP, 1 );
+        JumpToTarget( player, targetCr, 15 );
+    }
+    if( answerI == 9 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 30;
+        if( Wild <= 30 )
+            set_arcade_stat( player, SKIN_GECKO_GOLD, 0 );
+        else
+            set_arcade_stat( player, SKIN_GECKO_GOLD, 1 );
+        JumpToTarget( player, targetCr, 15 );
+    }
+    if( answerI == 10 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 40;
+        set_arcade_stat( player, SKIN_RAT_KING, 0 );
+        JumpToTarget( player, targetCr, 20 );
+    }
+    if( answerI == 11 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 40;
+        set_arcade_stat( player, SKIN_CLAW_SMALL, 0 );
+        JumpToTarget( player, targetCr, 25 );
+    }
+}
+
+void answer_StartArcadeMenu_2( Critter& player, uint answerI, string& answerS )
+{
+    Critter@ targetCr = GetCritter( player.ParamBase[ ST_KILLER_PERSON ] );
+    if( targetCr is null )
+        return;
+    int Wild = player.ParamBase[ ST_VAR0 ];
+    if( answerI == 0 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 30;
+        set_arcade_stat( player, SKIN_DOG, 2 );
+        JumpToTarget( player, targetCr, 15 );
+    }
+    if( answerI == 1 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 30;
+        set_arcade_stat( player, SKIN_SCORP, 2 );
+        JumpToTarget( player, targetCr, 20 );
+    }
+    if( answerI == 2 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 40;
+        if( Wild <= 50 )
+            set_arcade_stat( player, SKIN_RAT_KING, 1 );
+        else
+            set_arcade_stat( player, SKIN_RAT_KING, 2 );
+        JumpToTarget( player, targetCr, 25 );
+    }
+    if( answerI == 3 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 40;
+        if( Wild <= 50 )
+            set_arcade_stat( player, SKIN_CLAW_SMALL, 1 );
+        else
+            set_arcade_stat( player, SKIN_CLAW_SMALL, 2 );
+        JumpToTarget( player, targetCr, 25 );
+    }
+    if( answerI == 4 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 60;
+        if( Wild <= 60 )
+            set_arcade_stat( player, SKIN_GECKO_FIRE, 0 );
+        else if( Wild <= 70 )
+            set_arcade_stat( player, SKIN_GECKO_FIRE, 1 );
+        else
+            set_arcade_stat( player, SKIN_GECKO_FIRE, 2 );
+        JumpToTarget( player, targetCr, 60 );
+    }
+    if( answerI == 5 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 60;
+        if( Wild <= 60 )
+            set_arcade_stat( player, SKIN_CLAW, 0 );
+        else if( Wild <= 70 )
+            set_arcade_stat( player, SKIN_CLAW, 1 );
+        else
+            set_arcade_stat( player, SKIN_CLAW, 2 );
+        JumpToTarget( player, targetCr, 40 );
+    }
+    if( answerI == 6 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 70;
+        if( Wild <= 70 )
+            set_arcade_stat( player, SKIN_FLOATER, 0 );
+        else if( Wild <= 80 )
+            set_arcade_stat( player, SKIN_FLOATER, 1 );
+        else
+            set_arcade_stat( player, SKIN_FLOATER, 2 );
+        JumpToTarget( player, targetCr, 35 );
+    }
+    if( answerI == 7 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 70;
+        if( Wild <= 70 )
+            set_arcade_stat( player, SKIN_CENTAUR, 0 );
+        else if( Wild <= 80 )
+            set_arcade_stat( player, SKIN_CENTAUR, 1 );
+        else
+            set_arcade_stat( player, SKIN_CENTAUR, 2 );
+        JumpToTarget( player, targetCr, 35 );
+    }
+    if( answerI == 8 )
+    {
+        player.ParamBase[ ST_ARCADE_DANGER ] = 100;
+        set_arcade_stat( player, SKIN_CLAW_KING, 0 );
+        JumpToTarget( player, targetCr, 100 );
+    }
+}
+
+void JumpToTarget( Critter& cr, Critter@ targetCr, int cost )
+{
+    Map@   map = targetCr.GetMap();
+    uint16 x = 0, y = 0;
+    map.GetEntireCoords( 255, 0, x, y );
+    cr.TransitToMap( map.Id, x, y + Random( 10, 130 ), 0 );
+    cr.StatBase[ ST_ARCADE_DEAD ] = 0;
+    uint8 dir = GetDirection( cr.HexX, cr.HexY, targetCr.HexX, targetCr.HexY );
+    cr.ParamBase[ ST_CURRENT_HP ] = cr.ParamBase[ ST_MAX_LIFE ] + 200;
+    ChangeCritterSpeed( cr );
+    string place;
+    if( dir == 0 )
+        place = "северо-востоке";
+    else if( dir == 1 )
+        place = "востоке";
+    else if( dir == 2 )
+        place = "юго-востоке";
+    else if( dir == 3 )
+        place = "юго-западе";
+    else if( dir == 4 )
+        place = "западе";
+    else
+        place = "северо-западе";
+    cr.ToKnockout( KNOCKOUT_ANIM2_DEFAULT( ( Random( 0, 1 ) == 1 ) ), 10, cr.HexX, cr.HexY );
+    cr.Say( SAY_NETMSG, "Вы чуете жертву на " + place );
+
+    if( targetCr.GetTimeEvents( CTE_ARCADEDANGER, null, null, null ) == 0 )
+        targetCr.AddTimeEvent( "cte_arcade_danger", __FullSecond, CTE_ARCADEDANGER, cost );
+    else
+        targetCr.ParamBase[ ST_ARCADE_DANGER ] += cost;
+
+    cr.AddTimeEvent( "cte_arcade_smelltarget", __FullSecond + REAL_SECOND( 5 ), CTE_ARCADEDANGER, targetCr.Id );
+}
+
+uint cte_arcade_danger( Critter& cr, int identifier, uint& rate )
+{
+    if( cr.ParamBase[ ST_ARCADE_DANGER ] == 0 )
+        cr.ParamBase[ ST_ARCADE_DANGER ] = rate;
+    if( cr.ParamBase[ ST_ARCADE_DANGER ] > 0 )
+        cr.ParamBase[ ST_ARCADE_DANGER ]--;
+    if( cr.ParamBase[ ST_ARCADE_DANGER ] <= 0 )
+        return 0;
+    return ( REAL_SECOND( 20 ) );
+}
+
+uint cte_arcade_smelltarget( Critter& cr, int identifier, uint& rate )
+{
+    Critter@ targetCr = GetCritter( cr.ParamBase[ ST_KILLER_PERSON ] );
+    if( !valid( targetCr ) )
+    {
+        cr.Say( SAY_NETMSG, "Вы потеряли след" );
+        cr.ToDead( 0, null );
+        return 0;
+    }
+    if( cr.StatBase[ ST_ARCADE_DEAD ] == 1 || cr.IsDead() )
+    {
+        cr.Say( SAY_NETMSG, "Вы мертвы" );
+        return 0;
+    }
+    Map @ map = cr.GetMap();
+    Map @ mapTg = targetCr.GetMap();
+    if( !valid( mapTg ) )
+    {
+        cr.Say( SAY_NETMSG, "Вы потеряли след" );
+        cr.ToDead( 0, null );
+        return 0;
+    }
+    string place = "";
+    if( map.Id != mapTg.Id )
+    {
+        Location @ loc = map.GetLocation();
+        Location @ locTg = mapTg.GetLocation();
+        if( ( loc.WorldX - locTg.WorldX ) > 20 || ( loc.WorldY - locTg.WorldY ) > 20 )
+            cr.ToDead( 0, null );
+        if( loc.WorldX < locTg.WorldX )
+            place += "восточнее";
+        else if( loc.WorldX > locTg.WorldX )
+            place += "западнее";
+        if( loc.WorldY > locTg.WorldY )
+            place += " южнее";
+        else if( loc.WorldY < locTg.WorldY )
+            place += " севернее";
+        cr.Say( SAY_NETMSG, "Вы чуете цель далеко " + place );
+    }
+    else
+    {
+        uint8 dir = GetDirection( cr.HexX, cr.HexY, targetCr.HexX, targetCr.HexY );
+        if( dir == 0 )
+            place = "северо-востоке";
+        else if( dir == 1 )
+            place = "востоке";
+        else if( dir == 2 )
+            place = "юго-востоке";
+        else if( dir == 3 )
+            place = "юго-западе";
+        else if( dir == 4 )
+            place = "западе";
+        else
+            place = "северо-западе";
+        cr.Say( SAY_NETMSG, "Вы чуете жертву на " + place );
+    }
+    return ( REAL_SECOND( 5 ) );
+}
+
 
 uint e_arcade_dead( uint[] @ values )
 {
     uint16 id = values[ 0 ];
-    Critter @ cr = GetCritter( id );
-    int[] arcadeHive;
-    if( IsAnyData( ANYDATA_ARCADE_HIVE ) && @cr != null )
-        GetArcadeData( arcadeHive );
-    else
-    {
-        Log( "arcade death time event error" );
-        return 0;
-    }
-    cr.RunClientScript( "client_screen_additional@SendHiveInfo", 0, 0, 0, null, arcadeHive );
+    // Critter @ cr = GetCritter(id);
+    // int[] arcadeHive;
+    // if(IsAnyData(ANYDATA_ARCADE_HIVE) && @cr != null) GetArcadeData(arcadeHive); else {Log("arcade death time event error"); return 0;}
+    // cr.RunClientScript("client_screen_additional@SendHiveInfo", 0, 0, 0, null, arcadeHive);
 
-    cr.ToLife();
-    cr.TransitToGlobal( false );
+    // cr.ToLife();
+    // cr.TransitToGlobal(false);
 
-    cr.StatBase[ ST_ARCADE_DEAD ] = 1;
+    // cr.StatBase[ST_ARCADE_DEAD] = 1;
+    // StartArcadeMenu(cr); // выбор цели
 
     return 0;
 }
@@ -213,6 +721,7 @@ bool _noPickUp( Critter& cr, int skill, Critter@ onCritter, Item@ onItem, Scener
         return true;
     return false;
 }
+
 /* deprecated
    void SkinMenu(Critter@ cr) // Export
    {
@@ -491,7 +1000,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
 
         switch(cr.StatBase[ST_BASE_CRTYPE])
         {
-                case BT_RAT :
+                case SKIN_RAT :
                                 cr.ParamBase[ST_STRENGTH] = 2;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 2;
@@ -508,9 +1017,10 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
 
                                 cr.ParamBase[SK_UNARMED] = 100;
                                 cr.ParamBase[SK_SNEAK] = 200;
+
                   break;
 
-                  case BT_MANTIS :
+                  case SKIN_MANTIS :
                                 cr.ParamBase[ST_STRENGTH] = 2;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 2;
@@ -529,7 +1039,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 150;
                   break;
 
-                  case BT_GIGANT_ANT :
+                  case SKIN_GIGANT_ANT :
                                 cr.ParamBase[ST_STRENGTH] = 3;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 3;
@@ -548,7 +1058,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 130;
                   break;
 
-                  case BT_RAT_PIG :
+                  case SKIN_RAT_PIG :
                                 cr.ParamBase[ST_STRENGTH] = 4;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 4;
@@ -567,7 +1077,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 110;
                   break;
 
-                  case BT_GECKO_SILVER :
+                  case SKIN_GECKO_SILVER :
                                 cr.ParamBase[ST_STRENGTH] = 4;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 4;
@@ -586,7 +1096,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 70;
                   break;
 
-                  case BT_DOG :
+                  case SKIN_DOG :
                                 cr.ParamBase[ST_STRENGTH] = 5;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 5;
@@ -605,7 +1115,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 110;
                   break;
 
-                  case BT_GECKO_GOLD :
+                  case SKIN_GECKO_GOLD :
                                 cr.ParamBase[ST_STRENGTH] = 5;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 5;
@@ -624,7 +1134,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 80;
                   break;
 
-                  case BT_BRAHMIN :
+                  case SKIN_BRAHMIN :
                                 cr.ParamBase[ST_STRENGTH] = 5;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 5;
@@ -643,7 +1153,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 40;
                   break;
 
-                  case BT_RAT_GRIZLY :
+                  case SKIN_RAT_GRIZLY :
                                 cr.ParamBase[ST_STRENGTH] = 6;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 6;
@@ -662,7 +1172,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 40;
                   break;
 
-                  case BT_RAT_KING :
+                  case SKIN_RAT_KING :
                                 cr.ParamBase[ST_STRENGTH] = 6;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 6;
@@ -681,7 +1191,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 40;
                   break;
 
-                  case BT_SCORP_SMALL :
+                  case SKIN_SCORP_SMALL :
                                 cr.ParamBase[ST_STRENGTH] = 6;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 6;
@@ -700,7 +1210,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 140;
                   break;
 
-                  case BT_SCORP :
+                  case SKIN_SCORP :
                                 cr.ParamBase[ST_STRENGTH] = 7;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 7;
@@ -719,7 +1229,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 80;
                   break;
 
-                  case BT_CLAW_SMALL :
+                  case SKIN_CLAW_SMALL :
                                 cr.ParamBase[ST_STRENGTH] = 7;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 7;
@@ -738,7 +1248,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 140;
                   break;
 
-                  case BT_ALIEN :
+                  case SKIN_ALIEN :
                                 cr.ParamBase[ST_STRENGTH] = 7;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 7;
@@ -757,7 +1267,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 80;
                   break;
 
-                  case BT_CENTAUR :
+                  case SKIN_CENTAUR :
                                 cr.ParamBase[ST_STRENGTH] = 8;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 8;
@@ -776,7 +1286,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 40;
                   break;
 
-                  case BT_CLAW :
+                  case SKIN_CLAW :
                                 cr.ParamBase[ST_STRENGTH] = 8;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 8;
@@ -795,7 +1305,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 80;
                   break;
 
-                  case BT_FLOATER :
+                  case SKIN_FLOATER :
                                 cr.ParamBase[ST_STRENGTH] = 8;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 8;
@@ -814,7 +1324,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 100;
                   break;
 
-                  case BT_ALIEN_QUEEN :
+                  case SKIN_ALIEN_QUEEN :
                                 cr.ParamBase[ST_STRENGTH] = 9;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 9;
@@ -833,7 +1343,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 120;
                   break;
 
-                  case BT_CLAW_KING :
+                  case SKIN_CLAW_KING :
                                 cr.ParamBase[ST_STRENGTH] = 9;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 9;
@@ -852,7 +1362,7 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
                                 cr.ParamBase[SK_SNEAK] = 80;
                   break;
 
-                  case BT_GECKO_FIRE :
+                  case SKIN_GECKO_FIRE :
                                 cr.ParamBase[ST_STRENGTH] = 9;
                                 cr.ParamBase[ST_PERCEPTION] = 6;
                                 cr.ParamBase[ST_ENDURANCE] = 9;
@@ -876,3 +1386,429 @@ void BreakBalls( uint16 crType ) // i've got balls of steel ;D
    return false;
    }
  */
+
+
+/*создание логова
+   спаун криттеров логова
+ */
+
+bool SpawnHiveLocal( Map& map, uint8 hiveType, uint16 hexX, uint16 hexY )
+{
+    return true;
+}
+
+void set_arcade_stat( Critter& cr, int type, int mode )
+{
+    switch( type )
+    {
+    case SKIN_RAT:
+        cr.ParamBase[ ST_STRENGTH ] = 2;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 2;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 4;
+        cr.ParamBase[ ST_LUCK ] = 1;
+        cr.ParamBase[ ST_MAX_LIFE ] = 0;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 5;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 40;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 3;
+        cr.ParamBase[ ST_HEALING_RATE ] = 20;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 1;
+
+        cr.ParamBase[ SK_UNARMED ] = 100;
+        cr.ParamBase[ SK_SNEAK ] = 200;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_RAT;
+        break;
+
+    case SKIN_MANTIS:
+        cr.ParamBase[ ST_STRENGTH ] = 2;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 2;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 4;
+        cr.ParamBase[ ST_LUCK ] = 1;
+        cr.ParamBase[ ST_MAX_LIFE ] = 0;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 4;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 40;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 5;
+        cr.ParamBase[ ST_HEALING_RATE ] = 10;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 1;
+
+        cr.ParamBase[ SK_UNARMED ] = 150;
+        cr.ParamBase[ SK_SNEAK ] = 150;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_MANTI;
+        break;
+
+    case SKIN_GIGANT_ANT:
+        cr.ParamBase[ ST_STRENGTH ] = 3;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 3;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 5;
+        cr.ParamBase[ ST_LUCK ] = 1;
+        cr.ParamBase[ ST_MAX_LIFE ] = 20;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 6;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 30;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 7;
+        cr.ParamBase[ ST_HEALING_RATE ] = 10;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 170;
+        cr.ParamBase[ SK_SNEAK ] = 130;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_GIANT_ANT;
+        break;
+
+    case SKIN_RAT_PIG:
+        cr.ParamBase[ ST_STRENGTH ] = 4;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 4;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 5;
+        cr.ParamBase[ ST_LUCK ] = 1;
+        cr.ParamBase[ ST_MAX_LIFE ] = 35;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 6;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 30;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 10;
+        cr.ParamBase[ ST_HEALING_RATE ] = 6;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 180;
+        cr.ParamBase[ SK_SNEAK ] = 110;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_RAT;
+        break;
+
+    case SKIN_GECKO_SILVER:
+        cr.ParamBase[ ST_STRENGTH ] = 4;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 4;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 5;
+        cr.ParamBase[ ST_LUCK ] = 1;
+        cr.ParamBase[ ST_MAX_LIFE ] = 35;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 6;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 20;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 16;
+        cr.ParamBase[ ST_HEALING_RATE ] = 4;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 150;
+        cr.ParamBase[ SK_SNEAK ] = 70;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_GECKO;
+        break;
+
+    case SKIN_DOG:
+        cr.ParamBase[ ST_STRENGTH ] = 5;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 5;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 5;
+        cr.ParamBase[ ST_LUCK ] = 1;
+        cr.ParamBase[ ST_MAX_LIFE ] = 35;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 7;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 25;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 7;
+        cr.ParamBase[ ST_HEALING_RATE ] = 6;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 180;
+        cr.ParamBase[ SK_SNEAK ] = 110;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_DOG;
+        break;
+
+    case SKIN_GECKO_GOLD:
+        cr.ParamBase[ ST_STRENGTH ] = 5;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 5;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 6;
+        cr.ParamBase[ ST_LUCK ] = 2;
+        cr.ParamBase[ ST_MAX_LIFE ] = 40;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 6;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 25;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 16;
+        cr.ParamBase[ ST_HEALING_RATE ] = 5;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 180;
+        cr.ParamBase[ SK_SNEAK ] = 80;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_GECKO;
+        break;
+
+    case SKIN_BRAHMIN:
+        cr.ParamBase[ ST_STRENGTH ] = 5;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 5;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 6;
+        cr.ParamBase[ ST_LUCK ] = 2;
+        cr.ParamBase[ ST_MAX_LIFE ] = 70;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 12;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 30;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 4;
+        cr.ParamBase[ ST_HEALING_RATE ] = 7;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 200;
+        cr.ParamBase[ SK_SNEAK ] = 40;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_BRAHMIN;
+        break;
+
+    case SKIN_RAT_GRIZLY:
+        cr.ParamBase[ ST_STRENGTH ] = 6;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 6;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 6;
+        cr.ParamBase[ ST_LUCK ] = 2;
+        cr.ParamBase[ ST_MAX_LIFE ] = 60;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 7;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 25;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 16;
+        cr.ParamBase[ ST_HEALING_RATE ] = 5;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 180;
+        cr.ParamBase[ SK_SNEAK ] = 40;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_RAT;
+        break;
+
+    case SKIN_RAT_KING:
+        cr.ParamBase[ ST_STRENGTH ] = 6;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 6;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 6;
+        cr.ParamBase[ ST_LUCK ] = 2;
+        cr.ParamBase[ ST_MAX_LIFE ] = 80;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 8;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 30;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 16;
+        cr.ParamBase[ ST_HEALING_RATE ] = 5;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 200;
+        cr.ParamBase[ SK_SNEAK ] = 40;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_RAT;
+        break;
+
+    case SKIN_SCORP_SMALL:
+        cr.ParamBase[ ST_STRENGTH ] = 6;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 6;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 6;
+        cr.ParamBase[ ST_LUCK ] = 2;
+        cr.ParamBase[ ST_MAX_LIFE ] = 80;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 8;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 30;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 12;
+        cr.ParamBase[ ST_HEALING_RATE ] = 5;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 200;
+        cr.ParamBase[ SK_SNEAK ] = 140;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_RADSCORPION;
+        break;
+
+    case SKIN_SCORP:
+        cr.ParamBase[ ST_STRENGTH ] = 7;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 7;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 6;
+        cr.ParamBase[ ST_LUCK ] = 2;
+        cr.ParamBase[ ST_MAX_LIFE ] = 100;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 8;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 30;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 16;
+        cr.ParamBase[ ST_HEALING_RATE ] = 4;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 210;
+        cr.ParamBase[ SK_SNEAK ] = 80;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_RADSCORPION;
+        break;
+
+    case SKIN_CLAW_SMALL:
+        cr.ParamBase[ ST_STRENGTH ] = 7;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 7;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 6;
+        cr.ParamBase[ ST_LUCK ] = 3;
+        cr.ParamBase[ ST_MAX_LIFE ] = 80;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 6;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 25;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 10;
+        cr.ParamBase[ ST_HEALING_RATE ] = 4;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 210;
+        cr.ParamBase[ SK_SNEAK ] = 140;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_DEADCLAW;
+        break;
+
+    case SKIN_ALIEN:
+        cr.ParamBase[ ST_STRENGTH ] = 7;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 7;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 7;
+        cr.ParamBase[ ST_LUCK ] = 3;
+        cr.ParamBase[ ST_MAX_LIFE ] = 120;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 8;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 30;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 15;
+        cr.ParamBase[ ST_HEALING_RATE ] = 4;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 240;
+        cr.ParamBase[ SK_SNEAK ] = 80;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_ALIEN;
+        break;
+
+    case SKIN_CENTAUR:
+        cr.ParamBase[ ST_STRENGTH ] = 8;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 8;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 7;
+        cr.ParamBase[ ST_LUCK ] = 4;
+        cr.ParamBase[ ST_MAX_LIFE ] = 150;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 8;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 30;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 15;
+        cr.ParamBase[ ST_HEALING_RATE ] = 3;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 240;
+        cr.ParamBase[ SK_SNEAK ] = 40;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_CENTAUR;
+        break;
+
+    case SKIN_CLAW:
+        cr.ParamBase[ ST_STRENGTH ] = 8;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 8;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 7;
+        cr.ParamBase[ ST_LUCK ] = 4;
+        cr.ParamBase[ ST_MAX_LIFE ] = 170;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 6;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 25;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 13;
+        cr.ParamBase[ ST_HEALING_RATE ] = 3;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 240;
+        cr.ParamBase[ SK_SNEAK ] = 80;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_DEADCLAW;
+        break;
+
+    case SKIN_FLOATER:
+        cr.ParamBase[ ST_STRENGTH ] = 8;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 8;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 7;
+        cr.ParamBase[ ST_LUCK ] = 3;
+        cr.ParamBase[ ST_MAX_LIFE ] = 220;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 8;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 20;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 15;
+        cr.ParamBase[ ST_HEALING_RATE ] = 2;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 3;
+
+        cr.ParamBase[ SK_UNARMED ] = 250;
+        cr.ParamBase[ SK_SNEAK ] = 100;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_FLOATER;
+        break;
+
+    case SKIN_ALIEN_QUEEN:
+        cr.ParamBase[ ST_STRENGTH ] = 9;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 9;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 7;
+        cr.ParamBase[ ST_LUCK ] = 3;
+        cr.ParamBase[ ST_MAX_LIFE ] = 200;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 8;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 30;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 25;
+        cr.ParamBase[ ST_HEALING_RATE ] = 1;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 5;
+
+        cr.ParamBase[ SK_UNARMED ] = 260;
+        cr.ParamBase[ SK_SNEAK ] = 120;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_ALIEN;
+        break;
+
+    case SKIN_CLAW_KING:
+        cr.ParamBase[ ST_STRENGTH ] = 9;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 9;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 7;
+        cr.ParamBase[ ST_LUCK ] = 3;
+        cr.ParamBase[ ST_MAX_LIFE ] = 250;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 6;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 20;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 15;
+        cr.ParamBase[ ST_HEALING_RATE ] = 1;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 5;
+
+        cr.ParamBase[ SK_UNARMED ] = 240;
+        cr.ParamBase[ SK_SNEAK ] = 80;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_DEADCLAW;
+        break;
+
+    case SKIN_GECKO_FIRE:
+        cr.ParamBase[ ST_STRENGTH ] = 9;
+        cr.ParamBase[ ST_PERCEPTION ] = 6;
+        cr.ParamBase[ ST_ENDURANCE ] = 9;
+        cr.ParamBase[ ST_CHARISMA ] = 1;
+        cr.ParamBase[ ST_INTELLECT ] = 1;
+        cr.ParamBase[ ST_AGILITY ] = 7;
+        cr.ParamBase[ ST_LUCK ] = 3;
+        cr.ParamBase[ ST_MAX_LIFE ] = 150;
+        cr.ParamBase[ ST_ACTION_POINTS ] = 6;
+        cr.ParamBase[ ST_ARMOR_CLASS ] = 15;
+        cr.ParamBase[ ST_MELEE_DAMAGE ] = 10;
+        cr.ParamBase[ ST_HEALING_RATE ] = 4;
+        cr.ParamBase[ ST_CRITICAL_CHANCE ] = 1;
+
+        cr.ParamBase[ SK_UNARMED ] = 240;
+        cr.ParamBase[ SK_SNEAK ] = 100;
+        cr.ParamBase[ ST_BODY_TYPE ] = BT_GECKO;
+        break;
+    }
+    if( mode != 0 )
+    {
+        if( mode == 1 )
+            cr.ParamBase[ ST_MAX_LIFE ] += 10 + cr.ParamBase[ ST_MAX_LIFE ] * 0.2;
+        if( mode == 2 )
+            cr.ParamBase[ ST_MAX_LIFE ] += 20 + cr.ParamBase[ ST_MAX_LIFE ] * 0.5;
+    }
+    cr.ParamBase[ PE_AWARENESS ] = 0;
+    cr.StatBase[ ST_BASE_CRTYPE ] = type;
+    cr.ChangeCrType( type );
+}

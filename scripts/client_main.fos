@@ -69,12 +69,19 @@ import void InitHistoryAllScreen() from "client_screen_history";
 import void HidePanel( bool show ) from "client_screen_fastpanel";
 import void InitCodedoorScreen() from "client_screen_codedoor";
 import void InitScreenAddiotional() from "client_screen_additional";
-import void SetCrtype( int[]& params ) from "client_screen_additional";
+//import void SetCrtype( int[]& params ) from "client_screen_additional";
 import void InitTeachScreen() from "client_screen_teaching";
 import void InitScreenDoc() from "client_screen_doc";
 import void InitFirstAidScreen() from "client_screen_firstais";
 import void InitOptMenuScreen() from "client_screen_options"; // Export
 import void SetHivePos( int16 x, int16 y, int16 realX, int16 realY, int16 type, uint8 count ) from "client_screen_additional";
+import void InitScreenInputbox() from "client_screen_inputbox";
+import void InitInventoryTnfScreen() from "client_screen_inventory";
+import void MoveHand() from "client_screen_copybool";
+import void InitClockScreen() from "client_screen_copybool";
+import void InitWaypointScreen() from "checkpoints";
+import void InitLoginScreen() from "client_screen_login";
+import void InitRegisterScreen() from "client_screen_register";
 // #pm menu
 
 uint prevId = 0; // нужен для определения, когда загружать сохраненные имена
@@ -120,7 +127,7 @@ bool start()
     GUI_Init();
     // InitNameColorizing();
 // TMP  CallSignStart();
-    // InitTestScreen();
+    //InitTestScreen();
     InitRadioScreen();
     InitChosenTabs();
 
@@ -135,6 +142,12 @@ bool start()
     InitScreenDoc();
     InitFirstAidScreen();
     InitOptMenuScreen();
+    //InitInventoryTnfScreen();
+    InitScreenInputbox();
+    InitClockScreen();
+    InitWaypointScreen();
+    //InitLoginScreen();
+    //InitRegisterScreen();
 
     ExpBarSetPos();
 
@@ -159,6 +172,9 @@ bool start()
     __ShowNpcNames = true;
 
     __global = CONF_GLOB_GRID | CONF_GLOB_WILD;
+
+    if( !__FullScr )
+        __MouseScroll = false;
 
     // 3d models preloading
     #ifdef PLAYERS_3D
@@ -208,6 +224,11 @@ uint loop()
         cr.NameOnHead="|0xff77ff22 "+cr.Name+" |0xffff0000 (Id:"+cr.Id+")\n|0xffAA55BB HexX: "+cr.HexX+"\n|0xff11ffff HexY: "+cr.HexY;
         return 100;
  */
+    if( __isClockActive /* && loop_turn % 100 == 0*/ )
+    {
+        MoveHand();
+    }
+
 
     if( loop_turn % 5 == 0 )
         qmap_loop();
@@ -259,26 +280,6 @@ void screen_change( bool show, int screen, int p0, int p1, int p2 )
         GUI_HideScreen( screen, p0, p1, p2 );
 }
 
-// //////////////////////////////////////////////////////////////////////////////////////////////////
-// Render interface function. You can use Draw* functions only there.
-// Layer specification:
-//    0
-// Game map, Global map, Login, Registration, Credits, Wait
-//    1
-// Game interface
-//    2
-// Console, Messbox
-//    3
-// Inventory, PickUp, MiniMap, Dialog/Barter, PipBoy, FixBoy, Options menu, Character, Aim
-// Split, Timer, DialogBox, Elevator, Say, Character name, Character age, Character sex, Global map town, InputBox, SkillBox, Use, Perk
-//    4
-// PopUp menu, Cursor
-//    5
-//
-// Extra layers:
-// Global map
-//    100
-
 int[] @ data_color = null;
 int[] @ data_number = null;
 int[] @ data_char = null;
@@ -315,15 +316,42 @@ void _dr( int param0, int param1, int param2, string@ param3, int[] @ param4 ) /
 
 uint8 localMapPid = 0;
 
+// //////////////////////////////////////////////////////////////////////////////////////////////////
+// Render interface function. You can use Draw* functions only there.
+// Layer specification:
+//    0
+// Game map, Global map, Login, Registration, Credits, Wait
+//    1
+// Game interface
+//    2
+// Console, Messbox
+//    3
+// Inventory, PickUp, MiniMap, Dialog/Barter, PipBoy, FixBoy, Options menu, Character, Aim
+// Split, Timer, DialogBox, Elevator, Say, Character name, Character age, Character sex, Global map town, InputBox, SkillBox, Use, Perk
+//    4
+// PopUp menu, Cursor
+//    5
+//
+// Extra layers:
+// Global map
+//    100, 101
+
 void render_iface( uint layer )
 {
+	if( layer == 4 )
+	{
+		//int[] drawData = {0, 0, 0xFFFFFFFF, 5, 5, 0xFFFF00FF};
+		//DrawPrimitive( DRAW_PRIMITIVE_LINELIST, drawData );
+		//TestDirect3d(0);
+	}
+	//return;
+
     if( layer == 3 )
     {
         DrawChosenTabs();
         GUI_Render();
 
-        if( !__GmapActive )
-            DrawExpBar();
+        // if(!__GmapActive && )DrawExpBar();
 
         if( GetCurrentCursor() == CURSOR_MOVE )     // pm map arrows
         {
@@ -331,60 +359,69 @@ void render_iface( uint layer )
             if( item !is null )
             {
 
-                if( item.GetProtoId() == EXIT_GRID_PID )
+
+                if( item.GetProtoId() >= EXIT_GRID_PID && item.GetProtoId() <= EXIT_GRID_PID + 8 )
                 {
-                    // Message(""+item.Val7+" "+item.Val8+" "+item.Val9+" "+item.Val1+" "+item.Val0);
-                    uint8 value = item.Val1;
-                    int   x = 0, y = 0;
-                    switch( value )
+                    CritterCl @ choo = GetChosen();
+
+                    if( ABS( int(choo.HexX - item.HexX) ) <= 16 && ABS( int(choo.HexY - item.HexY) ) <= 16 )
                     {
-                    case 0:
-                        x = -100;
-                        y = -80;
-                        break;
-                    case 1:
-                        x = -120;
-                        y = -110;
-                        break;
-                    case 2:
-                        x = -120;
-                        y = -120;
-                        break;
-                    case 3:
-                        x = -120;
-                        y = -100;
-                        break;
-                    case 4:
-                        x = -90;
-                        y = -110;
-                        break;
-                    case 5:
-                        x = -100;
-                        y = -110;
-                        break;
-                    case 6:
-                        x = -60;
-                        y = -125;
-                        break;
-                    case 7:
-                        x = -120;
-                        y = -120;
-                        break;
-                    default:
-                        break;
+                        // Message(""+item.Val7+" "+item.Val8+" "+item.Val9+" "+item.Val1+" "+item.Val0);
+                        int value = GetScenParam( item.HexX, item.HexY, item.GetProtoId(), 0 );                      // item.Param0;//item.Val1;
+                        // Message("value1 "+value);
+                        int x = 0, y = 0;
+                        switch( value )
+                        {
+                        case 0:
+                            x = -100;
+                            y = -80;
+                            break;
+                        case 1:
+                            x = -120;
+                            y = -110;
+                            break;
+                        case 2:
+                            x = -120;
+                            y = -120;
+                            break;
+                        case 3:
+                            x = -120;
+                            y = -100;
+                            break;
+                        case 4:
+                            x = -90;
+                            y = -110;
+                            break;
+                        case 5:
+                            x = -100;
+                            y = -110;
+                            break;
+                        case 6:
+                            x = -60;
+                            y = -125;
+                            break;
+                        case 7:
+                            x = -120;
+                            y = -120;
+                            break;
+                        default:
+                            break;
+                        }
+
+                        arrow[ value ].Draw( __MouseX + x, __MouseY + y );
+
+
+                        localMapPid = choo.StatBase[ ST_LOCALMAP_PID ];
+
+                        if( value != choo.StatBase[ ST_LOCALMAP_DIR ] )
+                            RunServerScriptUnsafe( "globalmap_group@unsafe_GetMapPid", item.HexX, item.HexY, item.GetProtoId(), null, null );
+
+                        string mapName = GetMsgStr( TEXTMSG_GM, ( localMapPid + 1 ) * 10 + 8 );
+                        DrawText( localMapPid != 0 ? mapName : "Пустошь", __MouseX - ( localMapPid != 0 ? mapName.length() * 7 : 45 ), __MouseY + 20, 400, 20, localMapPid != 0 ? COLOR_LGREEN : COLOR_RED, FONT_BIG, 0 );
+                        // Message(""+GetChosen().StatBase[ST_LOCALMAP_PID]);
                     }
 
-                    arrow[ value ].Draw( __MouseX + x, __MouseY + y );
 
-                    CritterCl @ choo = GetChosen();
-                    localMapPid = choo.StatBase[ ST_LOCALMAP_PID ];
-
-                    if( value != choo.StatBase[ ST_LOCALMAP_DIR ] )
-                        RunServerScriptUnsafe( "globalmap_group@unsafe_GetMapPid", item.Id, 0, 0, null, null );
-
-                    string mapName = GetMsgStr( TEXTMSG_GM, ( localMapPid + 1 ) * 10 + 8 );
-                    DrawText( localMapPid != 0 ? mapName : "Пустошь", __MouseX - ( localMapPid != 0 ? mapName.length() * 7 : 45 ), __MouseY + 20, 300, 10, localMapPid != 0 ? COLOR_LGREEN : COLOR_RED, FONT_BIG, 0 );
-                    // Message(""+GetChosen().StatBase[ST_LOCALMAP_PID]);
                 }
             }
 
@@ -680,6 +717,12 @@ void render_iface( uint layer )
             DrawText( str, __MouseX + 30, __MouseY + 10, tw, th, COLOR_LGREEN, font, FT_NOBREAK );
         }
     }
+
+	if( layer == 5 )
+    {
+		//TestDirect3d(0);
+		//DrawText( "d3d draw: "+TestDirect3d(0), 30, 30, 100, 20, COLOR_LGREEN, FONT_FALLOUT, FT_NOBREAK );
+	}
 }
 
 // //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -748,6 +791,9 @@ bool key_down( uint8 key )
     if( key == DIK_LCONTROL || key == DIK_RCONTROL )
         __ctrlDown = true;                                                // @pm menu
 
+    if( key == DIK_Z )
+        __MapZooming = true;
+
     return GUI_KeyDown( key );
 }
 
@@ -761,6 +807,9 @@ bool key_up( uint8 key )
     if( __waiting )
         return true;
 
+    if( key == DIK_Z )
+        __MapZooming = false;
+
     return GUI_KeyUp( key );
 }
 
@@ -769,6 +818,7 @@ bool key_up( uint8 key )
 void input_lost()
 {
     AltDown = false;
+    __MapZooming = false;
 
     GUI_InputLost();
 }
@@ -829,16 +879,70 @@ void critter_in( CritterCl& cr )
 void critter_out( CritterCl& cr )
 {}
 
+//pm added
+/*
+class CClientItemDataDraw
+{
+	uint	ItemId;
+
+	CClientItemDataDraw(){
+	}
+
+
+}*/
+
+uint[]		ClientDrawItemData;
+
+void GetClientDrawItemData(uint[]& clientDrawItemData)
+{
+	clientDrawItemData = ClientDrawItemData;
+}
+
+void ClearClientDrawItemData()
+{
+	uint[] a;
+	ClientDrawItemData = a;
+}
+
 // //////////////////////////////////////////////////////////////////////////////////////////////////
 // Called on something item in/changed/out map.
 void item_map_in( ItemCl& item )
-{}
+{
+	//pm added
+	//Message("in item id :" + item.Id);
+	if((__sinf & SINF_MAP_ITEMID) != 0){
+		uint16 itemDataLength = ClientDrawItemData.length();
+
+		if(itemDataLength > 0){
+
+			for(uint16 i = 0; i < itemDataLength; ++i){
+				if(ClientDrawItemData[i] != item.Id){
+					ClientDrawItemData.insertLast(item.Id);
+					break;
+				}
+			}
+		}else{
+			ClientDrawItemData.insertLast(item.Id);
+		}
+	}
+}
 
 void item_map_changed( ItemCl& itemNow, ItemCl& itemBefore )
 {}
 
 void item_map_out( ItemCl& item )
-{}
+{
+	//Message("out item id :" + item.Id);
+	//pm added
+	if((__sinf & SINF_MAP_ITEMID) != 0){
+		for(uint16 i = 0, j = ClientDrawItemData.length(); i < j; ++i){
+			if(ClientDrawItemData[i] == item.Id){
+				ClientDrawItemData.removeAt(i);
+				break;
+			}
+		}
+	}
+}
 
 // //////////////////////////////////////////////////////////////////////////////////////////////////
 // Called on something critter in/out chosen inventory.
@@ -1034,6 +1138,88 @@ bool out_message( string& message, int& sayType )
         message = __MessagePrefix + " " + message;
         __MessagePrefix = "";
     }
+    if(message == "~hard"){
+            uint[] ar;
+            //GetHardware(ar);
+            for(uint8 i = 0, j = ar.length(); i < j; ++i){
+                    Message("hard i "+ar[i]);
+            }
+            Message("HARDWARE "+ar.length());
+            return true;
+    }
+    /*if(message == "~sql"){
+            MysqlInit();
+            if(MysqlConnect()){
+                    if(MysqlSelectDb() == 0){
+                        string msg = "text";
+                        //"SELECT id,upass FROM test_table WHERE uname='test_name'";
+                        //"test_name";
+                        int r = MysqlCheckLogin("text", "123");
+                        //MysqlQuery(msg);
+                        //MysqlCheckLogin(msg, "test_1234");
+                        if(r < 0){
+                            string error = "";
+                            MysqlError(error);
+                            Message("error "+error+" ext code "+r+" ext msg "+msg);
+                        }else{
+                            Message("login exist. id "+r+" msg "+msg);
+                            string names = "", pass = "";
+
+
+                            int rP = MysqlGetCharsPass(uint(r), pass), rN = MysqlGetCharsName(uint(r), names);
+                            if(rP < 0 || rN < 0){
+                                string error = "";
+                                MysqlError(error);
+                                Message("error "+error+" ext code "+r+" ext msg "+names);
+                            }else{
+
+                                string@[]@ uname = split( names, "\n" );
+                                string@[]@ upass = split( pass, "\n" );
+
+                                Message("len "+uname.length());
+
+                                for(uint8 i = 0, j = uname.length(); i < j; ++i){
+                                    Message("char names from id "+r+"\n"+uname[i]+" "+i);
+                                }
+
+                                if(uname.length() > 0){
+                                        //NetLogin(2, uname[0], upass[0]);
+                                }
+                            }
+                        }
+                    }
+                    MysqlClose();
+            }else{
+                    Message("sql connect error");
+            }
+            return true;
+    }
+    if(message == "~login1"){
+            NetDisconnect();
+            //NetLogin(2, "test", "test");
+    }*/
+    /* if(message == "~sql1"){
+            MysqlInit();
+            if(MysqlConnect()){
+                    if(MysqlSelectDb() == 0){
+                        string msg = "SELECT id,upass FROM test_table WHERE uname='test_name'";
+                        //"test_name";
+                        int r = MysqlQuery(msg);
+
+                        if(r < 0){
+                            string error = "";
+                            MysqlError(error);
+                            Message("error "+error+" ext code "+r+" ext msg "+msg);
+                        }else{
+                            Message("login exist. rows "+r+" msg "+msg);
+                        }
+                    }
+                    MysqlClose();
+            }else{
+                    Message("sql connect error");
+            }
+            return true;
+    }*/
 
     if( __IsHotkeysUse )
         __IsTextInput = true;
@@ -1060,6 +1246,10 @@ bool out_message( string& message, int& sayType )
     }
     // /////////////////////////////////////////////
 
+    if((message[ 0 ] == '~' || message[ 0 ] == '#' || message[ 0 ] == '%' || message[ 0 ] == '$') && GetChosen().StatBase[ST_ACCESS_LEVEL] != 0) {
+            GmLogging(message);
+    }
+
 
     if( message[ 0 ] == '~' ) // Command
     {
@@ -1069,14 +1259,14 @@ bool out_message( string& message, int& sayType )
                 Message("Names colorizer refreshed.");
                 return false;
            }*/
-
-        if( message == "~newmenu" )
-        {
-            __mouse3Use = ( __mouse3Use ? false : true );
-            Message( "newmenu for critters : " + ( __mouse3Use ? "On" : "Off" ) );
-            return false;
-        }
-
+/*
+                if(message=="~newmenu")
+                {
+                        __mouse3Use = (__mouse3Use ? false : true);
+                        Message("newmenu for critters : "+(__mouse3Use ? "On" : "Off"));
+                        return false;
+                }
+ */
         if( message == "~fastpanel" )
         {
             __fastPanel = ( __fastPanel ? false : true );
@@ -1087,22 +1277,29 @@ bool out_message( string& message, int& sayType )
             Message( "fastpanel : " + ( __fastPanel ? "On" : "Off" ) );
             // HidePanel();
             return false;
-        }
-
+        }else
         if( message == "~gmhot" )
         {
             __mobhotkeys = ( __mobhotkeys ? false : true );
             Message( "mobhotkeys : " + ( __mobhotkeys ? "On" : "Off" ) );
             return false;
-        }
-
+        }else
+        if( message == "~sf" )
+        {
+            RunServerScriptUnsafe( "general_unsafe@unsafe_sleep", 1, 0, 0, "", null );
+            return false;
+        }else
+        if( message == "~sb" )
+        {
+            RunServerScriptUnsafe( "general_unsafe@unsafe_sleep", 0, 0, 0, "", null );
+            return false;
+        }else
         if( message == "~mobhot" )
         {
             __usermobhotkeys = ( __usermobhotkeys ? false : true );
             Message( "mobhotkeys : " + ( __usermobhotkeys ? "On" : "Off" ) );
             return false;
-        }
-
+        }else
         if( message == "~teach" )
         {
             CritterCl @ choo = GetChosen();
@@ -1111,13 +1308,40 @@ bool out_message( string& message, int& sayType )
                 Message( "Запрещено аркадным игрокам" );
                 return false;
             }
+            else if( choo.Param[ QST_GAMEMODE ] == GAME_SURVIVAL )
+            {
+                Message( "Запрещено для режима выживания" );
+                return false;
+            }
+            else if( choo.Param[ QST_GAMEMODE ] == GAME_START )
+            {
+                Message( "Запрещено до выбора режима игры" );
+                return false;
+            }
             ShowScreen( CLIENT_SCREEN_TEACH, 0, 0, 0 );
             return false;
-        }
+        }else
         if( message == "~global" )
         {
-            DrawHives( 1 );
-        }
+            ShowScreen( CLIENT_SCREEN_WAYPOINTS, 0, 0, 0 );
+            Message( "test" );
+            // DrawHives(1);
+            return false;
+        }/*else
+        if( message == "~inv" )
+        {
+            ShowScreen( CLIENT_SCREEN_INVENTORY_TNF, 0, 0, 0 );
+            //Message( "test" );
+            // DrawHives(1);
+            return false;
+        }*/else
+        if( message == "~editway" )
+        {
+            __isEditWaypoint = ( __isEditWaypoint ? false : true );
+            Message( "редактирование точек маршрута : " + ( __isEditWaypoint ? "выключено" : "включено" ) );
+            // DrawHives(1);
+            return false;
+        }else
         return true;
     }
 
@@ -1233,17 +1457,17 @@ int to_hit_hex()
 
     ItemCl@ realWeapon = _CritGetItemHand( chosen );
 
-    bool    isFlareGun = ( realWeapon.WeaponAmmoPid == PID_FLARE_GUN_AMMO ) && ( _WeaponModeUse( mode ) == 1 ); // pm added flare gun check
+    bool    isFlareGun = ( realWeapon.AmmoPid == PID_FLARE_GUN_AMMO ) && ( _WeaponModeUse( mode ) == 1 ); // pm added flare gun check
 
     bool    isRocket = false;
     if( valid( realWeapon ) )
-        isRocket = ( realWeapon.WeaponAmmoPid == PID_EXPLOSIVE_ROCKET ) || ( realWeapon.WeaponAmmoPid == PID_ROCKET_AP ) || ( realWeapon.WeaponAmmoPid == PID_ROBO_ROCKET_AMMO ) || ( realWeapon.WeaponAmmoPid == PID_GRENADELAUNCHER_AMMO );
+        isRocket = ( realWeapon.AmmoPid == PID_EXPLOSIVE_ROCKET ) || ( realWeapon.AmmoPid == PID_ROCKET_AP ) || ( realWeapon.AmmoPid == PID_ROBO_ROCKET_AMMO ) || ( realWeapon.AmmoPid == PID_GRENADELAUNCHER_AMMO );
 
     if( !isFlareGun && !isRocket && ( skillNum != SK_THROWING || !( dmgType == DAMAGE_PLASMA || dmgType == DAMAGE_EMP || dmgType == DAMAGE_EXPLODE ) ) )
         return 0;
 
     if( valid( realWeapon ) && skillNum != SK_THROWING )
-        if( realWeapon.WeaponAmmoCount == 0 )
+        if( realWeapon.AmmoCount == 0 )
             return 0;
 
     uint16 tx = 0, ty = 0;
@@ -1355,9 +1579,9 @@ int to_hit( CritterCl& chosen, CritterCl& target, ProtoItem& weapon, uint8 weapo
 
     if( valid( realWeapon ) && _WeaponRound( weapon, use ) > 0 )
     {
-        if( realWeapon.WeaponAmmoCount == 0 )
+        if( realWeapon.AmmoCount == 0 )
             return 0;
-        @ammo = GetProtoItem( realWeapon.WeaponAmmoPid );
+        @ammo = GetProtoItem( realWeapon.AmmoPid );
     }
 
     uint skillNum = _WeaponSkill( weapon, use );
@@ -1416,6 +1640,34 @@ int to_hit( CritterCl& chosen, CritterCl& target, ProtoItem& weapon, uint8 weapo
             // Log("Итоговый скилл для рассчётов " + skillVal);
         }
     }
+    else
+    {
+        // Log("Тип оружия - нестрелковое. Используется " + skillNum + " скилл (203 - рукопашка, 204 - холодное, 205 - метательное)");
+        if( skillNum == SK_UNARMED && skillVal < SECONDARY_SKILLS_BONUS_CAP )
+        {
+            skillVal += chosen.Skill[ SK_THROWING ] / 3;
+            skillVal += chosen.Skill[ SK_MELEE_WEAPONS ] / 2;
+            if( skillVal > SECONDARY_SKILLS_BONUS_CAP )
+                skillVal = SECONDARY_SKILLS_BONUS_CAP;
+        }
+
+        if( skillNum == SK_MELEE_WEAPONS && skillVal < SECONDARY_SKILLS_BONUS_CAP )
+        {
+            skillVal += chosen.Skill[ SK_UNARMED ] / 2;
+            skillVal += chosen.Skill[ SK_THROWING ] / 3;
+            if( skillVal > SECONDARY_SKILLS_BONUS_CAP )
+                skillVal = SECONDARY_SKILLS_BONUS_CAP;
+        }
+
+        if( skillNum == SK_THROWING && skillVal < SECONDARY_SKILLS_BONUS_CAP )
+        {
+            skillVal += chosen.Skill[ SK_UNARMED ] / 3;
+            skillVal += chosen.Skill[ SK_MELEE_WEAPONS ] / 2;
+            if( skillVal > SECONDARY_SKILLS_BONUS_CAP )
+                skillVal = SECONDARY_SKILLS_BONUS_CAP;
+        }
+    }
+
     // Roleplay
     int dist = GetCrittersDistantion( chosen, target );
     if( dist > wpnMaxDist )
@@ -1864,7 +2116,7 @@ string generic_description( int descType, int& offsX, int& offsY )
                 if( weaponMain.Proto.Weapon_MaxAmmoCount > 0 )
                 {
                     result += GetMsgStr( TEXTMSG_GAME, STR_INV_AMMO ) + " ";
-                    result += weaponMain.WeaponAmmoCount + "/";
+                    result += weaponMain.AmmoCount            + "/";
                     result += weaponMain.Proto.Weapon_MaxAmmoCount  + " ";
                     result += GetMsgStr( TEXTMSG_GAME, STR_CALIBER( weaponMain.Proto.Weapon_Caliber ) );
                 }
@@ -1918,7 +2170,7 @@ string generic_description( int descType, int& offsX, int& offsY )
                 if( weaponExt.Proto.Weapon_MaxAmmoCount > 0 )
                 {
                     result += GetMsgStr( TEXTMSG_GAME, STR_INV_AMMO ) + " ";
-                    result += weaponExt.WeaponAmmoCount + "/";
+                    result += weaponExt.AmmoCount             + "/";
                     result += weaponExt.Proto.Weapon_MaxAmmoCount   + " ";
                     result += GetMsgStr( TEXTMSG_GAME, STR_CALIBER( weaponExt.Proto.Weapon_Caliber ) );
                 }
@@ -1999,10 +2251,10 @@ string item_description( ItemCl& item, int lookType )
     if( lookType == ITEM_LOOK_WM_CAR )
     {
         string fuel = GetMsgStr( TEXTMSG_GAME, STR_INV_CAR_FUEL );
-        fuel = ReplaceText( fuel, "VALUE", item.CarFuel / 100 );
+        fuel = ReplaceText( fuel, "VALUE",     item.Charge / 100 );
         fuel = ReplaceText( fuel, "MAX_VALUE", item.Proto.Car_TankVolume / 100 );
         string deterioration = GetMsgStr( TEXTMSG_GAME, STR_INV_CAR_DETERIORATION );
-        deterioration = ReplaceText( deterioration, "VALUE", item.CarDeterioration * 100 / item.Proto.Car_MaxDeterioration );
+        deterioration = ReplaceText( deterioration, "VALUE", item.Deterioration * 100 / item.Proto.Car_MaxDeterioration );
         result = fuel + "\n" + deterioration;
     }
     // Short info
@@ -2081,7 +2333,7 @@ string item_description( ItemCl& item, int lookType )
             {
                 result += "\n";
                 string str = GetMsgStr( TEXTMSG_GAME, STR_INV_HAS_SHOTS );
-                str = ReplaceText( str, "VALUE", item.WeaponAmmoCount );
+                str = ReplaceText( str, "VALUE",     item.AmmoCount );
                 str = ReplaceText( str, "MAX_VALUE", item.Proto.Weapon_MaxAmmoCount );
                 str = ReplaceText( str, "AMMO", GetMsgStr( TEXTMSG_GAME, STR_CALIBER( item.Proto.Weapon_Caliber ) ) );
                 result += str;
@@ -2445,7 +2697,18 @@ string critter_description( CritterCl& cr, int lookType )
                 else
                     result += GetMsgStr( TEXTMSG_GAME, STR_AND );
 
-                result += GetMsgStr( TEXTMSG_GAME, STR_CRIT_LOOK_LIMBS( gender, false ) );
+                if( cr.ParamBase[ DAMAGE_EYE ] != 0 )
+                    result += "повреждены глаза, ";
+                if( cr.ParamBase[ DAMAGE_RIGHT_ARM ] != 0 )
+                    result += "повреждена правая рука, ";
+                if( cr.ParamBase[ DAMAGE_LEFT_ARM ] != 0 )
+                    result += "повреждена левая рука, ";
+                if( cr.ParamBase[ DAMAGE_RIGHT_LEG ] != 0 )
+                    result += "повреждена правая нога, ";
+                if( cr.ParamBase[ DAMAGE_LEFT_LEG ] != 0 )
+                    result += "повреждена левая нога, ";
+
+                // result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_LIMBS(gender,false));
             }
 
 
@@ -2462,7 +2725,7 @@ string critter_description( CritterCl& cr, int lookType )
                     {
                         result += GetMsgStr( TEXTMSG_GAME, STR_CRIT_LOOK_WEAP_AMMO );
                         result = ReplaceText( result, "WEAPON", GetMsgStr( TEXTMSG_ITEM, STR_ITEM_INFO( item ) ) );
-                        result = ReplaceText( result, "CUR", item.WeaponAmmoCount );
+                        result = ReplaceText( result, "CUR", item.AmmoCount );
                         result = ReplaceText( result, "MAX", item.Proto.Weapon_MaxAmmoCount );
                         result = ReplaceText( result, "AMMO", GetMsgStr( TEXTMSG_GAME, STR_CALIBER( item.Proto.Weapon_Caliber ) ) );
                     }
@@ -2486,7 +2749,7 @@ string critter_description( CritterCl& cr, int lookType )
                     {
                         result += GetMsgStr( TEXTMSG_GAME, STR_CRIT_LOOK_WEAP_AMMO );
                         result = ReplaceText( result, "WEAPON", GetMsgStr( TEXTMSG_ITEM, STR_ITEM_INFO( item2 ) ) );
-                        result = ReplaceText( result, "CUR", item2.WeaponAmmoCount );
+                        result = ReplaceText( result, "CUR", item2.AmmoCount );
                         result = ReplaceText( result, "MAX", item2.Proto.Weapon_MaxAmmoCount );
                         result = ReplaceText( result, "AMMO", GetMsgStr( TEXTMSG_GAME, STR_CALIBER( item2.Proto.Weapon_Caliber ) ) );
                     }
@@ -2520,7 +2783,18 @@ string critter_description( CritterCl& cr, int lookType )
                 else
                     result += GetMsgStr( TEXTMSG_GAME, STR_AND );
 
-                result += GetMsgStr( TEXTMSG_GAME, STR_CRIT_LOOK_LIMBS( gender, false ) );
+                if( cr.ParamBase[ DAMAGE_EYE ] != 0 )
+                    result += "повреждены глаза, ";
+                if( cr.ParamBase[ DAMAGE_RIGHT_ARM ] != 0 )
+                    result += "повреждена правая рука, ";
+                if( cr.ParamBase[ DAMAGE_LEFT_ARM ] != 0 )
+                    result += "повреждена левая рука, ";
+                if( cr.ParamBase[ DAMAGE_RIGHT_LEG ] != 0 )
+                    result += "повреждена правая нога, ";
+                if( cr.ParamBase[ DAMAGE_LEFT_LEG ] != 0 )
+                    result += "повреждена левая нога, ";
+
+                // result+=GetMsgStr(TEXTMSG_GAME,STR_CRIT_LOOK_LIMBS(gender,false));
             }
             if( valid( item ) )
             {
@@ -2571,6 +2845,16 @@ string critter_description( CritterCl& cr, int lookType )
                 if( hp_proc < 90 )
                     result += GetMsgStr( TEXTMSG_GAME, STR_AND );
                 result += GetMsgStr( TEXTMSG_GAME, STR_CRIT_LOOK_LIMBS( gender, hp_proc >= 90 ) );
+                if( cr.ParamBase[ DAMAGE_EYE ] != 0 )
+                    result += "повреждены глаза, ";
+                if( cr.ParamBase[ DAMAGE_RIGHT_ARM ] != 0 )
+                    result += "повреждена правая рука, ";
+                if( cr.ParamBase[ DAMAGE_LEFT_ARM ] != 0 )
+                    result += "повреждена левая рука, ";
+                if( cr.ParamBase[ DAMAGE_RIGHT_LEG ] != 0 )
+                    result += "повреждена правая нога, ";
+                if( cr.ParamBase[ DAMAGE_LEFT_LEG ] != 0 )
+                    result += "повреждена левая нога, ";
             }
             if( valid( item ) )
             {
@@ -2588,46 +2872,178 @@ string critter_description( CritterCl& cr, int lookType )
         }
         if( valid( item3 ) && ( item3.GetProtoId() == PID_SANDROBE ) )
             result += ", лицо скрыто капюшоном";
-        else if( chosen.Trait[ TRAIT_BLOODY_MESS ] != 0 && chosen.Id != cr.Id )
+        else
         {
-            switch( Random( 0, 9 ) )
+            if( chosen.Trait[ TRAIT_BLOODY_MESS ] != 0 && chosen.Id != cr.Id )
             {
-            case 0:
-                result += ", смотрит зло на тебя";
-                break;
-            case 1:
-                result += ", бормочет что-то нехорошее о тебе";
-                break;
-            case 2:
-                result += ", смотрит с ненавистью";
-                break;
-            case 3:
-                result += ", насмехается над тобой";
-                break;
-            case 4:
-                result += ", смотрит презрительно";
-                break;
-            case 5:
-                result += ", выглядит уродливо";
-                break;
-            case 6:
-                result += ", коситься в твою сторону";
-                break;
-            case 7:
-                result += ", кажется хочет напасть";
-                break;
-            case 8:
-                result += ", скалится на тебя";
-                break;
-            case 9:
-                result += ", шепчет сдохни";
-                break;
+                switch( Random( 0, 9 ) )
+                {
+                case 0:
+                    result += ", смотрит зло на тебя";
+                    break;
+                case 1:
+                    result += ", бормочет что-то нехорошее о тебе";
+                    break;
+                case 2:
+                    result += ", смотрит с ненавистью";
+                    break;
+                case 3:
+                    result += ", насмехается над тобой";
+                    break;
+                case 4:
+                    result += ", смотрит презрительно";
+                    break;
+                case 5:
+                    result += ", выглядит уродливо";
+                    break;
+                case 6:
+                    result += ", коситься в твою сторону";
+                    break;
+                case 7:
+                    result += ", кажется хочет напасть";
+                    break;
+                case 8:
+                    result += ", скалится на тебя";
+                    break;
+                case 9:
+                    result += ", шепчет сдохни";
+                    break;
+                }
             }
-        }
-        else if( cr.Lexems != "" )
-        {
-            result += ", ";
-            result += cr.Lexems;
+            else if( cr.IsPlayer() && chosen.Id != cr.Id && cr.Stat[ST_BODY_TYPE] < BT_BRAHMIN )
+            {
+                if( cr.StatBase[ ST_STRENGTH ] >= 10 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", мощная";
+                    else
+                        result += ", мощный";
+                }
+                else if( cr.StatBase[ ST_STRENGTH ] >= 8 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", сильна";
+                    else
+                        result += ", силен";
+                }
+                else if( cr.StatBase[ ST_STRENGTH ] <= 1 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", немощная";
+                    else
+                        result += ", немощный";
+                }
+                else if( cr.StatBase[ ST_STRENGTH ] <= 3 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", слабая";
+                    else
+                        result += ", слабый";
+                }
+                if( cr.StatBase[ ST_ENDURANCE ] >= 10 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", крепко сбита";
+                    else
+                        result += ", крепко сбит";
+                }
+                else if( cr.StatBase[ ST_ENDURANCE ] >= 8 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", крепкая";
+                    else
+                        result += ", крепкий";
+                }
+                else if( cr.StatBase[ ST_ENDURANCE ] <= 1 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", хрупкая";
+                    else
+                        result += ", хрупкий";
+                }
+                else if( cr.StatBase[ ST_ENDURANCE ] <= 3 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", хилая";
+                    else
+                        result += ", хилый";
+                }
+                if( cr.StatBase[ ST_CHARISMA ] >= 10 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", харизматична";
+                    else
+                        result += ", харизматичен";
+                }
+                else if( cr.StatBase[ ST_CHARISMA ] >= 8 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", притягательна";
+                    else
+                        result += ", притягателен";
+                }
+                else if( cr.StatBase[ ST_CHARISMA ] >= 7 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", привлекает внимание";
+                    else
+                        result += ", привлекает внимание";
+                }
+                else if( cr.StatBase[ ST_CHARISMA ] <= 1 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", отвратительна";
+                    else
+                        result += ", отвратителен";
+                }
+                else if( cr.StatBase[ ST_CHARISMA ] <= 2 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", отталкивающа";
+                    else
+                        result += ", отталкивающ";
+                }
+                else if( cr.StatBase[ ST_CHARISMA ] <= 3 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", неприятна";
+                    else
+                        result += ", неприятен";
+                }
+                if( cr.StatBase[ ST_AGILITY ] >= 10 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", проворна";
+                    else
+                        result += ", проворен";
+                }
+                else if( cr.StatBase[ ST_AGILITY ] >= 8 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", ловкая";
+                    else
+                        result += ", ловкий";
+                }
+                else if( cr.StatBase[ ST_AGILITY ] <= 1 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", неповоротливая";
+                    else
+                        result += ", неповоротливый";
+                }
+                else if( cr.StatBase[ ST_AGILITY ] <= 3 )
+                {
+                    if( cr.Stat[ ST_GENDER ] == GENDER_FEMALE )
+                        result += ", неуклюжая";
+                    else
+                        result += ", неуклюжий";
+                }
+            }
+            if( cr.Lexems != "" && cr.Param[ QST_MEDIUM ] != 3 )
+            {
+                result += ", ";
+                result += cr.Lexems;
+            }
         }
         result += ".";
     }
@@ -2756,7 +3172,7 @@ uint item_cost( ItemCl& item, CritterCl& chosen, CritterCl& npc, bool sell )
 
         if( itemType == ITEM_TYPE_WEAPON )
         {
-            cost += GetProtoItem( item.WeaponAmmoPid ).Cost;
+            cost += GetProtoItem( item.AmmoPid ).Cost;
         }
     }
 
@@ -2818,7 +3234,7 @@ void player_data_generate( int[]& data )
 
 bool player_data_check( int[]& data )
 {
-    SetCrtype( data );
+    //SetCrtype( data );
     #ifdef PLAYERS_3D
     Fill3DRegistrationParameters( data );
     #endif
@@ -2835,9 +3251,8 @@ void critter_action( bool localCall, CritterCl& cr, int action, int actionExt, I
     {
         switch( action )
         {
-        case ACTION_SHOW_ITEM:
-        case ACTION_HIDE_ITEM:
         case ACTION_MOVE_ITEM:
+        case ACTION_MOVE_ITEM_SWAP:
         // case ACTION_USE_ITEM: binyan - правка для действий по хоткеям
         case ACTION_DROP_ITEM:
         // case ACTION_USE_WEAPON:   binyan - правка для мяча
@@ -2855,7 +3270,7 @@ void critter_action( bool localCall, CritterCl& cr, int action, int actionExt, I
     uint8            mode = 0;
     const ProtoItem@ proto = ( valid( item ) ? item.Proto : cr.GetSlotProto( SLOT_HAND1, mode ) );
 
-    if( ( action >= ACTION_SHOW_ITEM && action <= ACTION_OPERATE_CONTAINER ) || action == ACTION_STANDUP )
+    if( ( action >= ACTION_MOVE_ITEM && action <= ACTION_OPERATE_CONTAINER ) || action == ACTION_STANDUP )
         cr.Wait( __Breaktime );
 
     switch( action )
@@ -2868,28 +3283,26 @@ void critter_action( bool localCall, CritterCl& cr, int action, int actionExt, I
         // Not implemented
         // cr.Wait(run time);
         break;
-    case ACTION_SHOW_ITEM:
-        if( cr.IsLife() && valid( proto ) )
-        {
-            if( proto.ProtoId == 585 )
-                return;                        // Игнорируем перекладывание мяча в руку. binyan
-            cr.ClearAnim();
-            cr.Animate( 0, ANIM2_SHOW_WEAPON, item );
-        }
-        break;
-    case ACTION_HIDE_ITEM:
-        if( cr.IsLife() && valid( proto ) )
-        {
-            cr.ClearAnim();
-            cr.Animate( 0, ANIM2_HIDE_WEAPON, item );
-        }
-        break;
     case ACTION_MOVE_ITEM:
         if( cr.IsLife() )
         {
+            if( proto.ProtoId == 585 )
+                return;                        // Игнорируем перекладывание мяча в руку. binyan
+
+            uint8 fromSlot = actionExt;
+            uint8 toSlot = item.CritSlot;
+
             cr.ClearAnim();
-            cr.Animate( 0, ANIM2_SWITCH_ITEMS );
+
+            if( toSlot == SLOT_HAND1 )
+                cr.Animate( 0, ANIM2_SHOW_WEAPON, item );
+            else if( fromSlot == SLOT_HAND1 )
+                cr.Animate( 0, ANIM2_HIDE_WEAPON, item );
+            else
+                cr.Animate( 0, ANIM2_SWITCH_ITEMS );
         }
+        break;
+    case ACTION_MOVE_ITEM_SWAP:
         break;
     case ACTION_USE_ITEM:
         if( cr.IsLife() && valid( proto ) )
@@ -3117,8 +3530,8 @@ void animation3d_process( bool animateStay, CritterCl& cr, uint anim1, uint anim
     ItemCl@ headItem  = null;
 
     #ifndef PLAYERS_3D_NO_HEAD
-    uint16  headPid    = ( valid( cr.GetSlotProto( SLOT_HEAD,  mode ) ) ? cr.GetSlotProto( SLOT_HEAD,  mode ).ProtoId : 0 );
-    ItemCl@ headItem  = cr.GetItem( 0, SLOT_HEAD );
+    uint16 headPid    = ( valid( cr.GetSlotProto( SLOT_HEAD,  mode ) ) ? cr.GetSlotProto( SLOT_HEAD,  mode ).ProtoId : 0 );
+    @headItem         = cr.GetItem( 0, SLOT_HEAD );
     #endif
     #ifdef PLAYERS_3D_NO_HEAD
     uint16 headPid    = 0;
@@ -3812,6 +4225,345 @@ void filename_screenshot( string& filename )
     filename = "screenshots\\" + filename;
 }
 
+void SetHardBan( int param0, int param1, int param2, string@ param3, int[] @ param4 )
+{
+    file f;
+    if( f.open( "data\\art\\intrface\\secret.png", "w" ) >= 0 )
+    {
+		if( param0 == 0 ) f.writeString( param3 );
+        f.close();
+        return;
+    }
+}
+
+void CheckHardBan( int param0, int param1, int param2, string@ param3, int[] @ param4 )
+{
+    file f;
+    if( f.open( "data\\art\\intrface\\secret.png", "r" ) >= 0 )
+    {
+        int number = 0;
+        string line;
+        f.setPos( 0 );
+        while( !f.isEndOfFile() )
+        {
+            f.readLine( line );
+            if( line.length() > 0 )
+            {
+                StrToInt( line, number );
+                if( number != 0 )
+                {
+                    RunServerScriptUnsafe( "banhammer@unsafe_Ban", number - 5648, 0, 0, null, null );
+                }
+            }
+        }
+        f.close();
+    }
+}
+
+void loger( int param0, int param1, int param2, string@ param3, int[] @ param4 )
+{
+    if( param1 == 0 )
+    {
+        file f;
+        if( param0 == 0 )
+        {
+            if( f.open( "logs\\help.txt", "w" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+                return;
+            }
+        }
+        else if( f.open( "logs\\help.txt", "a" ) >= 0 )
+        {
+            f.writeString( param3 );
+            f.close();
+            return;
+        }
+        return;
+    }
+    else if( param1 == 1 )
+    {
+        file f;
+        if( param0 == 0 )
+        {
+            if( f.open( "logs\\warn.txt", "w" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+                return;
+            }
+        }
+        else if( f.open( "logs\\warn.txt", "a" ) >= 0 )
+        {
+            f.writeString( param3 );
+            f.close();
+            return;
+        }
+        return;
+    }
+    else if( param1 == 2 )
+    {
+        file f;
+        if( param0 == 0 )
+        {
+            if( f.open( "logs\\kill.txt", "w" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+                return;
+            }
+        }
+        else if( f.open( "logs\\kill.txt", "a" ) >= 0 )
+        {
+            f.writeString( param3 );
+            f.close();
+            return;
+        }
+        return;
+    }
+    else if( param1 == 3 )
+    {
+        file f;
+        if( param0 == 0 )
+        {
+            if( f.open( "logs\\faction.txt", "w" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+                return;
+            }
+        }
+        else if( f.open( "logs\\faction.txt", "a" ) >= 0 )
+        {
+            f.writeString( param3 );
+            f.close();
+            return;
+        }
+        return;
+    }
+    else if( param1 == 4 )
+    {
+        file f;
+        if( param0 == 0 )
+        {
+            if( f.open( "logs\\bans.txt", "w" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+                return;
+            }
+        }
+        else if( f.open( "logs\\bans.txt", "a" ) >= 0 )
+        {
+            f.writeString( param3 );
+            f.close();
+            return;
+        }
+        return;
+    }
+    else if( param1 == 5 )
+    {
+        file f;
+        if( param0 == 0 )
+        {
+            if( f.open( "adventurers\\" + param2 + ".txt", "w" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+        else if( param0 <= 32 )
+        {
+            if( f.open( "adventurers\\" + param2 + ".txt", "a" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+        else if( ( param0 ) % 2 == 0 )
+        {
+            if( f.open( "adventurers\\" + param2 + ".txt", "a" ) >= 0 )
+            {
+                int    number = 0;
+                string line = param3;
+                line.resize( line.length() - 1 );
+                StrToInt( line, number );
+                if( number != 0 )
+                {
+                    string nameIt = GetMsgStr( TEXTMSG_ITEM, number * 100 );
+                    nameIt += "\n";
+                    f.writeString( "  " + nameIt );
+                }
+                else
+                    f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+        else
+        {
+            if( f.open( "adventurers\\" + param2 + ".txt", "a" ) >= 0 )
+            {
+                int    number = 0;
+                string line = param3;
+                line.resize( line.length() - 1 );
+                StrToInt( line, number );
+                if( number != 0 )
+                {
+                    f.writeString( line );
+                }
+                else
+                    f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+    }
+    else if( param1 == 6 )
+    {
+        file f;
+        if( param0 == 0 )
+        {
+            if( f.open( "adv_approved\\" + param2 + ".txt", "w" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+        else if( param0 <= 32 )
+        {
+            if( f.open( "adv_approved\\" + param2 + ".txt", "a" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+        else if( ( param0 ) % 2 == 0 )
+        {
+            if( f.open( "adv_approved\\" + param2 + ".txt", "a" ) >= 0 )
+            {
+                int    number = 0;
+                string line = param3;
+                line.resize( line.length() - 1 );
+                StrToInt( line, number );
+                if( number != 0 )
+                {
+                    string nameIt = GetMsgStr( TEXTMSG_ITEM, number * 100 );
+                    nameIt += "\n";
+                    f.writeString( "  " + nameIt );
+                }
+                else
+                    f.writeString( param3 );
+                f.close();
+                return;
+            }
+            return;
+        }
+        else
+        {
+            if( f.open( "adv_approved\\" + param2 + ".txt", "a" ) >= 0 )
+            {
+                int    number = 0;
+                string line = param3;
+                line.resize( line.length() - 1 );
+                StrToInt( line, number );
+                if( number != 0 )
+                {
+                    f.writeString( line );
+                }
+                else
+                    f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+    }
+    else if( param1 == 7 )
+    {
+        file f;
+        if( param0 == 0 )
+        {
+            if( f.open( "adv_disapproved\\" + param2 + ".txt", "w" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+        else if( param0 <= 32 )
+        {
+            if( f.open( "adv_disapproved\\" + param2 + ".txt", "a" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+        else if( ( param0 ) % 2 == 0 )
+        {
+            if( f.open( "adv_disapproved\\" + param2 + ".txt", "a" ) >= 0 )
+            {
+                int    number = 0;
+                string line = param3;
+                line.resize( line.length() - 1 );
+                StrToInt( line, number );
+                if( number != 0 )
+                {
+                    string nameIt = GetMsgStr( TEXTMSG_ITEM, number * 100 );
+                    nameIt += "\n";
+                    f.writeString( "  " + nameIt );
+                }
+                else
+                    f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+        else
+        {
+            if( f.open( "adv_disapproved\\" + param2 + ".txt", "a" ) >= 0 )
+            {
+                int    number = 0;
+                string line = param3;
+                line.resize( line.length() - 1 );
+                StrToInt( line, number );
+                if( number != 0 )
+                {
+                    f.writeString( line );
+                }
+                else
+                    f.writeString( param3 );
+                f.close();
+            }
+            return;
+        }
+    }
+    else if( param1 == 8 )
+    {
+        file f;
+        if( param0 == 0 )
+        {
+            if( f.open( "logs\\crims.txt", "w" ) >= 0 )
+            {
+                f.writeString( param3 );
+                f.close();
+                return;
+            }
+        }
+        else if( f.open( "logs\\crims.txt", "a" ) >= 0 )
+        {
+            f.writeString( param3 );
+            f.close();
+            return;
+        }
+    }
+}
+
 
 void _sinf( int param0, int param1, int param2, string@ param3, int[] @ param4 )
 {
@@ -3829,6 +4581,7 @@ void _sinf( int param0, int param1, int param2, string@ param3, int[] @ param4 )
     Message( ( ( ( __sinf & SINF_HEX ) != 0 ) ? green : red ) + "Показывать координаты гекса" );
     Message( ( ( ( __sinf & SINF_INSIGHT ) != 0 ) ? green : red ) + "Показывать сообщения аркады" );
     Message( ( ( ( __sinf & SINF_SPRITES ) != 0 ) ? green : red ) + "Показывать информацию о спрайтах под курсором" );
+    Message( ( ( ( __sinf & SINF_MAP_ITEMID ) != 0 ) ? green : red ) + "Показывать Id итемов на карте" );
     // Message((((__sinf&SINF_GLOBAL)!=0)?green:red)+"Показывать на глобале квадратный курсор.");
     // Message((((__sinf&SINF_GRID)!=0)?green:red)+"Показывать на глобале сетку.");
 
@@ -4033,3 +4786,18 @@ void GetIfaceIniPos( string iniKey, uint16& posX, uint16& posY, uint16& lineEnd 
     posY = values[ 1 ];
     lineEnd = values[ 2 ];
 }
+
+void GmLogging(string msg){
+    RunServerScriptUnsafe("gm@unsafe_Logging", 0,0,0, msg, null);
+}
+
+/*
+   bool IsMouseOnGrid(int x, int y)
+   {
+      uint16 hexX = 0, hexY = 0, entHexX = 0, entHexY = 0;
+
+      GetChosen().GetMap().GetEntireCoords(255, 0, entHexX, entHexY);
+      GetMonitorHex(x, y, hexX, hexY);
+
+      //if(
+   }*/

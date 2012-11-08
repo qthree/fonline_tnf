@@ -101,10 +101,21 @@ void t_Elevator( Critter& player, Scenery& trigger, bool entered, uint8 dir, int
                 pids.insertLast( uint( map2Pid ) );
             if( map3Pid > 0 )
                 pids.insertLast( uint( map3Pid ) );
-            ShowElevator( player, elevatorType, pids, entireExit );
+	    
+	    //pm added
+	    bool isPower = (player.GetMap().GetData(24) > 0);
+	    
+	    if(isPower){
+		    ShowElevator( player, elevatorType, pids, entireExit );
+	    }else{
+		    player.Say(SAY_NETMSG, "Энергоснабжение отключено. Лифт не работает.");
+	    }
+		    
+	    }
+            
+	    
         }
     }
-}
 
 // Диалог с НПЦ рядом с триггером,  с определенной ролью. 1 параметр - роль НПЦ.
 void t_DialogNpc( Critter& player, Scenery& trigger, bool entered, uint8 dir, int npcRole )
