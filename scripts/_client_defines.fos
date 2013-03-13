@@ -43,6 +43,7 @@
 #pragma globalvar "bool __isEditWaypoint = false"
 #pragma globalvar "uint8 __WaypointWayNum = 0"
 #pragma globalvar "string __tempFastText"
+#pragma globalvar "string __kventaLink"
 #pragma globalvar "uint16 __baseCrType = 0"
 #pragma globalvar "uint8 __inventoryCollection = 0"
 #pragma globalvar "uint8 __arrowValue = 0"

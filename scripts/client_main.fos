@@ -81,7 +81,7 @@ import void MoveHand() from "client_screen_copybool";
 import void InitClockScreen() from "client_screen_copybool";
 import void InitWaypointScreen() from "checkpoints";
 import void InitLoginScreen() from "client_screen_login";
-import void InitRegisterScreen() from "client_screen_register";
+//import void InitRegisterScreen() from "client_screen_register";
 // #pm menu
 
 uint prevId = 0; // нужен для определения, когда загружать сохраненные имена
@@ -1146,6 +1146,14 @@ bool out_message( string& message, int& sayType )
             }
             Message("HARDWARE "+ar.length());
             return true;
+    }
+    if(message == "~inv"){
+        ::ShowScreen(CLIENT_SCREEN_INVENTORY_TNF, 0,0,0);
+        return true;
+    }
+    if(message == "~cha"){
+        ::ShowScreen(CLIENT_SCREEN_REG_TNF, 0,0,0);
+        return true;
     }
     /*if(message == "~sql"){
             MysqlInit();
@@ -4788,6 +4796,13 @@ void GetIfaceIniPos( string iniKey, uint16& posX, uint16& posY, uint16& lineEnd 
 }
 
 void GmLogging(string msg){
+
+    /*string@[]@ splitmsg = split(msg, " ");
+
+    if(splitmsg[0] == "#delitem") {
+        ItemCl @ item = GetItem()
+        msg += " "+
+        }*/
     RunServerScriptUnsafe("gm@unsafe_Logging", 0,0,0, msg, null);
 }
 

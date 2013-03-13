@@ -1,5 +1,4 @@
-# 3.0.9 changelog - added various /items .frms, proto by Android, graphic by VVish
-# 3.1.0 changelog - just nothing :D
+# 3.0.8
 
 [Proto]
 ProtoId=1
@@ -220,7 +219,7 @@ Armor_Perk=2
 [Proto]
 ProtoId=240
 Type=1
-PicMap=art\items\TESLA.frm
+PicMap=art\items\mtlarmor.frm
 PicInv=art\inven\tesla.frm
 Flags=134217758
 DisableEgg=1
@@ -249,7 +248,7 @@ Armor_Perk=2
 [Proto]
 ProtoId=265
 Type=1
-PicMap=art\items\CMBLEATHER.frm
+PicMap=art\items\maxflr.frm
 PicInv=art\inven\spleathr.frm
 Flags=134217758
 DisableEgg=1
@@ -332,7 +331,7 @@ Armor_Perk=4
 [Proto]
 ProtoId=379
 Type=1
-PicMap=art\items\LTHRARMOR_mk2.frm
+PicMap=art\items\ltharmor.frm
 PicInv=art\inven\ltharmr2.frm
 Flags=134217758
 DisableEgg=1
@@ -360,7 +359,7 @@ Armor_DTExplode=2
 [Proto]
 ProtoId=380
 Type=1
-PicMap=art\items\MTLARMORmk2.frm
+PicMap=art\items\mtlarmor.frm
 PicInv=art\inven\mtlarmr2.frm
 Flags=134217758
 DisableEgg=1
@@ -636,7 +635,7 @@ Armor_DRExplode=10
 [Proto]
 ProtoId=900
 Type=1
-PicMap=art\items\leatherblue.frm
+PicMap=art\items\ltharmor.frm
 PicInv=art\inven\leatherblue.png
 Flags=134217758
 DisableEgg=1
@@ -690,7 +689,7 @@ Armor_Perk=2
 [Proto]
 ProtoId=1033
 Type=1
-PicMap=art\items\xeilz_leather_armour.frm
+PicMap=art\items\maxflr.frm
 PicInv=art\inven\xeilz_leather_armour.png
 Flags=134217758
 DisableEgg=1

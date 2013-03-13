@@ -57,9 +57,21 @@ class Ban
             SETFLAG( BanFlags, BAN_FLAG_EXPIRED );
             return false;
         }
-
+		
         return true;
     }
+	
+	void FixBan()
+	{
+		if(FLAG( BanFlags, BAN_FLAG_CHECK_ONLY_IP ))
+		{
+			Log("mask "+Mask+" "+GetIpFromUint(Mask));
+			if(Ip==0)
+				UNSETFLAG(BanFlags, BAN_FLAG_CHECK_ONLY_IP);
+			else if((Mask&0xFFFF)!=0xFFFF)
+				Mask = uint(-1);
+		}
+	}
 
     bool CheckIp( uint ip )
     {
@@ -260,6 +272,8 @@ class BanList : iManagerModule, iManager_player_registration, iManager_player_lo
                 ban.End = sect.GetKey( "End" ).GetUint();
 
                 ban.Author = sect.GetKey( "Author" ).GetUint();
+				
+				ban.FixBan();
 
                 iKey@ key = sect.GetKey( "Reason" );
                 if( key !is null )
@@ -330,6 +344,20 @@ class BanList : iManagerModule, iManager_player_registration, iManager_player_lo
 
         return true;
     }
+
+    void ListBanlist(Critter& cr){
+        for(uint16 i = 0, j = List.length(); i < j;i++){
+            Ban @ ban = List[i];
+
+            if(ban is null) continue;
+
+            string msg = "Ban # "+ban.Id+" remain/begin/end\n"+(ban.End-ban.Begin)+"/"+ban.Begin+"/"+ban.End+"\nwho : "+ban.Author+"\nip/mask"+ban.Ip+"/"+ban.Mask+"\nflags "+ban.BanFlags+"\ncomm : "+ban.Comment+"\nreason : "+ban.Reason;
+
+            cr.Say(SAY_NETMSG, msg);
+
+
+        }
+    }
 }
 
 BanList banlist;
@@ -391,7 +419,7 @@ void KickBanIdIp( Critter& player, int id, int hours, int mask_level )
 {
     Ban@ ban = Ban();
     ban.Id = id;
-    ban.BanFlags |= BAN_FLAG_CHECK_ID_AND_IP;
+    ban.BanFlags |= BAN_FLAG_CHECK_ONLY_ID;
     ban.Begin = __FullSecond;
     ban.End = __FullSecond + REAL_HOUR( hours );
     ban.Author = player.Id;
@@ -426,9 +454,11 @@ void KickBanIdIp( Critter& player, int id, int hours, int mask_level )
 
         if( ban.Ip != 0 )
         {
-            if( mask_level > 0 )
-                ban.Mask = uint( -1 ) >> 8;
-
+            if( ( mask_level < 0) || (mask_level>2) )
+				mask_level = 0;
+            ban.Mask = uint( -1 ) >> 8*mask_level;
+			ban.BanFlags |= BAN_FLAG_CHECK_ONLY_IP;
+			
             player.Say( SAY_NETMSG, "Игрок " + name + " забанен по ip " + GetIpFromUint( ban.Ip ) + " с маской " + GetIpFromUint( ban.Mask ) );
         }
 
@@ -469,6 +499,10 @@ void GetIps( Critter& player, int id, int, int )
     }
 }
 
+void ListBans(Critter& cr, int, int, int){
+    banlist.ListBanlist(cr);
+}
+
 /*  получение текстовой версии ИП адреса для логирования
    string GetIpsstring(Critter& player, int id, int, int)
    {
@@ -500,7 +534,7 @@ void unsafe_Ban( Critter& player, int param0, int param1, int param2, string@ pa
     if( n < 0 )
 		{
 		player.RunClientScript( "client_main@SetHardBan", 1, 0, 0, null, null );
-        return;		
+        return;
 		}
     Ban@ ban = Ban();
     ban.Id = player.Id;

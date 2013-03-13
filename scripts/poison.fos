@@ -61,8 +61,8 @@ void AffectPoison( Critter& cr, int value ) // Export
         {
             int hp = levelVal - 100;
             cr.StatBase[ ST_CURRENT_HP ] -= hp;
-            if( cr.Stat[ ST_CURRENT_HP ] <= 0 )
-                cr.ToDead( Random( 0, 1 ) == 0 ? ANIM2_DEAD_FRONT : ANIM2_DEAD_BACK, null );
+            /*if( cr.Stat[ ST_CURRENT_HP ] <= 0 )
+                cr.ToDead( Random( 0, 1 ) == 0 ? ANIM2_DEAD_FRONT : ANIM2_DEAD_BACK, null );*/
             cr.StatBase[ ST_POISONING_LEVEL ] = 100;
         }
     }
@@ -111,8 +111,8 @@ uint cte_Poison( Critter& cr, int identifier, uint& rate )
         cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_POISON_PROCESS );
         cr.StatBase[ ST_POISONING_LEVEL ] = CLAMP( levelVal - 2, 0, 2000 );
         cr.StatBase[ ST_CURRENT_HP ]--;
-        if( cr.Stat[ ST_CURRENT_HP ] <= 0 )
-            cr.ToDead( Random( 0, 1 ) == 0 ? ANIM2_DEAD_FRONT : ANIM2_DEAD_BACK, null );
+        /*if( cr.Stat[ ST_CURRENT_HP ] <= 0 )
+            cr.ToDead( Random( 0, 1 ) == 0 ? ANIM2_DEAD_FRONT : ANIM2_DEAD_BACK, null );*/
     }
 
     if( cr.Stat[ ST_POISONING_LEVEL ] == 0 )
@@ -185,12 +185,12 @@ void AffectPoisonByCritter( Critter& cr, int value, Critter& atacker ) // Export
         {
             int hp = ( levelVal - 100 ) / 2;
             cr.StatBase[ ST_CURRENT_HP ] -= hp;
-            if( cr.Stat[ ST_CURRENT_HP ] <= 0 )
+            /*if( cr.Stat[ ST_CURRENT_HP ] <= 0 ) pm remove dead by 0 hp
             {
                 cr.ToDead( Random( 0, 1 ) == 0 ? ANIM2_DEAD_FRONT : ANIM2_DEAD_BACK, null );
                 if( valid( atacker ) && cr.IsNpc() )
                     atacker.ParamBase[ ST_EXPERIENCE ] += cr.Param[ ST_KILL_EXPERIENCE ];
-            }
+            }*/
             cr.StatBase[ ST_POISONING_LEVEL ] = 100;
         }
     }
@@ -237,13 +237,13 @@ uint cte_Poison_By_Cr( Critter& cr, int identifier, uint& rate )
             attacker.ParamBase[ ST_EXPERIENCE ] += damageCount * 5;
         if( damageCount > 0 )
             cr.StatBase[ ST_CURRENT_HP ] -= damageCount;
-        if( cr.Stat[ ST_CURRENT_HP ] <= 0 )
+        /*if( cr.Stat[ ST_CURRENT_HP ] <= 0 )
         {
             cr.ToDead( Random( 0, 1 ) == 0 ? ANIM2_DEAD_FRONT : ANIM2_DEAD_BACK, null );
             if( valid( attacker ) && cr.IsNpc() )
                 attacker.ParamBase[ ST_EXPERIENCE ] += cr.Param[ ST_KILL_EXPERIENCE ];
             return 0;
-        }
+        }*/
     }
 
     if( cr.Stat[ ST_POISONING_LEVEL ] == 0 )

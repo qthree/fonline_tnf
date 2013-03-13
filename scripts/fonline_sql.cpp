@@ -429,14 +429,14 @@ int MysqlInsertCharData(unsigned int id, ScriptString& name, ScriptString& real,
 
     //*query = s.c_str();
 
-    s = "INSERT INTO character_new SET forumId=";
+    s = "INSERT INTO character_new SET forumId= '";
 
     s.append(temp);
-    s.append(",charNameReal='");
+    s.append("',charNameReal = '");
     s.append(real.c_str());
-    s.append("',charNameView='");
+    s.append("',charNameView = '");
     s.append(name.c_str());
-    s.append("',charPass='");
+    s.append("',charPass = '");
     s.append(pass.c_str());
     s.append("'");
 
@@ -451,6 +451,138 @@ int MysqlInsertCharData(unsigned int id, ScriptString& name, ScriptString& real,
     return r;
 }
 
+int MysqlGetNameByHash(unsigned int id, unsigned int hash, ScriptString& name){
+
+    const char *query;
+    char tempHash[33];
+    char tempId[33];
+    _itoa_s(hash, tempHash, 10);
+    _itoa_s(id, tempId, 10);
+
+    string s = "SELECT name FROM character_names WHERE id = '";//hash=";
+
+    s.append(tempId);
+    s.append("' AND hash = '");
+    s.append(tempHash);
+    s.append("'");
+
+    query = s.c_str();
+
+    //int r = 0;
+
+    //r = GetRow(query, name);
+
+    //if(r <= 0) return -1;
+    return GetRow(query, name);
+}
+
+int MysqlGetNames(unsigned int id, ScriptString& names, ScriptString& hashes){
+
+    const char *query;
+    char temp[33];
+    _itoa_s(id, temp, 10);
+
+    string s = "SELECT name FROM character_names WHERE id = '";
+
+    s.append(temp);
+    s.append("'");
+
+    query = s.c_str();
+
+    int r = 0;
+
+    r = GetRow(query, names);
+
+    if(r <= 0) return -1;
+
+    s = "SELECT hash FROM character_names WHERE id = '";
+
+    s.append(temp);
+    s.append("'");
+
+    query = s.c_str();
+
+    //r = GetRow(query, hashes);
+
+    //if(r <= 0) return -1;
+
+    return GetRow(query, hashes);;
+}
+
+int MysqlInsertName(unsigned int id, unsigned int targetHash, ScriptString& name, ScriptString& hash){//bool replace){
+
+
+    //const char *query[1000];
+    char tempId[33];
+    char hashId[33];
+    //const char n[20] ="";
+    _itoa_s(id, tempId, 10);
+    _itoa_s(targetHash, hashId, 10);
+
+    string s;
+    //s.resize(1000);
+
+    //int r = 0;
+
+    if(MysqlGetNameByHash(id, targetHash, hash) > 0){
+    //if(replace){
+        /*
+        SELECT content_id,
+            REPLACE( image_small, 'small', '' ) AS image_small,
+            REPLACE( image_large, 'big', '' ) AS image_large
+        FROM content
+        *
+        s = "SELECT hash, REPLACE( ";
+        s.append(hash.c_str());
+        s.append(", '");
+        s.append(hash.c_str());
+        s.append(", '");
+        s.append(name.c_str());
+        s.append(" ) AS name FROM character_name");*/
+
+        //s = "update videos set category = 1 where category = 'Music'";
+        s = "UPDATE character_names SET name = '";
+
+        s.append(name.c_str());
+        s.append("' WHERE id = '");
+        s.append(tempId);
+        s.append("' AND hash = '");
+        s.append(hashId);
+        s.append("'");
+
+    }else{
+
+        s = "INSERT INTO character_names SET id = '";
+
+        s.append(tempId);
+        s.append("',hash = '");
+        s.append(hashId);
+        s.append("',name = '");
+        s.append(name.c_str());
+        s.append("'");
+
+        //name = s.c_str();
+    }
+
+    name = hashId;
+
+    int r = mysql_query(&mysql, s.c_str()); //SQL_QUERY_LOGIN
+
+    if(r != 0) return SQL_ERROR_WRONG_QUERY;
+
+    return r;
+}
+
+/*
+
+character_names
+
+create table `test_test`.`TableName1`(
+   `id` int(10) UNSIGNED ,
+   `hash` int(20) UNSIGNED ,
+   `name` text(20)
+ )
+*/
 
 
 /*
@@ -590,6 +722,10 @@ void RegisterNativeSql( asIScriptEngine* engine, bool compiler )
 //    r = engine->RegisterGlobalFunction("int MysqlGetChars(uint id, string& names, string& namesReal, string& pass)", asFUNCTIONPR( MysqlGetChars, (uint,  ScriptString *, ScriptString*, ScriptString *), int), asCALL_CDECL);
     r = engine->RegisterGlobalFunction("int MysqlCheckCharName(string& name)", asFUNCTION(MysqlCheckCharName), asCALL_CDECL);
     r = engine->RegisterGlobalFunction("int MysqlInsertCharData(uint id, string& name, string& real, string& pass)", asFUNCTION(MysqlInsertCharData), asCALL_CDECL);
+
+    r = engine->RegisterGlobalFunction("int MysqlGetNameByHash(uint id, uint hash, string& name)", asFUNCTION(MysqlGetNameByHash), asCALL_CDECL);
+    r = engine->RegisterGlobalFunction("int MysqlGetNames(uint id, string& names, string& hashes)", asFUNCTION(MysqlGetNames), asCALL_CDECL);
+    r = engine->RegisterGlobalFunction("int MysqlInsertName(uint id, uint targetHash, string& name, string& hash)", asFUNCTION(MysqlInsertName), asCALL_CDECL);
 #endif //__CLIENT
 
 #ifdef __SERVER

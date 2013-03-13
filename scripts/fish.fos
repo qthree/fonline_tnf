@@ -183,7 +183,7 @@ bool _UseString( Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, Scen
         if( pid == PID_ROD_STRING || pid == PID_ROD_STRING_HOOK )
             cr.Say( SAY_NETMSG, "На удочке уже есть леска." );
         else
-            cr.Say( SAY_NETMSG, "Вы пытаетесь вытащть леской застрявший между зубов кусок еды, но он не поддается." );
+            cr.Say( SAY_NETMSG, "Вы пытаетесь вытащить леской застрявший между зубов кусок еды, но он не поддается." );
     }
     else
     {

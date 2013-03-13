@@ -1484,6 +1484,7 @@
 
 // inputbox flags
 #define INPUTBOX_CLOSE_ON_ENTER                  ( 0x00000001 )
+#define INPUTBOX_REGISTER_SCREEN                 ( 0x00000002 )
 // #define INPUTBOX_CLOSE_ON_ENTER			(0x00000002)
 
 

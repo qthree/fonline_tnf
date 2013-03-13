@@ -5,19 +5,24 @@
 #include "_client_defines.fos"
 #include "client_gui_h.fos"
 #include "_colors.fos"
+#include "sprite.fos"
 //#include "_msgstr.fos"
 
 import void CritterGenerate( int[]& data ) from "parameters";
 import bool CritterGenerateCheck( int[]& data ) from "parameters";
 
+import bool RaceParamCheck(uint8 gender, uint paramId, int paramVal) from "parameters";
+
 import void PerkUpReg(int[]& param, uint perk) from "perks";
 import void PerkDownReg(int[]& param, uint perk) from "perks";
+
+import void ShowInputBox( int param0, int param1, int param2, string@ param3, int[] @ param4 ) from "client_screen_inputbox";
 
 #define STAT_SURV_MIN       (3)
 #define STAT_SURV_MAX       (7)
 
 #define STAT_ADVN_MIN       (1)
-#define STAT_ADVN_MAX       (10)
+#define STAT_ADVN_MAX       (15)
 
 
 #define STR_STAT_NAME       (400)
@@ -26,19 +31,23 @@ import void PerkDownReg(int[]& param, uint perk) from "perks";
 #define STR_UNXP_SPECIAL    (590)
 
 #define STR_ANIM_INDEX     ( 322 )
-#define STR_CRTYPE         ( 323 )
+#define STR_CRTYPE         ( 323 ) //deprecated
+#define STR_CRTYPE_MALE    (571)
+#define STR_CRTYPE_FEMALE  (573)
+#define STR_CRTYPE_MUTANT  (575)
+#define STR_CRTYPE_GHOUL   (577)
 
 #define BUTTON_DONE        ( 0 ) //deprecated
-#define BUTTON_UP          ( 1 )
-#define BUTTON_DN          ( 2 )
-#define BUTTON_LF          ( 3 )
-#define BUTTON_RT          ( 4 )
+#define BUTTON_UP          ( 0 )
+#define BUTTON_DN          ( 1 )
+#define BUTTON_LF          ( 2 )
+#define BUTTON_RT          ( 3 )
 
 #define BUTTON_PERK_MOVE_UP (0)
 #define BUTTON_PERK_MOVE_DN (1)
 
 
-#define GENDER_MAX          (2)
+#define GENDER_MAX          (5)
 
 #define AGE_HUMAN_MAX       (67)
 #define AGE_HUMAN_MIN       (8)
@@ -72,6 +81,20 @@ class CRegisterScreenShow : IGUIElementCallbackInit, IGUIElementCallbackMouseCli
 }
 
 /////////////////////////////////////
+
+class CRegisterInputBox : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+
+    CRegisterInputBox(CRegisterScreen& instance){}
+
+     void OnMouseClick(int click){
+         //::ShowScreen( CLIENT_SCREEN_INPUTBOX, 0, 0, 0 );
+         ShowInputBox( 1, INPUTBOX_CLOSE_ON_ENTER|INPUTBOX_REGISTER_SCREEN, 0, "nop#—сылка на квенту", null );
+     }
+
+     void OnInit(){
+     }
+}
 
 class CRegisterButton : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
 {
@@ -160,6 +183,7 @@ class CRegisterConfirm : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
         void OnMouseClick(int click){
                 if(CritterGenerateCheck( Instance.Param )){
                     Message("VALID!!");
+                    Instance.SendInfo();
                     //NetLogin(3, "test", "test");
                 }
         }
@@ -376,10 +400,20 @@ class CRegisterStatShow : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
 
         int x = Options.GetPosX(), y = Options.GetPosY();
 
-        string text = Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
+        int statVal = (Index != 7 ? (Instance.Param[ParamIndex] + Instance.Param[ParamIndex+ST_STRENGTH_EXT]) : Instance.UnxpStat);
+
+        //Message("st_ext "+ParamIndex+" value"+Instance.Param[ParamIndex+ST_STRENGTH_EXT]);
+
+        string text = Text(uint8(statVal));
         uint color = (Index != 7 ? COLOR_WHITE : (Instance.UnxpStat > 0 ? COLOR_WHITE : COLOR_RED));
 
         if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;} //gamemode
+            else if(Instance.Param[QST_GAMEMODE] == GAME_SURVIVAL && statVal > STAT_SURV_MAX){color = COLOR_RED;}
+                else if(Instance.Param[QST_GAMEMODE] == GAME_ADVENTURE){
+                    if(!RaceParamCheck(Instance.GenderSelectBtn.Gender, ParamIndex, statVal)){
+                        color = COLOR_RED;
+                    }
+                }
 
         DrawText(""+text, x+325, y+314, 40 , 40, color, FONT_BIG_NUM,  0);
     }
@@ -590,7 +624,12 @@ class CRegisterInfoShow : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
             uint color = COLOR_GREEN;
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 
-            DrawText(""+(Instance.Param[ParamIndex]), x+325, y+314, 40 , 40, color, FONT_FALLOUT,  0);
+            uint statVal = (Instance.Param[ParamIndex]);
+            if(ParamIndex == ST_CARRY_WEIGHT){
+                statVal /= 1000;
+            }
+
+            DrawText(""+statVal, x+325, y+314, 40 , 40, color, FONT_FALLOUT,  0);
         }
 
         void Switch(){
@@ -776,6 +815,10 @@ class CRegisterTraitDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
             //Options.Switch(IsSet);
         }
 
+        void Switch(bool set){
+            Options.Switch(set);
+        }
+
         void Visible(bool vis){
             Options.SetVisible(vis);
         }
@@ -889,6 +932,10 @@ class CRegisterPerkDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
 
         void Switch(){
             //Options.Switch(IsSet);
+        }
+
+        void Switch(bool set){
+            Options.Switch(set);
         }
 
         void Visible(bool vis){
@@ -1093,12 +1140,15 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
 
     CRegisterPerkMoveBtn@[]         PerkMoveBtn;
 
+    CCharacterSkinSelectButton@[]   SkinSelectBtn;
+
     CRegisterName@                  NameBox;
     CRegisterAge@                   AgeBox;
     CRegisterConfirm@               ConfirmBtn;
     CRegisterArchivePic@            ArchivePic;
     CRegisterHelp@                  Help;
     CCharacterSkinSelectorImage@    SkinImage;
+    CCharacterGenderSelect@         GenderSelectBtn;
 
     IGUIScreenOpt@  ScreenOpt;
     //IGUIElementOpt@ InputBoxOpt;
@@ -1181,6 +1231,7 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
 
         for(uint16 i = 0, j = Param.length(); i < j; ++i){
             //if(i == QST_GAMEMODE) continue;         //only gamemode skip
+            if(i >= ST_STRENGTH_EXT && i <= ST_LUCK_EXT){Message("ext "+i+" "+Param[i]);}
             Param[i] = 0;
         }
 
@@ -1202,7 +1253,7 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
 
                 if(i >= TAG_SKILL1 && i < TAG_SKILL4) continue;
                 if(i >= TRAIT_BEGIN && i < TRAIT_END) continue;
-                if(i == ST_GENDER || i == ST_AGE || i == QST_GAMEMODE) continue;
+                if(i == ST_GENDER || i == ST_AGE || i == QST_GAMEMODE || i == ST_BODY_TYPE || i == ST_BASE_CRTYPE) continue;
 
                 Param[i] = 0;
         }
@@ -1211,13 +1262,22 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
     }
 
     void ParamDropChageGamemode(){
-        for(uint8 i = 0; i < 8; ++i){
+        for(uint8 i = 0; i < 7; ++i){
             Param[i] = 5;
         }
+
+        UnxpStat = 5;
 
         TagClear();
         TraitClear();
         PerkClear();
+
+        GenderSelectBtn.DropBtn();
+        DropSelectSkin();
+
+        ShowArchive(0);
+
+        ParamDropSoft();
 
         //ParamUpdate();
     }
@@ -1290,6 +1350,9 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
             for(uint8 i = 0, j = TraitBtn.length(); i <j; ++i){
                     TraitBtn[i].IsSet = false;
                     TraitBtn[i].Switch(false);
+
+                    TraitDesc[i].IsSet = false;
+                    TraitDesc[i].Switch(false);
             }
 
             for(uint16 i = TRAIT_BEGIN; i < TRAIT_END; ++i){
@@ -1340,6 +1403,14 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
 
                 if(!PerkIsAvalible(i)) continue;
                 Param[i] = 0;
+            }
+
+            for(uint8 i = 0, j = PerkBtn.length(); i <j; ++i){
+                    PerkBtn[i].IsSet = false;
+                    PerkBtn[i].Switch(false);
+
+                    PerkDesc[i].IsSet = false;
+                    PerkDesc[i].Switch(false);
             }
     }
 
@@ -1433,6 +1504,57 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
     bool CheckGameMode(){
         return true;
     }
+
+    uint16 GetGenderIndex(){
+            uint16 gender = GenderSelectBtn.GetGender(), r = 0;
+
+            switch(gender){
+                case 0 : r = STR_CRTYPE_MALE; break;
+                case 1 : r = STR_CRTYPE_FEMALE; break;
+                default: r = STR_CRTYPE_MALE; break;
+            }
+
+            return r;
+    }
+
+    void LoadAnimationIndex(uint16 index)
+    {
+        string@[] @ temp_anim = split( GetMsgStr( TEXTMSG_GAME, index ), " " );
+        string@[] @ temp_crtype = split( GetMsgStr( TEXTMSG_GAME, index+1 ), " " );
+
+        uint8 len_anim = temp_anim.length();
+
+        if( len_anim != temp_crtype.length() )
+        {
+            Message( "Length of critter types not equel, Send this message to developers" );
+            return;
+        }
+
+        crTypes.resize( 0 );
+        animIndex.resize( 0 );
+
+        int temp = 0;
+        for( uint8 i = 0; i < len_anim; i++ )
+        {
+            animIndex.insertLast( temp_anim[ i ] );
+            StrToInt( temp_crtype[ i ], temp );
+            crTypes.insertLast( temp );
+
+            // Message(""+crTypes[i]+" "+temp_crtype[i]);
+            // Message(""+crTypes[i]);
+        }
+    }
+
+
+    void DropSelectSkin(){
+        uint16 genderIndex = STR_CRTYPE_MALE + (GenderSelectBtn.GetGender() * 2);
+        LoadAnimationIndex(genderIndex);
+        SetSkinImage( 0, 3 );
+    }
+
+    void SendInfo(){
+        RunServerScriptUnsafe("general_unsafe@unsafe_regchar", 0, 0, 0, null, Param);
+    }
 }
 
 /////////////////////////////////////////////////////
@@ -1494,9 +1616,11 @@ class CCharacterSkinSelectWindow : IGUIScreenCallbackShow, IGUIScreenCallbackHid
     }
 }*/
 
-class CCharacterSkinSelectorImage : IGUIElementCallbackInit
+class CCharacterSkinSelectorImage : IGUIElementCallbackInit, IGUIElementCallbackDraw
 {
     int8 Dir;
+    uint Counter;
+    Sprite Spr;
 
     CRegisterScreen@ Instance;
     IGUIElementOpt@            Options;
@@ -1507,16 +1631,39 @@ class CCharacterSkinSelectorImage : IGUIElementCallbackInit
         @Instance.SkinImage = this;
 
         Dir = 3;
+        Counter = 0;
     }
 
     void OnInit()
     {
         @Options = GUI_GetElementOptions();
 
-        LoadAnimationIndex();
+        uint16 genderIndex = STR_CRTYPE_MALE + (Instance.GenderSelectBtn.GetGender() * 2);//Instance.GetGenderIndex();
+
+        Instance.LoadAnimationIndex(genderIndex);
         //Instance.Count = __baseCrType;
         Instance.Count = 0;//Instance.Param[ST_BASE_CRTYPE];
         Instance.SetSkinImage( Instance.Count, 3 );
+    }
+
+    void OnDraw(){
+        int x = Options.GetPosX()+310, y = Options.GetPosY()+300, xOff = 0, yOff = 0;
+
+        if(Dir == 1 || Dir == 4){
+            xOff = 10;
+        }/*else if(Dir == 4){
+            xOff = -10;
+        }*/
+
+        DrawSprite( Spr.Id, 0, x+xOff, y, 0 );
+
+        Counter++;
+
+        if(Counter == 50){
+            RotateSpr();
+            Counter = 0;
+            //Message("test draw rotate");
+        }
     }
 
     void SetPic( uint8 index, int8 dir )
@@ -1526,8 +1673,28 @@ class CCharacterSkinSelectorImage : IGUIElementCallbackInit
         Dir = CLAMP(dir, 0, 5);
 
         uint hash = GetStrHash("art\\critters\\"+animIndex[ index ]+"AA.frm");
-        Options.PicHash( hash, Dir );
-        Options.PicSetFrmCount(1);
+        //Options.PicHash( hash, Dir );
+        //Options.PicSetFrmCount(1);
+
+        Spr.Load(hash, uint8(Dir));
+        //Spr.FrmCount = 1;
+        Spr.DrawFrame = 0;
+
+        Instance.Param[ST_BASE_CRTYPE] = crTypes[index];
+
+    }
+
+    void RotateSpr(){
+        Dir++;
+
+        if(Dir > 5){
+            Dir = 0;
+        }
+
+        Spr.Load(Spr.Hash, uint8(Dir));
+        //Spr.FrmCount = 1;
+        //Spr.DrawFrame = 0;
+
     }
 
     uint8 GetDir(){return Dir;}
@@ -1536,6 +1703,7 @@ class CCharacterSkinSelectorImage : IGUIElementCallbackInit
 class CCharacterSkinSelectButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick // , IGUIElementCallbackDraw
 {
 
+    IGUIElementOpt@  Options;
     CRegisterScreen@ Instance;
     // InputCode @ Code;
 
@@ -1545,11 +1713,17 @@ class CCharacterSkinSelectButton : IGUIElementCallbackInit, IGUIElementCallbackM
     CCharacterSkinSelectButton( CRegisterScreen & instance, uint8 btnClass )
     {
         @Instance = instance;
+        @Instance.SkinSelectBtn[btnClass] = this;
         ButtonClass = btnClass;
     }
 
-    void OnInit()
-    {}
+    void OnInit(){
+        @Options = GUI_GetElementOptions();
+
+        if(Instance.Param[QST_GAMEMODE] != GAME_ADVENTURE){
+            Options.SetVisible(false);
+        }
+    }
 
     void OnMouseClick( int click )
     {
@@ -1558,9 +1732,9 @@ class CCharacterSkinSelectButton : IGUIElementCallbackInit, IGUIElementCallbackM
 
         switch( ButtonClass )
         {
-        case BUTTON_DONE:
+        /*case BUTTON_DONE:
             ::HideScreen( 0, 2, 2, 2 );
-            break;
+            break;*/
         case BUTTON_UP:
             Instance.Count >= animIndex.length() - 1 ? Instance.Count = 0 : Instance.Count++;
             Instance.SetSkinImage( Instance.Count,  dir);
@@ -1593,40 +1767,16 @@ class CCharacterSkinSelectButton : IGUIElementCallbackInit, IGUIElementCallbackM
         }
         // Message(""+Instance.Count+" "+__baseCrType+" "+crTypes[Instance.Count]);
     }
+
+    void Visible(bool vis){
+            Options.SetVisible(vis);
+    }
 }
 
 void SetCrtype( int[]& params )
 {
     params[ ST_BASE_CRTYPE ] = __baseCrType;
     params[ ST_BODY_TYPE ] = __baseCrType;
-}
-
-void LoadAnimationIndex()
-{
-    string@[] @ temp_anim = split( GetMsgStr( TEXTMSG_GAME, STR_ANIM_INDEX ), " " );
-    string@[] @ temp_crtype = split( GetMsgStr( TEXTMSG_GAME, STR_CRTYPE ), " " );
-
-    uint8 len_anim = temp_anim.length();
-
-    if( len_anim != temp_crtype.length() )
-    {
-        Message( "Length of critter types not equel, Send this message to developers" );
-        return;
-    }
-
-    crTypes.resize( 0 );
-    animIndex.resize( 0 );
-
-    int temp = 0;
-    for( uint8 i = 0; i < len_anim; i++ )
-    {
-        animIndex.insertLast( temp_anim[ i ] );
-        StrToInt( temp_crtype[ i ], temp );
-        crTypes.insertLast( temp );
-
-        // Message(""+crTypes[i]+" "+temp_crtype[i]);
-        // Message(""+crTypes[i]);
-    }
 }
 
 class CCharacterGenderSelect : IGUIElementCallbackInit, IGUIElementCallbackMouseClick // , IGUIElementCallbackDraw
@@ -1637,6 +1787,8 @@ class CCharacterGenderSelect : IGUIElementCallbackInit, IGUIElementCallbackMouse
 
     uint8       State;
     uint16      Gender;
+
+    string BtnMark; //temprorary for test
 
     string[]    PicOff;
     string[]    PicOn;
@@ -1649,19 +1801,32 @@ class CCharacterGenderSelect : IGUIElementCallbackInit, IGUIElementCallbackMouse
     {
         @Instance = instance;
         if(Instance is null) Message("null instance");
+        @Instance.GenderSelectBtn = this;
         //GetOutParam(ST_GENDER, Gender);
         Gender = 0;
         State = Gender;
+
+        BtnMark = "";
     }
 
     void OnInit(){
         @Options = GUI_GetElementOptions();
 
-        PicOff.insertLast("maleoff.frm");
+        PicOff.insertLast("maleoff.frm");   //man
         PicOn.insertLast("maleon.frm");
 
-        PicOff.insertLast("femoff.frm");
+        PicOff.insertLast("femoff.frm");    //girl
         PicOn.insertLast("femon.frm");
+
+        PicOff.insertLast("femoff.frm");    //robot
+        PicOn.insertLast("femon.frm");
+
+        PicOff.insertLast("femoff.frm");    //supermutant
+        PicOn.insertLast("femon.frm");
+
+        PicOff.insertLast("femoff.frm");    //ghoul
+        PicOn.insertLast("femon.frm");
+
 
         //Gender = Instance.Param[ST_GENDER];
         //Message("gender "+Gender);
@@ -1673,16 +1838,47 @@ class CCharacterGenderSelect : IGUIElementCallbackInit, IGUIElementCallbackMouse
 
     void OnMouseClick( int click )
     {
-            if(State < GENDER_MAX-1){
+
+            uint8 maxGender = GENDER_MAX;
+
+            switch(Instance.Param[QST_GAMEMODE]){
+                case GAME_ADVENTURE     : break;
+                case GAME_SURVIVAL      : maxGender = 2; break;
+                case GAME_ARCADE        : maxGender = 1; break;
+                default                 : maxGender = 2; break;
+            }
+
+            if(State < maxGender-1){
                 State++;
             }else{
                 State = 0;
             }
 
             Gender = State;
+            uint8 bodyType = 0;
+
+
+            //if(Gender > 1){//for other races
+                switch(Gender){
+                    case GENDER_MALE        :
+                    case GENDER_FEMALE      :  bodyType = BT_MEN; BtnMark = ""; break;
+                    case GENDER_IT          :  bodyType = BT_ROBOT; BtnMark = "R"; break;
+                    case GENDER_SUPERMUTANT :  bodyType = BT_SUPER_MUTANT; BtnMark = "M"; break;
+                    case GENDER_GHOUL       :  bodyType = BT_GHOUL; BtnMark = "G"; break;
+                    default                 :  bodyType = BT_MEN; break;
+                }
+            //}
+
+            Instance.Param[ST_BODY_TYPE] = bodyType;
             Instance.Param[ST_GENDER] = Gender;
             //SetOutParam(ST_GENDER, Gender);
             SetPic();
+
+            uint16 genderIndex = STR_CRTYPE_MALE + (Instance.GenderSelectBtn.GetGender() * 2);//Instance.GetGenderIndex();
+            Instance.LoadAnimationIndex(genderIndex);
+            Instance.SetSkinImage( 0, 3 );
+
+            Instance.ParamDropSoft();
 
     }
 
@@ -1690,7 +1886,18 @@ class CCharacterGenderSelect : IGUIElementCallbackInit, IGUIElementCallbackMouse
 
             Options.UpPic(PicOff[State]);
             Options.DownPic(PicOn[State]);
+
+            Options.Text(""+BtnMark, FONT_BIG, COLOR_GREEN, COLOR_DRED, FT_CENTERX | FT_CENTERY | FT_NOBREAK );
     }
+
+    void DropBtn(){
+            Gender = 0;
+            State = Gender;
+
+            SetPic();
+    }
+
+    uint16 GetGender(){return Gender;}
 }
 
 class CCharacterGameModeSelect : IGUIElementCallbackInit, IGUIElementCallbackMouseClick // , IGUIElementCallbackDraw
@@ -1748,6 +1955,13 @@ class CCharacterGameModeSelect : IGUIElementCallbackInit, IGUIElementCallbackMou
             GameMode = State;
             //SetOutParam(QST_GAMEMODE, GameMode);
             Instance.Param[QST_GAMEMODE] = GameMode;
+
+            bool vis = (GameMode == GAME_ADVENTURE);
+            for(uint8 i = 0, j = Instance.SkinSelectBtn.length(); i<j; ++i){
+                Instance.SkinSelectBtn[i].Visible(vis);
+            }
+
+            Instance.SetSkinImage( 0, 3 );
 
             SetText();
 
@@ -1953,6 +2167,8 @@ void InitRegisterScreen()
 
     RegScreen.ArchiveMask.resize(3);
 
+    RegScreen.SkinSelectBtn.resize(2);
+
     // character skin select button, register screens
     /*CRegisterSkinShow skinShow();
     GUI_AddScreenElement( CLIENT_SCREEN_REG_TNF, GetIfaceIniStr( "RegChaSelUp" ), 300, 0 )
@@ -1983,6 +2199,13 @@ void InitRegisterScreen()
     GUI_AddScreenElement( CLIENT_SCREEN_REG_TNF, GetIfaceIniStr( "RegChaSelUp" ), 550, 10 )
         .CallbackInit( confBtn )
         .CallbackMouseClick( confBtn )
+        .DownPic( GetIfaceIniStr( "RegChaSelDn" ) );
+
+
+    CRegisterInputBox iptBoxBtn(RegScreen);
+    GUI_AddScreenElement( CLIENT_SCREEN_REG_TNF, GetIfaceIniStr( "RegChaSelUp" ), 600, 10 )
+        .CallbackInit( iptBoxBtn )
+        .CallbackMouseClick( iptBoxBtn )
         .DownPic( GetIfaceIniStr( "RegChaSelDn" ) );
 
 
@@ -2228,7 +2451,7 @@ void InitRegisterScreen()
     .DownPic("character_select_done2.png");// GetIfaceIniStr( "RegChaSelBtnDoneDn" ) );*/
 
     GUI_AddScreenElement( CLIENT_SCREEN_REG_TNF, "character_select_main.png", 340, 225 ); //background pic
-
+/*                                                                                                                  deprecated
     CCharacterSkinSelectButton chaSelBtnUp( RegScreen, BUTTON_UP );
     GUI_AddScreenElement( CLIENT_SCREEN_REG_TNF, "character_select_up1.png", 435, 240 )
         .CallbackInit( chaSelBtnUp )
@@ -2242,15 +2465,15 @@ void InitRegisterScreen()
         .CallbackMouseClick( chaSelBtnDn )
         // .Position(GetIfaceIniStr("RegChaSelBtnDn"))
         .DownPic("character_select_dn2.png");
-
-    CCharacterSkinSelectButton chaSelBtnLf( RegScreen, BUTTON_LF );
+*/
+    CCharacterSkinSelectButton chaSelBtnLf( RegScreen, BUTTON_UP );
     GUI_AddScreenElement( CLIENT_SCREEN_REG_TNF, "invArrowLeftUp.png", 360, 355 )
         .CallbackInit( chaSelBtnLf )
         .CallbackMouseClick( chaSelBtnLf )
         // .Position(GetIfaceIniStr("RegChaSelBtnDn"))
         .DownPic("invArrowLeftDn.png");
 
-    CCharacterSkinSelectButton chaSelBtnRt( RegScreen, BUTTON_RT );
+    CCharacterSkinSelectButton chaSelBtnRt( RegScreen, BUTTON_DN );
     GUI_AddScreenElement( CLIENT_SCREEN_REG_TNF, "invArrowRightUp.png", 395, 355 )
         .CallbackInit( chaSelBtnRt )
         .CallbackMouseClick( chaSelBtnRt )
@@ -2262,7 +2485,8 @@ void InitRegisterScreen()
 
     CCharacterSkinSelectorImage chaSelImage( RegScreen );
     GUI_AddScreenElement( CLIENT_SCREEN_REG_TNF, "", 380, 260 )
-    .CallbackInit( chaSelImage );
+    .CallbackInit( chaSelImage )
+    .CallbackDraw( chaSelImage );
     // .Pic("mascrp"+"AA.frm", PT_ART_CRITTERS);
 
     CCharacterAgeShow   charAge(RegScreen);

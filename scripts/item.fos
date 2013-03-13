@@ -2483,8 +2483,8 @@ else return true;
 
 void Find(uint rad, Critter& cr, Map& map)
 {
-cr.Wait(rad*100);
-cr.Say( SAY_NETMSG, "В радиусе " + rad + " метров обнаружено: " + map.GetCrittersHex(cr.HexX, cr.HexY, rad, FIND_LIFE, null) + " живых организмов" );
+cr.Wait(rad*1000);
+cr.Say( SAY_NETMSG, "В радиусе " + rad + " метров обнаружено " + map.GetCrittersHex(cr.HexX, cr.HexY, rad, FIND_LIFE, null) + " живых организмов" );
 }
 
 void answer_SCANNER( Critter& cr, uint answerI, string& answerS)

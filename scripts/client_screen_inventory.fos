@@ -46,6 +46,8 @@
 
 #define SLIDER_YOFFSET			(12)
 
+#define DEBUG_ITEM_INV_NAME		("no item")
+
 					/*
 					 * #define ITEM_NONE                   (0)
 					 * #define ITEM_ARMOR                  (1)
@@ -257,31 +259,37 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 #endif
 		for(uint16 i = 0, j = INVENTORY_ITEMS_LIST_COUNT; i < j; ++i)
 		{
+			bool singleItem = true;
+			
 			uint16 itemsCount = 0,
 			       //index = (i+fromIndex < INVENTORY_ITEMS_LIST_COUNT ? i+fromIndex : INVENTORY_ITEMS_LIST_COUNT);
 			       index = i + fromIndex;
 			string name = "";
-			Message("counter "+counter);
+			string slot = "";
+			//Message("counter "+counter);
 			if(index < itemsLen)
 			{
-				if(GroupType != INVENTORY_GROUP_NOP)
+				if(GroupType != INVENTORY_GROUP_NOP)					//group sort
 				{
 					if(GroupType != InventoryItems[index].tempItem[0].GetType()) 
 					{
-						Instance.InventoryButtons[i].InvItemIndex = uint16(-1); //InvItemIndex = uint16(-1) //no draw
+						Instance.InventoryButtons[i].InvItemIndex = uint16(-1); //InvItemIndex = uint16(-1) == no draw
 						continue;
 						//--i;
 					}
 				}
 			  
 			  
-				string slot = "";
-				for(uint16 ii = 0, jj = InventoryItems[index].Id.length(); ii < jj; ++ii)
+				slot += GetSlotName(index);
+				itemsCount += GetCountName(index);
+				/*for(uint16 ii = 0, jj = InventoryItems[index].Id.length(); ii < jj; ++ii)
 				{
 					itemsCount += InventoryItems[index].Count[ii];
 					
+					if(i > 0 && itemsCount != InventoryItems[index].Count[0]) singleItem = false;
 					
-					if(InventoryItems[index].tempItem[ii].CritSlot != 0)
+					slot += GetSlotName(InventoryItems[index], ii);
+					/*if(InventoryItems[index].tempItem[ii].CritSlot != 0)
 					{
 						switch(InventoryItems[index].tempItem[ii].CritSlot)
 						{
@@ -290,15 +298,16 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 							case SLOT_HAND2 : slot += "R "; break;
 							default : break;
 						}
-					}
-				}
+					}*
+				}*/
 				
 				
 				
 				
 				//index = (InventoryItems[index].Child ? index : i);
 				
-				string namePrefix = " ";
+				string namePrefix = GetPrefixName(index);
+				/*
 				if(!InventoryItems[index].Child)
 				{
 					if(InventoryItems[index].Id.length() > 1)
@@ -317,7 +326,7 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 				}else
 				{
 					namePrefix += "\\--";
-				}
+				}*/
 				
 				//strTemp += " " + InventoryItems[index].Name;
 				//(" "+(InventoryItems[index].Child ? "\\-- " : "+ ")+InventoryItems[index].Name);
@@ -331,11 +340,14 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 					name+= " ";
 				}
 				*/
+				
+				//InventoryItems[index].Rolled = !singleItem;
+				
 				InventoryItems[index].Text1 = slot+" x"+itemsCount;
 				FormatText(InventoryItems[index].Text0+InventoryItems[index].Name, InventoryItems[index].Text1, Instance.InventoryButtons[i].Options, FONT_FALLOUT, 0, InventoryItems[index].TextW0, InventoryItems[index].TextW1);
 			}
 			
-			name = (name == "" ? "no item" : name);//(InventoryItems[i].Child ? InventoryItems[i].Count : itemsCount);
+			name = (name == "" ? DEBUG_ITEM_INV_NAME/*"no item"*/ : name);//(InventoryItems[i].Child ? InventoryItems[i].Count : itemsCount);
 			if(Instance.InventoryButtons[i] is null) {Message("null button"); continue;} 
 			//Instance.InventoryButtons[i].Options.Text(""+name,FONT_FALLOUT,COLOR_SAND, COLOR_GREEN, FT_CENTERY);
 			
@@ -351,6 +363,134 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 		}
 		
 		return true;
+	}
+	
+	string GetSlotName(uint16 index){
+	  
+		string slotName = "";
+		for(uint16 ii = 0, jj = InventoryItems[index].Id.length(); ii < jj; ++ii){
+			if(InventoryItems[index].tempItem[ii].CritSlot != 0)
+			{
+				switch(InventoryItems[index].tempItem[ii].CritSlot){
+					case SLOT_ARMOR : slotName += "A "; break;
+					case SLOT_HAND1 : slotName += "L "; break;
+					case SLOT_HAND2 : slotName += "R "; break;
+					default : break;
+				}
+			}
+		}
+		
+		return slotName;
+	}
+	
+	string GetPrefixName(uint16 index){
+	  
+		string prefixName = "";
+	  
+		if(!InventoryItems[index].Child){
+			if(InventoryItems[index].Id.length() > 1){
+				if(InventoryItems.length() > index+1 && InventoryItems[index+1].Child){
+					prefixName += "-";
+				}else{
+					prefixName += "+";
+				}
+			}else{
+				prefixName += "*";
+			}
+		}else{
+			prefixName += "\\--";
+		}
+		
+		return prefixName;
+	}
+	
+	int GetCountName(uint16 index){
+		bool singleItem = true;
+		
+		int itemsCount = 0;
+	  
+		for(uint16 ii = 0, jj = InventoryItems[index].Id.length(); ii < jj; ++ii){
+			itemsCount += InventoryItems[index].Count[ii];
+			
+			if(index > 0 && itemsCount != InventoryItems[index].Count[0]) singleItem = false;
+		}
+		
+		InventoryItems[index].Rolled = !singleItem;
+		
+		return itemsCount;
+	}
+	
+	void UpdateTree(uint16 index){
+		uint16 j = InventoryItems[index].Id.length();
+		if(index < InventoryItems.length() && index >= 0){
+			for(uint16 i = index; i < index+j; ++i){
+				/*for(uint16 ii = 0, jj = InventoryItems[i].Id.length(); ii < jj; ++ii){
+					
+				}*/
+				string slot = GetSlotName(index);
+				uint itemsCount = GetCountName(index);
+				string namePrefix = GetPrefixName(index);
+				
+				InventoryItems[index].Text1 = slot+" x"+itemsCount;
+				FormatText(InventoryItems[index].Text0+InventoryItems[index].Name, InventoryItems[index].Text1, Instance.InventoryButtons[i].Options, FONT_FALLOUT, 0, InventoryItems[index].TextW0, InventoryItems[index].TextW1);
+			}
+		}
+	}
+	
+	void UpdateList(){
+		uint16 	index = Instance.InventoryButtons[0].InvItemIndex,
+			itemsLen = InventoryItems.length();
+		
+		if(index >= 0){
+			for(uint8 i = 0; i < INVENTORY_ITEMS_LIST_COUNT; ++i){
+			  
+				index = Instance.InventoryButtons[i].InvItemIndex;
+			  
+				if(index/*+INVENTORY_ITEMS_LIST_COUNT*/ >= itemsLen) break;
+				
+				if(!InventoryItems[index].Child && index+1 < itemsLen && InventoryItems[index+1].Child){
+					UpdateTree(index);
+				}
+				  
+			}
+			
+		}
+		
+		//FormatFreeSpace();
+	}
+	
+	void FormatFreeSpace(){
+	  
+		uint16 index = Instance.InventoryButtons[0].InvItemIndex,
+			realBtn = 0;
+	  
+		/*for(uint16 i = index; i < InventoryItems.length(); ++i){
+			if(
+		}*/
+		
+		
+		
+		for(uint16 i = 0; i < INVENTORY_ITEMS_LIST_COUNT-1; ++i){
+		  
+			//if(i+1 >= INVENTORY_ITEMS_LIST_COUNT) break;
+		  
+			if(Instance.InventoryButtons[i].InvItemIndex != uint16(-1) && Instance.InventoryButtons[i+1].InvItemIndex == uint16(-1)){
+				realBtn++;
+				Message("btn0 "+realBtn+" i "+i);
+			}else{
+				if(i != 0 && realBtn != 0 && Instance.InventoryButtons[i+1].InvItemIndex != uint16(-1)){
+				Instance.InventoryButtons[i-realBtn].InvItemIndex = Instance.InventoryButtons[i+1].InvItemIndex;
+				Message("btn2 "+(i-realBtn)+" i "+(i+1));
+				}
+			}
+			/*if(Instance.InventoryButtons[i].InvItemIndex != uint16(-1) && i+1 < INVENTORY_ITEMS_LIST_COUNT && Instance.InventoryButtons[i+1].InvItemIndex == uint16(-1)){
+				uint16 tempIndex = Instance.InventoryButtons[INVENTORY_ITEMS_LIST_COUNT-1].InvItemIndex;
+				
+				for(uint16 ii = i; ii <= tempIndex; ++ii){
+					Instance.InventoryButtons[ii].InvItemIndex = Instance.InventoryButtons[ii+1].InvItemIndex;
+				}
+			}*/
+		}
 	}
 	
 	void SelectItem(uint8 index)
@@ -387,6 +527,81 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 		InventoryItems.removeAt(index);
 	}
 	
+	void DropFromList(){
+	  
+		int tempIndex = prevIndex;
+	  
+		//if(InventoryItems[prevIndex].Child){
+			
+			do{
+					tempIndex--;
+					
+			}while(InventoryItems[tempIndex].Child);
+				
+				//InventoryItems[tempIndex].Count[0]--;
+				
+		//}
+		
+		uint8 tempTempIndex = prevIndex - (tempIndex);
+		
+		Message("tempTempIndex "+prevIndex+" "+tempIndex+" "+tempTempIndex);
+		
+		
+		
+		//InventoryItems[tempIndex].RemoveArr(tempTempIndex-1);
+		
+		/*if(prevIndex != tempIndex)*/
+			
+		
+	  /*
+		if(InventoryItems[tempIndex].Rolled){
+		  
+		  
+			
+		  
+			//Instance.InventoryItems[tempIndex].RemoveArr(tempTempIndex);
+		  
+			/*InventoryItems[prevIndex].Count[0]--;
+			
+			if(prevIndex != tempIndex)
+				InventoryItems[tempIndex].Count[0]--;*
+			
+		}else{
+			//if(InventoryItems[tempIndex].Count.length() > 1){InventoryItems[tempIndex].Count[0]--;}
+			
+			RemoveItemFromList(prevIndex);
+			if(prevIndex - tempIndex == 2 && InventoryItems.length() - tempIndex-1 == 1){RemoveItemFromList(prevIndex-1);}
+			
+			//tempIndex = (prevIndex > INVENTORY_ITEMS_LIST_COUNT ? prevIndex + INVENTORY_ITEMS_LIST_COUNT : prevIndex);
+			Instance.InventoryButtons[prevIndex].InvItemIndex = uint16(-1);
+			SelectItem(prevIndex-1);
+		}*/
+			
+		if(InventoryItems[prevIndex].Id.length() <= 1){
+		  
+			
+			RemoveItemFromList(Instance.InventoryButtons[prevIndex].InvItemIndex); 
+			Instance.InventoryButtons[prevIndex].InvItemIndex = uint16(-1);
+			MoveItemList(true, false);
+			
+			
+			//SelectItem(prevIndex-1);
+			
+			//ShowList(Instance.InventoryButtons[prevIndex].InvItemIndex);
+			
+			//prevIndex--;
+			
+		}else{
+			InventoryItems[prevIndex].Count[0]--;
+			InventoryItems[tempIndex].RemoveArr(tempTempIndex-1);
+			
+		}
+		
+		//FormatFreeSpace();
+		
+		
+	}
+	
 	void RemoveSelectedItemFromList()
 	{
 		InventoryItems.removeAt(prevIndex);
@@ -399,6 +614,12 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 		ShowList(0);
 	}
 	
+	void SoftRefresh(){
+		ShowList(0);
+		SelectItem(prevIndex);
+		
+	}
+	
 	void DropItem(uint8 index)
 	{
 			//ShowList();
@@ -409,8 +630,14 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 			itemsLen = InventoryItems.length();
 			
 		if(itemsLen > invItemIndex &&  InventoryItems[invItemIndex].Id.length() <= 1) return; // !drop 1 length items
-			
-		if(invItemIndex < itemsLen && !InventoryItems[invItemIndex].Child)
+
+		if(invItemIndex+1 < itemsLen){
+			if(InventoryItems[invItemIndex+1].Child){
+				return;
+			}
+		}
+	
+		if(!InventoryItems[invItemIndex].Child)
 		{
 			dropLen = InventoryItems[invItemIndex].Id.length();
 			//InventoryItems[invItemIndex].Name[1] = '-';
@@ -430,7 +657,7 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 				//Instance.InventoryButtons.insertAt(i, inventoryButton);
 			}
 			
-			Instance.InventoryButtons[index].Rolled = true;
+			//Instance.InventoryButtons[index].Rolled = true;
 			ShowList(Instance.InventoryButtons[0].InvItemIndex);
 		}
 		//else
@@ -438,28 +665,34 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 			
 		//}
 		//prevIndex = index;
-		Message("drop element "+index);
+		//Message("drop element "+index);
 	}
 	
 	void RollUpItem(uint8 index)
 	{
 		//if(prevIndex == index)
 		//{
-			//Message("index "+index);
-			if(!InventoryItems[index].Child && InventoryItems[index+1].Child)
-			{
-				index++;
-			//	Message("index "+index);
-				while(index < InventoryItems.length() && InventoryItems[index].Child)
-				{
-			//		Message("index "+index+" "+InventoryItems.length());
-					InventoryItems.removeAt(index);
-					//index++;
-				};
-				
-				Instance.InventoryButtons[prevIndex].Rolled = false;
-				ShowList(Instance.InventoryButtons[0].InvItemIndex);
+			//Message("index0 "+index);
+			
+			uint16 itemsLen = InventoryItems.length();
+			
+			if(index+1 < itemsLen){
+				if(!(!InventoryItems[index].Child && InventoryItems[index+1].Child)){
+					return;
+				}
 			}
+			
+			index++;
+			//Message("index "+index);
+			while(index < InventoryItems.length() && InventoryItems[index].Child)
+			{
+			//	Message("index "+index+" "+InventoryItems.length());
+				InventoryItems.removeAt(index);
+			};
+				
+			//Instance.InventoryButtons[prevIndex].Rolled = false;
+			ShowList(Instance.InventoryButtons[0].InvItemIndex);
+			
 		//}
 	}
 	
@@ -627,6 +860,10 @@ class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
 		if(reverse) InventoryItems.reverse();
 		ShowList(Instance.InventoryButtons[0].InvItemIndex);
 	}
+	
+	bool IsRolled(uint8 index){
+		return (InventoryItems[index].Count[0] > 0);
+	}
   
   }
 
@@ -635,7 +872,7 @@ class InventoryItemButton : IGUIElementCallbackInit, IGUIElementCallbackMouseCli
 	IGUIElementOpt@ Options;
 	ScreenInventory @ Instance;
 	
-	bool	Rolled;
+	//bool	Rolled;
 	
 	uint8  Index;
 	uint16 InvItemIndex;
@@ -644,7 +881,7 @@ class InventoryItemButton : IGUIElementCallbackInit, IGUIElementCallbackMouseCli
 	{
 		@Instance = instance;
 		Index = index;
-		Rolled = false;
+		//Rolled = false;
 	}
 	
 	void OnInit()
@@ -658,11 +895,25 @@ class InventoryItemButton : IGUIElementCallbackInit, IGUIElementCallbackMouseCli
 	
 	void OnMouseClick(int click)
 	{
+	  /*	uint[] Id;
+	uint16[] Count;
+	uint16 ProtoId;
+	string Name;
+	bool Child;*/
+	  
+		bool rolled = Instance.ItemList.InventoryItems[InvItemIndex].Rolled;
+		
 		Instance.ItemList.SelectItem(Index);
+		
+		InventoryItem tempInvItem = Instance.ItemList.InventoryItems[InvItemIndex];
+	  
+		string msg = ("id "+tempInvItem.Id[0]+"\ncount "+tempInvItem.Count[0]+"\npID "+tempInvItem.ProtoId+"\nchild "+tempInvItem.Child+"\nrolled "+rolled);
+		//Message(msg);
+	  
 		
 		if(click == MOUSE_CLICK_LEFT)
 		{	
-				!Rolled ? Instance.ItemList.DropItem(InvItemIndex) : Instance.ItemList.RollUpItem(InvItemIndex);
+				!rolled ? Instance.ItemList.DropItem(InvItemIndex) : Instance.ItemList.RollUpItem(InvItemIndex);
 				//Rolled = (Rolled ? false : true);
 		}else
  		if(click == MOUSE_CLICK_RIGHT)
@@ -687,13 +938,15 @@ class InventoryItemButton : IGUIElementCallbackInit, IGUIElementCallbackMouseCli
 			Instance.ItemList.RollUpItem(Index);
 		}*/
 		
+		Instance.ItemList.InventoryItems[InvItemIndex].Rolled = !rolled;
+		
 	}
 	
 	void OnDraw()
 	{
 		string text0 = "no item", text1 = "", name = "";
-		int offsX = 0, x = 0, y = 0, xOff = Instance.screenOpt.GetPosX() + Options.GetPosX(), yOff = Instance.screenOpt.GetPosY() + Options.GetPosY();;
-		if(InvItemIndex != uint16(-1)) //< Instance.ItemList.InventoryItems.length())
+		int offsX = 0, x = 0, y = 0, xOff = Instance.screenOpt.GetPosX() + Options.GetPosX(), yOff = Instance.screenOpt.GetPosY() + Options.GetPosY();
+		if(InvItemIndex != uint16(-1) && Instance.ItemList.InventoryItems.length() > InvItemIndex) //< Instance.ItemList.InventoryItems.length())
 		{
 			offsX = Instance.ItemList.InventoryItems[InvItemIndex].TextW0+Instance.ItemList.InventoryItems[InvItemIndex].TextW1;
 			text0 = Instance.ItemList.InventoryItems[InvItemIndex].Text0;
@@ -812,8 +1065,12 @@ class InventoryItemAction : IGUIElementCallbackInit, IGUIElementCallbackMouseCli
 		
 		uint16 invItemIndex = Instance.InventoryButtons[prevIndex].InvItemIndex;
 
-		//InventoryItem invItem 
+		//InventoryItem invItem
+		if(invItemIndex < 0 || invItemIndex >= Instance.ItemList.InventoryItems.length()) return;
+		
 		ItemCl@ tempItem = Instance.ItemList.InventoryItems[invItemIndex].tempItem[0];
+		
+		if(tempItem is null) return;
 		
 		switch(Type)
 		{
@@ -892,8 +1149,8 @@ class InventoryItemAction : IGUIElementCallbackInit, IGUIElementCallbackMouseCli
 	
 	void InventoryDrop()
 	{
-		for(uint16 i = 0, j = Instance.ItemList.InventoryItems[Instance.InventoryButtons[Instance.ItemList.prevIndex].InvItemIndex].Id.length(); i < j; ++i)
-		{
+		//for(uint16 i = 0, j = Instance.ItemList.InventoryItems[Instance.InventoryButtons[Instance.ItemList.prevIndex].InvItemIndex].Id.length(); i < j; ++i)
+		//{
 			uint[] invActionArr(7);
 			invActionArr[0] = CHOSEN_MOVE_ITEM;
 			invActionArr[1] = Instance.ItemList.InventoryItems[Instance.InventoryButtons[Instance.ItemList.prevIndex].InvItemIndex].Id[0];
@@ -902,9 +1159,12 @@ class InventoryItemAction : IGUIElementCallbackInit, IGUIElementCallbackMouseCli
 			for(uint8 ii = 4; ii < 7; ++ii) {invActionArr[ii] = 0;}
 				
 			SetActions(invActionArr);
-		}
+		//}
 		
-		Instance.ItemList.ShowList(Instance.InventoryButtons[0].InvItemIndex);
+		//Instance.ItemList.ShowList(Instance.InventoryButtons[0].InvItemIndex);
+		Instance.ItemList.DropFromList();
+		//Instance.ItemList.InventoryItems.removeAt(Instance.ItemList.prevIndex);
+		//Instance.ItemList.FullRefrash();
 
 	}
 
@@ -940,7 +1200,7 @@ class InventoryItemSort  : IGUIElementCallbackInit, IGUIElementCallbackMouseClic
 	
 	void OnMouseClick(int click)
 	{
-	      if(click == MOUSE_CLICK_LEFT)
+	      /*if(click == MOUSE_CLICK_LEFT)
 	      {
 			Instance.ItemList.Sort(Type, Reverse);
 			
@@ -964,8 +1224,8 @@ class InventoryItemSort  : IGUIElementCallbackInit, IGUIElementCallbackMouseClic
 					Instance.ItemSorts[i].Options.DownPic(Instance.ItemSorts[i].Reverse ? Instance.ItemSorts[i].DownPic : Instance.ItemSorts[i].UpPic);
 					Instance.ItemSorts[i].Reverse = (Instance.ItemSorts[i].Reverse ? false : true);
 				}
-			}*/
-	      }
+			}*
+	      }*/
 	}
 }
 
@@ -990,14 +1250,17 @@ class InventoryItemSlide : IGUIElementCallbackInit, IGUIElementCallbackMouseClic
 	void OnMouseClick(int click)
 	{
 		uint8 prevIndex = Instance.ItemList.prevIndex;
+		
+		InventoryItem tempInvItem = Instance.ItemList.InventoryItems[Instance.InventoryButtons[prevIndex].InvItemIndex];
+		
 		switch(Type)
 		{
 			case INVENTORY_ITEMS_LIST_UP 		: Instance.ItemList.MoveItemList(true, false); break;
 			case INVENTORY_ITEMS_LIST_DOWN		: Instance.ItemList.MoveItemList(false, false); break;
 			case INVENTORY_ITEMS_LIST_UP_FORCED	: Instance.ItemList.MoveItemList(true, true); break;
 			case INVENTORY_ITEMS_LIST_DOWN_FORCED	: Instance.ItemList.MoveItemList(false, true); break;
-			case INVENTORY_ITEMS_LIST_LEFT 		: {if(Instance.InventoryButtons[prevIndex].Rolled)  {Instance.ItemList.RollUpItemArrow(prevIndex); /*Instance.InventoryButtons[prevIndex].Rolled = false;*/} break;}
-			case INVENTORY_ITEMS_LIST_RIGHT 	: {if(!Instance.InventoryButtons[prevIndex].Rolled && !Instance.ItemList.InventoryItems[Instance.InventoryButtons[prevIndex].InvItemIndex].Child) {Instance.ItemList.DropItem(prevIndex); /*Instance.InventoryButtons[prevIndex].Rolled = true;*/} break;}
+			case INVENTORY_ITEMS_LIST_LEFT 		: {if(tempInvItem.Rolled)  {Instance.ItemList.RollUpItemArrow(prevIndex); /*Instance.InventoryButtons[prevIndex].Rolled = false;*/} break;}
+			case INVENTORY_ITEMS_LIST_RIGHT 	: {if(!tempInvItem.Rolled && !tempInvItem.Child){Instance.ItemList.DropItem(prevIndex); /*Instance.InventoryButtons[prevIndex].Rolled = true;*/} break;}
 			default : break;
 		}
 		/*
@@ -1044,6 +1307,7 @@ class InventoryItem
 	InventoryItem()
 	{
 		Child = false;
+		Rolled = false;
 	}
 	
 	InventoryItem(uint id, uint16 count, string name, ItemCl& item)
@@ -1076,12 +1340,22 @@ class InventoryItem
 	{
 		items = tempItem;
 	}
+	
+	void RemoveArrLast(){
+		RemoveArr(Id.length()-1);
+	}
+	
+	void RemoveArr(uint8 index){
+		Id.removeAt(index);
+		Count.removeAt(index);
+	}
 		
 	uint[] Id;
 	uint16[] Count;
 	uint16 ProtoId;
 	string Name;
 	bool Child;
+	bool Rolled;
 	
 	int TextW0;
 	int TextW1;
@@ -2229,7 +2503,9 @@ void InitInventoryTnfScreen()
 void RefreshItemList() //export
 {
 	//screenInventory.ItemList.RemoveSelectedItemFromList();
-	screenInventory.ItemList.FullRefrash();
+	//screenInventory.ItemList.FullRefrash();
+	screenInventory.ItemList.UpdateList();
+	//SoftRefresh();
 }
 
 void FullRefreshItemList() //export

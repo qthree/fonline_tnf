@@ -133,6 +133,8 @@ class InputBoxScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide
     uint16 TextPosition;
     uint16 TextLength;
 
+    uint   WindowFlags;
+
     bool   CloseOnEnter;
 
     int    Font;
@@ -145,6 +147,7 @@ class InputBoxScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide
         LinePosition = 0;
         Font = font;
         FontFlags = flags;
+        WindowFlags = 0;
     }
 
     void OnShow( int p0, int p1, int p2 )
@@ -153,7 +156,17 @@ class InputBoxScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide
         LinePosition = 0;
         TextPosition = 0;
         LinesCount = p0;
+
+        WindowFlags = p1;
+
         CloseOnEnter = FLAG( p1, INPUTBOX_CLOSE_ON_ENTER );
+
+        //register screen
+        if(FLAG(p1, INPUTBOX_REGISTER_SCREEN)){
+            for(uint i = 0, j = __kventaLink.length(); i < j; ++i){
+                KeyPressed(0, __kventaLink[i]);
+            }
+        }
         // InputboxTexts[0].Options.Text("_",FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,/*FT_CENTERX|*/FT_CENTERY);
     }
 
@@ -470,8 +483,10 @@ class InputBoxButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick //
     {
         string text = "";
         if( ButtonType == 0 )
-            if( Instance.GetAllText( text ) )
-                RunServerScriptUnsafe( funcName, 0, 0, 0, text, null );
+            if( Instance.GetAllText( text )){
+                if(funcName != "nop"){RunServerScriptUnsafe( funcName, 0, 0, 0, text, null );}
+                else if(FLAG(Instance.WindowFlags, INPUTBOX_REGISTER_SCREEN)){__kventaLink = text;}
+            }
             else
             {
                 Message( "Пустой текст." );

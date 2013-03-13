@@ -1,5 +1,4 @@
-# 3.0.8 changelog - added various /items .frms, proto, graphic by VVish
-# 3.1.0 changelog - added one :D /item .png, proto & graphics by VVish
+# 3.0.8
 
 [Proto]
 ProtoId=14
@@ -22,7 +21,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=29
 Type=4
-PicMap=art\items\10MMJHP.frm
+PicMap=art\items\ammo.frm
 PicInv=art\inven\10mmjhp.frm
 Flags=134250556
 DisableEgg=1
@@ -41,7 +40,7 @@ Ammo_DmgDiv=2
 [Proto]
 ProtoId=30
 Type=4
-PicMap=art\items\10MMAP.frm
+PicMap=art\items\ammo.frm
 PicInv=art\inven\10mmap.frm
 Flags=134250524
 DisableEgg=1
@@ -98,7 +97,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=33
 Type=4
-PicMap=art\items\14MM.frm
+PicMap=art\items\ammo.frm
 PicInv=art\inven\14mmap.frm
 Flags=134250524
 DisableEgg=1
@@ -117,7 +116,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=34
 Type=4
-PicMap=art\items\223FMJ.frm
+PicMap=art\items\ammo.frm
 PicInv=art\inven\223fmj.frm
 Flags=134250524
 DisableEgg=1
@@ -137,7 +136,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=35
 Type=4
-PicMap=art\items\5MM_JHP.frm
+PicMap=art\items\ammo.frm
 PicInv=art\inven\5mmjhp.frm
 Flags=134217756
 DisableEgg=1
@@ -155,7 +154,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=36
 Type=4
-PicMap=art\items\5MM_AP.frm
+PicMap=art\items\ammo.frm
 PicInv=art\inven\5mmap.frm
 Flags=134250524
 DisableEgg=1
@@ -210,7 +209,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=39
 Type=4
-PicMap=art\items\DCELLS.frm
+PicMap=art\items\battery.frm
 PicInv=art\inven\dcells.frm
 Flags=134217756
 DisableEgg=1
@@ -444,7 +443,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=382
 Type=4
-PicMap=art\items\TANKSBLUE.frm
+PicMap=art\items\tanks.frm
 PicInv=art\inven\flmfuel2.frm
 Flags=134217756
 DisableEgg=1
@@ -575,7 +574,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=1432
 Type=4
-PicMap=art\items\14mm_low.png
+PicMap=art\items\ammo.frm
 PicInv=art\inven\14mm_low.png
 Flags=134250524
 DisableEgg=1
@@ -634,7 +633,7 @@ Ammo_DmgDiv=1
 [Proto]
 ProtoId=1435
 Type=4
-PicMap=art\items\ccels_low.frm
+PicMap=art\items\battery.frm
 PicInv=art\inven\ccells_low.png
 Flags=134217756
 DisableEgg=1
