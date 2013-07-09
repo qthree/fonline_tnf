@@ -9,6 +9,8 @@
 
 #include "_global_events.fos"
 
+#include "_global.fos"
+
 #define MSG_ONLY_SUTTER (15000)
 
 import void FindEncounter( Critter@[]& group, Item@ car, uint x, uint y, uint& encounterDescriptor, bool& waitForAnswer, bool empty, int ec ) from "worldmap";
@@ -24,13 +26,16 @@ import void testgen( Critter& cr, int, int, int ) from "mapgen_wasteland";
 // import uint GetAllPlayers(Critter@[]& crs) from "manager";
 // import uint GetPlayers(Critter& cr, uint16 radius, bool square, Critter@[]& crs) from "manager";
 
-import void StartArcadeMenu( Critter@ cr ) from "arcade_menu";
+//import void StartArcadeMenu( Critter@ cr ) from "arcade_menu";
 
 import bool SpawnItemCell( uint mapId ) from "local_population";
 import void AddCritter( Map& map ) from "local_population";
 
 import bool IsTileAvalible( uint hash, uint8 group ) from "cimp";
 import bool IsTileGround( uint hash ) from "cimp";
+
+//import void CheckEncounter(uint8 biomType, Critter& player) from "encounters";
+import void GetEncounter(Critter& cr, uint biomType) from "encounters";
 
 #define ENTIRE_NUM            ( 255 )
 #define MAP_SIZE              ( 150 )
@@ -42,13 +47,13 @@ import bool IsTileGround( uint hash ) from "cimp";
 
 #define SKILL_OUTDORSMAN_MOD	(20)
 
-#define BIOM_TYPE_ROAD		(0x1)
+/*#define BIOM_TYPE_ROAD		(0x1)
 #define BIOM_TYPE_WASTELAND	(0x2)
 #define BIOM_VERTICAL_T		(0x10)
 #define BIOM_VERTICAL_D		(0x20)
 #define BIOM_HORIZONTAL_L	(0x40)
 #define BIOM_HORIZONTAL_R	(0x80)
-
+*/
 #include "_cell.fos"
 
 class CellContent
@@ -212,7 +217,11 @@ class Cell
     uint16       MonsterType;
     int          MonsterCount;
     bool         IsHavePopulation;
-    uint	 BiomFlags;
+    uint	     BiomFlags;
+    uint         BiomType;
+    uint         BiomMapPid;
+    
+    uint8	DefaultLevel;
 //	uint16 CellX, CellY;
 
     // uint[] Groups;
@@ -229,6 +238,8 @@ class Cell
         MonsterCount = 0;
         PopulationMax = 50;
         IsHavePopulation = false;
+	
+	DefaultLevel = 0;
     }
 
     uint8 ChangeWildness( int delta )
@@ -560,6 +571,8 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
         Cell@        cell0 = null;
         CellContent@ cont = null;
         int          coord = 0;
+	
+	bool showHeigh = (cr.StatBase[ST_VAR8] > 0);
 
         for( uint i = 0; i < len; i++ )
         {
@@ -581,14 +594,45 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
             coord = int( ( zx & 0xFFFF ) | ( zy << 16 ) );
 
             @cont = cell0.Content;
-	    if(FLAG(cell0.BiomFlags, BIOM_TYPE_ROAD)){ //pm show road
-		color = 0x442222DD;
-                chr = 0x0011FF11 | ( uint( 'R' ) << 24 );
-	    }else
+
+            //if(cont !is null and ( cont.Type & 0x1F ) != CELLMAP_TYPE_STATIC) {
+	      
+	      //show heigh map
+	      if(showHeigh){
+		chr = ((BIOM_COLOR_HEIGH / (cell0.DefaultLevel+1)*0.1)) | (uint(cell0.DefaultLevel) << 24 );
+	      }else{
+                if(cell0.BiomType == BIOM_TYPE_ROAD){ //pm show road
+                    //color = 0x442222DD;
+                    chr = BIOM_COLOR_ROAD | ( uint( 'R' ) << 24 );
+                }else if(cell0.BiomType == BIOM_TYPE_RAILROAD){ //pm show road
+                    //color = 0x442222DD;
+                    chr = BIOM_COLOR_RAILROAD | ( uint( 'L' ) << 24 );
+                }else if(cell0.BiomType == BIOM_TYPE_LAKE){
+                    chr = BIOM_COLOR_WATER | ( uint( 'W' ) << 24 );
+                }else if (cell0.BiomType == BIOM_TYPE_RIVER){ //pm show road
+                    //color = 0x442222DD;
+                    chr = BIOM_COLOR_WATER | ( uint( 'W' ) << 24 );
+                }else if(cell0.BiomType == BIOM_TYPE_RUINS){ //pm show road
+                    //color = 0x442222DD;
+                    chr = BIOM_COLOR_RUINS | ( uint( 'U' ) << 24 );
+                }else if(cell0.BiomType == BIOM_TYPE_FOREST){ //pm show road
+                    //color = 0x442222DD;
+                    chr = BIOM_COLOR_FOREST | ( uint( 'F' ) << 24 );
+                }else if(cell0.BiomType == BIOM_TYPE_MOUNTAIN){ //pm show road
+                    //color = 0x442222DD;
+                    chr = BIOM_COLOR_MOUNTAIN | ( uint( 'M' ) << 24 );
+                }/*else if(_ValColl(BIOM_TYPE_MOUNTAIN_LEFT, BIOM_TYPE_MOUNTAIN_TOP, cell0.BiomType)){ //pm show road
+                    //color = 0x442222DD;
+                    chr = BIOM_COLOR_WATER | ( uint( 'M' ) << 24 );
+                }*/
+	      }
+            //}
+            
+
             if( showStatic and cont !is null and ( cont.Type & 0x1F ) == CELLMAP_TYPE_STATIC and ( vision + cont.Visibility > int(r * 20) ) )
             {
                 color = 0x442222DD;
-                chr = 0x0011FF11 | ( uint( 'С' ) << 24 );
+                chr = 0x0011FF11 | ( uint( 'S' ) << 24 );
             }
             else if( showWildness )
             {
@@ -673,25 +717,20 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
 	uint16 locId = 0;
 
         if(mapId != 0){
-		@map = GetMap( mapId );
-		if( map is null )
-			return 0;
-	}else{
+            @map = GetMap( mapId );
+            if( map is null )
+                return 0;
+        }else{
 
-		bool isTop	=  FLAG(cell.BiomFlags, BIOM_VERTICAL_T),
-		     isDown	=  FLAG(cell.BiomFlags, BIOM_VERTICAL_D),
-		     isLeft	=  FLAG(cell.BiomFlags, BIOM_HORIZONTAL_L),
-		     isRight	=  FLAG(cell.BiomFlags, BIOM_HORIZONTAL_R),
-		     isVertical = (isTop && isDown),
-		     isHorizont = (isLeft && isRight),
-		     isCross	= (isVertical && isHorizont);
+            locId = Random(cell.BiomMapPid, cell.BiomMapPid + (cell.BiomType == BIOM_TYPE_MOUNTAIN ? 0 : 2));//LOCATION_BIOM_SHIFT);
 
+        /*
 		if(FLAG(cell.BiomFlags, BIOM_TYPE_ROAD)){
 			/*if(isVertical){
 				locId = Random(MAP_ROAD_VERT_BEGIN, MAP_ROAD_VERT_END);
 			}else if(isHorizont){
 				locId = Random(MAP_ROAD_HOR_BEGIN, MAP_ROAD_HOR_END);
-			}*/
+			}*
 
 			locId = MAP_ROAD_BEGIN;
 
@@ -715,7 +754,7 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
 		 * down    -- locspids + 36
 		 * left    -- locspids + 37
 		 * right   -- locspids + 38
-		 */
+		 *
 
 		if(isCross){
 			locId += MAP_ENCOUNTER_IN_GROUP * MAP_CROS;
@@ -741,7 +780,7 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
 			locId += MAP_RGHT;
 		}else{
 			locId = Random(MAP_WASTELAND_BEGIN, MAP_WASTELAND_END);
-		}
+		}*/
 
 		Location @ loc = GetLocation(CreateLocation(locId, x*10+5, y*10+5, null));
 		if(!(loc is null)){
@@ -865,7 +904,11 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
 
                 switch( pid )
                 {
-                case LOCATION_Sutter_Center:
+                case LOCATION_Sutter:
+                    sizeX = 2;
+                    sizeY = 2;
+                    break;
+                case LOCATION_Modoc:
                     sizeX = 2;
                     sizeY = 2;
                     break;
@@ -949,7 +992,13 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
 
                     Cells[ i ].MonsterCount = uint8( cells_monsters_data[ i ] );
                     Cells[ i ].MonsterType = MonsterTypeTable( Cells[ i ].Wildness );               // pm added
-		    Cells[ i ].BiomFlags = cells_biom_data[i];               // pm added
+
+                    //if(i % 3 == 0){
+                        Cells[ i ].BiomType = cells_biom_data[i];
+                        Cells[ i ].BiomFlags = cells_biom_data[i+len];               // pm added
+                        Cells[ i ].BiomMapPid = cells_biom_data[i+(len*2)];
+			Cells[ i ].DefaultLevel = cells_biom_data[i+(len*3)];
+                    //}
 		   // Log("BIOM "+i+" DATA"+Cells[ i ].BiomFlags+" "+cells_biom_data[i]);
                 }
             }
@@ -962,7 +1011,7 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
 
         int[] cells_data( clen );
         int[] cells_monsters_data( clen );
-	int[] cells_biom_data( clen );
+        int[] cells_biom_data( clen * 4);
 
         int          dur = 0;
         Cell@        cell = null;
@@ -976,7 +1025,13 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
 
             cells_data[ i ] = cell.Wildness;
             cells_monsters_data[ i ] = cell.MonsterCount;
-	    cells_biom_data[i] = cell.BiomFlags;
+
+            //if(i % 2 == 0){//pm added
+                cells_biom_data[i] = cell.BiomType;
+                cells_biom_data[i+clen] = cell.BiomFlags;
+                cells_biom_data[i+(clen*2)] = cell.BiomMapPid;
+		cells_biom_data[i+(clen*3)] = cell.DefaultLevel;
+            //}
 
 	    //Log("BIOM "+i+" SAVE "+cells_biom_data[i] + "="+cell.BiomFlags);
 
@@ -1093,7 +1148,10 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
             for( uint8 ii = 0, jj = Cells[ i ].Content.MapId.length(); ii < jj; ++ii )
             {
 
-                Map @ map = GetMap( Cells[ i ].Content.MapId[ ii ] );
+                uint mapId =  Cells[ i ].Content.MapId[ ii ];
+                if(mapId <= 0) continue;
+
+                Map @ map = GetMap(mapId);
                 if( map is null )
                     continue;
 
@@ -1241,6 +1299,9 @@ void global_process( int processType, Critter& cr, Item@ car,
     int movementType = ( valid( car ) ? car.Proto.Car_MovementType : GM_WALK_GROUND );
     int curXi = int(curX);
     int curYi = int(curY);
+    
+    Cell @ curCell = world.GetCell(cr);
+    uint groupLen = cr.GetFollowGroup(FIND_LIFE, null);
 
     if( processType == GLOBAL_PROCESS_MOVE )
     {
@@ -1256,10 +1317,23 @@ void global_process( int processType, Critter& cr, Item@ car,
         float speedMod = 1.0f;
         if( movementType == GM_WALK_GROUND )
         {
+	  
+	    if(curCell !is null){
+		  switch(curCell.BiomType){
+		    case BIOM_TYPE_WASTELAND : speedMod = 0.50f; break;
+		    case BIOM_TYPE_FOREST : speedMod = 0.30f; break;
+		    case BIOM_TYPE_ROAD : speedMod = 2.00f; break;
+		    default : speedMod = 1.00f;
+		  }
+		  
+		  //cr.Say(SAY_NETMSG, "cell "+curCell)
+	      
+	    }
+	    
             // Speed modifiers
             //  F   E   D   C   B   A   9    8   7    6   5    4   3    2   1    0
             // 1.5 1.4 1.3 1.2 1.1 1.0 0.95 0.9 0.85 0.8 0.75 0.7 0.65 0.6 0.55 0.0
-            switch( GetGlobalMapRelief( curXi, curYi ) )
+            /*switch( GetGlobalMapRelief( curXi, curYi ) )
             {
             case 0x0:
                 speedMod = 1.00f;
@@ -1311,8 +1385,10 @@ void global_process( int processType, Critter& cr, Item@ car,
                 break;
             default:
                 break;
-            }
+            }*/
         }
+        
+        speedMod / (groupLen);
 
         if( valid( car ) && speedMod != 1.0f )
         {
@@ -1494,7 +1570,7 @@ void global_process( int processType, Critter& cr, Item@ car,
             world.ShowCells( cr, cell );
 
             CellContent@ cont = cell.Content;
-            if( cont is null or ( cont.Type & 0x1F ) == CELLMAP_TYPE_ENCOUTER )
+            if(( cont is null or ( cont.Type & 0x1F ) == CELLMAP_TYPE_ENCOUTER) and cell.BiomType == BIOM_TYPE_WASTELAND)
             {
                 if( cont !is null and cont.MapId[ CELL_LEVEL_DEFAULT ] != 0 && GetMap( cont.MapId[ CELL_LEVEL_DEFAULT ] ) !is null )
                 {
@@ -1507,7 +1583,7 @@ void global_process( int processType, Critter& cr, Item@ car,
                         else if( cont.GetCrittersCount( CELL_CRITTERS_SURVIVAL ) > 0 )
                             chance = cr.Skill[ SK_OUTDOORSMAN ] / 3;
                         else
-                            chance = -1;
+                            chance = cell.Wildness;
                     }
                     else
                     {
@@ -1517,11 +1593,15 @@ void global_process( int processType, Critter& cr, Item@ car,
                             chance = -1;
                     }
 
+                    chance = 1;
+
                     if( chance < 0 )
                     {}
                     else if( Random( 0, 100 ) > chance )
                     {
                         encounterDescriptor = uint( -1 );
+                        //CheckEncounter(cell.BiomType, cr);
+                        GetEncounter(cr, cell.BiomType);
                     }
                     else
                     {
@@ -1535,10 +1615,10 @@ void global_process( int processType, Critter& cr, Item@ car,
                 {
                     @cell.Content = null;
 
-                    FindEncounter( cr.GetGlobalGroup(), car, curXi, curYi, encounterDescriptor, waitForAnswer, false, wild );
+                    //FindEncounter( cr.GetGlobalGroup(), car, curXi, curYi, encounterDescriptor, waitForAnswer, false, wild );
                 }
             }
-            else if( cont.Visibility > 0 )
+            else if( (cont !is null && cont.Visibility > 0) || cell.BiomType > BIOM_TYPE_FOREST && cell.BiomType != BIOM_TYPE_ROAD)
                 ( encounterDescriptor = uint( -1 ) );
         }
     }
@@ -1588,11 +1668,13 @@ void global_process( int processType, Critter& cr, Item@ car,
                 {
                     @cell.Content = null;
 		    //pm added
-		    world.CreateCell(cell.X, cell.Y, 0, CELLMAP_TYPE_ENCOUTER, 100);
+                    world.CreateCell(cell.X, cell.Y, 0, CELLMAP_TYPE_ENCOUTER, 100);
+                    encounterDescriptor = uint( -1 );
+		    GetEncounter(cr, cell.BiomType);
 
 		    //mapId = cell.Content.MapId[ CELL_LEVEL_DEFAULT ];
 
-                    FindEncounter( cr.GetGlobalGroup(), car, curXi, curYi, encounterDescriptor, waitForAnswer, true, 0 );
+                    //FindEncounter( cr.GetGlobalGroup(), car, curXi, curYi, encounterDescriptor, waitForAnswer, true, 0 );
                 }
             }
             else
@@ -1748,12 +1830,14 @@ void global_invite( Critter& leader, Item@ car, uint encounterDescriptor, int co
 
     CellContent@ cont = cell.Content;
 
-    if( encounterDescriptor != uint( -1 ) && cont is null )
+    if( encounterDescriptor != uint( -1 ) || cont is null )
     {
         @cell.Content = CellContent();
         @cont = cell.Content;
         cont.Type |= CELLMAP_TYPE_ENCOUTER;
         cont.Durability = 5;
+
+        world.CreateCell(cell.X, cell.Y, 0, CELLMAP_TYPE_ENCOUTER, 100);
     }
 
     // pm added
@@ -1782,11 +1866,11 @@ void global_invite( Critter& leader, Item@ car, uint encounterDescriptor, int co
             // pm added
             GetEnterHexFromGlobal( leader, cell, hexX, hexY );
 
-	    world.CreateCell(cell.X, cell.Y, 0, CELLMAP_TYPE_ENCOUTER, 100);
+	    //world.CreateCell(cell.X, cell.Y, 0, CELLMAP_TYPE_ENCOUTER, 100);
 
 	    mapId = cell.Content.MapId[ CELL_LEVEL_DEFAULT ];
 
-            InviteToEncounter( leader.GetGlobalGroup(), car, encounterDescriptor, COMBAT_MODE_REAL_TIME /*combatMode*/, mapId, hexX, hexY, dir );
+            //InviteToEncounter( leader.GetGlobalGroup(), car, encounterDescriptor, COMBAT_MODE_REAL_TIME /*combatMode*/, mapId, hexX, hexY, dir );
             cont.Index = encounterDescriptor;
             cont.MapId[ CELL_LEVEL_DEFAULT ] = mapId;
         }
@@ -1918,6 +2002,7 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
     if( @cell.Content == null )
     {
         cr.Say( SAY_NETMSG, "cont !valid" );
+	cr.TransitToGlobal(true);
         return;
     }
 
@@ -1938,7 +2023,7 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
         return;
     }
     uint8 tempDir = direction;
-        if(cr.Skill[SK_OUTDOORSMAN] < Random(0, 99)){	//desert
+        if(cr.Skill[SK_OUTDOORSMAN] < Random(0, 99) && cell.BiomType <= BIOM_TYPE_FOREST){	//desert
 	if(!ChechNearCellStatic(cell.X, cell.Y)){
 		tempDir = tempDir + (Random(-1,1));
 		if(tempDir < 0) tempDir = 7;
@@ -1980,11 +2065,18 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
 
 
     uint16 wX = cell.X * 10, wY = cell.Y * 10 + CELL_SIZE;
+    //Log("map x:y "+__GlobalMapWidth+" : "+__GlobalMapHeight);
+    /*if(destCellX * 10 >= __GlobalMapWidth || destCellY * 10 >= __GlobalMapHeight || destCellX * 10 <= 0 || destCellY * 10 <= 0){
+        cr.Say(SAY_NETMSG, "Вы видите отвесный обрыв. Это КОНЕЦ.");
+        return;
+    }*/
 
     Cell   @transitCell = world.GetCell( destCellX, destCellY );
     if(transitCell is null) return;
     bool isCellNull = (/*transitCell is null && */transitCell.Content is null);
     uint16 mapId = 0;
+    
+    //if(!isCellNull && transitCell.Content.Visibility <= 5){}
 
 
     // generator
@@ -1998,7 +2090,7 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
 
 		//cr.Say( SAY_NETMSG, "Только Саттер." );
 		// void CreateCell( uint16 x, uint16 y, uint mapId, uint8 type, int8 visibility )
-		/*if(ChechNearCellForPlayer(destCellX, destCellY) || FLAG(transitCell.BiomFlags, BIOM_TYPE_ROAD))
+		if(ChechNearCellForPlayer(destCellX, destCellY) || transitCell.BiomType > BIOM_TYPE_FOREST) //FLAG(transitCell.BiomFlags, BIOM_TYPE_ROAD))
 		{
 			//if(cr.GetAccess() > ACCESS_CLIENT){
 				mapId = world.CreateCell(destCellX, destCellY, 0, CELLMAP_TYPE_ENCOUTER, 100);
@@ -2006,18 +2098,20 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
 			//	cr.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, MSG_ONLY_SUTTER);
 			//	return;
 			//}
-		}else{
+		}/*else{
 			cr.TransitToGlobal(true);
 			return;
 		}*/
 
-			cr.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, MSG_ONLY_SUTTER);
-			return;
+			/*cr.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, MSG_ONLY_SUTTER);
+			return;*/
 	}
 
 
-    int level = GetMapLevelByPid( map.GetProtoId() );
-    mapId = transitCell.Content.MapId[ CELL_LEVEL_DEFAULT + level ];
+    if(mapId == 0){
+        int level = GetMapLevelByPid( map.GetProtoId() );
+        mapId = transitCell.Content.MapId[ CELL_LEVEL_DEFAULT + level ];
+    }
 
     @map = GetMap( mapId );
     if( mapId == 0 || map is null )
@@ -2033,20 +2127,39 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
 
     SetHexDirection( cell, transitCell, direction, oldHexX, oldHexY );
 
-    //if(CheckHexTrace(map, destHexX + oldHexX, destHexY + oldHexY, destHexX, destHexY, direction))
+    //CheckHexTrace(map, destHexX + oldHexX, destHexY + oldHexY, destHexX, destHexY);
     if( map.IsHexPassed( destHexX + oldHexX, destHexY + oldHexY ) )
     {
-	if(CheckMonsterTransitePlace(cr, map, destHexX + oldHexX, destHexY + oldHexY)){
+      
+	if(!isCellNull && transitCell.Content.Type == CELLMAP_TYPE_STATIC){
+	  	cr.SetWorldPos( destCellX * 10, destCellY * 10 );
+		cr.TransitToMap( mapId, destHexX + oldHexX, destHexY + oldHexY, direction );
+		
+		//int tt = ( ( int(transitCell.X) & 0xFFFF ) | ( int(transitCell.Y) << 16 ) );
+		//cr.ParamBase[ ST_VAR6 ] = tt;
+	}else{
 		cr.StatBase[ST_OBJECT_TYPE] = direction;
 		cr.StatBase[ST_ITEM_HEXX] = destHexX + oldHexX;
 		cr.StatBase[ST_ITEM_HEXY] = destHexY + oldHexY;
 		cr.StatBase[ST_ITEM_PID] = mapId;
+		
+		ShowAnswerScreenTransit(cr);
+	}
+		
+		//if(cr.Stat
+		
+		
+      
+	/*if(CheckMonsterTransitePlace(cr, map, destHexX + oldHexX, destHexY + oldHexY)){
+		
 
 		ShowAnswerScreen(cr);
-	}else{
-		cr.SetWorldPos( destCellX * 10, destCellY * 10 );
-		cr.TransitToMap( mapId, destHexX + oldHexX, destHexY + oldHexY, direction );
-	}
+	}else{*/
+	
+		
+		//encounter
+		//GetEncounter(cr, transitCell.BiomType);
+	//}
 
 	return;
     }
@@ -2116,7 +2229,7 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
 //import int TraceWall( uint16 hx, uint16 hy, uint16 tx, uint16 ty, Map@ map, int dist ) from "tracing_util";
 //import int TraceWhatever( uint16 hx, uint16 hy, uint16 tx, uint16 ty, Map@ map, int dist ) from "tracing_util";
 
-bool CheckHexTrace(Map& map, uint hexX, uint hexY, uint tx, uint ty, uint8 dir){
+bool CheckHexTrace(Map& map, uint hexX, uint hexY, uint16& tx, uint16& ty){//, uint8 dir){
 
     bool r = true;
 /*
@@ -2129,16 +2242,18 @@ bool CheckHexTrace(Map& map, uint hexX, uint hexY, uint tx, uint ty, uint8 dir){
 
 
     uint8 revDir = 0;
-    uint16 hX = hexX, hY = hexY;
+    //uint16 hX = hexX, hY = hexY;
 
-    REVERSE_DIRECTION(revDir, dir);
+    //REVERSE_DIRECTION(revDir, dir);
+    
+    map.GetHexCoord(hexX, hexY, tx, ty, 0.0f, 3);
 
-    for(uint8 i = 0; i < 6; ++i){
+    /*for(uint8 i = 0; i < 6; ++i){
         if(hX == tx || hY == ty) {break;}
         if(!map.IsHexPassed(hX, hY)){r = false; break;}
         map.MoveHexByDir(hX, hY, revDir, 1);
 
-    }
+    }*/
 
     return r;
 }
@@ -2197,7 +2312,31 @@ bool CheckMonsterTransitePlace(Critter& cr, Map& map, uint16 hexX, uint16 hexY){
 	return false;
 }
 
-void ShowAnswerScreen(Critter& cr){
+void ShowAnswerScreenTransit(Critter& cr){
+	cr.ShowScreen( SCREEN_DIALOGBOX, 2, "answer_Transit" );
+        cr.Say( SAY_DIALOGBOX_TEXT, "Перейти на глобальную карту?\n(ДА-выход/НЕТ-локально)" );
+        cr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "Да" );
+	cr.Say( SAY_DIALOGBOX_BUTTON( 1 ), "Нет" );
+	//cr.Say( SAY_DIALOGBOX_BUTTON( 2 ), "Отмена" );
+}
+
+void answer_Transit(Critter& cr, uint answerI, string& answerS)
+{
+	if(answerI == 1){
+		Map @ map = GetMap(cr.StatBase[ST_ITEM_PID]);
+		if(map is null) {cr.Say(SAY_NETMSG, "Mapid error.");return;}
+
+		cr.SetWorldPos(map.GetLocation().WorldX, map.GetLocation().WorldY);
+		cr.TransitToMap(map.Id, cr.StatBase[ST_ITEM_HEXX], cr.StatBase[ST_ITEM_HEXY], cr.StatBase[ST_OBJECT_TYPE]);
+		
+	}else if(answerI == 0){
+		cr.TransitToGlobal(true);
+	}else{}
+}
+
+
+
+void ShowAnswerScreenMob(Critter& cr){
 	cr.ShowScreen( SCREEN_DIALOGBOX, 1, "answer_Mob" );
         cr.Say( SAY_DIALOGBOX_TEXT, "Вы чувствуете опасность. Перейти?" );
         cr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "Да" );
@@ -2265,8 +2404,10 @@ bool GetEnterHexFromGlobal( Critter& leader, Cell& cell, uint16& hexX, uint16& h
 
             hexX = placeMapHexX;
             hexY = placeMapHexY;
-            // leader.Say(SAY_NETMSG, "use new system x"+hexX+" y "+hexY+" pX "+placeCellX+" pY "+placeCellY);
-            return true;
+            
+	    leader.Say(SAY_NETMSG, "use new system x "+hexX+" y "+hexY+" pX "+placeCellX+" pY "+placeCellY+" "+tempX+" "+tempY+" "+tempN);
+            
+	    return true;
         }
     }
     return false;
@@ -2560,12 +2701,12 @@ void unsafe_GetMapPid( Critter& cr, int hexX, int hexY, int protoId, string@ par
     {
 
         Cell @ cell = world.GetCell( cr );
-        if( cell !is null && cell.Content !is null )
+        if( cell !is null )
         {
             int8   offsetCellX = 0, offsetCellY = 0, level = GetMapLevelByPid( cr.GetMap().GetProtoId() );
             uint8  direction = cr.GetMap().GetScenParam( hexX, hexY, protoId, 0 );          // grid.Val1;
             uint16 destCellX = cell.X, destCellY = cell.Y, oldHexX = 0, oldHexY = 0;
-
+/*
             if( !GetMap( cell.Content.MapId[ CELL_LEVEL_DEFAULT + level ] ).GetEntireCoords( ENTIRE_NUM, 0, oldHexX, oldHexY ) )
             {
                 cr.Say( SAY_NETMSG, "no ent" );
@@ -2573,22 +2714,31 @@ void unsafe_GetMapPid( Critter& cr, int hexX, int hexY, int protoId, string@ par
             }
 
             oldHexX = grid.HexX - oldHexX;
-            oldHexY = grid.HexY - oldHexY;
+            oldHexY = grid.HexY - oldHexY;*/
 
             cr.StatBase[ ST_LOCALMAP_DIR ] = direction;
             if( SetMapDirection( direction, destCellX, destCellY, offsetCellX, offsetCellY ) )
             {
-                uint16 mapId = GetCellMap( destCellX * 10, destCellY * 10, level );
-                if( mapId != -1 )
-                {
-                    Map @ map = GetMap( mapId );                  // cell.Content.MapId); //
-                    if( map !is null )
-                    {
-                        cr.StatBase[ ST_LOCALMAP_PID ] = map.GetProtoId();
-                        // cr.Say(SAY_NETMSG, ""+map.GetProtoId());
-                        return;
-                    }
-                }
+	      
+		if(cell.Content !is null){
+	      
+			uint16 mapId = GetCellMap( destCellX * 10, destCellY * 10, level );
+			if( mapId != -1 )
+			{
+				Map @ map = GetMap( mapId );                  // cell.Content.MapId); //
+				if( map !is null )
+				{
+					cr.StatBase[ ST_LOCALMAP_PID ] = map.GetProtoId();
+					// cr.Say(SAY_NETMSG, ""+map.GetProtoId());
+					return;
+				}
+			}
+		}else{
+			Cell @ targetCell = world.GetCell(destCellX, destCellY);
+			if(targetCell !is null){
+				cr.StatBase[ ST_LOCALMAP_PID ] = targetCell.BiomMapPid;
+			}
+		}
             }
         }
     }
@@ -3083,7 +3233,19 @@ int GetMapLevelByPid( uint pid )
     case MAP_SUTTER_CENTER_UP_1:
         level =  2;
         break;
-    case MAP_MODOC_11_UP:
+    case MAP_JUNKYARD_DN:
+        level = -1;
+        break;
+    case MAP_MODOC_DN:
+        level = -1;
+        break;
+    case MAP_MODOC_UP1:
+        level = 1;
+        break;
+    case MAP_MODOC_UP2:
+        level = 2;
+        break;
+    /*case MAP_MODOC_11_UP:
 	level = 1;
 	break;
     case MAP_MODOC_11_DN:
@@ -3103,7 +3265,7 @@ int GetMapLevelByPid( uint pid )
 	break;
     case MAP_MODOC_23_DN:
 	level = -1;
-	break;
+	break;*/
     default:
         level =  0;
         break;
@@ -3201,6 +3363,7 @@ void testbioms(Critter& cr, int pstatic, int, int){
 #define GMAP_SYMBOL_STATIC (-2)
 #define GMAP_SYMBOL_ROAD (-3)
 #define GMAP_SYMBOL_MOUNTAIN (-4)
+#define GMAP_SYMBOL_RAILROAD (-5)
 
 void ParseGlobalMapPic(bool parseStatic){
 
@@ -3238,6 +3401,7 @@ void ParseGlobalMapPic(bool parseStatic){
 		bool isWater = false;
 		bool isRoad = false;
 		bool isMountain = false;
+		bool isRailroad = false;
 		int tempx = 0;
 
 		int[] a;
@@ -3253,6 +3417,8 @@ void ParseGlobalMapPic(bool parseStatic){
 				isWater = true;
 			}else if(temp[x] == GMAP_SYMBOL_ROAD){
 				isRoad = true;
+			}else if(temp[x] == GMAP_SYMBOL_RAILROAD){
+				isRailroad = true;
 			}
 
 			tempx +=  temp[x];
@@ -3269,6 +3435,9 @@ void ParseGlobalMapPic(bool parseStatic){
 				}else if(isMountain){
 					cellsx.insertLast(parseStatic ? GMAP_SYMBOL_MOUNTAIN : 0x000000);
 					isMountain = false;
+				}else if(isRailroad){
+					cellsx.insertLast(parseStatic ? GMAP_SYMBOL_RAILROAD : 0xed1c24);
+					isRailroad = false;
 				}else{
 
 
@@ -3319,6 +3488,7 @@ void ParseLine(int[]& a, uint16 y){
             if(hash == 0x000000) {hash = GMAP_SYMBOL_MOUNTAIN; Log("mount");}
 			if(hash == 0xffffff) {hash = GMAP_SYMBOL_ROAD;/* Log("road");*/}
 			if(hash == 0x0000ff) {hash = GMAP_SYMBOL_WATER;/* Log("water");*/}
+			if(hash == 0xed1c24) {hash = GMAP_SYMBOL_RAILROAD;/* Log("water");*/}
 
 
 			a.insertLast(hash);
@@ -3351,6 +3521,9 @@ string ParseMakeLine(int[]& a){
 			case GMAP_SYMBOL_STATIC : addSymbol = "S"; break;
 			case GMAP_SYMBOL_ROAD : addSymbol = "R"; break;
 			case GMAP_SYMBOL_MOUNTAIN : addSymbol = "M"; break;
+			case GMAP_SYMBOL_RAILROAD : addSymbol = "L"; break;
+			//case GMAP_SYMBOL_FOREST : addSymbol = "F"; break;
+			//case GMAP_SYMBOL_RUINS : addSymbol = "U"; break;
 			default : addSymbol = ""+((a[i] > 0 ? a[i] & 0xF : a[i])); break;
 		}
 
@@ -3381,13 +3554,16 @@ void ParseSave(string line){
 
 #define ONLY_ROAD	(true)
 
-string ParseLoad(){
+#define FILE_GLOBAL_BIOM	(".\\global_parse.txt")
+#define FILE_GLOBAL_HEIGH	(".\\global_parse_heigh.txt")
+
+string ParseLoad(string file){
 
 	//uint16 y = 0;
 	string s = "";
 	file f;
 
-	if(f.open(".\\global_parse.txt", "r") != -1){
+	if(f.open(file, "r") != -1){
 
 
 
@@ -3405,30 +3581,47 @@ string ParseLoad(){
 }
 
 uint ParseCellSet(){
-	string sIn = ParseLoad();//, oldLine = "";
+	string sIn = ParseLoad(FILE_GLOBAL_BIOM);//, oldLine = "";
+	string sInHeigh = ParseLoad(FILE_GLOBAL_HEIGH); //heigh
+	
+	uint mountCount = 0;
+	
+	Log("LENGHT "+sIn.length()+" "+sInHeigh.length());
 
-	if(sIn.length() > 0){
+	 //heigh
+	if(sIn.length() > 0 && (sInHeigh.length() == sIn.length())){
 		string@[]@ sLine = split(sIn, "\n");
+		string@[]@ sHeigh = split(sInHeigh, "\n"); //heigh
+		
+		 //heigh
+		if(sLine.length() != sHeigh.length()){Log("PARSE BIOMS : WRONG LENGTH. EXIT"); return 0;}
+		
+		
 
 		uint16 yy = sLine.length();
 
 		int[][] cellsbioms;
+		int[][] cellsheigh; //heigh
 
 		yy = (yy > GMAP_HEIGH * 0.1 ? GMAP_HEIGH * 0.1 : yy);
 
 		cellsbioms.resize(yy);
+		cellsheigh.resize(yy); //heigh
 
 		for(uint16 y = 0; y < yy; ++y){
 
 			string@[]@ sA = split(sLine[y], "\t");
+			string@[]@ sH = split(sHeigh[y], "\t"); //heigh
 			//string@[]@ sO = split(oldLine, "\t");
 
 			uint16 xx = sA.length();
 			int[]@ iA = cellsbioms[y];
+			int[]@ iH = cellsheigh[y]; //heigh
 
 			xx = (xx > GMAP_WIDTH * 0.1 ? GMAP_WIDTH * 0.1 : xx);
 
 			iA.resize(xx);
+			iH.resize(xx); //heigh
 
 			for(uint16 x = 0; x < xx; ++x){
 				/*
@@ -3437,22 +3630,45 @@ uint ParseCellSet(){
 
 				cell.BiomFlags = 0;
 				*/
+				/*if(sA[x].length() > 1){
+				
+				  if(sA[x] == "ML"){
+				    iA[x] = BIOM_TYPE_MOUNTAIN_LEFT;
+				  }else if(sA[x] == "MR"){
+				    iA[x] = BIOM_TYPE_MOUNTAIN_RIGHT;
+				  }else if(sA[x] == "MD"){
+				    iA[x] = BIOM_TYPE_MOUNTAIN_DOWN;
+				  }else if(sA[x] == "MT"){
+				    iA[x] = BIOM_TYPE_MOUNTAIN_TOP;
+				  }
+				  
+				  mountCount++;
+				  
+				}else*/
+				
 				if(sA[x] == "R"){
-
 					iA[x] = BIOM_TYPE_ROAD;
-					//SETFLAG(cell.BiomFlags, BIOM_TYPE_ROAD);
-					/*
-					if((x > 0 && sA[x-1] == "R") || (x+1 < xx && sA[x+1] == "R")){
-						SETFLAG(cell.BiomFlags, BIOM_HORIZONTAL);
-					}else if(sO[x] == "R"){
-						SETFLAG(cell.BiomFlags, BIOM_VERTICAL);
-					}*/
-				//}else if(cell.Content !is null && cell.Content.Type == CELLMAP_TYPE_STATIC){
-				//	iA[x] = 0;
+				}else if (sA[x] == "I"){
+					iA[x] = BIOM_TYPE_RAILROAD;
+				}else if (sA[x] == "W"){
+					iA[x] = BIOM_TYPE_RIVER;
+				}else if (sA[x] == "L"){
+					iA[x] = BIOM_TYPE_LAKE;
+				}else if (sA[x] == "M"){
+					iA[x] = BIOM_TYPE_MOUNTAIN;
+				}else if (sA[x] == "U"){
+					iA[x] = BIOM_TYPE_RUINS;
+				}else if (sA[x] == "F"){
+					iA[x] = BIOM_TYPE_FOREST;
 				}else{
 					//SETFLAG(cell.BiomFlags, BIOM_TYPE_WASTELAND);
 					iA[x] = BIOM_TYPE_WASTELAND;
 				}
+				
+				//heigh
+				int iTemp = 0;
+				StrToInt(sH[x], iTemp);
+				iH[x] = iTemp;
 			}
 
 			//oldLine = sLine[y];
@@ -3460,6 +3676,7 @@ uint ParseCellSet(){
 
 		for(uint16 y = 0; y < yy; ++y){
 			int[]@ iA = cellsbioms[y];
+			int[]@ iH = cellsheigh[y]; //heigh
 
 			uint16 xx = iA.length();
 
@@ -3467,49 +3684,341 @@ uint ParseCellSet(){
 
 				Cell @ cell = world.GetCell(x, y);
 				if(cell is null) continue;
+	   
+				//heigh
+				cell.DefaultLevel = iH[x];
 
 				cell.BiomFlags = 0;
 
 				int[]@ iAp;
 				int[]@ iAn;
+				
+				//heigh
+				int[]@ iHp;
+				int[]@ iHn;
 
 				if(y > 0){
 					@iAp = cellsbioms[y-1];
+					//heigh
+					@iHp = cellsheigh[y-1];
 				}
 
 				if(y+1 < yy){
 					@iAn = cellsbioms[y+1];
+					//heigh
+					@iHn = cellsheigh[y+1];
 				}
 
-				if(x > 0 && iA[x-1] == iA[x]){
-					SETFLAG(cell.BiomFlags, BIOM_HORIZONTAL_L);
-				}
-				if(x+1 < xx && iA[x+1] == iA[x]){
-					SETFLAG(cell.BiomFlags, BIOM_HORIZONTAL_R);
-				}
-				if(iAp !is null && iAp[x] == iA[x]){
-					SETFLAG(cell.BiomFlags, BIOM_VERTICAL_T);
-				}
-				if(iAn !is null && iAn[x] == iA[x]){
-					SETFLAG(cell.BiomFlags, BIOM_VERTICAL_D);
+				uint biomFlag = 0;
+				
+// 				if(iA[x] >= BIOM_TYPE_MOUNTAIN_LEFT && iA[x] <= BIOM_TYPE_MOUNTAIN_TOP){
+				/*if(_ValColl(BIOM_TYPE_MOUNTAIN_LEFT, BIOM_TYPE_MOUNTAIN_TOP, iA[x])){
+				  
+					if(x > 0 && _ValColl(BIOM_TYPE_MOUNTAIN_LEFT, BIOM_TYPE_MOUNTAIN_TOP, iA[x-1])){
+						SETFLAG(biomFlag, BIOM_HAS_CHILD_LEFT);
+						//SETFLAG(cell.BiomFlags, BIOM_HORIZONTAL_L);
+					}
+					
+					if(x+1 < xx && _ValColl(BIOM_TYPE_MOUNTAIN_LEFT, BIOM_TYPE_MOUNTAIN_TOP, iA[x+1])){
+						SETFLAG(biomFlag, BIOM_HAS_CHILD_RIGHT);
+						//SETFLAG(cell.BiomFlags, BIOM_HORIZONTAL_R);
+					}
+					
+					if(iAp !is null && _ValColl(BIOM_TYPE_MOUNTAIN_LEFT, BIOM_TYPE_MOUNTAIN_TOP, iAp[x])){
+						SETFLAG(biomFlag, BIOM_HAS_CHILD_TOP);
+						//SETFLAG(cell.BiomFlags, BIOM_VERTICAL_T);
+					}
+					if(iAn !is null && _ValColl(BIOM_TYPE_MOUNTAIN_LEFT, BIOM_TYPE_MOUNTAIN_TOP, iAn[x])){
+						SETFLAG(biomFlag, BIOM_HAS_CHILD_DOWN);
+						//SETFLAG(cell.BiomFlags, BIOM_VERTICAL_D);
+					}
+				}else{*/
+				
+					if(x > 0 && iA[x-1] == iA[x]){
+						SETFLAG(biomFlag, BIOM_HAS_CHILD_LEFT);
+						//SETFLAG(cell.BiomFlags, BIOM_HORIZONTAL_L);
+					}
+				
+					if(x+1 < xx && iA[x+1] == iA[x]){
+						SETFLAG(biomFlag, BIOM_HAS_CHILD_RIGHT);
+						//SETFLAG(cell.BiomFlags, BIOM_HORIZONTAL_R);
+					}
+				
+					if(iAp !is null && iAp[x] == iA[x]){
+						SETFLAG(biomFlag, BIOM_HAS_CHILD_TOP);
+						//SETFLAG(cell.BiomFlags, BIOM_VERTICAL_T);
+					}
+				  
+					if(iAn !is null && iAn[x] == iA[x]){
+						SETFLAG(biomFlag, BIOM_HAS_CHILD_DOWN);
+						//SETFLAG(cell.BiomFlags, BIOM_VERTICAL_D);
+					}
+				
+					if(iA[x] == BIOM_TYPE_RIVER || iA[x] == BIOM_TYPE_LAKE){
+						if(iAp !is null && iAp[x-1] == iA[x])
+							SETFLAG(biomFlag, BIOM_HAS_CHILD_TL);
+						if(iAp !is null && iAp[x+1] == iA[x])
+							SETFLAG(biomFlag, BIOM_HAS_CHILD_TR);
+						if(iAn !is null && iAn[x-1] == iA[x])
+							SETFLAG(biomFlag, BIOM_HAS_CHILD_DL);
+						if(iAn !is null && iAn[x+1] == iA[x])
+							SETFLAG(biomFlag, BIOM_HAS_CHILD_DR);
+					}
+					
+					//heigh
+					if(iA[x] == BIOM_TYPE_MOUNTAIN){
+					  
+						string msg = "";
+					  
+						if(x > 0 && iH[x-1] < iH[x]){
+							SETFLAG(biomFlag, BIOM_MOUNTAIN_LEFT);
+							msg += "left ";
+						}
+						
+						if(x+1 < xx && iH[x+1] < iH[x]){
+							SETFLAG(biomFlag, BIOM_MOUNTAIN_RIGHT);
+							msg += "right ";
+						}
+				
+						if(iHp !is null && iHp[x] < iH[x]){
+							SETFLAG(biomFlag, BIOM_MOUNTAIN_TOP);
+							msg += "top ";
+						}
+						
+						if(iHn !is null && iHn[x] < iH[x]){
+							SETFLAG(biomFlag, BIOM_MOUNTAIN_DOWN);
+							msg += "down ";
+						}
+						
+						//Log("MOUNTAINT "+msg);
+					}
+				
+				//}
+
+				if((iA[x] == BIOM_TYPE_RIVER || iA[x] == BIOM_TYPE_LAKE)  && ((iAp !is null && iAp[x] == BIOM_TYPE_ROAD && iAn !is null && iAn[x] == BIOM_TYPE_ROAD)) || 
+				  (xx > x+1 && iA[x+1] == BIOM_TYPE_ROAD && x > 0 && iA[x-1] == BIOM_TYPE_ROAD)){
+				    SETFLAG(biomFlag, BIOM_HAS_BRIDGE);
+				    Log("BRIDGE");
 				}
 
 				if(cell.Content !is null && cell.Content.Type == CELLMAP_TYPE_STATIC){
 					//nope
-				}else if(iA[x] == BIOM_TYPE_ROAD){
+				}else{
+
+				    if(iA[x] != BIOM_TYPE_WATER){
+				        cell.BiomType = iA[x];
+				    }else{
+
+                            bool[] cross = {FLAG(biomFlag, BIOM_HAS_CHILD_DOWN), FLAG(biomFlag, BIOM_HAS_CHILD_TOP), FLAG(biomFlag, BIOM_HAS_CHILD_LEFT), FLAG(biomFlag, BIOM_HAS_CHILD_RIGHT)};
+                            bool[] sides = {FLAG(biomFlag, BIOM_HAS_CHILD_TL), FLAG(biomFlag, BIOM_HAS_CHILD_TR), FLAG(biomFlag, BIOM_HAS_CHILD_DL), FLAG(biomFlag, BIOM_HAS_CHILD_DR)};
+
+                            /*bool    isHorr  = (FLAG(biomFlag, BIOM_HAS_CHILD_DOWN) && FLAG(biomFlag, BIOM_HAS_CHILD_TOP)),
+                                    isVert  = (FLAG(biomFlag, BIOM_HAS_CHILD_LEFT) && FLAG(biomFlag, BIOM_HAS_CHILD_RIGHT)),
+                                    isWN    = (FLAG(biomFlag, BIOM_HAS_CHILD_TOP) && FLAG(biomFlag, BIOM_HAS_CHILD_RIGHT)),
+                                    isWS    = (FLAG(biomFlag, BIOM_HAS_CHILD_DOWN) && FLAG(biomFlag, BIOM_HAS_CHILD_RIGHT)),
+                                    isSE    = (FLAG(biomFlag, BIOM_HAS_CHILD_DOWN) && FLAG(biomFlag, BIOM_HAS_CHILD_LEFT)),
+                                    is*/
+
+                            //bool[] sides = {isHorr, isVert, }
+
+                            uint8 countCross = 0, countSides = 0;
+
+                            for(uint8 i = 0, j = cross.length(); i < j; ++i){
+                                if(cross[i]) countCross++;
+                            }
+
+                            for(uint8 i = 0, j = sides.length(); i < j; ++i){
+                                if(sides[i]) countSides++;
+                            }
+
+                          if((countCross <= 2 && countSides <= 2)){// || (countCross < 2 && countSides <= 2))   {
+                                cell.BiomType = BIOM_TYPE_RIVER;
+                         }else{
+                                cell.BiomType = BIOM_TYPE_LAKE;
+                         }
+				    }
+
+				    cell.BiomFlags = biomFlag;
+				    cell.BiomMapPid = GetBiomMapPid(cell.BiomType, cell.BiomFlags);
+
+                }
+                
+                //Log("HEIGH "+cell.DefaultLevel+" xy "+cell.X+":"+cell.Y);
+                
+                if(cell.BiomType == BIOM_TYPE_LAKE){
+                    //Log("BIOM TYPE"+cell.BiomType+" PID "+cell.BiomMapPid+ " FLAGS "+cell.BiomFlags + " XY " + x + ":"+y);
+                    }
+				/*}else if(iA[x] == BIOM_TYPE_ROAD){
 					SETFLAG(cell.BiomFlags, BIOM_TYPE_ROAD);
 				}else if(iA[x] == BIOM_TYPE_WASTELAND){
 					SETFLAG(cell.BiomFlags, BIOM_TYPE_WASTELAND);
-				}
+				}*/
 
 			}
 		}
 
-	}
+	}else{Log("ERROR NULL LENGTH");}
+	
+	//Log("MOUNTAINT MAPS "+mountCount);
 
 	return 0;
 
 }
+
+/*
+
+shift%
+wasteland - 0
+forest      1
+ruins       2
+road        3
+rr          4
+mountain    5
+water       6
+
+= LOCATION_BIOM_SHIFT * 0 - horrizont
+= LOCATION_BIOM_SHIFT * 1 - vert
+= LOCATION_BIOM_SHIFT * 2 - n-e
+= LOCATION_BIOM_SHIFT * 3 - s-e
+= LOCATION_BIOM_SHIFT * 4 - s-w
+= LOCATION_BIOM_SHIFT * 5 - n-w
+*/
+
+uint GetBiomMapPid(uint biomType, uint biomFlags){
+
+    //if(biomType == BIOM_TYPE_WASTELAND || biomType == BIOM_TYPE_RUINS || biomType == BIOM_TYPE_FOREST){     //if simple type - return
+    if(biomType <= BIOM_TYPE_RUINS){     //if simple type - return
+            return LOCATION_BIOM_START + (LOCATION_BIOM_RANGE * biomType);
+    }
+
+    if(biomType == BIOM_TYPE_RIVER && FLAG(biomFlags, BIOM_HAS_BRIDGE)){
+        if(FLAG(biomFlags, BIOM_HAS_CHILD_LEFT) && FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)){
+            return 1001;
+        }else{return 1000;}
+    }
+    
+    /*if(_ValColl(BIOM_TYPE_MOUNTAIN_LEFT, BIOM_TYPE_MOUNTAIN_TOP, biomType)){
+	return 1100 + 5 * (BIOM_TYPE_MOUNTAIN_LEFT - biomType);
+    }*/
+
+    bool[] biomMap = {
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_HAS_CHILD_TOP)     && !FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)), //horr
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && !FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && !FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)),  //vert
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && !FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)), //n-e
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_HAS_CHILD_TOP)     && !FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)), //s-e
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && !FLAG(biomFlags, BIOM_HAS_CHILD_TOP)     && !FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)), //s-w
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && !FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && !FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)), //n-w
+
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN) && FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)), //ens
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT) && FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)), //nwe
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT) && FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_HAS_CHILD_TOP)), //swe
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN) && FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && !FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)) //wns
+                        };
+
+    bool[] lakeMap = {  //lake 12
+
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && FLAG(biomFlags, BIOM_HAS_CHILD_TOP)      && (FLAG(biomFlags, BIOM_HAS_CHILD_TL)  || FLAG(biomFlags, BIOM_HAS_CHILD_TR))  && !FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)),
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)     && (FLAG(biomFlags, BIOM_HAS_CHILD_DL)  || FLAG(biomFlags, BIOM_HAS_CHILD_DR))  && !FLAG(biomFlags, BIOM_HAS_CHILD_TOP)),
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)     && (FLAG(biomFlags, BIOM_HAS_CHILD_TL)  || FLAG(biomFlags, BIOM_HAS_CHILD_DL))  && !FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)),
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)    && (FLAG(biomFlags, BIOM_HAS_CHILD_TR)  || FLAG(biomFlags, BIOM_HAS_CHILD_DR))  && !FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)),
+
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && FLAG(biomFlags, BIOM_HAS_CHILD_TL)       && !FLAG(biomFlags, BIOM_HAS_CHILD_DOWN) && !FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)),
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)     &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)     && FLAG(biomFlags, BIOM_HAS_CHILD_TL)  && FLAG(biomFlags, BIOM_HAS_CHILD_TR) &&   FLAG(biomFlags, BIOM_HAS_CHILD_DL) && !FLAG(biomFlags, BIOM_HAS_CHILD_DR)),
+
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && FLAG(biomFlags, BIOM_HAS_CHILD_TR)       && !FLAG(biomFlags, BIOM_HAS_CHILD_DOWN) && !FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)),
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)     &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)     && FLAG(biomFlags, BIOM_HAS_CHILD_TL)  && FLAG(biomFlags, BIOM_HAS_CHILD_TR) &&   FLAG(biomFlags, BIOM_HAS_CHILD_DR) && !FLAG(biomFlags, BIOM_HAS_CHILD_DL)),
+
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && FLAG(biomFlags, BIOM_HAS_CHILD_DL)       && !FLAG(biomFlags, BIOM_HAS_CHILD_TOP) && !FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)),
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)     &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)     && FLAG(biomFlags, BIOM_HAS_CHILD_TL)  && FLAG(biomFlags, BIOM_HAS_CHILD_DL) &&   FLAG(biomFlags, BIOM_HAS_CHILD_DR) && !FLAG(biomFlags, BIOM_HAS_CHILD_TR)),
+
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)    && FLAG(biomFlags, BIOM_HAS_CHILD_DR)      && !FLAG(biomFlags, BIOM_HAS_CHILD_TOP) && !FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)),
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)     &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)     && FLAG(biomFlags, BIOM_HAS_CHILD_TR)  && FLAG(biomFlags, BIOM_HAS_CHILD_DL) &&   FLAG(biomFlags, BIOM_HAS_CHILD_DR) && !FLAG(biomFlags, BIOM_HAS_CHILD_TL))
+                    };
+		                    //(FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN && ) FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT), //ens
+
+
+	bool[] mountMap = {
+
+			(FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && FLAG(biomFlags, BIOM_MOUNTAIN_TOP)     && !FLAG(biomFlags, BIOM_MOUNTAIN_DOWN)), //top we
+			(FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT) &&  !FLAG(biomFlags, BIOM_MOUNTAIN_TOP)     && FLAG(biomFlags, BIOM_MOUNTAIN_DOWN)), //down we
+			
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && FLAG(biomFlags, BIOM_MOUNTAIN_LEFT)    && !FLAG(biomFlags, BIOM_MOUNTAIN_RIGHT)),  //left ns
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && !FLAG(biomFlags, BIOM_MOUNTAIN_LEFT)    && FLAG(biomFlags, BIOM_MOUNTAIN_RIGHT)),  //right ns
+                       
+                       
+			(FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_MOUNTAIN_DOWN)   && !FLAG(biomFlags, BIOM_MOUNTAIN_LEFT) && !FLAG(biomFlags, BIOM_MOUNTAIN_TOP) && !FLAG(biomFlags, BIOM_MOUNTAIN_RIGHT)), //en
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_MOUNTAIN_DOWN)   && !FLAG(biomFlags, BIOM_MOUNTAIN_LEFT) && !FLAG(biomFlags, BIOM_MOUNTAIN_TOP) && !FLAG(biomFlags, BIOM_MOUNTAIN_RIGHT)), //es
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && !FLAG(biomFlags, BIOM_MOUNTAIN_DOWN)   && !FLAG(biomFlags, BIOM_MOUNTAIN_LEFT) && !FLAG(biomFlags, BIOM_MOUNTAIN_TOP) && !FLAG(biomFlags, BIOM_MOUNTAIN_RIGHT)), //sw
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && !FLAG(biomFlags, BIOM_MOUNTAIN_DOWN)   && !FLAG(biomFlags, BIOM_MOUNTAIN_LEFT) && !FLAG(biomFlags, BIOM_MOUNTAIN_TOP) && !FLAG(biomFlags, BIOM_MOUNTAIN_RIGHT)), //nw
+                       
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && FLAG(biomFlags, BIOM_MOUNTAIN_DOWN)    && FLAG(biomFlags, BIOM_MOUNTAIN_LEFT)), //ne
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && FLAG(biomFlags, BIOM_MOUNTAIN_TOP)     && FLAG(biomFlags, BIOM_MOUNTAIN_LEFT)), //se
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && FLAG(biomFlags, BIOM_MOUNTAIN_TOP)     && FLAG(biomFlags, BIOM_MOUNTAIN_RIGHT)), //ws
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && FLAG(biomFlags, BIOM_MOUNTAIN_DOWN)    && FLAG(biomFlags, BIOM_MOUNTAIN_RIGHT)) //wn
+                        
+                        
+
+			
+// 			(FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)     && !FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)), //en
+//                         (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)   && !FLAG(biomFlags, BIOM_HAS_CHILD_TOP)     && !FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)), //es
+//                         (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)   &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && !FLAG(biomFlags, BIOM_HAS_CHILD_TOP)     && !FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)), //sw
+//                         (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)    &&  FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)    && !FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)    && !FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT)) //nw
+
+
+	      };
+                        /* depraceted
+                        //road && railroad only
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_TOP)),                                              //top
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_DOWN)),
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_LEFT)),
+                        (FLAG(biomFlags, BIOM_HAS_CHILD_RIGHT))
+
+n		+		left + right + top + (tl || tr)                 +
+s		+		left + right + down + (dl || dr)                +
+w		+		top + down + left + (tl || dl)                  +
+e		+		top + down + right + (tr || dr)                 +
+nw		+		top + down + left + right + (tl && tr && dl)    +
+wn		+		top + left + tl                                 +
+ne		+		top + down + left + right + (tl && tr && dr)    +
+en		+		top + right + tr                                +
+sw		+		top + down + left + right + (tl && dl && dr)    +
+ws		+		down + left + dl
+se		+		top + down + left + right + (tr && dl && dr)    +
+es		+		down + right + dr
+                        */
+
+    bool[] bArr;// = (biomType != BIOM_TYPE_LAKE ? biomMap : lakeMap);
+    
+    switch(biomType){
+      case BIOM_TYPE_LAKE : bArr = lakeMap; break;
+      case BIOM_TYPE_MOUNTAIN : bArr = mountMap; break;
+      default : bArr = biomMap; break;
+    }
+
+    uint addPid = 0;
+
+    for(uint i = 0, j = bArr.length(); i < j; ++i){
+        if(i >= j - 4 && biomType == BIOM_TYPE_RIVER) break;  //break if simple
+        //if(i >= j - 12 && biomType != BIOM_TYPE_LAKE) break;  //break if simple
+
+        if(bArr[i]){
+            addPid = LOCATION_BIOM_SHIFT * i;
+
+            /*if(biomType == BIOM_TYPE_MOUNTAIN)
+                Log("BIOM FIND "+biomType+" :: "+LOCATION_BIOM_RANGE + " "+(LOCATION_BIOM_RANGE * biomType)+ " " + addPid+" ::: "+i);
+            //break;
+            */
+        }
+    }
+ 
+    return LOCATION_BIOM_START + (LOCATION_BIOM_RANGE * biomType) + addPid;
+}
+/*
+void listheigh(Critter& cr, int, int, int){
+  world
+}*/
+
+
 /*
 if(line.length() > 0){
 					string@[]@ info = split(line, "\t");

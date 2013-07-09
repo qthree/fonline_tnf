@@ -12,6 +12,8 @@
 // #define LOCATION_IS_OCEAN #(locPid)                 ((locPid)>=LOCATION_Den && (locPid)<=LOCATION_OceanTrader) //q tla water
 
 //Modoc
+#define LOCATION_Modoc  						(1)
+
 #define LOCATION_Modoc_Rich						( 1 )
 #define LOCATION_Modoc_Admin					( 2 )
 #define LOCATION_Modoc_Mine						( 3 )
@@ -19,38 +21,44 @@
 #define LOCATION_Modoc_Center					( 5 )
 #define LOCATION_Modoc_Sawmill					( 6 )
 //approaches
-#define LOCATION_Modoc_1_1						( 7 )
-#define LOCATION_Modoc_1_2						( 8 )
-#define LOCATION_Modoc_1_3						( 9 )
-#define LOCATION_Modoc_2_1						( 10 )
-#define LOCATION_Modoc_2_2						( 11 )
-#define LOCATION_Modoc_2_3						( 12 )
+#define LOCATION_Modoc_1_1						( 2 )
+#define LOCATION_Modoc_1_2						( 3 )
+#define LOCATION_Modoc_1_3						( 4 )
+#define LOCATION_Modoc_1_4						( 5 )
+#define LOCATION_Modoc_2_1						( 6 )
+#define LOCATION_Modoc_2_4						( 7 )
+#define LOCATION_Modoc_3_1						( 8 )
+#define LOCATION_Modoc_3_4						( 9 )
+#define LOCATION_Modoc_4_1						( 10 )
+#define LOCATION_Modoc_4_2						( 11 )
+#define LOCATION_Modoc_4_3						( 12 )
+#define LOCATION_Modoc_4_4						( 13 )
 
 
 //Sutter
-#define LOCATION_Sutter_1_1						( 13 )
-#define LOCATION_Sutter_1_2						( 14 )
-#define LOCATION_Sutter_1_3						( 15 )
-#define LOCATION_Sutter_1_4						( 16 )
-#define LOCATION_Sutter_2_1						( 17 )
-#define LOCATION_Sutter_2_4						( 18 )
-#define LOCATION_Sutter_3_1						( 19 )
-#define LOCATION_Sutter_3_4						( 20 )
-#define LOCATION_Sutter_4_1						( 21 )
-#define LOCATION_Sutter_4_2						( 22 )
-#define LOCATION_Sutter_4_3						( 23 )
-#define LOCATION_Sutter_4_4						( 24 )
-#define LOCATION_Sutter_Center					( 25 )
+#define LOCATION_Sutter_1_1						( 20 )
+#define LOCATION_Sutter_1_2						( 21 )
+#define LOCATION_Sutter_1_3						( 22 )
+#define LOCATION_Sutter_1_4						( 23 )
+#define LOCATION_Sutter_2_1						( 24 )
+#define LOCATION_Sutter_2_4						( 25 )
+#define LOCATION_Sutter_3_1						( 26 )
+#define LOCATION_Sutter_3_4						( 27 )
+#define LOCATION_Sutter_4_1						( 28 )
+#define LOCATION_Sutter_4_2						( 29 )
+#define LOCATION_Sutter_4_3						( 30 )
+#define LOCATION_Sutter_4_4						( 31 )
+#define LOCATION_Sutter     					( 32 )
 
 
 //Lake
-#define LOCATION_Lakecity                      ( 40 )
+#define LOCATION_Lakecity                      ( 41 )
 
 //Phoenix
-#define LOCATION_Phoenix                       ( 41 )
+#define LOCATION_Phoenix                       ( 42 )
 
 //Junkyard
-#define LOCATION_Junkyard                      ( 42 )
+#define LOCATION_Junkyard                      ( 43 )
 
 
 //other
@@ -99,12 +107,12 @@
 
 bool LocIsModoc( uint locPid )
 {
-    return (locPid<=LOCATION_Modoc_Sawmill);
+    return (locPid<=LOCATION_Modoc_4_4);
 }
 
 bool LocIsCity( uint locPid )
 {
-    return (locPid<=LOCATION_Sutter_Center || locPid==LOCATION_Lakecity || locPid==LOCATION_Junkyard);
+    return (locPid<=LOCATION_Sutter || locPid==LOCATION_Lakecity || locPid==LOCATION_Junkyard || locPid == 96);
 }
 
 bool LocIsMasked( uint locPid )
@@ -123,25 +131,36 @@ bool LocIsHidden( uint locPid )
 
 #define MAP_PATTERN_BLANK					   ( 191 )
 
-#define MAP_MODOC_11				(1)
-#define MAP_MODOC_11_UP				(2)
-#define MAP_MODOC_11_DN				(3)
+#define MAP_MODOC   				(1)
+#define MAP_MODOC_DN				(2)
+#define MAP_MODOC_UP1				(3)
+#define MAP_MODOC_UP2				(4)
 
-#define MAP_MODOC_12				(4)
-#define MAP_MODOC_12_DN				(5)
+#define MAP_MODOC_11				(5)
+//#define MAP_MODOC_11_UP				(2)
+//#define MAP_MODOC_11_DN				(3)
 
-#define MAP_MODOC_13				(6)
-#define MAP_MODOC_13_DN				(7)
+#define MAP_MODOC_12				(6)
+//#define MAP_MODOC_12_DN				(5)
+
+#define MAP_MODOC_13				(7)
+//#define MAP_MODOC_13_DN				(7)
+#define MAP_MODOC_14				(8)
 
 #define MAP_MODOC_21				(9)
 
-#define MAP_MODOC_22				(10)
-#define MAP_MODOC_22_UP				(11)
-#define MAP_MODOC_22_UP_1			(12)
+#define MAP_MODOC_24				(10)
+//#define MAP_MODOC_22_UP				(11)
+//#define MAP_MODOC_22_UP_1			(12)
 
-#define MAP_MODOC_23				(13)
-#define MAP_MODOC_23_DN				(14)
-
+#define MAP_MODOC_31				(11)
+#define MAP_MODOC_34				(12)
+#define MAP_MODOC_41				(13)
+#define MAP_MODOC_42				(14)
+#define MAP_MODOC_43				(15)
+#define MAP_MODOC_44				(16)
+//#define MAP_MODOC_23_DN				(14)
+/*
 #define MAP_MODOC_APP_11			(15)
 #define MAP_MODOC_APP_12			(16)
 #define MAP_MODOC_APP_13			(17)
@@ -150,7 +169,7 @@ bool LocIsHidden( uint locPid )
 #define MAP_MODOC_APP_23			(20)
 
 #define MAP_MODOC_Center                       ( 10 )
-
+*/
 #define MAP_PHOENIX	                           ( 30 )
 #define MAP_PHOENIX_DN                         ( 31 )
 
@@ -190,8 +209,9 @@ bool LocIsHidden( uint locPid )
 #define MAP_SUTTER_CENTER_UP                   ( 90 )
 #define MAP_SUTTER_CENTER_UP_1                 ( 91 )
 
-#define MAP_UTILITY_START	                   ( 92 )
-#define MAP_UTILITY_ARCADE	                   ( 94 )
+#define MAP_UTILITY_START	                   ( 400 )
+#define MAP_UTILITY_ARCADE	                   ( 402 )
+#define MAP_UTILITY_DEAD	                   ( 403 )
 
 //BIOMS
 
@@ -200,7 +220,7 @@ bool LocIsHidden( uint locPid )
 
 //#define MAP_ROAD_HOR_BEGIN			(305) //random encounters
 //#define MAP_ROAD_HOR_END			(305)
-
+/*
 #define MAP_ROAD_BEGIN				(300)
 
 #define MAP_WASTELAND_BEGIN			(400) //random encounters
@@ -220,7 +240,7 @@ bool LocIsHidden( uint locPid )
 #define MAP_DOWN				(36)
 #define MAP_LEFT				(37)
 #define MAP_RGHT				(38)
-/*
+
 # vert	   -- locpids
 # horiznt -- locpids + 5
 # cross   -- locpids + 10
@@ -228,7 +248,7 @@ bool LocIsHidden( uint locPid )
 # t-l     -- locspids + 20
 # d-r     -- locspids + 25
 # d-l     -- locspids + 30
-# 
+#
 # for roads:
 # top     -- locspids + 35
 # down    -- locspids + 36

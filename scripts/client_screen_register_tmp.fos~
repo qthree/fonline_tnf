@@ -1,0 +1,393 @@
+//client_screen_chareg_tmp
+//pm
+//17.06.13
+
+#define __DRAWSPRITE
+
+#include "_defines.fos"
+#include "_client_defines.fos"
+#include "client_gui_h.fos"
+#include "_colors.fos"
+#include "sprite.fos"
+
+import bool ProcessKey( uint8 key, string& text, uint8& letter ) from "client_gui";
+
+#define DEFAULT_LOGIN		("ËÎÃÈÍ")	
+#define DEFAULT_PASSWORD	("ÏÀÐÎËÜ")	
+
+#define CLIENT_SCREEN_CHARREG_TMP	()
+
+#define INPUT_NAME			(0)
+#define INPUT_PASS			(1)
+
+#define BUTTON_LOGIN			(0)
+#define BUTTON_REG			(1)
+
+class CRegisterScreenTmp : IGUIScreenCallbackShow, IGUIScreenCallbackHide
+{
+    IGUIScreenOpt@  ScreenOpt;
+
+    CRegisterScreenTmp(){
+        
+    }
+
+
+    void OnShow( int p0, int p1, int p2 )
+    {
+        @ScreenOpt = GUI_GetScreenOptions();
+    }
+
+    void OnHide( int p0, int p1, int p2 )
+    {
+
+    }
+}
+/*
+class CRegisterInputBox : /*IGUIElementCallbackMouseClick,* IGUIElementCallbackInit, IGUIElementCallbackKeyPress
+{
+    bool Active;
+    bool NameBox;
+    
+    string Name;
+    
+    CRegisterScreenTmp@ Instance;
+    IGUIElementOpt@ Options;
+
+    CRegisterInputBox(bool name){//(CRegisterScreenTmp& instance){
+	NameBox = name;
+	Active = name;
+        //@Instance = instance;
+    }
+/*
+    void OnMouseClick(int click){
+    }
+*
+    void OnInit(){
+        @Options = GUI_GetElementOptions();
+    }
+/*
+     void OnKeyPress( uint8 key, uint8 letter ){
+        if(letter == 'a'){Message("TEST!");}
+    }*
+
+    void OnInit()
+    {
+        @Options = GUI_GetElementOptions();
+    }
+
+    void OnKeyPress( uint8 key, uint8 letter )
+    {
+        string@ text = Options.GetText();
+        // string@ text2 = ""+key;
+        if( text.length() > 0 && text[ text.length() - 1 ] == '\n' )
+            text.resize( text.length() - 1 );
+
+        Options.Text( text, FONT_BIG, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+
+    }
+}*/
+
+class CRegisterButton : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+	bool Login;
+	
+	//IGUIElementOpt@ Options;
+  
+	CRegisterButton(bool mode){
+		Login = mode;
+		
+	}
+	
+	void OnInit(){
+		//@Options = GUI_GetElementOptions();
+	}
+	
+	void OnMouseClick(int click){
+	  
+		/*string name = GetName(),
+			pass = GetPass();*/
+	  
+		NetLogin(Login ? 2 : 3, GetName(), GetPass());
+	}
+	
+	string GetName(){
+		return inputBoxs[INPUT_NAME].GetText();
+	}
+	
+	string GetPass(){
+		return inputBoxs[INPUT_PASS].GetPass();
+	}
+	
+	/*void Release(){
+            Options.Realese();
+	}*/
+	
+}
+
+class CRegisterInputBox :  IGUIElementCallbackMouseClick, IGUIElementCallbackInit, IGUIElementCallbackKeyPress
+{
+    bool Mode;
+    bool Active;
+
+    string Text;
+    string Password;
+
+    IGUIElementOpt@ Options;
+
+    CRegisterInputBox(bool mode){
+            Mode = mode;
+    }
+
+    void OnMouseClick(int click){
+
+        //SetActive();
+        SwitchState();
+    }
+
+    void OnInit(){
+        @Options = GUI_GetElementOptions();
+
+        uint8 index = (Mode ? INPUT_NAME : INPUT_PASS);
+
+        @inputBoxs[index] = this;
+
+        if(index == INPUT_NAME){
+                //SetActive();void Release(){
+		//Options.Realese();
+	
+                //State();
+                Active = true;
+                //SwitchState();
+		SetText(DEFAULT_LOGIN);
+		
+        }else{Active = false;SetText(DEFAULT_PASSWORD);Password = DEFAULT_PASSWORD;}
+    }
+
+    void OnKeyPress( uint8 key, uint8 letter ){
+        if(letter == 'a'){Message("TEST!");}
+    }
+
+    bool KeyPress(uint8 key){
+           return true;//Options.KeyPress(key);
+    }
+
+    void SetText(string text){
+      
+	    if(!Mode){
+		  for(uint8 i = 0; i < text.length(); i++){
+			  text[i] = '#';
+		  }
+	    }
+      
+            Options.Text(text,FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+    }
+
+    string GetText(){
+           return Options.GetText();
+    }
+    
+    string GetPass(){
+	    return Password;
+    }
+    
+    void SetPass(string pass){
+	    Password = pass;
+    }
+
+    void TextAdd(uint8 letter){
+      
+	    
+      
+            string text = Options.GetText();
+	    
+	    Message(text);
+	    
+	    if(text == DEFAULT_LOGIN || text == DEFAULT_PASSWORD){SetText("");}
+	    
+	    //text = Options.GetText();
+
+            //text.insertLast(letter);
+
+            StrInsLast(text, letter);
+            Options.Text(text,FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+    }
+
+    void TextRm(){
+
+            string text = Options.GetText();
+            if(text.length() > 0){
+
+                //text.removeLast();
+                StrRmLast(text);
+                Options.Text(text,FONT_FALLOUT,COLOR_GREEN,COLOR_GREEN,FT_CENTERX|FT_CENTERY);
+            }
+    }
+
+    void StrInsLast(string& str, uint8 letter){
+            uint len = str.length();
+            str.resize(len+1);
+            str[len] = letter;
+
+    }
+
+    void StrRmLast(string& str){
+            uint len = str.length()-1;
+            if(len >= 0) str.resize(len);
+    }
+
+    void SetActive(){
+           Active = !Active;
+    }
+
+    void State(){
+            Options.Switch(Active);
+    }
+
+    void SwitchState(){
+        SetActive();
+        State();
+
+        //uint8 index = (Mode ? INPUT_NAME : INPUT_PASS);
+        /*inputBoxs[index].SetActive();
+        inputBoxs[index].State();*/
+        //inputBoxs[index].SwitchState();
+
+    }
+}
+
+CRegisterInputBox@[] inputBoxs;
+CRegisterButton@[]   buttons;
+
+void RegScreenTmpInit(){
+  
+  //DrawBlackScreen();
+  /*
+    CRegisterScreenTmp RegScreen;
+    GUI_CreateScreen( CLIENT_SCREEN_REG_TNF, "tnf_reg_screen.png" )
+	      .CallbackShow( RegScreen )
+	      .CallbackHide( RegScreen )
+	      //.CallbackMove( LoginScreen )
+	      .CanMove( false )
+	      // .Position(155,111)
+	      .Modal( false )
+	      .Multiinstance( true );
+    CRegisterDummyBlack regBlack();//(RegScreen);
+    GUI_AddScreenElement(CLIENT_MAIN_SCREEN_REGISTRATION, "tnf_reg_screen_blk.png", 10, 10 )
+              //.CallbackMouseClick( regNameBox )
+              .CallbackInit(regBlack);*/
+  
+    GUI_AddScreenElement(CLIENT_MAIN_SCREEN_LOGIN, "login_window_new.png", -250, -100 );
+	      //.Position(GetIfaceIniStr("TnfLogMain"));
+    
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_LOGIN, "login_monitor.frm", 187, -71 );
+    
+    GUI_AddScreenElement(CLIENT_MAIN_SCREEN_REGISTRATION, GetIfaceIniStr("LogMainPic"), 10, 10 )
+	      .Position(GetIfaceIniStr("LogMain"));
+    
+    CRegisterInputBox regNameBox(true);//(RegScreen);
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_LOGIN, "login_inputbox.png", -47, -18  )
+              //.CallbackMouseClick( regNameBox )
+              .CallbackInit(regNameBox)
+              .CallbackKeyPress(regNameBox)
+              //.TextInput(true, 10, COLOR_DRED)
+              //.Position("TnfLogName")
+              .DownPic("login_inputbox.png");
+	      
+    CRegisterInputBox regPassBox(false);//(RegScreen);
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_LOGIN, "login_inputbox.png", -47, 10)
+              //.CallbackMouseClick( regNameBox )
+              .CallbackInit(regPassBox)
+              .CallbackKeyPress(regPassBox)
+              //.TextInput(true, 10, COLOR_DRED)
+              //.Position("TnfLogPass")
+              .DownPic("login_inputbox.png");
+
+    CRegisterButton btnLogin(true);
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_LOGIN, "tnf_log_btn_up.png", -187, -26 )
+            .CallbackMouseClick(btnLogin)
+            .CallbackInit(btnLogin)
+            .Text( "Èãðàòü", FONT_FALLOUT, COLOR_BLACK, COLOR_BLACK, FT_CENTERX | FT_CENTERY | FT_NOBREAK )
+	    //.Position("TnfPassBtn")
+            .DownPic( "tnf_log_btn_dn.png" );
+
+    CRegisterButton btnReg(false);  //register window show button
+    GUI_AddScreenElement(CLIENT_MAIN_SCREEN_LOGIN, "tnf_log_btn_up.png", -187, 6 )
+            .CallbackMouseClick(btnReg)
+            .CallbackInit(btnReg)
+            .Text( "Ðåãèñòðàöèÿ", FONT_FALLOUT, COLOR_BLACK, COLOR_BLACK, FT_CENTERX | FT_CENTERY | FT_NOBREAK )
+	    //.Position("TnfLogBtn")
+            .DownPic( "tnf_log_btn_dn.png" );
+	      
+	      
+	      
+    inputBoxs.resize(2);
+    
+    @inputBoxs[INPUT_NAME] = regNameBox;
+    @inputBoxs[INPUT_PASS] = regPassBox;
+    
+    buttons.resize(2);
+    /*
+    @buttons[BUTTON_LOGIN] = btnLogin;
+    @buttons[BUTTON_REG] = btnReg;*/
+}
+
+///////
+
+uint GetIndex(){
+  return (inputBoxs[INPUT_NAME].Active ? INPUT_NAME : INPUT_PASS);
+}
+
+void LoginSetText(uint8 key, uint8 letter){               //export to cient_gui.fos -> screen_key_press
+
+	//Message("in "+inputBoxs.length());
+
+        uint8 index = GetIndex();
+	//inputBoxs[index].OnKeyPress(key, letter);
+        /*if(key != DIK_BACK){
+            inputBoxs[index].TextAdd(letter);
+        }else{
+            inputBoxs[index].TextRm();
+        }*/
+        uint8 testLetter = 0;
+        string text = inputBoxs[index].GetText();
+	
+	if(text == DEFAULT_LOGIN || text == DEFAULT_PASSWORD || inputBoxs[INPUT_PASS].GetPass() == DEFAULT_PASSWORD){text = ""; inputBoxs[INPUT_PASS].SetPass("");}
+	
+	if(index == INPUT_PASS){
+		string pass = inputBoxs[index].GetPass();
+		ProcessKey(key, pass, testLetter);
+		inputBoxs[index].SetPass(pass);
+	}
+	
+        ProcessKey(key, text, testLetter);
+        inputBoxs[index].SetText(text);
+        //inputBoxs[index].KeyPress(key);
+}
+
+void LoginTabPress(){
+
+	//uint8 index = GetIndex();
+
+        inputBoxs[INPUT_NAME].SwitchState();
+	inputBoxs[INPUT_PASS].SwitchState();
+}
+
+void LoginEnterPress(){
+        /*if(!(buttons[BUTTON_LOGIN] is null)){
+                //buttons[BUTTON_LOGIN].Release();
+        }*/
+}
+/*
+void LoginInputCharName(uint8 key, uint8 letter){               //export to cient_gui.fos -> screen_key_press
+    //if(outLoginScreen is null) Message("null out screen");
+    //Message(""+key+" "+letter);
+
+    /*uint8 testLetter = 0;
+    string text = outLoginScreen.CharCreateInput.GetText();
+    ProcessKey(key, text, testLetter);
+    outLoginScreen.CharCreateInput.SetText(text);*
+}
+
+bool LoginIsRegActive(){
+    return (outLoginScreen !is null && outLoginScreen.IsRegActive());
+}*/

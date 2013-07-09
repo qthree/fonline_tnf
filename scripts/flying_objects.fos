@@ -1,0 +1,254 @@
+//rockets, for example ;D
+//powermagic
+
+#include "_defines.fos"
+#include "_macros.fos"
+#include "_colors.fos"
+
+//import int TraceWhatever( uint16 hx, uint16 hy, uint16 tx, uint16 ty, Map@ map, int dist ) from "tracing_util";
+import void Explode( Map@ map, uint16 hexX, uint16 hexY, Critter@ cr, uint16 explodePid, uint ownerId, int bonusDamage, int bonusRadius ) from "explode";
+
+#define  HEX_X      (0)
+#define  HEX_Y      (1)
+#define  HEX_TX     (2)
+#define  HEX_TY     (3)
+
+class CBird
+{
+    private uint        CrId;
+    private uint        Id;
+    private uint16[]    Hex;
+    private uint        HexPerTick;
+    private uint        Dist;
+    private uint8       Dir;
+
+    private uint        WPid;
+
+    private uint        Time;
+
+    private Map@        Map;
+
+    private uint        RocketId;
+
+    CBird(){
+        /*Id = uint(-1);
+
+        @Map = null;
+
+        Hex.resize(4);
+
+        HexPerTick = 0;
+        WPid = 0;
+
+        Time = 0;*/
+
+        uint16[] hex = {0, 0, 0, 0};
+
+        Init(uint(-1), null, hex, 0, 0, 0, 0);
+    }
+
+    CBird(uint id, Map@ map, uint16[] hex, uint hexPerTick, uint wpid, uint time, uint crId){
+        Init(id, map, hex, hexPerTick, wpid, time, crId);
+    }
+
+    CBird(uint id, Map@ map, uint16 hx, uint16 hy, uint16 tx, uint16 ty, uint hexPerTick, uint wpid, uint time, uint crId){
+        uint16[] hex = {hx ,hy, tx, ty};
+
+        Init(id, map, hex, hexPerTick, wpid, time, crId);
+    }
+
+    void Init(uint id, Map@ map, uint16[] hex, uint hexPerTick, uint wpid, uint time, uint crId){
+
+        Id = id;
+
+        @Map = map;
+
+        Hex = hex;
+        HexPerTick = hexPerTick;
+        WPid = wpid;
+
+        Time = (time != 0 ? (__FullSecond + time) : time);
+
+        CrId = crId;
+
+        Create();
+    }
+
+    uint16 GetHex(uint8 hexInd){
+        return (hexInd >= Hex.length() ? uint16(-1) : Hex[hexInd]);
+    }
+
+    void SetId(uint id){
+        Id = id;
+    }
+
+    bool TimeCheck(){
+        return (/*Time != 0 */(Time <= __FullSecond && Time != 0));
+    }
+
+    bool IsTargetHex(){
+        return (Hex[HEX_X] == Hex[HEX_TX] && Hex[HEX_Y] == Hex[HEX_TY]);
+    }
+
+    bool Move(){
+
+        //uint16 tx = HEX_TX, ty = Hex[HEX_TY];
+
+        Dir = GetDirection(Hex[HEX_TX], Hex[HEX_TY], Hex[HEX_X], Hex[HEX_Y]);
+
+        REVERSE_DIRECTION(Dir, Dir);
+
+        //Log("dir "+Dir);
+
+        Map.MoveHexByDir(Hex[HEX_X], Hex[HEX_Y], Dir, HexPerTick);
+
+        //Map.GetHexCoord (Hex[HEX_X], Hex[HEX_Y], tx, ty, 0, HexPerTick);
+
+        //Hex[HEX_X] = tx;
+        //Hex[HEX_Y] = ty;
+
+        //Log("Move");
+
+            /*Item @ item = GetItem(RocketId);
+            if(!(item is null)){
+                item.SetMapPic(GetStrHash("art/misc/rocket.fr"+Dir));
+                MoveItem(item, item.GetCount(), Map, Hex[HEX_X], Hex[HEX_Y]);
+            }*/
+
+        CreateRocket();
+        Map.SetText (Hex[HEX_X], Hex[HEX_Y], COLOR_GRAY, "ÑÂÈÑÒ");
+
+
+        if(!Map.IsHexPassed(Hex[HEX_X], Hex[HEX_Y]) || TimeCheck() || IsTargetHex()){
+
+            return !Release();
+        }
+
+        return true;
+    }
+
+    bool Release(){
+        //if(TimeCheck){
+
+        //}
+
+        Explode(Map, Hex[HEX_X], Hex[HEX_Y], null, WPid, 0, 0, 0);
+
+        dovecot.BirdRemove(Id);
+
+        return true;
+    }
+
+
+    bool Create(){
+        //Time = time;
+        CreateTimeEvent(__FullSecond+1, "flying_objects@e_Release", Id, false);
+        //CreateRocket();
+
+        return true;
+    }
+
+    void CreateRocket(){
+        //Item @ item = Map.AddItem(Hex[HEX_X], Hex[HEX_Y], WPid, 1);
+        //RocketId = item.Id;
+        Critter@ cr = GetCritter(CrId);
+        if(cr is null) return;
+
+        Map.RunFlyEffect(4001, null, null, Hex[HEX_X], Hex[HEX_Y], Hex[HEX_X], Hex[HEX_Y]);
+        //Map.RunEffect(4001, Hex[HEX_X], Hex[HEX_Y], 0);
+    }
+}
+
+class CBirdContainer
+{
+    private CBird[] Birds;
+
+    CBirdContainer(){
+        Birds.resize(0);
+    }
+
+    uint GetLastIndex(){
+        int r = Birds.length()-1;
+        return (CLAMP(r, 0, r));
+    }
+
+    void BirdInsert(CBird& bird){
+        Birds.insertLast(bird);
+    }
+
+    void BirdInsert(uint id, Map@ map, uint16[] hex,  uint hexPerTick, uint wpid, uint time, uint crId){
+        Birds.insertLast(CBird(id, map, hex, hexPerTick, wpid, time, crId));
+    }
+
+    bool BirdCreate(uint16[] hex, Map@ map, uint hexPerTick, uint wpid, uint time, uint crId){
+
+        BirdInsert(Birds.length(), map, hex, hexPerTick, wpid, time, crId);
+
+        return true;
+    }
+
+    CBird@ GetBird(uint id){
+        return (id >= Birds.length() ? null : Birds[id]);
+    }
+
+    void BirdRemove(uint id){
+
+        if(id >= Birds.length()) return;
+
+        Birds.removeAt(id);
+
+        for(uint8 i = id, j = Birds.length(); i < j; ++i){
+            Birds[i].SetId(i);
+        }
+    }
+
+    uint GetLen(){
+        return Birds.length();
+    }
+}
+
+CBirdContainer dovecot;
+
+uint e_Release(uint[]@ values){
+    //Log(" 12 "+values.length());
+    uint id = values[0];
+
+    CBird @ bird = dovecot.GetBird(id);
+    if(bird is null) return 0;
+
+    return (bird.Move() ? 1 : 0);
+}
+
+//export
+bool CreateFly(Map@ map, uint16 hx, uint16 hy, uint16 tx, uint16 ty,  uint hexPerTick, uint wpid, uint time, uint crId){
+
+    uint16[] hex = {hx, hy, tx, ty};
+
+    return dovecot.BirdCreate(hex, map, hexPerTick, wpid, time, crId);
+}
+
+//debug
+
+void testeffect(Critter& cr, int x, int y, int speed){
+
+    uint16[] hex = {cr.HexX, cr.HexY, x, y};
+
+    dovecot.BirdCreate(hex, cr.GetMap(), speed, PID_ACTIVE_PLASTIC_EXPLOSIVE, 0, cr.Id);
+}
+
+void testgetlen(Critter& cr, int x, int y, int speed){
+    cr.Say(SAY_NETMSG, "len : "+dovecot.GetLen());
+}
+
+void testrocketburst(Critter& cr, int dir, int count, int dist){
+
+    Map @ map = cr.GetMap();
+    if(map is null) return;
+
+    uint16 hexX = 0, hexY = 0;
+    map.MoveHexByDir(hexX, hexY, dir, dist);
+
+    for(uint i = 0; i < count; ++i){
+        testeffect(cr, Random(hexX-10,hexX+10), Random(hexY-10, hexY+10), 2);
+    }
+}

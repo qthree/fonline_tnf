@@ -27,6 +27,8 @@
 #define THY                          # (y)             ( ( y ) >> 1 )
 
 #define def                          # ( X, DEF )( X == 0 ? DEF : X )
+	   
+#define _ValColl			# (min,max,val) (val >= min && val <= max)
 
 // Pointer validation macro
 // Example: if(valid(ptr))... if(not valid(ptr))...

@@ -1,15 +1,21 @@
 //sql
+//using namespace std;
+
 #include <windows.h>
 #include "mysql.h"
 #include "string.h"
 
 #include "fonline_sql.h"
 
-#define SQL_USERNAME        ("root")
-#define SQL_PASSWORD        ("root")
-#define SQL_DATABASE_NAME   ("test_test")
+#define SQL_USERNAME        ("tnf_user")
+//#define SQL_USERNAME        ("root")
+#define SQL_PASSWORD        ("tnf_password")
+//#define SQL_PASSWORD        ("root")
+#define SQL_DATABASE_NAME   ("tnf")
 #define SQL_HOST            ("rpit.ru")
-#define SQL_HOST_LOCAL      ("127.0.0.1")
+//#define SQL_HOST_LOCAL      ("127.0.0.1")
+#define SQL_HOST_LOCAL      ("192.168.1.34")
+#define SQL_HOST_REMOTE     ("92.62.53.233")
 
 #define SQL_TABLE_LOGIN     ("test_table")
 //#define SQL_QUERY_LOGIN     ("SELECT id FROM "+SQL_TABLE_LOGIN+" WHERE uname='test'")
@@ -31,14 +37,14 @@ void MysqlInit(){
     mysql_init(&mysql);
 }
 
-bool MysqlConnect(){
+bool MysqlConnect(bool localCall){
 /*#ifdef __SERVER
     return mysql_real_connect(&mysql, SQL_HOST_LOCAL, SQL_USERNAME, SQL_PASSWORD, NULL, 0, NULL, 0);
 #endif
 #ifdef __CLIENT
     return mysql_real_connect(&mysql, SQL_HOST, SQL_USERNAME, SQL_PASSWORD, NULL, 0, NULL, 0);
 #endif*/
-    bool r = (mysql_real_connect(&mysql, SQL_HOST_LOCAL, SQL_USERNAME, SQL_PASSWORD, NULL, 0, NULL, 0) ? true : false);
+    bool r = (mysql_real_connect(&mysql, (localCall ? SQL_HOST_LOCAL : SQL_HOST_REMOTE), SQL_USERNAME, SQL_PASSWORD, NULL, 0, NULL, 0) ? true : false);
     return r;
 }
 /*
@@ -70,15 +76,71 @@ void MysqlError(ScriptString& error){
     error = c;
 }
 
+#define QUERY_LAST_ID   ("SELECT LAST_INSERT_ID")
+
+int MysqlGetLastId(){
+     return mysql_query(&mysql, QUERY_LAST_ID); //SQL_QUERY_LOGIN
+}
+
+#ifdef __CLIENT
+int MysqlGetRow(const char *query, ScriptString& sOut){
+    int r = mysql_query(&mysql, query); //SQL_QUERY_LOGIN
+#endif //__CLIENT
+#ifdef __SERVER
+int MysqlGetRow(ScriptString& query, ScriptString& sOut){
+    const char *cQuery = query.c_str();
+    int r = mysql_query(&mysql, cQuery); //SQL_QUERY_LOGIN
+#endif //__SERVER
+
+    if(r != 0) return SQL_ERROR_WRONG_QUERY;
+
+    MYSQL_RES * res = mysql_store_result(&mysql);
+    if(res == NULL) return SQL_ERROR_NULL_RESULT;
+
+    r = int(mysql_num_rows(res));
+    if(r <= 0) return SQL_ERROR_ROWS_LEN;
+
+    //return 10;
+
+    MYSQL_ROW row;
+    //row = mysql_fetch_row(res);
+
+    unsigned int num_fields;
+    unsigned int i;
+
+    string rN = "";
+
+    num_fields = mysql_num_fields(res);
+    while ((row = mysql_fetch_row(res))){
+        unsigned long *lengths;
+        lengths = mysql_fetch_lengths(res);
+        for(i = 0; i < num_fields; i++){
+            if(row[i]){
+                rN.append(row[i]);
+                rN.append("&");
+            }
+        }
+    }
+
+    sOut = rN.c_str();//row[0];
+
+    mysql_free_result(res); //free memory on sql server
+
+    return int(num_fields);
+}
+
 
 #ifdef __CLIENT
 int MysqlCheckLogin(ScriptString& userName, ScriptString& userPass){
 
     const char *query;
 
-    string s = "SELECT id,upass FROM test_table WHERE uname=";
+    //string s = "SELECT userid, password FROM test_table WHERE username=";
+    string s = "SELECT userid FROM user WHERE MD5('";//" 'username=";
 
-    s.append("'");
+    s.append(userPass.c_str());
+    s.append("') AND username='");
+    //s.append("'");
     s.append(userName.c_str());
     s.append("'");
 
@@ -96,7 +158,7 @@ int MysqlCheckLogin(ScriptString& userName, ScriptString& userPass){
 
     MYSQL_ROW row;
     row = mysql_fetch_row(res);
-
+/*
     unsigned long *rowLen = mysql_fetch_lengths(res);
 
     char pass[100];
@@ -116,7 +178,7 @@ int MysqlCheckLogin(ScriptString& userName, ScriptString& userPass){
 
     for(uint i = 0; i < lenP+1; ++i){
         if(pass[i] != uPass[i]) return SQL_ERROR_PASS_DISMATCH;
-    }
+    }*/
 
     r = atoi(row[0]);
 
@@ -128,7 +190,7 @@ int MysqlCheckCharName(ScriptString& name){
     const char *query;
 
     //string s = "SELECT id FROM characters WHERE chars=";
-    string s = "SELECT forumId FROM character_new WHERE charNameReal=";
+    string s = "SELECT forumId FROM characters WHERE charNameReal=";
 
     s.append("'");
     s.append(name.c_str());
@@ -221,76 +283,13 @@ int MysqlGetNameInfo(unsigned int id, unsigned int type,ScriptString& sOut){
     return r;
 }
 
-int GetRow(const char *query, ScriptString& charNames){
-
-    int r = mysql_query(&mysql, query); //SQL_QUERY_LOGIN
-    if(r != 0) return SQL_ERROR_WRONG_QUERY;
-
-    MYSQL_RES * res = mysql_store_result(&mysql);
-    if(res == NULL) return SQL_ERROR_NULL_RESULT;
-
-    r = int(mysql_num_rows(res));
-    if(r <= 0) return SQL_ERROR_ROWS_LEN;
-
-    //return 10;
-
-    MYSQL_ROW row;
-    //row = mysql_fetch_row(res);
-
-    unsigned int num_fields;
-    unsigned int i;
-
-    string rN = "";
-
-    num_fields = mysql_num_fields(res);
-    while ((row = mysql_fetch_row(res))){
-        unsigned long *lengths;
-        lengths = mysql_fetch_lengths(res);
-        for(i = 0; i < num_fields; i++){
-            if(row[i]){
-                rN.append(row[i]);
-                rN.append("&");
-            }
-        }
-    }
-
-
-
-    //string charNames;
-
-    //uint len = strlen(row[0])+1;
-    //memcpy(charNames, row[0], len);
-/*
-    unsigned long *rowLen = mysql_fetch_lengths(res);
-
-    string rN = "";
-    unsigned int iL = unsigned int(rowLen);
-
-    for(unsigned int i=0; i<iL; ++i){
-            /*char *cT = row[i];
-
-            char ss = *cT;
-            *
-            //string sT = ss;
-
-            //rN.append(cT));
-            //rN.append("&");
-    }
-*/
-    charNames = rN.c_str();//row[0];
-
-    mysql_free_result(res); //free memory on sql server
-
-    return int(num_fields);
-}
-
-int MysqlGetAccountChars(unsigned int id, ScriptString& namesView, ScriptString& namesReal, ScriptString& pass){
+int MysqlGetAccountChars(unsigned int id, ScriptString& namesView, ScriptString& namesReal, ScriptString& pass, ScriptString& status){
 
     const char *query;
     char temp[33];
     _itoa_s(id, temp, 10);
 
-    string s = "SELECT charNameView FROM character_new WHERE forumId=";
+    string s = "SELECT charNameView FROM characters WHERE forumId=";
 
     s.append("'");
     s.append(temp);
@@ -300,11 +299,11 @@ int MysqlGetAccountChars(unsigned int id, ScriptString& namesView, ScriptString&
 
     int r = 0;
 
-    r = GetRow(query, namesView);
+    r = MysqlGetRow(query, namesView);
 
     if(r <= 0) return -1;
 
-    s = "SELECT charNameReal FROM character_new WHERE forumId=";
+    s = "SELECT charNameReal FROM characters WHERE forumId=";
 
     s.append("'");
     s.append(temp);
@@ -312,11 +311,11 @@ int MysqlGetAccountChars(unsigned int id, ScriptString& namesView, ScriptString&
 
     query = s.c_str();
 
-    r = GetRow(query, namesReal);
+    r = MysqlGetRow(query, namesReal);
 
     if(r <= 0) return -1;
 
-    s = "SELECT charPass FROM character_new WHERE forumId=";
+    s = "SELECT charPass FROM characters WHERE forumId=";
 
     s.append("'");
     s.append(temp);
@@ -324,7 +323,21 @@ int MysqlGetAccountChars(unsigned int id, ScriptString& namesView, ScriptString&
 
     query = s.c_str();
 
-    r = GetRow(query, pass);
+    r = MysqlGetRow(query, pass);
+
+    if(r <= 0) return -1;
+
+    s = "SELECT charStatus FROM characters WHERE forumId=";
+
+    s.append("'");
+    s.append(temp);
+    s.append("'");
+
+    query = s.c_str();
+
+    //r = 0;
+
+    r = MysqlGetRow(query, status);
 
     if(r <= 0) return -1;
 
@@ -349,7 +362,7 @@ int MysqlGetChars(unsigned int id, ScriptString& names, ScriptString& pass){
     int r = 0;
     //string n = "", p = "";
 
-    r = GetRow(query, names);
+    r = MysqlGetRow(query, names);
 
     if(r <= 0) return -1;
 
@@ -363,7 +376,7 @@ int MysqlGetChars(unsigned int id, ScriptString& names, ScriptString& pass){
 
     query = s.c_str();
 
-    r = GetRow(query, pass);
+    r = MysqlGetRow(query, pass);
 
     if(r <= 0) return -1;
 
@@ -429,13 +442,17 @@ int MysqlInsertCharData(unsigned int id, ScriptString& name, ScriptString& real,
 
     //*query = s.c_str();
 
-    s = "INSERT INTO character_new SET forumId= '";
+    //pass.resize(7);
+
+    s = "INSERT INTO characters SET forumId= '";
 
     s.append(temp);
     s.append("',charNameReal = '");
     s.append(real.c_str());
     s.append("',charNameView = '");
     s.append(name.c_str());
+    //s.append("'");
+    //s.append("',charPass = 'nopass'");//'password'");
     s.append("',charPass = '");
     s.append(pass.c_str());
     s.append("'");
@@ -451,6 +468,64 @@ int MysqlInsertCharData(unsigned int id, ScriptString& name, ScriptString& real,
     return r;
 }
 
+unsigned int MysqlGeneratePassword(unsigned int forumId, ScriptString& nameReal){
+
+    char tempId[33];
+    _itoa_s(forumId, tempId, 10);
+
+    char tempPass[10];
+    //_itoa_s(rand(0x100000000, 0xFFFFFFFF), tempPass, 20);
+
+    unsigned int rndPass = (rand() % 10000000 + 1000000);
+
+    //string temptest;
+
+    _itoa_s(rndPass, tempPass, 10);
+
+    string s;
+    s.resize(1000);
+
+
+    s = "UPDATE characters SET charPass = '";
+
+    s.append(tempPass);
+    s.append("' WHERE forumId = '");
+    s.append(tempId);
+    s.append("' AND charNameReal = '");
+    s.append(nameReal.c_str());
+    s.append("'");
+
+    int r = mysql_query(&mysql, s.c_str());
+
+    return (r != 0 ? unsigned int(r) : rndPass);
+}
+
+int MysqlGetNewPass(unsigned int id, ScriptString& nameReal, ScriptString& sPass){
+
+    const char *query;
+    char temp[33];
+    _itoa_s(id, temp, 10);
+
+    string s = "SELECT charPass FROM characters WHERE forumId = '";
+
+    s.append(temp);
+    s.append("' AND charNameReal = '");
+    s.append(nameReal.c_str());
+    s.append("'");
+
+    query = s.c_str();
+
+    int r = 0;
+
+    //ScriptString sPass;
+
+    r = MysqlGetRow(query, sPass);
+
+    unsigned int iPass = atoi(sPass.c_str());//, 0, 10);
+
+    return (r != 0 ? SQL_ERROR_WRONG_QUERY : iPass);
+}
+
 int MysqlGetNameByHash(unsigned int id, unsigned int hash, ScriptString& name){
 
     const char *query;
@@ -459,7 +534,7 @@ int MysqlGetNameByHash(unsigned int id, unsigned int hash, ScriptString& name){
     _itoa_s(hash, tempHash, 10);
     _itoa_s(id, tempId, 10);
 
-    string s = "SELECT name FROM character_names WHERE id = '";//hash=";
+    string s = "SELECT name FROM characters_names WHERE id = '";//hash=";
 
     s.append(tempId);
     s.append("' AND hash = '");
@@ -470,10 +545,10 @@ int MysqlGetNameByHash(unsigned int id, unsigned int hash, ScriptString& name){
 
     //int r = 0;
 
-    //r = GetRow(query, name);
+    //r = MysqlGetRow(query, name);
 
     //if(r <= 0) return -1;
-    return GetRow(query, name);
+    return MysqlGetRow(query, name);
 }
 
 int MysqlGetNames(unsigned int id, ScriptString& names, ScriptString& hashes){
@@ -482,7 +557,7 @@ int MysqlGetNames(unsigned int id, ScriptString& names, ScriptString& hashes){
     char temp[33];
     _itoa_s(id, temp, 10);
 
-    string s = "SELECT name FROM character_names WHERE id = '";
+    string s = "SELECT name FROM characters_names WHERE id = '";
 
     s.append(temp);
     s.append("'");
@@ -491,22 +566,22 @@ int MysqlGetNames(unsigned int id, ScriptString& names, ScriptString& hashes){
 
     int r = 0;
 
-    r = GetRow(query, names);
+    r = MysqlGetRow(query, names);
 
     if(r <= 0) return -1;
 
-    s = "SELECT hash FROM character_names WHERE id = '";
+    s = "SELECT hash FROM characters_names WHERE id = '";
 
     s.append(temp);
     s.append("'");
 
     query = s.c_str();
 
-    //r = GetRow(query, hashes);
+    //r = MysqlGetRow(query, hashes);
 
     //if(r <= 0) return -1;
 
-    return GetRow(query, hashes);;
+    return MysqlGetRow(query, hashes);;
 }
 
 int MysqlInsertName(unsigned int id, unsigned int targetHash, ScriptString& name, ScriptString& hash){//bool replace){
@@ -541,7 +616,7 @@ int MysqlInsertName(unsigned int id, unsigned int targetHash, ScriptString& name
         s.append(" ) AS name FROM character_name");*/
 
         //s = "update videos set category = 1 where category = 'Music'";
-        s = "UPDATE character_names SET name = '";
+        s = "UPDATE characters_names SET name = '";
 
         s.append(name.c_str());
         s.append("' WHERE id = '");
@@ -552,7 +627,7 @@ int MysqlInsertName(unsigned int id, unsigned int targetHash, ScriptString& name
 
     }else{
 
-        s = "INSERT INTO character_names SET id = '";
+        s = "INSERT INTO characters_names SET id = '";
 
         s.append(tempId);
         s.append("',hash = '");
@@ -573,9 +648,222 @@ int MysqlInsertName(unsigned int id, unsigned int targetHash, ScriptString& name
     return r;
 }
 
+//int MysqlGetPanel(unsigned int id, unsigned int& cellId, unsigned int& type, unsigned int& subType, unsigned int& panelId, ScriptString& text, ScriptString& desc, ScriptString& spriteUp, ScriptString& spriteDown){
+int MysqlGetPanel(unsigned int id, ScriptString& cellId, ScriptString& type, ScriptString& subType, ScriptString& panelId, ScriptString& text, ScriptString& description, ScriptString& spriteUp, ScriptString& spriteDown){
+
+    const char *query;
+
+    char tempId[33];
+    _itoa_s(id, tempId, 10);
+
+    string s = "SELECT cellId FROM fastpanel WHERE id = '";
+
+    s.append(tempId);
+    s.append("'");
+
+    query = s.c_str();
+
+    int r = MysqlGetRow(query, cellId);
+
+    if(r <= 0) return SQL_ERROR_WRONG_QUERY;
+
+    s = "SELECT type FROM fastpanel WHERE id = '";
+
+    s.append(tempId);
+    s.append("'");
+
+    query = s.c_str();
+
+    r = MysqlGetRow(query, type);
+
+    if(r <= 0) return SQL_ERROR_WRONG_QUERY;
+
+    s = "SELECT subType FROM fastpanel WHERE id = '";
+
+    s.append(tempId);
+    s.append("'");
+
+    query = s.c_str();
+
+    r = MysqlGetRow(query, subType);
+
+    if(r <= 0) return SQL_ERROR_WRONG_QUERY;
+
+    s = "SELECT panelId FROM fastpanel WHERE id = '";
+
+    s.append(tempId);
+    s.append("'");
+
+    query = s.c_str();
+
+    r = MysqlGetRow(query, panelId);
+
+    if(r <= 0) return SQL_ERROR_WRONG_QUERY;
+
+    s = "SELECT text FROM fastpanel WHERE id = '";
+
+    s.append(tempId);
+    s.append("'");
+
+    query = s.c_str();
+
+    r = MysqlGetRow(query, text);
+
+    if(r <= 0) return SQL_ERROR_WRONG_QUERY;
+
+    s = "SELECT description FROM fastpanel WHERE id = '";
+
+    s.append(tempId);
+    s.append("'");
+
+    query = s.c_str();
+
+    r = MysqlGetRow(query, description);
+
+    if(r <= 0) return SQL_ERROR_WRONG_QUERY;
+
+    s = "SELECT spriteUp FROM fastpanel WHERE id = '";
+
+    s.append(tempId);
+    s.append("'");
+
+    query = s.c_str();
+
+    r = MysqlGetRow(query, spriteUp);
+
+    if(r <= 0) return SQL_ERROR_WRONG_QUERY;
+
+    s = "SELECT spriteDown FROM fastpanel WHERE id = '";
+
+    s.append(tempId);
+    s.append("'");
+
+    query = s.c_str();
+
+    r = MysqlGetRow(query, spriteDown);
+
+    return (r <= 0 ? SQL_ERROR_WRONG_QUERY : 0);
+}
+
+int MysqlSetPanel(unsigned int id, ScriptString& cellId, ScriptString& type, ScriptString& subType, ScriptString& panelId, ScriptString& text, ScriptString& description, ScriptString& spriteUp, ScriptString& spriteDown){
+
+    const char *query;
+
+    char tempId[33];
+    _itoa_s(id, tempId, 10);
+
+
+
+    //ScriptString& sTemp;
+
+    string s = "SELECT type FROM fastpanel WHERE id = '";
+
+    s.append(tempId);
+    s.append("' AND cellId = '");
+    s.append(cellId.c_str());
+    s.append("'");
+
+    query = s.c_str();
+
+    int r = mysql_query(&mysql, query); //SQL_QUERY_LOGIN
+
+    if(r != 0) return SQL_ERROR_WRONG_QUERY;
+
+    MYSQL_RES * res = mysql_store_result(&mysql);
+    if(res == NULL) return SQL_ERROR_NULL_RESULT;
+
+    r = int(mysql_num_rows(res));
+    if(r > 0){
+        s = "UPDATE fastpanel SET type = '";
+
+        //s.append(cellId.c_str());
+        //s.append("',type = '");
+        s.append(type.c_str());
+        s.append("',subType = '");
+        s.append(subType.c_str());
+        s.append("',panelId = '");
+        s.append(panelId.c_str());
+        s.append("',text = '");
+        s.append(text.c_str());
+        s.append("',description = '");
+        s.append(description.c_str());
+        s.append("',spriteUp = '");
+        s.append(spriteUp.c_str());
+        s.append("',spriteDown = '");
+        s.append(spriteDown.c_str());
+        s.append("' WHERE id = '");
+        s.append(tempId);
+        s.append("' AND cellId = '");
+        s.append(cellId.c_str());
+        s.append("'");
+        /*s.append("' AND hash = '");
+        s.append(hashId);
+        s.append("'");*/
+    }else{
+
+        s = "INSERT INTO fastpanel SET id = '";
+
+        s.append(tempId);
+        s.append("',cellId = '");
+        s.append(cellId.c_str());
+        s.append("',type = '");
+        s.append(type.c_str());
+        s.append("',subType = '");
+        s.append(subType.c_str());
+        s.append("',panelId = '");
+        s.append(panelId.c_str());
+        s.append("',text = '");
+        s.append(text.c_str());
+        s.append("',description = '");
+        s.append(description.c_str());
+        s.append("',spriteUp = '");
+        s.append(spriteUp.c_str());
+        s.append("',spriteDown = '");
+        s.append(spriteDown.c_str());
+        s.append("'");
+    }
+
+
+    //string temp = desc.c_str(); //fu~
+
+    //int r = MysqlGetRow(query, desc);
+
+    //desc = temp.c_str();
+
+    //if(r > 0)
+
+
+    //query = s.c_str();
+
+    r = mysql_query(&mysql, s.c_str());
+
+    return (r != 0 ? SQL_ERROR_WRONG_QUERY : 0);
+
+}
+
+ /*       s = "UPDATE characters_names SET name = '";
+
+        s.append(name.c_str());
+        s.append("' WHERE id = '");
+        s.append(tempId);
+        s.append("' AND hash = '");
+        s.append(hashId);
+        s.append("'");
+
+    }else{
+
+        s = "INSERT INTO characters_names SET id = '";
+
+        s.append(tempId);
+        s.append("',hash = '");
+        s.append(hashId);
+        s.append("',name = '");
+        s.append(name.c_str());
+        s.append("'");
+*/
 /*
 
-character_names
+characters_names
 
 create table `test_test`.`TableName1`(
    `id` int(10) UNSIGNED ,
@@ -695,41 +983,35 @@ int MysqlQuery(ScriptString& query){
 void RegisterNativeSql( asIScriptEngine* engine, bool compiler )
 {
     int r;
-/*
-    r = engine->RegisterGlobalFunction( "bool DMO64_get(int[]&, uint, uint16&, uint16&, uint16&, uint16&, uint8&)", asFUNCTION( DMO64_get ), asCALL_CDECL );
-
-    r = engine->RegisterGlobalFunction( "bool DMO64_insertLast(int[]&, int[]&)", asFUNCTIONPR( DMO64_insertLast, ( ScriptArray *, ScriptArray* ), bool ), asCALL_CDECL );
-
-    r = engine->RegisterGlobalFunction( "uint DMO64_makeHex(uint16, uint16, uint8)", asFUNCTION( DMO64_makeHex ), asCALL_CDECL );
-    r = engine->RegisterGlobalFunction( "int uint16ToInt(uint16, uint16)", asFUNCTION( uint16ToInt ), asCALL_CDECL );
-
-    r = engine->RegisterGlobalFunction( "bool DMO64_set(int[]&, uint16, uint16, uint, bool)", asFUNCTIONPR( DMO64_set, ( ScriptArray *, uint16, uint16, uint, bool ), bool ), asCALL_CDECL );
-    r = engine->RegisterGlobalFunction( "bool DMO64_add(int[]&, int[]&, bool)", asFUNCTIONPR( DMO64_add, ( ScriptArray *, ScriptArray *, bool ), bool ), asCALL_CDECL );
-
-    r = engine->RegisterGlobalFunction( "uint DMO64_getHashNum(int[]&, uint)", asFUNCTION( DMO64_getHashNum ), asCALL_CDECL );
-*/
 
     r = engine->RegisterGlobalFunction("void MysqlInit()", asFUNCTION(MysqlInit), asCALL_CDECL);
-    r = engine->RegisterGlobalFunction("bool MysqlConnect()", asFUNCTION(MysqlConnect), asCALL_CDECL);
+    r = engine->RegisterGlobalFunction("bool MysqlConnect(bool localCall)", asFUNCTIONPR(MysqlConnect, (bool), bool), asCALL_CDECL);
     r = engine->RegisterGlobalFunction("int MysqlSelectDb()", asFUNCTION(MysqlSelectDb), asCALL_CDECL);
     r = engine->RegisterGlobalFunction("void MysqlClose()", asFUNCTION(MysqlClose), asCALL_CDECL);
     r = engine->RegisterGlobalFunction("void MysqlError(string& error)", asFUNCTION(MysqlError), asCALL_CDECL);
+    r = engine->RegisterGlobalFunction("int MysqlGetLastId()", asFUNCTION(MysqlGetLastId), asCALL_CDECL);
 
 #ifdef __CLIENT
     r = engine->RegisterGlobalFunction("int MysqlCheckLogin(string& userName, string& userPass)", asFUNCTION(MysqlCheckLogin), asCALL_CDECL);
     //r = engine->RegisterGlobalFunction("int MysqlGetChars(uint id, string& names, string& pass)", asFUNCTION(MysqlGetChars), asCALL_CDECL); //deprecated
-    r = engine->RegisterGlobalFunction("int MysqlGetAccountChars(uint id, string& namesView, string& namesReal, string& pass)", asFUNCTION(MysqlGetAccountChars), asCALL_CDECL);
+    r = engine->RegisterGlobalFunction("int MysqlGetAccountChars(uint id, string& namesView, string& namesReal, string& pass, string& status)", asFUNCTION(MysqlGetAccountChars), asCALL_CDECL);
 //    r = engine->RegisterGlobalFunction("int MysqlGetChars(uint id, string& names, string& namesReal, string& pass)", asFUNCTIONPR( MysqlGetChars, (uint,  ScriptString *, ScriptString*, ScriptString *), int), asCALL_CDECL);
     r = engine->RegisterGlobalFunction("int MysqlCheckCharName(string& name)", asFUNCTION(MysqlCheckCharName), asCALL_CDECL);
     r = engine->RegisterGlobalFunction("int MysqlInsertCharData(uint id, string& name, string& real, string& pass)", asFUNCTION(MysqlInsertCharData), asCALL_CDECL);
+    r = engine->RegisterGlobalFunction("uint MysqlGeneratePassword(uint forumId, string& nameReal)", asFUNCTION(MysqlGeneratePassword), asCALL_CDECL);
+    r = engine->RegisterGlobalFunction("uint MysqlGetNewPass(uint id, string& nameReal, string& sPass)", asFUNCTION(MysqlGetNewPass), asCALL_CDECL);
 
     r = engine->RegisterGlobalFunction("int MysqlGetNameByHash(uint id, uint hash, string& name)", asFUNCTION(MysqlGetNameByHash), asCALL_CDECL);
     r = engine->RegisterGlobalFunction("int MysqlGetNames(uint id, string& names, string& hashes)", asFUNCTION(MysqlGetNames), asCALL_CDECL);
     r = engine->RegisterGlobalFunction("int MysqlInsertName(uint id, uint targetHash, string& name, string& hash)", asFUNCTION(MysqlInsertName), asCALL_CDECL);
+
+    r = engine->RegisterGlobalFunction("int MysqlGetPanel(uint id, string& cellId, string& type, string& subType, string& panelId, string& text, string& desc, string& spriteUp, string& spriteDown)", asFUNCTION(MysqlGetPanel), asCALL_CDECL);
+    r = engine->RegisterGlobalFunction("int MysqlSetPanel(uint id, string& cellId, string& type, string& subType, string& panelId, string& text, string& desc, string& spriteUp, string& spriteDown)", asFUNCTION(MysqlSetPanel), asCALL_CDECL);
 #endif //__CLIENT
 
 #ifdef __SERVER
     r = engine->RegisterGlobalFunction("int MysqlQuery(string& query)", asFUNCTION(MysqlQuery), asCALL_CDECL);
+    r = engine->RegisterGlobalFunction("int MysqlGetRow(string& query, string& sOut)", asFUNCTION(MysqlGetRow), asCALL_CDECL);
 #endif //__SERVER
     if( compiler )
         return;

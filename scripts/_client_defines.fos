@@ -1,6 +1,8 @@
 #ifndef __CLIENT_DEFINES__
 #define __CLIENT_DEFINES__
 
+#define TEST_TEXT ("test_text")
+
 // Global client variables
 // binyan - Hotkeys
 #pragma globalvar "bool __IsTextInput = false"
@@ -16,11 +18,15 @@
 
 // @pm menu
 #pragma globalvar "bool __showLogin = false"
+
+#pragma globalvar "bool __charLogin = false"
 // pm
 #pragma globalvar "bool __mouse3Use = false"
 #pragma globalvar "bool __mouse2Pressed = false"
 
 #pragma globalvar "bool __isClockActive = false"
+
+#pragma globalvar "bool __SqlLocalCall = false"
 
 #pragma globalvar "bool __isContMenuOpen = false"
 #pragma globalvar "uint __contMenuCrId = 0"
@@ -44,6 +50,7 @@
 #pragma globalvar "uint8 __WaypointWayNum = 0"
 #pragma globalvar "string __tempFastText"
 #pragma globalvar "string __kventaLink"
+#pragma globalvar "string __nameView"
 #pragma globalvar "uint16 __baseCrType = 0"
 #pragma globalvar "uint8 __inventoryCollection = 0"
 #pragma globalvar "uint8 __arrowValue = 0"
@@ -199,6 +206,7 @@ string[] __critterHistoryInfo;
 //#define CLIENT_SCREEN_TRANSFER_TNF		(-10)
 #define CLIENT_SCREEN_LOGIN_TNF             (-12)
 #define CLIENT_SCREEN_REG_TNF             (-13)
+#define CLIENT_SCREEN_TRANSFER_TNF           ( -14 )
 
 // Screen Elements //pm add
 #define SCREEN_ELEMENT_BUTTON               ( 0 )

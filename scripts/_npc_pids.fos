@@ -40,6 +40,11 @@
 
 #define NPC_PID_Ball                     ( 490 )  // ћ€чик
 
+//groups
+
+const uint16[] npc_group_raiders = {NPC_PID_BanditMale,NPC_PID_BanditFemale,NPC_PID_MauraderMale,NPC_PID_RaiderMale,NPC_PID_RaiderFemale};
+const uint16[] npc_group_mirelurk = {NPC_PID_MirelurkWeak};
+
 /*
 #define NPC_PID_ToughSilverGecko         ( 81 )
 #define NPC_PID_ToughGoldenGecko         ( 86 )

@@ -6,19 +6,29 @@
 #include "_colors.fos"
 #include "_defines.fos"
 #include "_macros.fos"
+#include "sprite.fos"
 
 #define FAST_PANEL_TEMP_FILE    "fastpanel.cfg"
 
 #define STR_FAST_SAY            ( 12830 )
 #define STR_SKILLS              ( 102061 )
 
+#define PANEL_BUTTON_COUNT            (10)
+#define PANEL_LAYER_COUNT             (10)
+#define PANEL_CELL_COUNT              (PANEL_BUTTON_COUNT*PANEL_LAYER_COUNT)
+#define PANEL_POCKET_COUNT            (4)
+
+#define PANEL_TYPE_SAY          (0)
+#define PANEL_TYPE_SKILL        (1)
+#define PANEL_TYPE_POCKET       (2)
+
 import void ShowContScreen( uint8 screenType, uint8 actionType ) from "client_screen_contmenu";
 import bool out_message( string& message, int& sayType ) from "client_main";
 
-IGUIElementOpt@ lastPanelButton = null;
-IGUIElementOpt@[] fastPanelBtns;
-IGUIElementOpt@ fastLayerDisplay = null;
-FastButton@     lastFastButton = null;
+//IGUIElementOpt@ lastPanelButton = null;
+//IGUIElementOpt@[] fastPanelBtns;
+//IGUIElementOpt@ fastLayerDisplay = null;
+//FastButton@     lastFastButton = null;
 
 
 class ElementMain : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
@@ -39,12 +49,26 @@ class ScreenMain : IGUIScreenCallbackShow, IGUIScreenCallbackHide
     {}
 }
 
-class FastButtonLayerDisplay : IGUIElementCallbackInit
+class FastButtonLayerDisplay : IGUIElementCallbackInit, IGUIElementCallbackDraw
 {
-    void OnInit()
-    {
-        @fastLayerDisplay = GUI_GetElementOptions();
-        fastLayerDisplay.Text( "0", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+    IGUIElementOpt@ Options;
+    FastPanel@ fastPanel;
+
+    FastButtonLayerDisplay(){
+        @panel.LayerDsp = this;
+    }
+
+
+
+    void OnInit(){
+        //@fastLayerDisplay = GUI_GetElementOptions();
+        //fastLayerDisplay.Text( "0", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+        //@fastPanel = panel;
+        @Options = GUI_GetElementOptions();
+    }
+
+    void OnDraw(){
+        DrawText(""+(panel.Layer+1), Options.GetPosX()+108, Options.GetPosY()+643, Options.GetSurfaceWidth(), Options.GetSurfaceHeight(), COLOR_SAND, FONT_FALLOUT, FT_CENTERX | FT_CENTERY );
     }
 }
 
@@ -52,6 +76,11 @@ class FastButtonLayer : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
 {
     IGUIElementOpt@ Options;
     uint8           Type;
+
+    FastButtonLayer(uint8 type){
+        Type = type;
+        @panel.LayerBtn[Type] = this;
+    }
 
     void OnInit()
     {
@@ -62,85 +91,253 @@ class FastButtonLayer : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
     {
         if( GetCurrentCursor() == CURSOR_DEFAULT && click == MOUSE_CLICK_LEFT )
         {
-            int8 layer = Options.GetLayer();
+            int8 layer = panel.Layer;
             layer = ( Type > 0 ? layer - 1 : layer + 1 );
             if( layer < 0 )
-                layer = 4;
-            layer = ChangeLayer( layer );
-            Options.SetLayer( layer );
+                layer = PANEL_LAYER_COUNT-1;
+            if(layer >= PANEL_LAYER_COUNT)
+                layer = 0;
+            //layer = ChangeLayer( layer );
+            panel.Layer = layer;
         }
     }
 }
 
-class FastButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
+class FastCell
+{
+
+    //bool            Visible;
+
+    uint8           Id;
+
+    uint8           Type;
+    uint8           SubType;
+
+    uint            PanelId;
+
+    string          Text;
+    string          Desc;
+
+    string          SpriteUp;
+    string          SpriteDown;
+
+    //SPACE_TOKEN + fastPanelBtns[ i ].GetFastPanelType() + SPACE_TOKEN + fastPanelBtns[ i ].GetFastPanelId() + SPACE_TOKEN + fastPanelBtns[ i ].GetText() + SPACE_TOKEN + f[ i ].GetDescription()
+
+    FastCell(uint8 id){
+
+            Id = id;
+
+            Type = 0;
+            SubType = 0;
+
+            PanelId = 0;
+
+            Text = "";
+            Desc = "";
+
+            //Visible(false);
+            //SpriteUp = "";
+            //SpriteDown = "";
+            SpriteUp =  "fastpanel_btblank_up.png";
+            SpriteDown =  "fastpanel_btblank_dn.png";
+    }
+
+    void SetCell(uint8 id, uint8 type, uint8 subType, uint panelId, string text, string desc, string spriteUp, string spriteDown){
+
+        if(id != uint8(-1)) Id = id;
+
+        Type = type;
+        SubType = subType;
+        PanelId = panelId;
+
+        Text = text;
+        Desc = desc;
+
+        SpriteUp = spriteUp;
+        SpriteDown = spriteDown;
+    }
+
+    void SetMember(uint8 mmrIndex, string val){
+
+        int temp = 0;
+
+        if(mmrIndex < 4){
+            StrToInt(val, temp);
+        }
+
+        switch(mmrIndex){
+
+            case 0 : Id = temp; break;
+            case 1 : Type = temp; break;
+            case 2 : SubType = temp; break;
+            case 3 : PanelId = temp; break;
+
+            case 4 : Text = val; break;
+            case 5 : Desc = val; break;
+            case 6 : SpriteUp = val; break;
+            case 7 : SpriteDown = val; break;
+
+            default : return;
+        }
+    }
+
+}
+
+class FastPanel
+{
+    uint8 Layer;
+    uint8 ButtonLast;
+
+    FastCell@[] Cells;
+    FastButton@[]   Buttons;
+    FastButton@[]   Pockets;
+
+    FastButtonLayer@[] LayerBtn;
+    FastButtonLayerDisplay@ LayerDsp;
+
+    FastPanel(){
+        Layer = 0;
+
+        Buttons.resize(PANEL_BUTTON_COUNT);
+        Cells.resize(PANEL_CELL_COUNT+PANEL_POCKET_COUNT);
+        Pockets.resize(PANEL_POCKET_COUNT);
+
+        LayerBtn.resize(2);
+    }
+
+    void CellsClear(){
+        //Cells.resize(0);
+        //Cells.resize(PANEL_CELL_COUNT+PANEL_POCKET_COUNT);
+        for(uint8 i = 0, j = Cells.length(); i<j; ++i){
+            @Cells[i] = FastCell(i);
+        }
+    }
+
+    void ShowPanel(bool show){
+        for(uint8 i = 0, j = Buttons.length(); i<j; ++i){
+            Buttons[i].Options.SetVisible(show);
+        }
+
+        /*for(uint8 i = 0, j = Pockets.length(); i<j; ++i){
+            Pockets[i].Options.SetVisible(show);
+        }*/
+
+        LayerBtn[0].Options.SetVisible(show);
+        LayerBtn[1].Options.SetVisible(show);
+
+        LayerDsp.Options.SetVisible(show);
+    }
+
+    //bool SetCell(uint8 index, )
+
+    //void
+}
+
+class FastButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick, IGUIElementCallbackDraw
 {
     uint8           Type;
     uint8           SubType;
     uint8           ButtonNum;
-    IGUIElementOpt@ button;
+    IGUIElementOpt@ Options;
+    FastPanel@      Panel;
+    Sprite          Sprite;
+
+    FastButton(uint8 num){
+        //@Panel = panel_;
+
+        Type = 0;
+        SubType = 0;
+        ButtonNum = num;
+
+        if(num >= PANEL_BUTTON_COUNT){
+            @panel.Pockets[0] = this;
+        }else{
+            @panel.Buttons[num] = this;
+        }
+    }
+
     void OnInit()
     {
-        @button = GUI_GetElementOptions();
-        if( fastPanelBtns.length() > 9 )
-            fastPanelBtns.resize( 0 );
-        fastPanelBtns.insertLast( button );
-        if( button.GetLayer() != 0 )
-        {
-            button.SetVisible( false );
-            button.UpPic( "" );
-            button.DownPic( "" );
-        }
+        @Options = GUI_GetElementOptions();
     }
 
     void OnMouseClick( int click )
     {
+
+        uint8 cellId = (panel.Layer * PANEL_BUTTON_COUNT + ButtonNum);
+
+        if(cellId < 0 || cellId >= PANEL_CELL_COUNT) {Message("out");return;}
+
+        panel.ButtonLast = ButtonNum;
+
+        Message(" "+panel.Cells[cellId].PanelId + " " + panel.Cells[cellId].Type);
+
         if( GetCurrentCursor() == CURSOR_DEFAULT )
         {
-            // Message(""+button.GetBtnNum());
-            if( button.GetFastPanelId() == 0 && button.GetFastPanelType() == 0 )
+            // Message(""+Options.GetBtnNum());
+            //if( Options.GetFastPanelId() == 0 && Options.GetFastPanelType() == 0 )
+            if(panel.Cells[cellId].PanelId == 0 && panel.Cells[cellId].Type == 0 )
             {
                 __subMenuNum = SUBMENU_FASTPANEL;
-                __fastpanelButtNum = button.GetBtnNum();
-                @lastFastButton = this;
-                @lastPanelButton = button;
+//                __fastpanelButtNum = Options.GetBtnNum();
+                //@lastFastButton = this;
+                //@lastPanelButton = Options;
                 ::ShowScreen( CLIENT_SCREEN_CONTMENU, 300, 300, SUBMENU_FASTPANEL );
             }
             else
             {
                 if( click == MOUSE_CLICK_RIGHT )
                 {
-                    button.UpPic( "fastpanel_btblank_up.png" );
-                    button.DownPic( "fastpanel_btblank_dn.png" );
-                    button.Text( "", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
-                    button.SetDescription( "" );
-                    button.SetElementFastPanelType( 0 );
-                    button.SetElementFastPanelId( 0 );
-                    SaveFastPanel( false );
+                    panel.Cells[cellId].SpriteUp = "fastpanel_btblank_up.png";
+                    panel.Cells[cellId].SpriteDown = "fastpanel_btblank_dn.png";
+                    panel.Cells[cellId].Text = "";//, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+                    panel.Cells[cellId].Desc = "";
+                    panel.Cells[cellId].Type = 0;
+                    panel.Cells[cellId].PanelId = 0;
+                    //SaveFastPanel( false );
+                    SavePanel20();
                 }
                 else if( click == MOUSE_CLICK_LEFT )
                 {
-                    switch( button.GetFastPanelType() )
+                    switch(panel.Cells[cellId].Type)
                     {
-                    case 1:
-                        __skillIndex = button.GetFastPanelId();
+                    case PANEL_TYPE_SKILL:
+                        __skillIndex = panel.Cells[cellId].PanelId;
+                        __fastPanel = true;
+                        Message("skill "+__skillIndex);
                         ChangeCursor( CURSOR_USE_SKILL );
                         break;
-                    case 2:
-                        if( button.GetFastPanelId() != 5 )
+                    case PANEL_TYPE_SAY:
+                        if( panel.Cells[cellId].PanelId != 5 )
                         {
-                            RunServerScriptUnsafe( "general_unsafe@unsafe_fastpanel_say", button.GetFastPanelId(), 0, 0, button.GetDescription(), null );
+                            RunServerScriptUnsafe( "general_unsafe@unsafe_fastpanel_say", panel.Cells[cellId].PanelId, 0, 0, panel.Cells[cellId].Desc, null );
                             break;
                         }
                         else
                         {
-                            out_message( button.GetDescription(), int( button.GetFastPanelId() ) );
+                            out_message( panel.Cells[cellId].Desc, int( panel.Cells[cellId].PanelId ) );
                             break;
                         }
+                    case PANEL_TYPE_POCKET :
+                            RunServerScriptUnsafe( "general_unsafe@unsafe_fastpanel_pocket", int(panel.Cells[PANEL_CELL_COUNT+ButtonNum].PanelId), 0, 0, null, null );
+                            break;
                     }
                 }
             }
-//                      Message("type = "+button.GetFastPanelType()+" id = "+button.GetFastPanelId());
+
+            //Sprite.Load(panel.Cells[cellId].SpriteDown, PT_ART_INTRFACE);
+//                      Message("type = "+Options.GetFastPanelType()+" id = "+Options.GetFastPanelId());
         }
+    }
+
+    void OnDraw(){
+        //Sprite.Load()
+        uint8 cellId = (panel.Layer * PANEL_BUTTON_COUNT + ButtonNum);
+
+        if(cellId < 0 || cellId >= PANEL_CELL_COUNT) return;
+
+        uint color = GetColor(panel.Cells[cellId].PanelId);
+        DrawText(panel.Cells[cellId].Text, Options.GetPosX()+110, Options.GetPosY()+640, Options.GetSurfaceWidth(), Options.GetSurfaceHeight(), color, FONT_FALLOUT, FT_CENTERX | FT_CENTERY );
     }
 }
 
@@ -163,6 +360,15 @@ class FastPanelSkillboxBtn : IGUIElementCallbackInit, IGUIElementCallbackMouseCl
     IGUIElementOpt @ button;
     IGUIElementOpt @ thisBtn;
 
+    uint8           ButtonNum;
+
+    uint16          Skill;
+
+    FastPanelSkillboxBtn(uint8 btnNum, uint16 skill){
+        ButtonNum = btnNum;
+        Skill = skill;
+    }
+
     // uint8 type
 
     void OnInit()
@@ -175,54 +381,70 @@ class FastPanelSkillboxBtn : IGUIElementCallbackInit, IGUIElementCallbackMouseCl
     void OnMouseClick( int click )
     {
 
-        @button = lastPanelButton;
-        button.SetElementFastPanelType( thisBtn.GetFastPanelType() );
-        button.SetElementFastPanelId( thisBtn.GetFastPanelId() );
-        switch( thisBtn.GetFastPanelId() )
+        //@button = lastPanelButton;
+        //button.SetElementFastPanelType( thisBtn.GetFastPanelType() );
+        //button.SetElementFastPanelId( thisBtn.GetFastPanelId() );
+
+        string text = "", sprUp = "", sprDown = "";
+
+        switch(Skill)
         {
         case 206:
-            button.UpPic( "skilln.frm" );
-            button.DownPic( "skillh.frm" );
-            button.Text( "aid", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            sprUp = "skilln.frm";
+            sprDown = "skillh.frm";
+            text = "aid"; //, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
             break;
         case 207:
-            button.UpPic( "skilln.frm" );
-            button.DownPic( "skillh.frm" );
-            button.Text( "doc", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            sprUp = "skilln.frm";
+            sprDown = "skillh.frm";
+            text = "doc";//, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
             break;
         case 208:
-            button.UpPic( "skilln.frm" );
-            button.DownPic( "skillh.frm" );
-            button.Text( "sneak", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            sprUp = "skilln.frm";
+            sprDown = "skillh.frm";
+            text = "sneak";//, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
             break;
         case 209:
-            button.UpPic( "skilln.frm" );
-            button.DownPic( "skillh.frm" );
-            button.Text( "lock", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            sprUp = "skilln.frm";
+            sprDown = "skillh.frm";
+            text = "lock";//, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
             break;
         case 210:
-            button.UpPic( "skilln.frm" );
-            button.DownPic( "skillh.frm" );
-            button.Text( "steal", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            sprUp = "skilln.frm";
+            sprDown = "skillh.frm";
+            text = "steal";//, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
             break;
         case 211:
-            button.UpPic( "skilln.frm" );
-            button.DownPic( "skillh.frm" );
-            button.Text( "traps", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            sprUp = "skilln.frm";
+            sprDown = "skillh.frm";
+            text = "traps";//, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
             break;
         case 212:
-            button.UpPic( "skilln.frm" );
-            button.DownPic( "skillh.frm" );
-            button.Text( "scien", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            sprUp = "skilln.frm";
+            sprDown = "skillh.frm";
+            text = "scien";//, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
             break;
         case 213:
-            button.UpPic( "skilln.frm" );
-            button.DownPic( "skillh.frm" );
-            button.Text( "repair", FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            sprUp = "skilln.frm";
+            sprDown = "skillh.frm";
+            text = "repair";//, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
             break;
         }
+
+        uint8 cellId = (panel.Layer * PANEL_BUTTON_COUNT + panel.ButtonLast);
+
+        panel.Cells[cellId].Type = PANEL_TYPE_SKILL;
+        panel.Cells[cellId].PanelId = Skill;
+
+        panel.Cells[cellId].Text = text;
+        panel.Cells[cellId].Desc = "skill";
+        panel.Cells[cellId].SpriteUp = sprUp;
+        panel.Cells[cellId].SpriteDown = sprDown;
+
+
         // Message("type = "+thisBtn.GetFastPanelType()+" id = "+thisBtn.GetFastPanelId());
-        SaveFastPanel( false );
+        //SaveFastPanel( false );
+        SavePanel20();
     }
 }
 
@@ -306,7 +528,7 @@ class FastPanelTextboxButton : IGUIElementCallbackInit, IGUIElementCallbackMouse
 
     void OnInit()
     {
-        @Button = lastPanelButton;
+        @Button = GUI_GetElementOptions();//lastPanelButton;
     }
 
     void OnMouseClick( int click )
@@ -333,14 +555,19 @@ class FastPanelTextboxButton : IGUIElementCallbackInit, IGUIElementCallbackMouse
         }
         // Button.UpPic("talkn.frm");
         // Button.DownPic("talkh.frm");
-        Button.Text( text, FONT_FALLOUT, color, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
-        Button.SetDescription( "" + desc );
-        Button.SetElementFastPanelType( 2 );
-        Button.SetElementFastPanelId( sayType );
+
+        uint8 cellId = (panel.Layer * PANEL_BUTTON_COUNT + panel.ButtonLast);
+
+        panel.Cells[cellId].Text = text;
+        panel.Cells[cellId].Desc = desc;
+        panel.Cells[cellId].Type = PANEL_TYPE_SAY;
+        panel.Cells[cellId].PanelId = sayType;
+
         // Message(""+sayType);
 
-        SaveFastPanel( false );
-        GetPic( Button );
+        //SaveFastPanel( false );
+        SavePanel20();
+        //GetPic( Button );
         ::HideScreen( CLIENT_SCREEN_FASTPANEL_TEXTBOX, 0, 0, 0 );
 
         // RunServerScriptUnsafe("general_unsafe@unsafe_send_fastpanel", 1, 0, 0, "", null);
@@ -388,6 +615,286 @@ class FastPanelTextboxText : IGUIElementCallbackInit, IGUIElementCallbackKeyPres
     {
         Options.Text( "", FONT_FALLOUT, COLOR_GREEN, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
     }
+}
+
+// /////////////////////////////////////////////////
+
+#define FILE_NAME      "FastPanel.cfg"
+#define LINE_TOKEN     "!"
+#define SPACE_TOKEN    "*"
+#define ID_TOKEN       "&"
+
+
+uint GetColor( uint8 sayType )
+{
+    uint color = 0;
+    switch( sayType )
+    {
+    case 1:
+        color = COLOR_SAND;
+        break;
+    case 2:
+        color = COLOR_LRED;
+        break;
+    case 3:
+        color = COLOR_LGREEN;
+        break;
+    case 4:
+        color = COLOR_LBLUE;
+        break;
+    case 5:
+        color = COLOR_LGRAY;
+        break;
+    default:
+        color = COLOR_WHITE;
+        break;
+    }
+    return color;
+}
+
+//int MysqlSetPanel(unsigned int id, ScriptString& cellId, ScriptString& type, ScriptString& subType, ScriptString& panelId, ScriptString& text, ScriptString& desc, ScriptString& spriteUp, ScriptString& spriteDown)
+void SavePanel20(){
+
+    CritterCl @ choo = GetChosen();
+    if(choo is null) return;
+
+    string[] cellsData;
+    cellsData.resize(8);
+
+    MysqlInit();
+
+    if(MysqlConnect(__SqlLocalCall)){
+        if(MysqlSelectDb() == 0){
+
+                //for(uint8 i = 0, j = panel.Cells.length(); i<j; ++i){
+
+                uint8 cellId = (PANEL_BUTTON_COUNT * panel.Layer + panel.ButtonLast);
+
+                //if(panel.Cells[cellId].PanelId == 0/* || panel.Cells[i].Text == "" || panel.Cells[i].Desc == ""*/) return;
+
+
+
+                cellsData[0] = panel.Cells[cellId].Id;
+                cellsData[1] = panel.Cells[cellId].Type;
+                cellsData[2] = panel.Cells[cellId].SubType;
+                cellsData[3] = panel.Cells[cellId].PanelId;
+                cellsData[4] = panel.Cells[cellId].Text;
+                cellsData[5] = panel.Cells[cellId].Desc;
+                cellsData[6] = panel.Cells[cellId].SpriteUp;
+                cellsData[7] = panel.Cells[cellId].SpriteDown;
+
+                int r = MysqlSetPanel(choo.Id, cellsData[0], cellsData[1], cellsData[2], cellsData[3], cellsData[4], cellsData[5], cellsData[6], cellsData[7]);
+
+                if(r != 0){
+                    string temp;
+                    MysqlError(temp);
+                    Message( "sql error : "+temp+ " " +r);
+                }
+            //}
+
+        }
+        MysqlClose();
+    }
+}
+
+void LoadPanel20(){
+
+    string[]    cellsData;
+
+    CritterCl @ choo = GetChosen();
+    if(choo is null) return;
+
+    FastPanelCellClear();
+
+    //Message("got chosen");
+
+    cellsData.resize(8);
+
+    MysqlInit();
+
+    if(MysqlConnect(__SqlLocalCall)){
+        if(MysqlSelectDb() == 0){
+
+            //Message("connect db");
+
+            //string query = "";
+
+            int r = MysqlGetPanel(choo.Id, cellsData[0], cellsData[1], cellsData[2], cellsData[3], cellsData[4], cellsData[5], cellsData[6], cellsData[7]);
+
+            if(r < 0){
+                string temp;
+                MysqlError(temp);
+                Log( "sql error : "+temp);
+            }else{
+                //action here
+                string@[]@ cellField;
+
+                Message("yep");
+
+                //for each member of FastCell
+                //for(uint8 i = 0, j = cellsData.length(); i<j; ++i){
+                    //@cellField = split(cellsData[i], "&");
+                    //if(cellField is null) continue;
+
+                    string@[]@ cellId_ = split(cellsData[0], "&");
+                    string@[]@ type_ = split(cellsData[1], "&");
+                    string@[]@ subType_ = split(cellsData[2], "&");
+                    string@[]@ panelId_ = split(cellsData[3], "&");
+                    string@[]@ text_ = split(cellsData[4], "&");
+                    string@[]@ desc_ = split(cellsData[5], "&");
+                    string@[]@ spriteUp_ = split(cellsData[6], "&");
+                    string@[]@ spriteDown_ = split(cellsData[7], "&");
+
+                    int cellId = 0, type = 0, subType = 0, panelId = 0;
+
+                    uint8 len = cellId_.length();
+                    Message("len "+len);
+                    //if(type_.length() != len || subType != len)*/
+
+                    for(uint8 i = 0, j = cellId_.length()-1; i < j; i++){
+
+                        //cellId = cellId[i];
+
+                        StrToInt(cellId_[i], cellId);
+                        StrToInt(type_[i], type);
+                        StrToInt(subType_[i], subType);
+                        StrToInt(panelId_[i], panelId);
+
+                        panel.Cells[cellId].Id = uint(cellId);
+                        panel.Cells[cellId].Type = uint(type);
+                        panel.Cells[cellId].SubType = uint(subType);
+                        panel.Cells[cellId].PanelId = uint(panelId);
+                        panel.Cells[cellId].Text = text_[i];
+                        panel.Cells[cellId].Desc = desc_[i];
+                        panel.Cells[cellId].SpriteUp = spriteUp_[i];
+                        panel.Cells[cellId].SpriteDown = spriteDown_[i];
+                    }
+
+                    //Message("load "+i);
+
+
+/*
+                    for(uint8 ii = 0, jj = cellField.length(); ii < jj; ++ii){
+                        panel.Cells[ce].SetMember(i, cellField[ii]);
+                    }
+                    */
+                //}
+            }
+
+        }
+        MysqlClose();
+    }
+}
+//}
+
+void GetPic( IGUIElementOpt& fastBtn )
+{
+    switch( fastBtn.GetFastPanelType() )
+    {
+    case 1:
+        fastBtn.UpPic( "skilln.frm" );
+        fastBtn.DownPic( "skillh.frm" );
+        break;
+    case 2:
+        if( fastBtn.GetFastPanelId() != 5 )
+        {
+            fastBtn.UpPic( "talkn.frm" );
+            fastBtn.DownPic( "talkh.frm" );
+        }
+        else
+        {
+            fastBtn.UpPic( "usegetn.frm" );
+            fastBtn.DownPic( "usegeth.frm" );
+        }
+        break;
+    default:
+        fastBtn.UpPic( "fastpanel_btblank_up.png" );
+        fastBtn.DownPic( "fastpanel_btblank_dn.png" );
+        break;
+    }
+}
+
+
+int8 ChangeLayer( int8 layer )
+{
+    // Message("layer"+layer);
+    /*layer < 0 ? layer = 4 : layer > 4 ? layer = 0 : layer;
+    for( uint8 i = 0; i < fastPanelBtns.length(); i++ )
+    {
+        if( fastPanelBtns[ i ].GetLayer() != layer )
+        {
+            fastPanelBtns[ i ].SetVisible( false );
+            fastPanelBtns[ i ].UpPic( "" );
+            fastPanelBtns[ i ].DownPic( "" );
+        }
+        else
+        {
+            fastPanelBtns[ i ].SetVisible( true );
+            GetPic( fastPanelBtns[ i ] );
+//                      Message(""+layer);
+        }
+    }*/
+    //fastLayerDisplay.Text( "" + layer, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+    return layer;
+}
+
+void GetActiveLayer( IGUIElementOpt@[] @ activeBtnLayer )
+{
+    /*
+       string text = fastLayerDisplay.GetText();
+       int layerNum = 0;
+       StrToInt(text, layerNum);
+     *                                                                                                                   // q3: Зачем это все?
+    for( uint8 i = 0; i < fastPanelBtns.length(); i++ )
+    {
+        if( fastPanelBtns[ i ].GetLayer() == 0 )
+        {
+            activeBtnLayer.insertLast( fastPanelBtns[ i ] );
+        }
+    }*/
+
+}
+/*
+void GetPanelButtons( IGUIElementOpt@[] @ panelBtns )
+{
+    for( uint8 i = 0; i < fastPanelBtns.length(); i++ )
+        panelBtns.insertLast( fastPanelBtns[ i ] );
+}*/
+/*
+void HidePanel( bool show )
+{
+
+    for( uint8 i = 0; i < fastPanelBtns.length(); i++ )
+    {
+        fastPanelBtns[ i ].SetVisible( show ? show : __fastPanelShow );
+    }
+    if( !show )
+        __fastPanelShow = __fastPanelShow ? false : true;
+//	__fastPanelShow = __fastPanelShow == hide ? !hide : hide;
+//	__fastPanelShow = __fastPanelShow ? false : true;
+}*/
+
+void SavePanel( int param0, int param1, int param2, string@ param3, int[] @ param4 )
+{
+/*    if( param0 > 0 )
+    {
+        SaveFastPanel( true );
+    }
+    else
+    {
+        SaveFastPanel( false );
+    }*/
+}
+
+void ActionUseItemPocket( int param0, int param1, int param2, string@ param3, int[] @actions ){
+    uint[] tempArr( 7 );
+    for( uint8 i = 0; i < actions.length(); i++ )
+    {
+        tempArr[ i ] = actions[ i ];
+        // Message("actions["+i+"] == "+actions[i]+"\n");
+    }
+    SetChosenActions( tempArr );
+    // Message("action setted");
 }
 
 void InitFastPanelTextbox() // export
@@ -470,15 +977,15 @@ void InitFastPanelSkillbox() // export
     fastSkillbox.buttons.resize( 9 );
     for( uint16 i = SK_FIRST_AID; i <= SK_REPAIR; i++ )
     {
-        FastPanelSkillboxBtn SkillboxBtn;
+        FastPanelSkillboxBtn SkillboxBtn(i-SK_FIRST_AID, i);
         GUI_AddScreenElement( CLIENT_SCREEN_FASTPANEL_SKILLBOX, "chosen_tab.png", 5, 10 + axist )
         .CallbackInit( SkillboxBtn )
         .CallbackMouseClick( SkillboxBtn )
         .DownPic( "chosen_tab.png" )
-        .Text( GetMsgStr( TEXTMSG_GAME, STR_SKILLS + ( 10 * j ) ), FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY )
-        .SetElementType( SCREEN_ELEMENT_FASTPANEL_BTN )
-        .SetElementFastPanelType( 1 )
-        .SetElementFastPanelId( i );
+        .Text( GetMsgStr( TEXTMSG_GAME, STR_SKILLS + ( 10 * j ) ), FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+        //.SetElementType( SCREEN_ELEMENT_FASTPANEL_BTN )
+        //.SetElementFastPanelType( 1 )
+        //.SetElementFastPanelId( i );
 
         j++;
         axist += 20;
@@ -516,6 +1023,8 @@ void InitFastPanelSkillbox() // export
      */
 }
 
+FastPanel panel;
+
 void InitFastPanelScreen() // Export
 {
     int x = 0, y = 0;
@@ -523,32 +1032,34 @@ void InitFastPanelScreen() // Export
     StrToInt( GetIfaceIniStr( "FastPanelBackGroundX" ), x );
     StrToInt( GetIfaceIniStr( "FastPanelBackGroundY" ), y );
 
-    ElementMain formMain;
+    /*ElementMain formMain;
     GUI_AddScreenElement( CLIENT_MAIN_SCREEN_GAME, GetIfaceIniStr( "FastPanelBackGroundPic" ), x, y ) // fastpanel_sm.png
     .CallbackInit( formMain )
-    .CallbackMouseClick( formMain );
-    /*
-       FastButtonLayer upLayer;
-       GUI_AddScreenElement(CLIENT_MAIN_SCREEN_GAME, "3d_reg_arrow_up.png", 390, -16)
+    .CallbackMouseClick( formMain );*/
+
+       FastButtonLayer upLayer(0);
+       GUI_AddScreenElement(CLIENT_MAIN_SCREEN_GAME, "3d_reg_arrow_up.png", 365, -20)
             .CallbackInit(upLayer)
             .CallbackMouseClick(upLayer)
             .DownPic("3d_reg_arrow_up.png")
             .SetLayer(0)
             .SetElementType(SCREEN_ELEMENT_FASTPANEL);
-       upLayer.Type = 0;
+       //upLayer.Type = 0;
 
-       FastButtonLayer downLayer;
-       GUI_AddScreenElement(CLIENT_MAIN_SCREEN_GAME, "3d_reg_arrow_down.png", 390, 12)
+       FastButtonLayer downLayer(1);
+       GUI_AddScreenElement(CLIENT_MAIN_SCREEN_GAME, "3d_reg_arrow_down.png", 365, 10)
             .CallbackInit(downLayer)
             .CallbackMouseClick(downLayer)
             .DownPic("3d_reg_arrow_down.png")
             .SetLayer(0)
             .SetElementType(SCREEN_ELEMENT_FASTPANEL);
-       downLayer.Type = 1;
+       //downLayer.Type = 1;
 
        FastButtonLayerDisplay fastLayerDsp;
-       GUI_AddScreenElement(CLIENT_MAIN_SCREEN_GAME,"fastpanel_layer.png",385,-10)
-              .CallbackInit(fastLayerDsp);*/
+       GUI_AddScreenElement(CLIENT_MAIN_SCREEN_GAME,"fastpanel_layer.png",365,-10)
+              .CallbackInit(fastLayerDsp)
+              .CallbackDraw(fastLayerDsp);
+
 
     uint16 axist = 0;
     bool   horizontal = GetIfaceIniStr( "FastPanelBtnHorizontal" ) != "0" ? true : false;
@@ -560,441 +1071,56 @@ void InitFastPanelScreen() // Export
 
     // for(uint8 j = 0; j < 5; j++)
     // {
-    for( uint8 i = 0; i <= 9; i++ )
+    for( uint8 i = 0; i < PANEL_CELL_COUNT; i++ )
     {
-        FastButton fastButton;
-        GUI_AddScreenElement( CLIENT_MAIN_SCREEN_GAME, GetIfaceIniStr( "FastPanelBtnBlankUp" ), x + ( horizontal ? axist : 0 ), y + ( !horizontal ? axist : 0 ) )     // x == 402
-        .CallbackInit( fastButton )
-        .CallbackMouseClick( fastButton )
-        .SetVisible( false )
-        .DownPic( GetIfaceIniStr( "FastPanelBtnBlankDn" ) )                    // "fastpanel_btblank_dn.png")
-        .SetLayer( 0 )
-        .SetElementType( SCREEN_ELEMENT_FASTPANEL_BTN )
-        .SetElementBtnNum( i );
+        if(i < PANEL_BUTTON_COUNT){
 
-        axist += 42;
+            FastButton fastButton(i);
+            GUI_AddScreenElement( CLIENT_MAIN_SCREEN_GAME, GetIfaceIniStr( "FastPanelBtnBlankUp" ), x + ( horizontal ? axist : 0 ), y + ( !horizontal ? axist : 0 ) )     // x == 402
+                .CallbackInit( fastButton )
+                .CallbackMouseClick( fastButton )
+                .CallbackDraw(fastButton)
+                //.SetVisible( false )
+                .DownPic( GetIfaceIniStr( "FastPanelBtnBlankDn" ) )                    // "fastpanel_btblank_dn.png")
+                .SetLayer( 0 );
+//        .SetElementType( SCREEN_ELEMENT_FASTPANEL_BTN )
+        //.SetElementBtnNum( i );
+
+            axist += 42;
+
+            //panel.Buttons[i] = fastButton;
+        }
+
+        @panel.Cells[i] = FastCell(i);
     }
+
+
+    /*FastButton pocketButton(PANEL_BUTTON_COUNT);
+    GUI_AddScreenElement( CLIENT_MAIN_SCREEN_GAME, GetIfaceIniStr( "FastPanelBtnBlankUp" ), x + ( horizontal ? axist : 0 ), y + ( !horizontal ? axist : 0 ) - 40 )     // x == 402
+        .CallbackInit( pocketButton )
+        .CallbackMouseClick( pocketButton )
+        .CallbackDraw(pocketButton)
+                //.SetVisible( false )
+        .DownPic( GetIfaceIniStr( "FastPanelBtnBlankDn" ) )                    // "fastpanel_btblank_dn.png")
+        .SetLayer( 0 );*/
+
+}
     //	axist = 0;
 
     // }
+
+void FastPanelAddToPocket(uint itemId, uint8 pocket){
+    panel.Cells[PANEL_CELL_COUNT+pocket].PanelId = itemId;
 }
 
-// /////////////////////////////////////////////////
-
-#define FILE_NAME      "FastPanel.cfg"
-#define LINE_TOKEN     "!"
-#define SPACE_TOKEN    "*"
-#define ID_TOKEN       "&"
-/*
-   uint FindFilePosition(uint16 id)
-   {
-        file f;
-        if(f.open(FILE_NAME,"r")==0)
-        {
-                uint16 pos = 0;
-                string word = "";
-                f.setPos(0);
-                while(!f.isEndOfFile())
-                {
-                        pos = f.getPos();
-                        word = f.readWord();
-                        //Message(""+f.getPos());
-                        if(word == ID_TOKEN+id)
-                        {
-                                f.close();
-                                return pos;
-                        }
-                };
-        f.close();
-        }
-   return 0;
-   }*/
-/*
-   void FormFastInfo(string@[]& info)
-   {
-        file f;
-        if(f.open(FILE_NAME, "r")==0)
-        {
-                CritterCl @ choo = GetChosen();
-                bool isAfter = false;
-                string before = "", current = "", after = "", temp = "";
-
-                info.resize(3);
-
-                while(!f.isEndOfFile())
-                {
-                        temp = f.readWord();
-                        if(!isAfter)
-                        {
-                                if(temp == ID_TOKEN+choo.Id)
-                                {
-                                        for(uint8 i = 0; i < fastPanelBtns.length(); i++)
-                                        {
-
-                                                current += temp + "\n";
-                                                temp = f.readWord();
-                                        }
-                                        isAfter = true;
-                                }
-                                before += temp + "\n";
-                        }
-                        after += temp + "\n";
-                        //Message(before);
-                        //if(
-                        //f.readLine(temp);
-                        //before += temp;
-                }
-
-                info[0] = before+"\nbefore end\n";
-                info[1] = current+"\ncurrent end\n";
-                info[2] = after+"\nafter end\n";
-
-                Message(""+before+current+after);
-                f.close();
-        }
-
-   return;
-   }
- */
-
-void SaveFastPanel( bool local )
-{
-    uint8 length = fastPanelBtns.length();
-    if( length == 0 )
-        return;
-    CritterCl @ choo = GetChosen();
-    if( @choo == null )
-        return;
-    // Message(""+FindFilePosition(choo.Id));
-    string line = "";
-    file   f;
-    /*
-       if(save)
-       {*/
-    // if(f.open(FILE_NAME,"w")==0)
-    // {
-    // f.setPos(FindFilePosition(choo.Id));
-    // line = ID_TOKEN+choo.Id+"\n";
-
-    for( uint8 i = 0; i < length; i++ )
-    {
-        line += "" + SPACE_TOKEN + fastPanelBtns[ i ].GetFastPanelType() + SPACE_TOKEN + fastPanelBtns[ i ].GetFastPanelId() + SPACE_TOKEN + fastPanelBtns[ i ].GetText() + SPACE_TOKEN + fastPanelBtns[ i ].GetDescription() + LINE_TOKEN + "\n";
-        // Message(line);
-
-    }
-
-//			string@[] info;
-//			info.resize(3);
-
-    // FormFastInfo(info);
-    // info[1] = line;
-    // line = info[0]+info[1]+info[2];
-
-    // f.writeString(line);
-    if( !local )
-        RunServerScriptUnsafe( "general_unsafe@unsafe_fastpanel_save", 0, 0, 0, line, null );
-    // f.close();
-
-    __tempFastText = line;
-    // Message("save");
-    return;
-    // } else Message("Can't open "+FILE_NAME);
-    /**/
-
-    // Message("save");
-}        /*
-            else /*	if(f.open(FILE_NAME,"r")==0)
-                {
-                        f.setPos(0);
-                        string word = "", word2 = "";
-                        //uint8 type = 0;
-                        uint8 count = 1;
-                        uint8 count1 = 0;
-                        uint color = 0;
-                        bool eol = false;
-                        while(!(f.isEndOfFile() || count > length))
-                        {
-                                f.readLine(word);
-                                word2 += word;
-                        };
-                        //Message(word2);
-                        string@[]@ layer = split(word2, LINE_TOKEN);
-                        uint8 length = layer.length();
-                        for(uint8 i = 0; i < length; i++)
-                        {
-                                //Message(fastBtnsLayer[i]);
-                                string@[]@ layerData = split(layer[i], SPACE_TOKEN);
-                                if(layerData.length() > 0)
-                                {
-                                        uint16 type = 0, id = 0;
-                                        string temp = "";
-                                                                        //temp = l;
-                                        StrToInt(layerData[1], type);
-                                        //temp = layerData[1];
-                                        StrToInt(layerData[2], id);
-                                        type == 2 ? color = GetColor(id) : color = COLOR_SAND;
-                                        fastPanelBtns[i].SetElementFastPanelType(type);
-                                        fastPanelBtns[i].SetElementFastPanelId(id);
-                                        fastPanelBtns[i].Text(layerData[3],FONT_FALLOUT,color, COLOR_GREEN,FT_CENTERX|FT_CENTERY);
-                                        fastPanelBtns[i].SetDescription(layerData[4]);
-                                        GetPic(fastPanelBtns[i]);
-
-                                        //Message(""+layerData[0]+"\n"+layerData[1]+"\n"+layerData[2]+"\n"+layerData[3]);
-                                }
-                        }
-                ChangeLayer(1);
-                }
-                f.close();* Message("load");
-            }*/
-
-uint GetColor( uint8 sayType )
-{
-    uint color = 0;
-    switch( sayType )
-    {
-    case 1:
-        color = COLOR_SAND;
-        break;
-    case 2:
-        color = COLOR_LRED;
-        break;
-    case 3:
-        color = COLOR_LGREEN;
-        break;
-    case 4:
-        color = COLOR_LBLUE;
-        break;
-    case 5:
-        color = COLOR_LGRAY;
-        break;
-    default:
-        color = COLOR_SAND;
-        break;
-    }
-    return color;
+void FastPanelKeyPress(uint8 key){
+    panel.Buttons[key - 2].Options.Realese();
 }
 
-uint LoadPanelTempFile( bool type )
-{
-    file   f;
-    string word = "", word2 = "";
-    uint   pos = 0;
-    // cr.Say(SAY_NETMSG, "start sendin");
-    if( f.open( FILE_NAME, "r" ) == 0 )
-    {
-        // cr.Say(SAY_NETMSG, "file open successful");
-        f.setPos( 0 );
-        while( !f.isEndOfFile() )      // || count > length))
-        {
-            pos = f.getPos();
-            f.readLine( word );
-            word2 += word;
-//				cr.Say(SAY_NETMSG, word);
-//				cr.Say(SAY_NETMSG, word);
-        }
-        __tempFastText = word2;
-        f.close();
-    }
-    // if(word2 != "")	LoadPanel(0, 0, 0, word2, null); else Message("error with sending fastpanel info");
-    if( pos != 0 && type )
-        return pos;
-    return 0;
+void FastPanelCellClear(){
+    panel.CellsClear();
 }
 
-void GetServerFileSize( int size, int p1, int p2, string@ word2, int[] @ p4 )
-{
-    if( /*LoadPanelTempFile(true)*/ __tempFastText.length() != size )
-        RunServerScriptUnsafe( "general_unsafe@unsafe_send_fastpanel", 1, 0, 0, "", null );
-    else
-    {
-        LoadPanel( 1, 0, 0, "", null );                                                                                                                                                      /*Message("Load Temp File");*/
-    }
-}
-
-void LoadPanel( int p0, int p1, int p2, string@ word2, int[] @ p4 ) // p0 - 0 from server, 1 - from client
-{
-    uint8 count = 1;
-    uint8 count1 = 0;
-    uint  color = 0;
-    /*
-       for(uint8 i = 0; i < fastPanelBtns.length(); i++)
-       {
-            Message(""+i);
-       }*/
-
-    IGUIElementOpt @ fastBtn;
-
-    if( p0 != 0 )
-    {
-        word2 = __tempFastText;                              /*if(p0 < 2) Message("load local");*/
-    }
-    else
-    {
-        SaveFastPanel( true ); /*Message("load server");*/ __tempFastText = word2;
-    }
-    string@[] @ layer = split( word2, LINE_TOKEN );
-    uint8 length = layer.length();
-    // Message(""+layer.length());
-    // Message(__tempFastText);
-
-    for( uint8 i = 0; i < length; i++ )
-    {
-        // Message(fastBtnsLayer[i]);
-        string@[] @ layerData = split( layer[ i ], SPACE_TOKEN );
-        // layerData.resize(5);
-        // Message(""+layerData.length());
-        /*
-           for(uint8 i = 0; i < layerData.length(); i++)
-           {
-                Message("i = "+i+" "+layerData[i]);
-           }*/
-        if( layerData.length() > 1 )
-        {
-            int    type = 0, id = 0;
-            string text = layerData[ 3 ], desc = layerData[ 4 ];
-            // temp = l;
-            StrToInt( layerData[ 1 ], type );
-            // temp = layerData[1];
-            StrToInt( layerData[ 2 ], id );
-            type == 2 ? color = GetColor( id ) : color = COLOR_SAND;
-
-            // Message(""+type+" "+id+" "+text+" "+desc);
-
-            @fastBtn = fastPanelBtns[ i ];
-            if( @fastBtn == null )
-            {
-                Message( "button is null" );
-                break;
-            }
-
-            fastBtn.SetElementFastPanelType( type );
-            fastBtn.SetElementFastPanelId( id );
-            fastBtn.Text( text, FONT_FALLOUT, color, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
-            fastBtn.SetDescription( desc );
-            GetPic( fastBtn );
-            /*
-               if(fastBtn.GetFastPanelType() != 0)
-               {
-                    Message(""+fastBtn.GetFastPanelType()+"\n"+fastBtn.GetFastPanelId()+"\n"+fastBtn.GetText()+"\n"+fastBtn.GetDescription());
-               }
-
-               Message(""+layerData[1]+"\n"+layerData[2]+"\n"+layerData[3]+"\n"+layerData[4]);*/
-        }
-    }
-    if( p0 < 2 )
-        Message( "panel load successful" );
-}
-
-void SavePanelUnsafe( int p0, int p1, int p2, string@ p3, int[] @ p4 )
-{
-    uint8  length = fastPanelBtns.length();
-//      Message(""+length);
-    string line = "";
-    for( uint8 i = 0; i < length; i++ )
-    {
-        line += "" + SPACE_TOKEN + fastPanelBtns[ i ].GetFastPanelType() + SPACE_TOKEN + fastPanelBtns[ i ].GetFastPanelId() + SPACE_TOKEN + fastPanelBtns[ i ].GetText() + SPACE_TOKEN + fastPanelBtns[ i ].GetDescription() + LINE_TOKEN + "\n";
-        // Message(line);
-
-    }
-    // Message(line);
-    RunServerScriptUnsafe( "general_unsafe@unsafe_fastpanel_save", 0, 0, 0, line, null );
-}
-
-void GetPic( IGUIElementOpt& fastBtn )
-{
-    switch( fastBtn.GetFastPanelType() )
-    {
-    case 1:
-        fastBtn.UpPic( "skilln.frm" );
-        fastBtn.DownPic( "skillh.frm" );
-        break;
-    case 2:
-        if( fastBtn.GetFastPanelId() != 5 )
-        {
-            fastBtn.UpPic( "talkn.frm" );
-            fastBtn.DownPic( "talkh.frm" );
-        }
-        else
-        {
-            fastBtn.UpPic( "usegetn.frm" );
-            fastBtn.DownPic( "usegeth.frm" );
-        }
-        break;
-    default:
-        fastBtn.UpPic( "fastpanel_btblank_up.png" );
-        fastBtn.DownPic( "fastpanel_btblank_dn.png" );
-        break;
-    }
-}
-
-
-int8 ChangeLayer( int8 layer )
-{
-    // Message("layer"+layer);
-    layer < 0 ? layer = 4 : layer > 4 ? layer = 0 : layer;
-    for( uint8 i = 0; i < fastPanelBtns.length(); i++ )
-    {
-        if( fastPanelBtns[ i ].GetLayer() != layer )
-        {
-            fastPanelBtns[ i ].SetVisible( false );
-            fastPanelBtns[ i ].UpPic( "" );
-            fastPanelBtns[ i ].DownPic( "" );
-        }
-        else
-        {
-            fastPanelBtns[ i ].SetVisible( true );
-            GetPic( fastPanelBtns[ i ] );
-//                      Message(""+layer);
-        }
-    }
-    fastLayerDisplay.Text( "" + layer, FONT_FALLOUT, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
-    return layer;
-}
-
-void GetActiveLayer( IGUIElementOpt@[] @ activeBtnLayer )
-{
-    /*
-       string text = fastLayerDisplay.GetText();
-       int layerNum = 0;
-       StrToInt(text, layerNum);
-     */                                                                                                                   // q3: Зачем это все?
-    for( uint8 i = 0; i < fastPanelBtns.length(); i++ )
-    {
-        if( fastPanelBtns[ i ].GetLayer() == 0 )
-        {
-            activeBtnLayer.insertLast( fastPanelBtns[ i ] );
-        }
-    }
-
-}
-
-void GetPanelButtons( IGUIElementOpt@[] @ panelBtns )
-{
-    for( uint8 i = 0; i < fastPanelBtns.length(); i++ )
-        panelBtns.insertLast( fastPanelBtns[ i ] );
-}
-
-void HidePanel( bool show )
-{
-
-    for( uint8 i = 0; i < fastPanelBtns.length(); i++ )
-    {
-        fastPanelBtns[ i ].SetVisible( show ? show : __fastPanelShow );
-    }
-    if( !show )
-        __fastPanelShow = __fastPanelShow ? false : true;
-//	__fastPanelShow = __fastPanelShow == hide ? !hide : hide;
-//	__fastPanelShow = __fastPanelShow ? false : true;
-}
-
-void SavePanel( int param0, int param1, int param2, string@ param3, int[] @ param4 )
-{
-    if( param0 > 0 )
-    {
-        SaveFastPanel( true );
-    }
-    else
-    {
-        SaveFastPanel( false );
-    }
+void ShowPanel(bool show){
+    panel.ShowPanel(show);
 }

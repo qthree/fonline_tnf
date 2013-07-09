@@ -21,7 +21,7 @@ void InitializeGame()                    // Export
     __LoggingVars               = false;
     __DisableTcpNagle           = true;
     __DisableZlibCompression    = false;
-    __FloodSize                 = 2048;         // In bytes
+    __FloodSize                 = 5120;         // In bytes
     __NoAnswerShuffle           = true;
     __FixBoyDefaultExperience   = 0;
     __SneakDivider              = 4;
@@ -86,7 +86,7 @@ void InitializeGame()                    // Export
     __TalkDistance              = 3;
     __NpcMaxTalkers             = 1;
     __MinNameLength             = 3;         // Minimum 1
-    __MaxNameLength             = 14;        // Maximum 30
+    __MaxNameLength             = 30;        // Maximum 30
     __DlgTalkMinTime            = 100000;
     __DlgBarterMinTime          = 50000;
     __MinimumOfflineTime        = 180000;    // 3 minutes
@@ -113,7 +113,7 @@ void InitializeGame()                    // Export
     // Range of values for client engine
     __AbsoluteOffsets = true;
     __SkillBegin = 200;
-    __SkillEnd = 217;
+    __SkillEnd = 219;
     __TimeoutBegin = 230;
     __TimeoutEnd = 249;
     __KillBegin = 260;

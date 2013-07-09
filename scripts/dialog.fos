@@ -1064,3 +1064,7 @@ void giveCure( Critter& player, Critter @ npc )
     npc.Say( SAY_NORM, "я должен сделать несколько тестов" );
     DeleteItem( hypo );
 }
+
+void r_ChangeCrType(Critter& pl, Critter& npc, int crType){
+  pl.ChangeCrType(crType);
+}

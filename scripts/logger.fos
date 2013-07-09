@@ -180,9 +180,9 @@ class LogUnit_Logins : LogUnit
     string@ MakeString()
     {
         Get( time ).Get( ip ).Get( id );
-        if( ( @name = GetPlayerName( id ) ) is null )
-            @name = "<ERROR>";
-        return MakeTime( time ) + GetPlayerName( id ) + " (" + id + ") from " + GetIpFromUint( ip );
+        //if( ( @name = GetPlayerName( id ) ) is null ) //pmcomment
+            //@name = "<ERROR>";
+        return MakeTime( time ) + "test" + " (" + id + ") from " + GetIpFromUint( ip );
     }
 }
 
@@ -334,13 +334,13 @@ class Logger : iManagerModule, iManager_critter_init, iManager_critter_dead, iMa
         }
         return true;
     }
-    
+
     void log_gm( Critter& cr, string& name, string& command )			//sorry ;D
     {
 	uint	ip;
         /*uint[] ips;
         cr.GetIp( ips );
-       
+
         for( uint i = 0, j = ips.length(); i < j; i++ )
         {
             if( ips[ i ] != 0 )
@@ -352,7 +352,7 @@ class Logger : iManagerModule, iManager_critter_init, iManager_critter_dead, iMa
         */
         ip = 0;//GetIpFromUint( ip );
 	//string name = CritterGetName(cr.Id);
-        
+
         cast< LogUnit_GM >( logUnits[ LOG_UNIT_TYPE_GM ] ).Add( ip, name, command );
     }
 }

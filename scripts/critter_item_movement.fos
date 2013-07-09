@@ -24,8 +24,10 @@ bool critter_check_move_item( Critter& cr, Item& item, uint8 toSlot, Item@ itemS
     }
 
     // Drop
-    if( toSlot == SLOT_GROUND )
-        return !dropFreeze;             // q3
+    if( toSlot == SLOT_GROUND ){
+
+            return !dropFreeze;             // q3
+        }
 
     // If busy, then allow only hands item swapping
     bool handsSwap = ( ( fromSlot == SLOT_HAND1 && toSlot == SLOT_HAND2 ) || ( fromSlot == SLOT_HAND2 && toSlot == SLOT_HAND1 ) );
@@ -68,6 +70,7 @@ bool critter_check_move_item( Critter& cr, Item& item, uint8 toSlot, Item@ itemS
 
 import void ChangeCritterSpeed( Critter& cr ) from "speed";                        // q3: pm speed
 
+
 // //////////////////////////////////////////////////////////////////////////////////////////////////
 // Call on critter item moved.
 void critter_move_item( Critter& cr, Item& item, uint8 fromSlot )
@@ -108,6 +111,7 @@ void critter_move_item( Critter& cr, Item& item, uint8 fromSlot )
 
             return;
         }
+
     }
     /*if(fromSlot==0 && item.Accessory==ACCESSORY_CONTAINER && item.ContainerId!=0)
        {
@@ -160,7 +164,7 @@ void critter_move_item( Critter& cr, Item& item, uint8 fromSlot )
 				99};
                 if ( NoArmorSkins.find( cr.Stat[ ST_BASE_CRTYPE ] ) != -1 ) crType = cr.Stat[ ST_BASE_CRTYPE ];
             }
-				
+
             // Long hair dude redirects
             if( ( cr.Stat[ ST_BASE_CRTYPE ] == CRTYPE_LHD_JUMPSUIT || cr.Stat[ ST_BASE_CRTYPE ] == CRTYPE_LHD_TRIBAL ) && isMale )
             {
@@ -195,7 +199,7 @@ void critter_move_item( Critter& cr, Item& item, uint8 fromSlot )
                     else if( crType == CRTYPE_DW_LEATHERBLUE_M )
                         crType = CRTYPE_BLD_LEATHERBLUE;
                     else if( crType == CRTYPE_DW_JUMPSUIT_M )
-                        crType = CRTYPE_BLD_JUMPSUIT;							
+                        crType = CRTYPE_BLD_JUMPSUIT;
                 }
             }
 
@@ -277,3 +281,4 @@ void critter_move_item( Critter& cr, Item& item, uint8 fromSlot )
     // SLOT_PERK_STEALTH_BOY   // +20 sneak
 }
 #endif
+

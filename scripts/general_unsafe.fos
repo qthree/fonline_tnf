@@ -9,7 +9,6 @@ import bool AddWalkPlane( Critter& npc, uint priority, uint16 hexX, uint16 hexY,
 import void Actions( Critter& cr, uint8 actionType, uint16 pickType ) from "context_callback";
 import void HookMeleeAttack( Critter& cr, Critter@ target )  from "handcuffs";                                             // ErlKing
 
-
 void unsafe_contmenu_callback( Critter& player, int id, int screenId, int actionId, string@ command, int[] @ myArr )
 {
     // fastpanel
@@ -1009,6 +1008,7 @@ void unsafe_hex_attack( Critter& player, int hexX, int hexY, int param2, string@
     Critter@ target = map.GetCritter( uint16( hexX ), uint16( hexY ) );
 
     player.ParamBase[ ST_CURRENT_AP ] -= _WeaponApCost( weapon, mode ) * 100;
+
     // HIT_LOCATION_UNCALLED
     CombatAttack( player, target, weapon, mode, ammo, uint16( hexX ), uint16( hexY ) );
 }
@@ -1041,7 +1041,7 @@ void unsafe_zombie( Critter& player, int hexX, int hexY, int param2, string@ lex
     }
 
     Map@ map = player.GetMap();
-    Map@ modoc = GetMapByPid( MAP_MODOC_Center, 0 );
+    Map@ modoc = GetMapByPid( MAP_MODOC, 0 );
     if( modoc is null )
         return;
 
@@ -1194,8 +1194,10 @@ void unsafe_say( Critter& player, int param0, int param1, int param2, string@ pa
     say( player, param0, param1, 0 );
 }
 
-void unsafe_sleep( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
+void unsafe_sleep( Critter& cr, int param0, int param1, int param2, string@ param3, int[] @ param4 )
 {
+    Critter @ player = (param1 != 0 ? GetCritter(param1) : cr);
+
     if( !valid( player ) )
         return;
     if( !player.IsDead() && !player.IsKnockout() && player.GetTimeEvents( CTE_WARNING, null, null, null ) == 0 )
@@ -1326,16 +1328,102 @@ void unsafe_itemhit( Critter& player, int id, int itemId, int param2, string@ pa
         player.Say( SAY_NETMSG, "Далеко." );
     }
 }
-/*
+
 import bool CritterGenerateCheck(Critter& cr, int[]& data) from "parameters";
+import bool _StartSurvival(Critter& cr) from "map_start";
 
 void unsafe_regchar(Critter& cr, int, int, int, string@, int[]@ param){
 
-    if(!CritterGenerateCheck(cr, param)) return;
+    if(!CritterGenerateCheck(cr, param)) {
+        cr.Say(SAY_NETMSG, "CHEATER!");
+        Log("!!!CHEATER!!! "+cr.Id/*+cr.GetIp()*/);
+        return;
+    }
 
     for(uint i = 0, j = param.length(); i < j; ++i){
         cr.ParamBase[i] = param[i];
     }
+    
+    skin(cr, cr.StatBase[ST_BASE_CRTYPE]);
+
+    cr.Say(SAY_NETMSG, "|0xFFFFFF Регистрация прошла успешно.");
+
+    //cr.StatBase[ST_REGISTER] = 1;
+
+    if(cr.ParamBase[QST_GAMEMODE] == GAME_SURVIVAL){_StartSurvival(cr); cr.Say(SAY_NETMSG, "|0xFFFFFF Добро пожаловать в игровой мир.");}
+    //temp
+    if(cr.ParamBase[QST_GAMEMODE] == GAME_ADVENTURE){
+      if(cr.StatBase[ST_BODY_TYPE] == BT_MEN || cr.StatBase[ST_BODY_TYPE] == BT_WOMEN){
+	GameVar@ citizenship = GetLocalVar(LVAR_modoc_citizenship, cr.Id );
+	if(citizenship !is null){citizenship.opAssign(3);}
+      }
+      
+      //432 490
+      cr.TransitToMap(1, Random(428, 434), Random(487, 492), 5);
+      cr.Say(SAY_NETMSG, "|0xFFFFFF Добро пожаловать в Модок.");
+    }
 
 }
-*/
+
+void unsafe_moveItemsCont(Critter& cr, int itemId, int count, int toCont, string@, int[]@ param){
+
+    Item@ cont = GetItem(cr.StatBase[ST_LAST_CONT_ID]);
+    Item@ transfer = GetItem(itemId);
+
+    if(cont is null || transfer is null) return;
+
+    if(toCont > 0){
+        MoveItem(transfer, count, cont, 0);
+    }else{
+        MoveItem(transfer, count, cr);
+    }
+
+    //cr.RunClientScript("client_screen_transfer@UpdateTransferScreen", 0, 0, 0, null, null);
+    GetItemsToCL(cr, cont, false);
+}
+
+void GetItemsToCL(Critter& cr, Item& locker, bool showWindow){
+
+            Item@[] contItems;
+            locker.GetItems(-1, contItems);
+            //contItems.insertLast(locker);
+
+            Log("item "+contItems.length());
+
+            int[] ids;
+
+            for(uint i = 0, j = contItems.length(); i<j; ++i){
+
+                if(contItems[i] is null) continue;
+
+                ids.insertLast(int(contItems[i].GetProtoId()));
+                ids.insertLast(int(contItems[i].Id));
+                ids.insertLast(int(contItems[i].GetCount()));
+                //ids.insertLast(int(contItems[i].PicInv));
+                //ids.insertLast(int(contItems[i].GetType()));
+
+                Log("itemid "+ids[i]+" "+showWindow);
+            }
+
+            cr.RunClientScript("client_screen_transfer@ShowTransferScreen", showWindow ? 1 : 0, 0, 0, null, ids);
+
+            return;
+}
+
+void unsafe_fastpanel_pocket( Critter& cr, int id, int screenId, int actionId, string@ command, int[] @ myArr ){
+
+    Item @ item = GetItem(uint(id));
+    if(item is null || item.Accessory != ACCESSORY_CRITTER) {Log("!!!POCKET CHEATER!!! "+cr.Id);return;}
+
+    if(item.GetType() == ITEM_TYPE_WEAPON){
+        _CritMoveItem(cr, item, SLOT_HAND1);
+        return;
+    }else{
+        if(FLAG(item.Flags, ITEM_CAN_USE)){
+            //#define CHOSEN_USE_ITEM                     ( 6 )  // Item id, Item pid, Target type (see below), Target id, Item mode (see below), Some param (timer)
+            int[] arr = {6, item.Id, item.GetProtoId(), 1, 4, 0};
+
+            cr.RunClientScript("client_screen_fastpanel@ActionUseItemPocket", 0, 0, 0, null, arr);
+        }
+    }
+}

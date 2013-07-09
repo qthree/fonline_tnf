@@ -1,5 +1,7 @@
 # 3.0.8 changelog - added various /items .frms, proto by Android, graphic by VVish
 # 3.0.9 changelog - fixed weight and cost of different stuff, by VVish
+# 3.1.0 changelog - added various /items & /inven .pngs, proto & graphics by VVish
+#
 
 [Proto]
 Pid=40
@@ -20,7 +22,7 @@ PicMapName=art\items\bpack2.frm
 PicInvName=art\inven\iv.frm
 Flags=150994974
 DisableEgg=1
-Weight=
+Weight=450
 SoundId=48
 Cost=500
 Material=2
@@ -40,7 +42,7 @@ Material=1
 [Proto] # Ментат
 Pid=53
 Type=2
-PicMapName=art\items\bpack2.frm
+PicMapName=art\items\syrign2.png
 PicInvName=art\inven\syring2.frm
 Flags=150994974
 DisableEgg=1
@@ -52,7 +54,7 @@ Material=1
 [Proto] # Баффаут
 Pid=87
 Type=2
-PicMapName=art\items\bpack2.frm
+PicMapName=art\items\dxboost2.png
 PicInvName=art\inven\dxboost2.frm
 Flags=150994974
 DisableEgg=1
@@ -101,7 +103,7 @@ Material=1
 [Proto] # Джет
 Pid=259
 Type=2
-PicMapName=art\items\bpack2.frm
+PicMapName=art\items\jet.png
 PicInvName=art\inven\jet.frm
 Flags=150994974
 DisableEgg=1
@@ -143,6 +145,7 @@ PicMapName=art\items\bpack2.frm
 PicInvName=art\inven\poison.frm
 Flags=150994974
 DisableEgg=1
+Weight=165
 Volume=1
 SoundId=48
 Cost=200
@@ -151,7 +154,7 @@ Material=2
 [Proto]
 Pid=424
 Type=2
-PicMapName=art\items\rock.frm
+PicMapName=art\items\rock3.png
 PicInvName=art\inven\rock3.frm
 Flags=419430430
 DisableEgg=1
@@ -163,7 +166,7 @@ Material=1
 [Proto]
 Pid=469
 Type=2
-PicMapName=art\items\beer.frm
+PicMapName=art\items\gutrot.png
 PicInvName=art\inven\gutrot.frm
 Flags=150994974
 DisableEgg=1

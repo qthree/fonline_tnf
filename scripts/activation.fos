@@ -176,7 +176,24 @@ void activation_get_code( Critter& player, uint id, string& code )
 //			Раздел для новой структуры функций активации
 // =================================================
 
+import bool SqlQueryCharStatusChange(uint id, uint8 status) from "sql_query";
+import int SqlQueryCharStatusGet(uint id) from "sql_query";
 
+void CharacterActiveNew(uint id){
+    SqlQueryCharStatusChange(id, LOGIN_STATUS_ACTIVE);
+}
+
+void CharacterStatusChange(uint id, uint8 status){
+    SqlQueryCharStatusChange(id, status);
+}
+
+bool CharacterActiveCheck(uint id){
+    return (SqlQueryCharStatusGet(id) == LOGIN_STATUS_ACTIVE);
+}
+
+int CharacterActiveGet(uint id){
+    return SqlQueryCharStatusGet(id);
+}
 
 
 // =================================================

@@ -182,7 +182,7 @@ void changedParam_Hunger( Critter& cr, uint, int oldValue )
 	cr.StatBase[ ST_HUNGER ] = CLAMP( cr.StatBase[ ST_HUNGER ], 0, 999 );
 
         for(uint8 i = ST_STRENGTH; i <= ST_LUCK; ++i){
-		
+
 		if(i == ST_CHARISMA || i == ST_LUCK) continue;
 		cr.StatBase[STAT_EXT_BEGIN+i] += hunger_array[cr.StatBase[ST_HUNGER] * 0.01] - hunger_array[oldValue * 0.01];
 	}
@@ -193,7 +193,7 @@ void changedParam_Thrist( Critter& cr, uint, int oldValue )
 	cr.StatBase[ ST_THRIST ] = CLAMP( cr.StatBase[ ST_THRIST ], 0, 999 );
 
         for(uint8 i = ST_STRENGTH; i <= ST_LUCK; ++i){
-		
+
 		if(i == ST_CHARISMA || i == ST_LUCK) continue;
 		cr.StatBase[STAT_EXT_BEGIN+i] += thrist_array[cr.StatBase[ST_THRIST] * 0.01] - thrist_array[oldValue * 0.01];
 	}
@@ -202,22 +202,22 @@ void changedParam_Thrist( Critter& cr, uint, int oldValue )
 void changedParam_Dyspnea( Critter& cr, uint, int oldValue )
 {
     if(cr.IsNpc()) {cr.StatBase[ ST_DYSPNEA ] = 100; return;}
-  
+
     cr.StatBase[ ST_DYSPNEA ] = CLAMP( cr.StatBase[ ST_DYSPNEA ], 0, 100 );
-    
+
     int16 armorPid = (valid(_CritGetItemArmor(cr)) ? -1 : _CritGetItemArmor(cr).GetProtoId());
     bool isPowerArmor = ( armorPid == PID_POWERED_ARMOR  || armorPid == PID_HARDENED_POWER_ARMOR || armorPid == PID_ADVANCED_POWER_ARMOR || armorPid == PID_ADVANCED_POWER_ARMOR_MK2); //for apa and pa
-    
+
     if( cr.StatBase[ ST_DYSPNEA ] <= 50 && !cr.IsDead() && cr.Param[ QST_GAMEMODE ] != GAME_START && !isPowerArmor)
       // && !(/* cr.GetAccess() < ACCESS_MODER || */cr.Param[ QST_GAMEMODE ] == GAME_TEST ) )
     {
 
         InjureCritter( cr, 5 - (cr.StatBase[ST_DYSPNEA] * 0.1), DAMAGE_NORMAL, cr.Dir, 0 );
 	cr.TimeoutBase[TO_BATTLE] = 0;
-	
+
 	if(cr.StatBase[ ST_DYSPNEA ] <= 10)
 		cr.ToKnockout( KNOCKOUT_ANIM2_DEFAULT( false ), 5, cr.HexX, cr.HexY );
-	
+
         //cr.Say( SAY_NETMSG, "Вы умерли от удушья." );
     }
 
@@ -283,9 +283,11 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
         _param_[ ST_LEVEL ] = 1;
 
     if( _param_[ TRAIT_SMALL_FRAME ] != 0 )
-        _param_[ ST_AGILITY ] += 1;
+        //_param_[ ST_AGILITY ] += 1; //original
+        _param_[ ST_AGILITY_EXT ] += 1;
     if( _param_[ TRAIT_BRUISER ] != 0 )
-        _param_[ ST_STRENGTH ] += 2;
+        //_param_[ ST_STRENGTH ] += 2; //original
+        _param_[ ST_STRENGTH_EXT ] += 2;
     if( _param_[ TRAIT_GOOD_NATURED ] != 0 )
     {
         _param_[ SK_FIRST_AID ] += 15;
@@ -305,26 +307,35 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
     //	for(uint i=SKILL_BEGIN;i<=SKILL_END;i++) _param_[i]-=10;
     // }
 
-    _param_[ SK_SMALL_GUNS ] += 5 + 4 * _param_[ ST_AGILITY ];
-    _param_[ SK_BIG_GUNS ] += 0 + 2 * _param_[ ST_AGILITY ];
-    _param_[ SK_ENERGY_WEAPONS ] += 0 + 2 * _param_[ ST_AGILITY ];
-    _param_[ SK_UNARMED ] += 30 + 2 * ( _param_[ ST_AGILITY ] + _param_[ ST_STRENGTH ] );
-    _param_[ SK_MELEE_WEAPONS ] += 20 + 2 * ( _param_[ ST_AGILITY ] + _param_[ ST_STRENGTH ] );
-    _param_[ SK_THROWING ] += 0 + 4 * _param_[ ST_AGILITY ];
-    _param_[ SK_FIRST_AID ] += 0 + 2 * ( _param_[ ST_PERCEPTION ] + _param_[ ST_INTELLECT ] );
-    _param_[ SK_DOCTOR ] += 5 + _param_[ ST_PERCEPTION ] + _param_[ ST_INTELLECT ];
-    _param_[ SK_SNEAK ] += 5 + 3 * _param_[ ST_AGILITY ];
-    _param_[ SK_LOCKPICK ] += 10 + _param_[ ST_PERCEPTION ] + _param_[ ST_AGILITY ];
-    _param_[ SK_STEAL ] += 0 + 3 * _param_[ ST_AGILITY ];
-    _param_[ SK_TRAPS ] += 10 + _param_[ ST_PERCEPTION ] + _param_[ ST_AGILITY ];
-    _param_[ SK_SCIENCE ] += 0 + 4 * _param_[ ST_INTELLECT ];
-    _param_[ SK_REPAIR ] += 0 + 3 * _param_[ ST_INTELLECT ];
-    _param_[ SK_SPEECH ] += 0 + 5 * _param_[ ST_CHARISMA ];
-    _param_[ SK_BARTER ] += 0 + 4 * _param_[ ST_CHARISMA ];
-    _param_[ SK_GAMBLING ] += 0 + 5 * _param_[ ST_LUCK ];
-    _param_[ SK_OUTDOORSMAN ] += 0 + 2 * ( _param_[ ST_ENDURANCE ] + _param_[ ST_INTELLECT ] );
-    _param_[ SK_FARMING] += 0 + 2 * (_param_[ST_INTELLECT]);
-    _param_[ SK_COOKING] += 0 + 2 * (_param_[ST_AGILITY]);
+    //tnf edit for reg screen
+    int     st_str = (_param_[ST_STRENGTH]+_param_[ST_STRENGTH_EXT]),
+            st_per = (_param_[ST_PERCEPTION]+_param_[ST_PERCEPTION_EXT]),
+            st_edu = (_param_[ST_ENDURANCE]+_param_[ST_ENDURANCE_EXT]),
+            st_cha = (_param_[ST_CHARISMA]+_param_[ST_CHARISMA_EXT]),
+            st_int = (_param_[ST_INTELLECT]+_param_[ST_INTELLECT_EXT]),
+            st_agl = (_param_[ST_AGILITY]+_param_[ST_AGILITY_EXT]),
+            st_lck = (_param_[ST_LUCK]+_param_[ST_LUCK_EXT]);
+
+    _param_[ SK_SMALL_GUNS ] += 5 + 4 * st_agl;                                         //_param_[ ST_AGILITY ];
+    _param_[ SK_BIG_GUNS ] += 0 + 2 * st_agl;                                           //_param_[ ST_AGILITY ];
+    _param_[ SK_ENERGY_WEAPONS ] += 0 + 2 * st_agl;                                     //_param_[ ST_AGILITY ];
+    _param_[ SK_UNARMED ] += 30 + 2 * (st_agl + st_str);                                //( _param_[ ST_AGILITY ] + _param_[ ST_STRENGTH ] );
+    _param_[ SK_MELEE_WEAPONS ] += 20 + 2 * (st_agl + st_str);                          //( _param_[ ST_AGILITY ] + _param_[ ST_STRENGTH ] );
+    _param_[ SK_THROWING ] += 0 + 4 * st_agl;                                           //_param_[ ST_AGILITY ];
+    _param_[ SK_FIRST_AID ] += 0 + 2 * (st_per + st_int);                               //( _param_[ ST_PERCEPTION ] + _param_[ ST_INTELLECT ] );
+    _param_[ SK_DOCTOR ] += 5 + st_per + st_int;                                        //_param_[ ST_PERCEPTION ] + _param_[ ST_INTELLECT ];
+    _param_[ SK_SNEAK ] += 5 + 3 * st_agl;                                              //_param_[ ST_AGILITY ];
+    _param_[ SK_LOCKPICK ] += 10 + st_per + st_agl;                                     //_param_[ ST_PERCEPTION ] + _param_[ ST_AGILITY ];
+    _param_[ SK_STEAL ] += 0 + 3 * st_agl;                                              //_param_[ ST_AGILITY ];
+    _param_[ SK_TRAPS ] += 10 + st_per + st_agl;                                        //_param_[ ST_PERCEPTION ] + _param_[ ST_AGILITY ];
+    _param_[ SK_SCIENCE ] += 0 + 4 * st_int;                                            //_param_[ ST_INTELLECT ];
+    _param_[ SK_REPAIR ] += 0 + 3 * st_int;                                             //_param_[ ST_INTELLECT ];
+    _param_[ SK_SPEECH ] += 0 + 5 * st_cha;                                             //_param_[ ST_CHARISMA ];
+    _param_[ SK_BARTER ] += 0 + 4 * st_cha;                                             //_param_[ ST_CHARISMA ];
+    _param_[ SK_GAMBLING ] += 0 + 5 * st_lck;                                           //_param_[ ST_LUCK ];
+    _param_[ SK_OUTDOORSMAN ] += 0 + 2 * st_edu + st_int;                               //( _param_[ ST_ENDURANCE ] + _param_[ ST_INTELLECT ] );
+    _param_[ SK_FARMING] += 0 + 2 * st_int;                                             //(_param_[ST_INTELLECT]);
+    _param_[ SK_COOKING] += 0 + 2 * st_agl;                                             //(_param_[ST_AGILITY]);
 
     if( _param_[ TAG_SKILL1 ] != 0 )
         _param_[ _param_[ TAG_SKILL1 ] ] += 30;                      // Roleplay
@@ -382,12 +393,86 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
     _param_[ ST_THRIST ] = 999;
     _param_[ ST_DYSPNEA ] = 100;
     _param_[ ST_SPEED_MOD ] = 100;
-    
+
+    //races bonuses
+    if(_param_[ST_GENDER] == GENDER_SUPERMUTANT){
+        _param_[ST_MAX_LIFE] += 150;
+        _param_[ST_MELEE_DAMAGE] += 8;
+        _param_[ST_ARMOR_CLASS] -= 15;
+        _param_[ST_NORMAL_RESIST] += 20;
+    }else
+    if(_param_[ST_GENDER] == GENDER_GHOUL){
+        _param_[ST_MAX_LIFE] += 100;
+        _param_[ST_RADIATION_RESISTANCE] += 40;
+        _param_[ST_POISON_RESISTANCE] += 40;
+        _param_[ST_HEALING_RATE] += 8;
+    }else
+    if(_param_[ST_GENDER] == GENDER_IT){
+        _param_[ST_HEALING_RATE] = 0;
+        _param_[ST_RADIATION_RESISTANCE] = 95;
+        _param_[ST_POISON_RESISTANCE] = 95;
+        _param_[ST_NORMAL_RESIST] += 40;
+        _param_[ST_EMP_RESIST] = 0;
+        _param_[ST_EMP_ABSORB] = 0;
+        _param_[ST_CARRY_WEIGHT] += LBS_TO_GRAMM(275);
+        _param_[ ST_ACTION_POINTS ] += 3;
+    }
+
      for(uint8 i = ST_STRENGTH; i <= ST_LUCK; ++i){ //wtf?!
 
 		if(i == ST_CHARISMA || i == ST_LUCK) continue;
-		_param_[STAT_EXT_BEGIN+i] = -9;
+		//_param_[STAT_EXT_BEGIN+i] = -9;       //tnf
      }
+}
+
+//#define STAT_
+
+//pm added for check basic parameters
+bool RaceParamCheck(uint8 gender, uint paramId, int paramVal){
+
+    bool r = true;
+
+    if(gender == GENDER_MALE || gender == GENDER_FEMALE){
+        r = (paramVal >= 1 && paramVal <= 10);
+    }else
+    if(gender == GENDER_SUPERMUTANT){
+        switch(paramId){
+            case ST_STRENGTH    : r = (paramVal >= 8 && paramVal <= 13); break;
+            case ST_PERCEPTION  : r = (paramVal >= 3 && paramVal <= 7); break;
+            case ST_ENDURANCE   : r = (paramVal >= 8 && paramVal <= 13); break;
+            case ST_CHARISMA    : r = (paramVal >= 1 && paramVal <= 3); break;
+            case ST_INTELLECT   : r = (paramVal >= 1 && paramVal <= 4); break;
+            case ST_AGILITY     : r = (paramVal >= 3 && paramVal <= 7); break;
+            case ST_LUCK        : r = (paramVal >= 1 && paramVal <= 10); break;
+            default             : r = false; break;
+        }
+    }else
+    if(gender == GENDER_GHOUL){
+        switch(paramId){
+            case ST_STRENGTH    : r = (paramVal >= 3 && paramVal <= 6); break;
+            case ST_PERCEPTION  : r = (paramVal >= 5 && paramVal <= 12); break;
+            case ST_ENDURANCE   : r = (paramVal >= 3 && paramVal <= 8); break;
+            case ST_CHARISMA    : r = (paramVal >= 1 && paramVal <= 3); break;
+            case ST_INTELLECT   : r = (paramVal >= 5 && paramVal <= 14); break;
+            case ST_AGILITY     : r = (paramVal >= 3 && paramVal <= 8); break;
+            case ST_LUCK        : r = (paramVal >= 1 && paramVal <= 10); break;
+            default             : r = false; break;
+        }
+    }else
+    if(gender == GENDER_IT){
+        switch(paramId){
+            case ST_STRENGTH    : r = (paramVal >= 4 && paramVal <= 13); break;
+            case ST_PERCEPTION  : r = (paramVal >= 10 && paramVal <= 15); break;
+            case ST_ENDURANCE   : r = (paramVal >= 4 && paramVal <= 13); break;
+            case ST_CHARISMA    : r = (paramVal == 1); break;
+            case ST_INTELLECT   : r = (paramVal >= 10 && paramVal <= 15); break;
+            case ST_AGILITY     : r = (paramVal >= 3 && paramVal <= 8); break;
+            case ST_LUCK        : r = (paramVal == 1); break;
+            default             : r = false; break;
+        }
+    }
+
+    return r;
 }
 
 #ifdef __CLIENT
@@ -396,21 +481,37 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
 # define STR_WRONG_GENDER    ( 324 )
 // Check valid of input data
 bool CritterGenerateCheck( int[]& data ) // Export to client_main@player_data_check
+#endif //__CLIENT
+
+#ifndef __CLIENT
+bool CritterGenerateCheck(Critter& cr, int[]& data ) // Export to client_main@player_data_check
+#endif //!__CLIENT
 {
     // Check special
     int special = 0;
     for( uint i = ST_STRENGTH; i <= ST_LUCK; i++ )
     {
-        if( data[ i ] < 1 || data[ i ] > 10 )
+        //if( data[ i ] < 1 || data[ i ] > 10 ) //original
+        if(!RaceParamCheck(data[ST_GENDER], i, data[i]))
         {
+#ifdef __CLIENT
             Message( GetMsgStr( TEXTMSG_GAME, STR_NET_WRONG_SPECIAL ) );
+#endif //__CLIENT
+#ifndef __CLIENT
+            cr.Say(SAY_NETMSG, "Ошибка генерации. Обратитесь к Геим Мастеру.");
+#endif //!__CLIENT
             return false;
         }
         special += data[ i ];
     }
     if( special != __StartSpecialPoints )
     {
+#ifdef __CLIENT
         Message( GetMsgStr( TEXTMSG_GAME, STR_NET_WRONG_SPECIAL ) );
+#endif //__CLIENT
+#ifndef __CLIENT
+            cr.Say(SAY_NETMSG, "Ошибка генерации. Обратитесь к Геим Мастеру.");
+#endif //!__CLIENT
         return false;
     }
 
@@ -419,13 +520,19 @@ bool CritterGenerateCheck( int[]& data ) // Export to client_main@player_data_ch
         ( data[ TAG_SKILL2 ] < int(SKILL_BEGIN) || data[ TAG_SKILL2 ] > int(SKILL_END) ) ||
         ( data[ TAG_SKILL3 ] < int(SKILL_BEGIN) || data[ TAG_SKILL3 ] > int(SKILL_END) ) )
     {
+#ifdef __CLIENT
         Message( GetMsgStr( TEXTMSG_GAME, STR_NET_WRONG_TAGSKILL ) );
+#endif //__CLIENT
+#ifndef __CLIENT
+            cr.Say(SAY_NETMSG, "Ошибка генерации. Обратитесь к Геим Мастеру.");
+#endif //!__CLIENT
         return false;
     }
 
+    //deprecated
     // girl
     // 33 34 35 36 37 38 61 63 73 74 83 94
-    if( data[ ST_GENDER ] == 0 )
+    /*if( data[ ST_GENDER ] == 0 )
     {
         if( ( ( data[ ST_BODY_TYPE ] >= 33 && data[ ST_BODY_TYPE ] <= 38 ) || data[ ST_BODY_TYPE ] == 61 || data[ ST_BODY_TYPE ] == 63 || data[ ST_BODY_TYPE ] == 73 || data[ ST_BODY_TYPE ] == 74 || data[ ST_BODY_TYPE ] == 83 || data[ ST_BODY_TYPE ] == 94 ) )
         {
@@ -444,7 +551,7 @@ bool CritterGenerateCheck( int[]& data ) // Export to client_main@player_data_ch
     }
 
     if( data[ ST_BODY_TYPE ] == 0 )
-        data[ ST_BODY_TYPE ] = ( data[ ST_GENDER ] == 0 ? 62 : 61 );
+        data[ ST_BODY_TYPE ] = ( data[ ST_GENDER ] == 0 ? 62 : 61 );*/
     // guys
     // 98 96 93 92 91 89 88 87 84 82 78 77 72 64 62 57 56 48 45 44 43 42 41 40 39 31
 

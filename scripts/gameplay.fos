@@ -8,7 +8,7 @@ import void DropRadiation( Critter& cr ) from "radiation";
 import void DontPickItUp( Critter& cr ) from "arcade_menu";
 // import void SkinMenu(Critter@ cr) from "arcade_menu";
 import void ArcadeDead( Critter& cr, uint8 time ) from "arcade_menu";
-import void StartArcadeMenu( Critter@ cr ) from "arcade_menu";
+//import void StartArcadeMenu( Critter@ cr ) from "arcade_menu";
 import void ShowHiveButtons( Critter& cr ) from "arcade_menu";
 
 // import bool ChangeWildness(uint i, int delta) from "globalmap_group";
@@ -23,7 +23,8 @@ import uint GetAllPlayers( Critter@[]& crs ) from "manager";
 //
 import void Item_SetFrame( Item& item, uint8 frame ) from "item";
 
-import void ObjectTimeLoop() from "map_sutter_objects";
+import void ObjectTimeLoop() from "interactive_obj";
+//import void ObjectTimeLoop() from "map_sutter_objects";
 import void CritterAccessDrop(Critter& cr, uint id) from "accessdb";
 
 

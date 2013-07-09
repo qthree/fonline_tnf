@@ -925,6 +925,8 @@ bool SpawnLO( Map& map )
 
 bool SpawnItemCell( uint mapId )
 {
+    if(mapId <= 0) return false;
+
     Map @ map = GetMap( mapId );
     if( !(map is null) )
     {

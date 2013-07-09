@@ -4,7 +4,9 @@
 #include "_msgstr.fos"
 #include "_colors.fos"
 import void Log_Lockpick( Critter& player, int lock, int force, int succes, string@ param3, int[] @ param4 )  from "gm"; // ErlKing
-import bool IsDoorAutomatic( uint pid ) from "map_sutter_objects";
+import bool IsDoorAutomatic( uint pid ) from "interactive_obj";
+import void GetItemsToCL(Critter& cr, Item& locker, bool showWindow) from "general_unsafe";
+//import bool IsDoorAutomatic( uint pid ) from "map_sutter_objects";
 
 bool UseItemOnLocker( Critter& cr, Item& locker, Item& item )                                                            // Export
 {
@@ -49,7 +51,7 @@ bool UseSkillOnLocker( Critter& cr, Item& locker, int skill ) // Export
         cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_USE_NOTHING );
         return true;
     }
-    
+
     if( cr.StatBase[ST_BODY_TYPE] >= BT_BRAHMIN && cr.StatBase[ST_BODY_TYPE] != BT_ROBOT )
     {
 	if (cr.IsNpc())
@@ -65,7 +67,7 @@ bool UseSkillOnLocker( Critter& cr, Item& locker, int skill ) // Export
 		map.MoveHexByDir( NpcX, NpcY, revDir, Random(5,10) );
 		AddWalkPlane( cr, 0, cr.HexX, cr.HexY, revDir, false, 0 );
 		}
-	
+
 	cr.Say(SAY_NETMSG, "Это Вам не под силу.");
 	return true;
     }
@@ -79,7 +81,7 @@ bool UseSkillOnLocker( Critter& cr, Item& locker, int skill ) // Export
 				cr.DropPlanes();
 				cr.ErasePlane( AI_PLANE_ATTACK, true );
 				uint16 NpcX = cr.HexX;
-				uint16 NpcY = cr.HexY;		
+				uint16 NpcY = cr.HexY;
 				uint8 revDir;
 				revDir = cr.Dir + 3;
 				if( revDir > 5 )
@@ -120,7 +122,7 @@ bool UseSkillOnLocker( Critter& cr, Item& locker, int skill ) // Export
             }
 
 
-            if( locker./*Val8*/Val7 == 0 && IsDoorAutomatic( locker.GetProtoId() ) )         // pm added //set to Val8 needed
+            if( locker.Val8 == 0 && IsDoorAutomatic( locker.GetProtoId() ) )         // pm added //set to Val8 needed //val7
             {
                 cr.Say( SAY_NETMSG, "Энергоснабжение отключено. Дверь заблокированна." );
                 return true;
@@ -182,13 +184,15 @@ bool UseSkillOnLocker( Critter& cr, Item& locker, int skill ) // Export
                 {
                     locker.LockerOpen();
                     cr.ParamBase[ ST_LAST_CONT_ID ] = locker.Id;
-                    cr.ShowContainer( null, locker, locker.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
+                    GetItemsToCL(cr, locker, true);
+                    //cr.ShowContainer( null, locker, locker.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
                 }
             }
             else
             {
                 cr.ParamBase[ ST_LAST_CONT_ID ] = locker.Id;
-                cr.ShowContainer( null, locker, locker.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
+                GetItemsToCL(cr, locker, true);
+                //cr.ShowContainer( null, locker, locker.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
             }
         }
     }
@@ -199,7 +203,8 @@ bool UseSkillOnLocker( Critter& cr, Item& locker, int skill ) // Export
               FLAG( locker.LockerCondition, LOCKER_ISOPEN ) ) )
         {
             cr.ParamBase[ ST_LAST_CONT_ID ] = locker.Id;
-            cr.ShowContainer( null, locker, locker.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
+            GetItemsToCL(cr, locker, true);
+            //cr.ShowContainer( null, locker, locker.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
         }
         else
             cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_USE_NOTHING );
@@ -313,7 +318,7 @@ void answer_LOCKPICK( Critter& player, uint answerI, string& answerS )
     {
 	Map@ map = player.GetMap();
         map.SetText( lock.HexX, lock.HexY, COLOR_RED, "УДАР" );
-	
+
 	if(!FLAG( lock.LockerCondition, LOCKER_ISOPEN ) && lock.Val0 == 0  && !IsDoorAutomatic(lock.GetProtoId())){
 		if(Random(lock.LockerComplexity+50, 350) < player.Stat[ST_STRENGTH] * player.Skill[SK_UNARMED] / 10){
 			lock.LockerOpen();
@@ -330,9 +335,9 @@ void answer_LOCKPICK( Critter& player, uint answerI, string& answerS )
             lock.LockerOpen();
             return;
         }*/
-        
+
         Log_Lockpick( player, player.Stat[ ST_VAR0 ], 1, 0, null, null );
-	
+
 	return;
     }
     if( answerI == 2 )

@@ -765,7 +765,81 @@ uint GetAttackDistantion( CritterMutual& cr, Item& item, uint8 mode )
         dist = 0;
     return dist;
 }
+/*
+bool CheckLook(Critter& cr, Critter& opponent){
+    if( crCritterIsNpc && opponent.CritterIsNpc && cr.Params[ ST_BODY_TYPE ] != 0 && opponent.Params[ ST_BODY_TYPE ] != 0 && cr.Params[ MERC_MASTER_ID ] == 0 && opponent.Params[ MERC_MASTER_ID ] == 0)
+    {
+        return false;
+    }
 
+    uint8 *a=const_cast<uint8 *>(&((Client*)&cr)->Access);
+
+    if( map.MapPid == MAP_UTILITY_START && !(opponent.CritterIsNpc) && !(cr.CritterIsNpc && cr.Access < ACCESS_MODER )
+        return false;
+
+    uint16 hexX = cr.HexX, hexY = cr.HexY, oppHexX = opponent.HexX, oppHexY = opponent.HexY;
+
+    uint   dist = GetDistantion( hexX, hexY, oppHexX, oppHexY );
+
+    if( opponent.Param[ QST_INVIS ] != 0 && ( opponent.Param[ QST_INVIS ] - 1 ) < dist && ( !( cr.IsPlayer() ) || cr.IsPlayer() && cr.GetAccess() < ACCESS_MODER ) )
+        return false;
+    if( opponent.Param[ QST_INVIS ] > dist || cr.Param[ QST_VISION ] >= dist )
+        return true;
+
+    uint maxView = cr.Stat[ ST_PERCEPTION ] * 5,
+         maxHear = cr.Stat[ ST_PERCEPTION ] * 1.5;
+
+    bool isView = true, isHear = true, isRunOpp = opponent.IsRuning, isRunCr = cr.IsRuning;
+
+    int8 startDir = GetDirection( hexX, hexY, oppHexX, oppHexY );
+
+    int8 lookDir = abs( startDir - cr.Dir );
+    if( lookDir > 3 )
+        lookDir = 6 - lookDir;
+
+    switch( lookDir )
+    {
+    case 0:
+        maxView *= 1;
+        break;
+    case 1:
+        maxView *= 0.7;
+        break;
+    case 2:
+        maxView *= 0.5;
+        break;
+    case 3:
+        maxView *= 0;
+        break;
+    default:
+        Log( "look dir error!" );
+        return false;
+    }
+
+    //maxHear *= ( isRunOpp ? 1.4 : 1 ) * ( isRunCr ? 0.5 : 1 );
+
+    uint16 wallHexX = oppHexX, wallHexY = oppHexY;
+
+    map.GetHexCoord( hexX, hexY, wallHexX, wallHexY, 0.0f, maxView );
+    uint walldist = GetDistantion( hexX, hexY, wallHexX, wallHexY );
+
+    bool isOutWall = dist > walldist;
+
+    if( isOutWall )
+    {
+        isView = false;
+        maxHear *= 0.5;
+    }
+
+    if( dist > maxView )
+        isView = false;
+
+    if( dist > maxHear )
+        isHear = false;
+
+    return ( !isView && !isHear ? false : true );
+}
+*/
 /************************************************************************/
 /* Generic stuff                                                        */
 /************************************************************************/

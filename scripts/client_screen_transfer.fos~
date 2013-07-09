@@ -1,0 +1,1104 @@
+//client_screen_transfer
+
+#include "_client_defines.fos"
+#include "client_gui_h.fos"
+#include "_colors.fos"
+#include "_defines.fos"
+
+import string item_description(ItemCl& item, int lookType) from "client_main";
+import string generic_description(int descType, int& offsX, int& offsY) from "client_main";
+
+
+#define INVENTORY_ITEMS_LIST_COUNT		(20)
+#define INVENTORY_ITEMS_LIST_DOWN		(0)
+#define INVENTORY_ITEMS_LIST_UP			(1)
+#define INVENTORY_ITEMS_LIST_LEFT		(2)
+#define INVENTORY_ITEMS_LIST_RIGHT		(3)
+#define INVENTORY_ITEMS_LIST_DOWN_FORCED	(4)
+#define INVENTORY_ITEMS_LIST_UP_FORCED		(5)
+
+#define INVENTORY_SORT_COUNT			(0)
+#define INVENTORY_SORT_ABC			(1)
+#define INVENTORY_SORT_SLOT			(2)
+#define INVENTORY_SORT_NOP			(3)
+
+#define INVENTORY_SORT_COUNT			(0)
+#define INVENTORY_SORT_ABC			(1)
+#define INVENTORY_SORT_SLOT			(2)
+#define INVENTORY_SORT_NOP			(3)
+
+#define INVENTORY_GROUP_NOP			(0)
+#define INVENTORY_GROUP_ARMOR			(1)
+#define INVENTORY_GROUP_DRUG			(2)
+#define INVENTORY_GROUP_WEAPON			(3)
+#define INVENTORY_GROUP_AMMO			(4)
+#define INVENTORY_GROUP_MISC			(5)
+
+#define SIDE_LEFT                       (0)
+#define SIDE_RIGHT                      (1)
+
+#define ITEM_TRANSFER_MEMBERS           (3)
+
+#define DEBUG_ITEM_INV_NAME		("no item")
+
+class ItemTransfer
+{
+    //uint8 Type;
+
+    uint16 Pid;
+
+    uint Id;
+    uint Count;
+
+    //uint PicInv;
+    //uint Weight
+
+    ItemTransfer(uint16 pid, uint id, uint count){//, uint picInv, uint8 type){
+        Pid = pid;
+        Id = id;
+        Count = count;
+        //PicInv = picInv;
+        //Type = type;
+    }
+}
+
+class InventoryItem
+{
+	InventoryItem()
+	{
+		Child = false;
+		Rolled = false;
+	}
+
+	//InventoryItem(uint id, uint16 count, string name, ItemCl& item)
+	InventoryItem(uint id, uint16 count, string name, ItemTransfer& item)
+	{
+		Id.resize(1);
+		Count.resize(1);
+
+		Id[0] = id;
+		Count[0] = count;
+		Name = name;
+
+		Child = true;
+
+		tempItem.resize(1);
+		@tempItem[0] = item;
+	}
+
+	//InventoryItem(uint[] id, uint16[] count, string name, ItemCl@[]& item)
+	InventoryItem(uint[] id, uint16[] count, string name, ItemTransfer@[]& item)
+	{
+		Id = id;
+		Count = count;
+		Name = name;
+
+		Child = false;
+
+		tempItem = item;
+	}
+
+	void GetItems(ItemTransfer@[]& items)
+	{
+		items = tempItem;
+	}
+
+	void RemoveArrLast(){
+		RemoveArr(Id.length()-1);
+	}
+
+	void RemoveArr(uint8 index){
+		Id.removeAt(index);
+		Count.removeAt(index);
+	}
+
+	uint[] Id;
+	uint16[] Count;
+	uint16 ProtoId;
+	string Name;
+	bool Child;
+	bool Rolled;
+
+	int TextW0;
+	int TextW1;
+	string Text0;
+	string Text1;
+
+	//ItemCl@[] tempItem;
+	ItemTransfer@[] tempItem;
+}
+
+class ScreenTransfer : IGUIScreenCallbackShow, IGUIScreenCallbackHide
+{
+	IGUIScreenOpt@ screenOpt;
+	InvItemList@[] ItemList;
+	InventoryItemShow@ ItemShow;
+	InventoryItemDesc@ ItemDesc;
+	InventoryButtonMoveItem@[] MoveBtn;
+	//InventoryItemSlide@[] ItemSlide;
+	//InventoryItemAction@[] ItemActions;
+	//InventoryItemSort@[] ItemSorts;
+	//InventoryItemGroup@[] ItemGroups;
+
+	ScreenTransfer()
+	{
+	    ItemList.resize(2);
+	    MoveBtn.resize(2);
+	}
+
+	void OnShow(int p0, int p1, int p2)
+	{
+		@screenOpt=GUI_GetScreenOptions();
+		Message("SHOW");
+		ItemList[SIDE_LEFT].LoadInventory();
+        ItemList[SIDE_LEFT].ShowList(0);
+
+        ItemList[SIDE_RIGHT].LoadInventory();
+        ItemList[SIDE_RIGHT].ShowList(0);
+
+
+		//ItemCl @ cont = GetItem(p0);
+	}
+
+	void OnHide(int p0, int p1, int p2)
+	{
+		//RemoveSkillChange();
+	}
+}
+
+class InvItemList : IGUIElementCallbackInit//, IGUIElementCallbackMouseClick
+{
+	IGUIElementOpt@ Options;
+	ScreenTransfer @ Instance;
+	InventoryItem[] InventoryItems;
+	InventoryItemButton@[] InventoryButtons;
+
+	uint8   Side;
+
+	uint8 prevIndex;
+	int GroupType;
+
+	uint Counter;
+
+	InvItemList(ScreenTransfer& instance, uint8 side)
+	{
+		@Instance = instance;
+		prevIndex = uint8(-1);
+		GroupType = 0;
+
+		Side = side;
+
+		InventoryButtons.resize(INVENTORY_ITEMS_LIST_COUNT);
+	}
+
+	void OnInit()
+	{
+		@Options = GUI_GetElementOptions();
+		@Instance.ItemList[Side] = this;
+		//Message(""+prevIndex);
+		//LoadInventory();
+		//ShowList(0);
+
+	}
+
+	ItemTransfer@ GetTransferItem(){
+
+	    uint16 itemIndex = InventoryButtons[prevIndex].InvItemIndex;
+
+	    Message("itm index "+itemIndex);
+
+	    return InventoryItems[itemIndex].tempItem[0];
+	}
+
+	bool LoadInventory()
+	{
+		CritterCl @ choo = GetChosen();
+		if(choo is null) return false;
+
+		//ItemCl@[] invItems;
+		//ItemCl@[] invItems_temp;
+
+		ItemTransfer@[] invItems;
+		ItemTransfer@[] invItems_temp;
+
+		if(Side > 0){
+//		    cont.GetItems(-1, invItems);
+            invItems = contItems;
+		}else{
+		    ItemCl@[] invItems_;
+            choo.GetItems(-1, invItems_);
+
+            for(uint i = 0, j = invItems_.length(); i<j;++i){
+                //if(i % ITEM_TRANSFER_MEMBERS == 0){
+                    //ItemTransfer@ itm = ItemTransfer(i, i+1, i+2);
+                    if(invItems_[i] is null) continue;
+
+                    invItems.insertLast(ItemTransfer(invItems_[i].GetProtoId(), invItems_[i].Id, invItems_[i].GetCount()));//, i++, i++));
+                //}
+            }
+		}
+
+
+
+		InventoryItems.resize(0);
+		uint16 itemsLen = invItems.length();
+		uint[] ids;
+		uint16[] count;
+		uint16[] protos;
+
+		Message("side "+Side+" len "+itemsLen);
+
+		for(uint16 i = 0;  i < itemsLen; ++i)
+		{
+			uint16 protoIndex = uint16(protos.find(invItems[i].Pid));
+			if(protoIndex != uint16(-1))
+			{
+				protos.insertAt(protoIndex, invItems[i].Pid);
+				ids.insertAt(protoIndex, invItems[i].Id);
+				count.insertAt(protoIndex, invItems[i].Count);
+				invItems_temp.insertAt(protoIndex, invItems[i]);
+			}
+
+			else
+			{
+				protos.insertLast(invItems[i].Pid);
+				ids.insertLast(invItems[i].Id);
+				count.insertLast(invItems[i].Count);
+				invItems_temp.insertLast(invItems[i]);
+ 			}
+
+			//ItemCl @ test = GetItem(invItems[i].Id);
+
+		}
+
+		ids.insertLast(uint16(-1)); //temp
+		protos.insertLast(uint16(-1));
+		count.insertLast(uint16(-1));
+
+		uint16 whileI = 0,
+		       protoId = 0;
+		while(ids.length() > 1)
+		{
+			//ItemCl@[] tempItem;
+			ItemTransfer@[] tempItem;
+			uint[] tempIds;
+			uint16[] tempCounts;
+			uint16 tempProto;
+
+			protoId = protos.length() > 0 ? protos[0] : 0;
+
+			while(protoId == protos[0] && ids.length() > 0)
+			{
+				tempIds.insertLast(ids[0]);
+				tempCounts.insertLast(count[0]);
+				tempProto = protos[0];
+
+				tempItem.insertLast(invItems_temp[0]);
+
+				protos.removeAt(0);
+				ids.removeAt(0);
+				count.removeAt(0);
+				invItems_temp.removeAt(0);
+
+			};
+
+			InventoryItem tempInvItem(tempIds, tempCounts, GetMsgStr(TEXTMSG_ITEM,tempProto*100), tempItem);
+			InventoryItems.insertLast(tempInvItem);
+
+			tempIds.resize(0);
+			tempCounts.resize(0);
+
+		};
+		return true;
+	}
+
+	bool ShowList(uint16 fromIndex)
+	{
+		uint16 	itemsLen = InventoryItems.length();
+			//counter = 0;
+
+        ProtoItem @ proto = null;
+
+		for(uint16 i = 0, j = INVENTORY_ITEMS_LIST_COUNT; i < j; ++i)
+		{
+			bool singleItem = true;
+
+			uint16 itemsCount = 0,
+			       index = i + fromIndex;
+			string name = "";
+			string slot = "";
+
+			if(index < itemsLen)
+			{
+
+			    @proto = GetProtoItem(InventoryItems[index].tempItem[0].Pid);
+
+				if(GroupType != INVENTORY_GROUP_NOP)					//group sort
+				{
+					if(GroupType != proto.Type)
+					{
+						InventoryButtons[i].InvItemIndex = uint16(-1); //InvItemIndex = uint16(-1) == no draw
+						continue;
+						//--i;
+					}
+				}
+
+
+				slot += "";//GetSlotName(index);
+				itemsCount += GetCountName(index);
+
+                if(itemsCount <= 0){
+
+				    InventoryButtons[index].InvItemIndex = uint16(-1);
+				    InventoryItems[index].tempItem.removeAt(0); continue;}
+
+                    string namePrefix = GetPrefixName(index);
+
+					InventoryItems[index].Text0 = namePrefix+" ";
+
+				InventoryItems[index].Text1 = slot+" x"+itemsCount;
+				FormatText(InventoryItems[index].Text0+InventoryItems[index].Name, InventoryItems[index].Text1, InventoryButtons[i].Options, FONT_FALLOUT, 0, InventoryItems[index].TextW0, InventoryItems[index].TextW1);
+			}
+
+			name = (name == "" ? DEBUG_ITEM_INV_NAME/*"no item"*/ : name);//(InventoryItems[i].Child ? InventoryItems[i].Count : itemsCount);
+			if(InventoryButtons[i] is null) {Message("null button"); continue;}
+
+			InventoryButtons[i].InvItemIndex = (index < itemsLen ? index : uint16(-1));
+
+			//++counter;
+		}
+		return true;
+	}
+
+	string GetSlotName(uint16 index){
+
+        ProtoItem @ proto = null;
+		string slotName = "";
+		for(uint16 ii = 0, jj = InventoryItems[index].Id.length(); ii < jj; ++ii){
+		    @proto = GetProtoItem(InventoryItems[index].tempItem[ii].Pid);
+		    if(proto is null) continue;
+			//if(InventoryItems[index].tempItem[ii].CritSlot != 0)
+			if(proto.Slot != 0)
+			{
+				//switch(InventoryItems[index].tempItem[ii].CritSlot){
+				switch(proto.Slot){
+					case SLOT_ARMOR : slotName += "A "; break;
+					case SLOT_HAND1 : slotName += "L "; break;
+					case SLOT_HAND2 : slotName += "R "; break;
+					default : break;
+				}
+			}
+		}
+
+		return slotName;
+	}
+
+	string GetPrefixName(uint16 index){
+
+		string prefixName = "";
+
+		if(!InventoryItems[index].Child){
+			if(InventoryItems[index].Id.length() > 1){
+				if(InventoryItems.length() > index+1 && InventoryItems[index+1].Child){
+					prefixName += "-";
+				}else{
+					prefixName += "+";
+				}
+			}else{
+				prefixName += "*";
+			}
+		}else{
+			prefixName += "\\--";
+		}
+
+		return prefixName;
+	}
+
+	int GetCountName(uint16 index){
+		bool singleItem = true;
+
+		int itemsCount = 0;
+
+		for(uint16 ii = 0, jj = InventoryItems[index].Id.length(); ii < jj; ++ii){
+			itemsCount += InventoryItems[index].Count[ii];
+
+			if(index > 0 && itemsCount != InventoryItems[index].Count[0]) singleItem = false;
+		}
+
+		InventoryItems[index].Rolled = !singleItem;
+
+		return itemsCount;
+	}
+
+	void UpdateTree(uint16 index){
+		uint16 j = InventoryItems[index].Id.length();
+		if(index < InventoryItems.length() && index >= 0){
+			for(uint16 i = index; i < index+j; ++i){
+				string slot = GetSlotName(index);
+				uint itemsCount = GetCountName(index);
+				string namePrefix = GetPrefixName(index);
+
+				InventoryItems[index].Text1 = slot+" x"+itemsCount;
+				FormatText(InventoryItems[index].Text0+InventoryItems[index].Name, InventoryItems[index].Text1, InventoryButtons[i].Options, FONT_FALLOUT, 0, InventoryItems[index].TextW0, InventoryItems[index].TextW1);
+			}
+		}
+	}
+
+	void UpdateList(){
+		uint16 	index = InventoryButtons[0].InvItemIndex,
+			itemsLen = InventoryItems.length();
+
+		if(index >= 0){
+			for(uint8 i = 0; i < INVENTORY_ITEMS_LIST_COUNT; ++i){
+
+				index = InventoryButtons[i].InvItemIndex;
+
+				if(index/*+INVENTORY_ITEMS_LIST_COUNT*/ >= itemsLen) break;
+
+				if(!InventoryItems[index].Child && index+1 < itemsLen && InventoryItems[index+1].Child){
+					UpdateTree(index);
+				}
+
+			}
+
+		}
+
+	}
+
+	void FormatFreeSpace(){
+
+		uint16 index = InventoryButtons[0].InvItemIndex,
+			realBtn = 0;
+
+
+
+		for(uint16 i = 0; i < INVENTORY_ITEMS_LIST_COUNT-1; ++i){
+
+
+			if(InventoryButtons[i].InvItemIndex != uint16(-1) && InventoryButtons[i+1].InvItemIndex == uint16(-1)){
+				realBtn++;
+				Message("btn0 "+realBtn+" i "+i);
+			}else{
+				if(i != 0 && realBtn != 0 && InventoryButtons[i+1].InvItemIndex != uint16(-1)){
+				InventoryButtons[i-realBtn].InvItemIndex = InventoryButtons[i+1].InvItemIndex;
+				Message("btn2 "+(i-realBtn)+" i "+(i+1));
+				}
+			}
+		}
+	}
+
+	void MoveNoItemToLast(){
+	    for(uint16 i = 0; i < INVENTORY_ITEMS_LIST_COUNT-1; ++i){
+	        if(InventoryButtons[i].InvItemIndex == uint16(-1)){
+	            for(uint16 ii = i; ii < INVENTORY_ITEMS_LIST_COUNT-2; ++ii){
+	                if(InventoryButtons[ii+1].InvItemIndex != uint16(-1))
+                        InventoryButtons[ii].InvItemIndex = InventoryButtons[ii+1].InvItemIndex;
+	            }
+	        }
+	    }
+	}
+
+	void SelectItem(uint8 index)
+	{
+		uint16 	itemsLen = InventoryItems.length(),
+			realIndex = 0;
+			
+		if(itemsLen == 0) return;
+
+		if(index >= itemsLen || InventoryButtons[index] is null || InventoryButtons[index].InvItemIndex == uint16(-1)) return;
+		// && InventoryButtons[prevIndex] !is null
+		if(prevIndex != uint8(-1)) InventoryButtons[prevIndex].PressPic(false);
+		if(index != uint8(-1)) InventoryButtons[index].PressPic(true);
+
+		realIndex = InventoryButtons[index].InvItemIndex;
+		
+		if(InventoryItems[realIndex] is null) return;
+
+		ProtoItem @ proto = GetProtoItem(InventoryItems[realIndex].tempItem[0].Pid);
+		if(proto is null) return;
+/*
+		if(realIndex < InventoryItems.length())
+		{
+
+				uint spriteHash = (InventoryItems[realIndex].tempItem[0] !is null ? proto.PicInv : 0);
+				string descText = "";//(InventoryItems[realIndex].tempItem[0] !is null ? item_description(InventoryItems[realIndex].tempItem[0], ITEM_LOOK_INVENTORY) : "invalid item"); //GetMsgStr(TEXTMSG_ITEM,InventoryItems[index].tempItem[0].GetProtoId()*100+1)
+				Instance.ItemShow.Pic(spriteHash);
+				Instance.ItemDesc.Text(descText);
+		}*/
+
+		prevIndex = index;
+	}
+
+	void RemoveItemFromList(uint8 index)
+	{
+		InventoryItems.removeAt(index);
+	}
+
+	void DropFromList(){
+
+	    FullRefrash();
+
+	}
+
+	void RemoveSelectedItemFromList()
+	{
+		InventoryItems.removeAt(prevIndex);
+		ShowList(0);
+	}
+
+	void FullRefrash()
+	{
+		LoadInventory();
+		ShowList(0);
+	}
+
+	void SoftRefresh(){
+		ShowList(0);
+		SelectItem(prevIndex);
+
+	}
+
+	void DropItem(uint8 index)
+	{
+
+		/*uint16 	invItemIndex = Instance.InventoryButtons[index].InvItemIndex,
+			dropLen = 0,
+			itemsLen = InventoryItems.length();
+
+		if(itemsLen > invItemIndex &&  InventoryItems[invItemIndex].Id.length() <= 1) return; // !drop 1 length items
+
+		if(invItemIndex+1 < itemsLen){
+			if(InventoryItems[invItemIndex+1].Child){
+				return;
+			}
+		}
+
+		if(!InventoryItems[invItemIndex].Child)
+		{
+			dropLen = InventoryItems[invItemIndex].Id.length();
+
+			for(uint16 i = 0; i < dropLen; ++i)
+			{
+				InventoryItem tempInvItem(InventoryItems[invItemIndex].Id[i], InventoryItems[invItemIndex].Count[i], InventoryItems[invItemIndex].Name, InventoryItems[invItemIndex].tempItem[i]);
+				InventoryItems.insertAt(index+i+1, tempInvItem);
+			}
+
+			ShowList(Instance.InventoryButtons[0].InvItemIndex);
+		}*/
+	}
+
+	void RollUpItem(uint8 index)
+	{
+
+			uint16 itemsLen = InventoryItems.length();
+
+			if(index+1 < itemsLen){
+				if(!(!InventoryItems[index].Child && InventoryItems[index+1].Child)){
+					return;
+				}
+			}
+
+			index++;
+			//Message("index "+index);
+			while(index < InventoryItems.length() && InventoryItems[index].Child)
+			{
+
+				InventoryItems.removeAt(index);
+			};
+
+			ShowList(InventoryButtons[0].InvItemIndex);
+
+	}
+
+	void RollUpItemArrow(uint8 index)
+	{
+		uint8 tempIndex = index;
+		while(InventoryItems[InventoryButtons[tempIndex].InvItemIndex].Child)
+		{
+			--tempIndex;
+			Message("tmpIndx "+tempIndex);
+		};
+
+		RollUpItem(tempIndex);
+		SelectItem(tempIndex);
+	}
+
+	void MoveItemList(bool up, bool forced)
+	{
+
+
+			uint8 realIndex = prevIndex + 1;
+			uint16 itemsLen = InventoryItems.length();
+
+			if(forced)
+			{
+				if(up)
+				{
+					if(InventoryButtons[0].InvItemIndex != uint16(-1))
+					{
+						ShowList(0);
+						SelectItem(0);
+					}
+
+				}else
+				{
+					int lastItem = (itemsLen - INVENTORY_ITEMS_LIST_COUNT);
+					uint8 realIndex = itemsLen -1 ;
+
+					if(lastItem > 0)
+					{
+						ShowList(lastItem);
+						realIndex = INVENTORY_ITEMS_LIST_COUNT-1;
+					}
+
+					SelectItem(realIndex);
+				}
+
+				return;
+			}
+
+			if(up)
+			{
+				bool list = (InventoryButtons[0].InvItemIndex > 0);
+				if(realIndex <= INVENTORY_ITEMS_LIST_COUNT)
+				{
+					if(list)
+					{
+						ShowList(InventoryButtons[0].InvItemIndex - 1);
+					}
+					SelectItem(prevIndex + (list ? 0 : -1));
+				}
+			}else
+			if(realIndex < itemsLen)
+			{
+
+				if(InventoryButtons[INVENTORY_ITEMS_LIST_COUNT-1].InvItemIndex != uint16(-1) && InventoryButtons[INVENTORY_ITEMS_LIST_COUNT-1].InvItemIndex + 1 >= itemsLen) return;
+
+				bool list = (realIndex == INVENTORY_ITEMS_LIST_COUNT && itemsLen > INVENTORY_ITEMS_LIST_COUNT); //&& Instance.InventoryButtons[realIndex].InvItemIndex != uint16(-1));
+
+				if(list)
+				{
+					ShowList(InventoryButtons[0].InvItemIndex + 1);
+				}
+
+				SelectItem(list ? prevIndex : realIndex);
+			}else	{return;}
+
+	}
+
+	void Sort(uint8 sortType, bool reverse)
+	{
+	      InventoryItem tempInvItem;
+
+	      //Message(""+sortType);
+
+	      if(sortType == INVENTORY_SORT_COUNT)
+	      {
+
+			for (uint16 i = 1, j = 0; i < InventoryItems.length(); i++)
+			{
+				j = i;
+
+				while (j > 0 && InventoryItems[j - 1].Id.length() > InventoryItems[j].Id.length())
+				{
+					tempInvItem = InventoryItems[j];
+					InventoryItems[j] = InventoryItems[j - 1];
+					InventoryItems[j - 1] = tempInvItem;
+					j--;
+				}
+			}
+		}else
+		if(sortType == INVENTORY_SORT_ABC)
+		{
+			for (uint16 i = 1, j = 0; i < InventoryItems.length(); i++)
+			{
+				j = i;
+
+				while (j > 0 && InventoryItems[j - 1].Name > InventoryItems[j].Name)
+				{
+					tempInvItem = InventoryItems[j];
+					InventoryItems[j] = InventoryItems[j - 1];
+					InventoryItems[j - 1] = tempInvItem;
+					j--;
+				}
+			}
+
+
+		}else
+		if(sortType == INVENTORY_SORT_SLOT)
+		{
+
+			for (uint16 i = 1, j = 0; i < InventoryItems.length(); i++)
+			{
+				j = i;
+
+				/*while (j > 0 && InventoryItems[j - 1].tempItem[0].CritSlot > InventoryItems[j].tempItem[0].CritSlot)
+				{
+					tempInvItem = InventoryItems[j];
+					InventoryItems[j] = InventoryItems[j - 1];
+					InventoryItems[j - 1] = tempInvItem;
+					j--;
+				}*/
+			}
+		}else
+		if(sortType == INVENTORY_SORT_NOP)
+		{
+			//FullRefreshItemList();
+		}else return;
+
+		if(reverse) InventoryItems.reverse();
+		ShowList(InventoryButtons[0].InvItemIndex);
+	}
+
+	bool IsRolled(uint8 index){
+		return (InventoryItems[index].Count[0] > 0);
+	}
+
+  }
+
+class InventoryItemButton : IGUIElementCallbackInit, IGUIElementCallbackMouseClick, IGUIElementCallbackDraw
+{
+	IGUIElementOpt@ Options;
+	ScreenTransfer @ Instance;
+
+	uint8  Index;
+	uint16 InvItemIndex;
+
+	uint8   Side;
+
+	InventoryItemButton(ScreenTransfer& instance, uint8 index, uint8 side)
+	{
+		@Instance = instance;
+		Index = index;
+
+		Side = side;
+
+		InvItemIndex = 0;
+	}
+
+	void OnInit()
+	{
+		@Options = GUI_GetElementOptions();
+		//Message("index "+Index);
+		@Instance.ItemList[Side].InventoryButtons[Index] = this;//.insertAt(Index, this);
+
+
+	}
+
+	void OnMouseClick(int click)
+	{
+
+		bool rolled = Instance.ItemList[Side].InventoryItems[InvItemIndex].Rolled;
+
+		Instance.ItemList[Side].SelectItem(Index);
+
+		InventoryItem tempInvItem = Instance.ItemList[Side].InventoryItems[InvItemIndex];
+
+		string msg = ("id "+tempInvItem.Id[0]+"\ncount "+tempInvItem.Count[0]+"\npID "+tempInvItem.ProtoId+"\nchild "+tempInvItem.Child+"\nrolled "+rolled);
+		//Message(msg);
+
+
+		if(click == MOUSE_CLICK_LEFT)
+		{
+				!rolled ? Instance.ItemList[Side].DropItem(InvItemIndex) : Instance.ItemList[Side].RollUpItem(InvItemIndex);
+				//Rolled = (Rolled ? false : true);
+		}else
+ 		if(click == MOUSE_CLICK_RIGHT)
+		{
+			//ItemCl@[] items;
+			ItemTransfer@[] items;
+			Instance.ItemList[Side].InventoryItems[InvItemIndex].GetItems(items);
+			//Message("bla bla lba "+items.length());
+			//ItemInventoryArray(items);
+			__subMenuNum = SUBMENU_INVENTORY;
+			::ShowScreen(CLIENT_SCREEN_CONTMENU,__MouseX,__MouseY,0);
+		}else
+		if(click == MOUSE_CLICK_WHEEL_UP)
+		{
+			Instance.ItemList[Side].MoveItemList(true, false);
+		}else
+		if(click == MOUSE_CLICK_WHEEL_DOWN)
+		{
+			Instance.ItemList[Side].MoveItemList(false, false);
+		}
+
+		Instance.ItemList[Side].InventoryItems[InvItemIndex].Rolled = !rolled;
+
+	}
+
+	void OnDraw()
+	{
+		string text0 = ""/*"no item"*/, text1 = "", name = "";
+		int offsX = 0, x = 0, y = 0, xOff = Instance.screenOpt.GetPosX() + Options.GetPosX(), yOff = Instance.screenOpt.GetPosY() + Options.GetPosY();
+		if(InvItemIndex != uint16(-1) && Instance.ItemList[Side].InventoryItems.length() > InvItemIndex) //< Instance.ItemList.InventoryItems.length())
+		{
+			offsX = Instance.ItemList[Side].InventoryItems[InvItemIndex].TextW0+Instance.ItemList[Side].InventoryItems[InvItemIndex].TextW1;
+			text0 = Instance.ItemList[Side].InventoryItems[InvItemIndex].Text0;
+			text1 = Instance.ItemList[Side].InventoryItems[InvItemIndex].Text1;
+			name  = Instance.ItemList[Side].InventoryItems[InvItemIndex].Name;
+		}
+
+		DrawText(""+text0+name, x+xOff, 2+y+yOff, 500 , 400, COLOR_SAND, FONT_FALLOUT,  0);
+		DrawText(""+text1, x+xOff+offsX, 2+y+yOff, 500 , 400, COLOR_SAND, FONT_FALLOUT,  0);
+	}
+
+	void PressPic(bool press)
+	{
+		Options.UpPic(press ? "invItemDown.png" : "invItemUp.png");
+	}
+}
+
+class InventoryItemShow : IGUIElementCallbackInit
+{
+	IGUIElementOpt@ Options;
+	ScreenTransfer @ Instance;
+
+	InventoryItemShow(ScreenTransfer& instance)
+	{
+		@Instance = instance;
+	}
+
+	void OnInit()
+	{
+		@Options = GUI_GetElementOptions();
+		@Instance.ItemShow = this;
+	}
+
+	void Pic(uint hash)
+	{
+		Options.PicHash(hash, 0);
+	}
+
+
+}
+
+class InventoryItemDesc : IGUIElementCallbackInit, IGUIElementCallbackDraw
+{
+	IGUIElementOpt@ Options;
+	ScreenTransfer @ Instance;
+	uint Counter;
+
+	InventoryItemDesc(ScreenTransfer& instance)
+	{
+		@Instance = instance;
+		Counter = 0;
+	}
+
+	void OnInit()
+	{
+		@Options = GUI_GetElementOptions();
+		@Instance.ItemDesc = this;
+	}
+
+    void OnDraw(){
+
+
+        if(Counter % 50 == 0){
+            Counter = 0;
+        }
+
+        Counter++;
+	}
+
+	void Text(string text)
+	{
+		Options.Text(text,FONT_FALLOUT,COLOR_GREEN, COLOR_GREEN, 0);
+	}
+
+
+}
+
+class InventoryButtonMoveItem : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
+{
+    ScreenTransfer@ Instance;
+    uint8 Side;
+
+    InventoryButtonMoveItem(ScreenTransfer& instance, uint8 side){
+        @Instance = instance;
+        Side = side;
+    }
+
+    void OnInit(){
+        @Instance.MoveBtn[Side] = this;
+    }
+
+    void OnMouseClick(int click){
+
+        ItemTransfer @ temp = Instance.ItemList[Side].GetTransferItem();
+        if(temp is null) {Message("transfer item error");return;}
+
+        RunServerScriptUnsafe("general_unsafe@unsafe_moveItemsCont", temp.Id, temp.Count, Side > 0 ? 0 : 1, null, null);
+        //ActionCreate();
+/*
+        for(uint8 i = 0; i < 2; ++i){
+			    Instance.ItemList[i].FullRefrash();
+        }*/
+    }
+
+    void ActionCreate(){
+
+		//for(uint16 i = 0, j = Instance.ItemList.InventoryItems[Instance.InventoryButtons[Instance.ItemList.prevIndex].InvItemIndex].Id.length(); i < j; ++i)
+		//{
+			uint[] invActionArr(7);
+
+			ItemTransfer @ temp = Instance.ItemList[Side].GetTransferItem();
+			if(temp is null) {Message("transfer item error");return;}
+
+			invActionArr[0] = CHOSEN_MOVE_ITEM_CONT;
+			//invActionArr[1] = Instance.ItemList.InventoryItems[Instance.InventoryButtons[Instance.ItemList.prevIndex].InvItemIndex].Id[0];
+			invActionArr[1] = Side > 0 ? 0 : 1;
+			invActionArr[2] = temp.Id;
+			//invActionArr[2] = Instance.ItemList[Side].InventoryItems[Instance.ItemList[Side].InventoryButtons[Instance.ItemList[Side].prevIndex].InvItemIndex].tempItem[0].Id;
+			//invActionArr[3] = Instance.ItemList[Side].InventoryItems[Instance.ItemList[Side].InventoryButtons[Instance.ItemList[Side].prevIndex].InvItemIndex].tempItem[0].Count;
+			invActionArr[3] = temp.Count;
+			for(uint8 ii = 4; ii < 7; ++ii) {invActionArr[ii] = 0;}
+
+			//SetActions(invActionArr);
+
+			SetChosenActions(invActionArr);
+
+			for(uint8 i = 0; i < 2; ++i){
+			    Instance.ItemList[i].FullRefrash();
+			}
+
+
+
+    }
+
+    /*void SendServer(){
+    }*/
+}
+/*
+	void InventoryWear()
+	{
+		uint[] invActionArr(7);
+		invActionArr[0] = CHOSEN_MOVE_ITEM;
+		invActionArr[1] = Instance.ItemList.InventoryItems[Instance.InventoryButtons[Instance.ItemList.prevIndex].InvItemIndex].Id[0];
+		invActionArr[2] = Instance.ItemList.InventoryItems[Instance.InventoryButtons[Instance.ItemList.prevIndex].InvItemIndex].tempItem[0].GetCount();
+		invActionArr[3] = Type;
+		invActionArr[4] = 0;
+		invActionArr[5] = 0;
+
+		SetActions(invActionArr);
+	}*/
+
+void FormatText(string text0, string text1, IGUIElementOpt& opt, uint font, uint flags, int& rW, int& rH)
+{
+	int tw0 = 0, tw1 = 0, th0 = 0, th1 = 0, lines = 0;
+	uint16 w = opt.GetSurfaceWidth(), h = opt.GetSurfaceHeight();
+	GetTextInfo(text0, w, h, font, flags, tw0, th0, lines);
+	GetTextInfo(text1, w, h, font, flags, tw1, th1, lines);
+	rW = w - (tw0 + tw1);
+	rH = tw0;//h - (th0 + th1);
+	//Message(" "+w+" "+rW+" "+tw0+" "+tw1);
+	return;
+}
+
+//ItemCl@[] contItems;
+ItemTransfer@[] contItems;
+
+void ShowTransferScreen(int param0, int param1, int param2, string@ param3, int[] @ param4){
+  
+    //if(param4 is null) {Message("null p4"); return;}
+  
+    uint itemsLen = (param4 is null ? 0 : param4.length());
+
+    if(itemsLen % ITEM_TRANSFER_MEMBERS != 0 && itemsLen != 0) return;
+
+    contItems.resize(0);
+
+    uint8 temp = 0;
+
+    Message("pl "+itemsLen);
+
+    //ItemCl@ tempI = null;
+    ItemTransfer@ tempI = null;
+
+    for(uint i = 0; i<itemsLen; ++i){
+        //@tempI = GetItem(uint(param4[i]));
+        //Message("id "+uint(param4[i]));
+        if(i % ITEM_TRANSFER_MEMBERS == 0){
+            @tempI = ItemTransfer(uint(param4[i]), uint(param4[i+1]), uint(param4[i+2]));//, uint(param4[i++]), uint(param4[i++]));
+            if(tempI is null) continue;
+            contItems.insertLast(tempI);
+        }
+
+
+
+        temp = i;
+    }
+
+    Message("load! "+temp+" param1 "+param1);
+    if(param0 > 0){
+        ShowScreen(CLIENT_SCREEN_TRANSFER_TNF, 0, 0, 0);
+    }else{
+        screenTransfer.ItemList[0].FullRefrash();
+        screenTransfer.ItemList[1].FullRefrash();
+    }
+}
+
+/*void UpdateTransferScreen(int param0, int param1, int param2, string@ param3, int[] @ param4){
+    screenTransfer.ItemList[0].FullRefrash();
+    screenTransfer.ItemList[1].FullRefrash();
+}*/
+
+ScreenTransfer  screenTransfer();
+
+void InitTransferTnfScreen()
+{
+
+
+
+	GUI_CreateScreen(CLIENT_SCREEN_TRANSFER_TNF,"transferScreen.png")
+		.CallbackShow(screenTransfer)
+		.CallbackHide(screenTransfer)
+		.CanMove(true)
+		//.Position(155,111)
+		.Modal(false)
+		.Multiinstance(true)
+		.AutoCursor(true,CURSOR_DEFAULT);
+
+	//screenTransfer.InventoryButtons.resize(INVENTORY_ITEMS_LIST_COUNT);
+
+
+    for(uint8 i = 0; i<2; ++i){
+
+        InvItemList itemList(screenTransfer, i);
+        GUI_AddScreenElement(CLIENT_SCREEN_TRANSFER_TNF, "invItemList.png", (i > 0 ? 340 : -160), 30)
+            .CallbackInit(itemList)
+            .SetVisible(false);
+
+        InventoryButtonMoveItem btnMove(screenTransfer, i);
+        GUI_AddScreenElement(CLIENT_SCREEN_TRANSFER_TNF, (i > 0 ? "invArrowLeftUp.png" : "invArrowRightUp.png"), 376,  i > 0 ? 130 : 330)
+            .CallbackInit(btnMove)
+            .CallbackMouseClick(btnMove)
+            .DownPic((i > 0 ? "invArrowLeftDn.png" : "invArrowRightDn.png"));
+
+        uint16 y = 25;
+        for(uint8 ii = 0; ii < INVENTORY_ITEMS_LIST_COUNT; ++ii)
+        {
+            InventoryItemButton TempInvButt(screenTransfer, ii, i);
+            GUI_AddScreenElement(CLIENT_SCREEN_TRANSFER_TNF, "invItemUp.png", (i > 0 ? 442 : 37), y)
+                .CallbackInit(TempInvButt)
+                .CallbackMouseClick(TempInvButt)
+                .CallbackDraw(TempInvButt);
+                //.DownPic("invItemDown.png");
+
+            y += 20;
+        }
+            //.CallbackMouseClick()
+            //.DownPic("invItemDown.png");
+
+            //y = 0;
+    }
+
+/*
+	InventoryItemShow itemShow(screenTransfer);
+	GUI_AddScreenElement(CLIENT_SCREEN_TRANSFER_TNF, "invItemShow.png", 215, 300)
+		.CallbackInit(itemShow);
+
+	InventoryItemDesc itemDesc(screenTransfer);
+	GUI_AddScreenElement(CLIENT_SCREEN_TRANSFER_TNF, "invItemDesc.png", 160, 30)
+		.CallbackInit(itemDesc)
+        .CallbackDraw(itemDesc);*/
+}

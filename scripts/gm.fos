@@ -363,6 +363,10 @@ void dec75hp( Critter& player, int param0, int param1, int param2 )
     }
 }
 
+void unsafe_sleep(Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4){
+    sleep(player, param0, param1, param2);
+}
+
 
 void sleep( Critter& player, int param0, int param1, int param2 )
 {
@@ -5713,6 +5717,6 @@ void unsafe_getid( Critter& player, int param0, int param1, int param2, string@ 
 		player.Say( SAY_NETMSG, "Can't find player with login \""+param3+"\"");
         return;
 	}
-	
+
     player.Say( SAY_NETMSG, param3 + " has id " + id);
 }

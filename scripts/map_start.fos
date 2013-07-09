@@ -1,8 +1,11 @@
 #include "_macros.fos"
 #include "_cell.fos"
+#include "_maps.fos"
+#include "globalmap_group.fos"
 
-import void   CreateCell( uint16 x, uint16 y, uint mapId, uint8 type, int8 visibility ) from "globalmap_group";
-import int    GetCellMap( uint16 x, uint16 y ) from "globalmap_group";
+
+//import void   CreateCell( uint16 x, uint16 y, uint mapId, uint8 type, int8 visibility ) from "globalmap_group";
+//import int    GetCellMap( uint16 x, uint16 y ) from "globalmap_group";
 import void   unsafe_arcade( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 ) from "arcade_menu";
 import string TimeToString( Critter& player ) from "gm";
 import void   ShowInputBoxScreen( Critter& cr, string funcName, uint16 textLength, uint8 flags ) from "main";
@@ -87,10 +90,11 @@ bool _SurvivalKindman_talk( Critter& player, Critter& talkCr, bool attach, uint 
 {
     if( talkCr.ParamBase[ QST_GAMEMODE ] == GAME_START )
     {
-        talkCr.ShowScreen( SCREEN_DIALOGBOX, 1, "answer_SurvivalKindman_talk" );
+        talkCr.ShowScreen( SCREEN_DIALOGBOX, 2, "answer_SurvivalKindman_talk" );
         talkCr.Say( SAY_DIALOGBOX_TEXT, "НПЦ стоит временно без диалога" );
-        talkCr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "В Саттер(БЕТА)" );
-        talkCr.Say( SAY_DIALOGBOX_BUTTON( 1 ), "Постоять пока тут" );
+        talkCr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "В Саттер" );
+        talkCr.Say( SAY_DIALOGBOX_BUTTON( 1 ), "В  Модок" );
+        talkCr.Say( SAY_DIALOGBOX_BUTTON( 2 ), "Постоять пока тут" );
         return false;
     }
     else
@@ -102,10 +106,18 @@ void answer_SurvivalKindman_talk( Critter& player, uint answerI, string& answerS
 {
     if( player.ParamBase[ QST_GAMEMODE ] != GAME_START )
         return;
-    if( answerI == 0 )
+    if( answerI < 2 )
     {
         player.ParamBase[ QST_GAMEMODE ] = GAME_SURVIVAL;
-        uint LocPid = Random( 21, 24 );
+        uint LocPid = 0;
+
+        switch(answerI){
+            case 0 : LocPid = Random( 21, 24 ); break;
+            case 1 : LocPid = LOCATION_Modoc_4_3; break;
+            default : LocPid = LOCATION_Bridge; Log("default start cased!!! "+player.Id); break;
+        }
+
+
 
         kind_tele2( player, null, LocPid );
     }
@@ -158,6 +170,7 @@ void _StartGM_sight( Critter& cr, Critter& showCr )
         cr.ChangeCrType( GMskins[ Random( 0, GMskins.length() ) ] );
     }
 }
+//old erl activation
 
 bool _StartGM_talk( Critter& player, Critter& talkCr, bool attach, uint talkCount ) // выбор режима игры
 {
@@ -228,6 +241,84 @@ void answer_StartGM_talk( Critter& player, uint answerI, string& answerS )
     }
 }
 
+/*
+import int CharacterActiveGet(uint id) from "activation";
+
+bool _StartGM_talk( Critter& player, Critter& talkCr, bool attach, uint talkCount ) // выбор режима игры
+{
+    //if( talkCr.ParamBase[ QST_GAMEMODE ] == GAME_START )
+    //{
+        int status = CharacterActiveGet(player.Id);
+
+        Log("status "+status);
+
+        bool isAct = (status >= LOGIN_STATUS_ACTIVE);
+        bool isAdv = (player.StatBase[QST_GAMEMODE] == GAME_ADVENTURE);
+
+        uint8 btnCount = 1 + (isAct ? 2 : 0) + (isAdv ? 1 : 0);
+
+        talkCr.ShowScreen( SCREEN_DIALOGBOX, 4, "answer_StartGM_talk" );
+        talkCr.Say( SAY_DIALOGBOX_TEXT, "Выберите точку входа в мир, рекомендуется сперва посмотреть обучение" );
+        talkCr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "Обучение" );
+        //if(isAct){
+            talkCr.Say( SAY_DIALOGBOX_BUTTON( 1 ), "В Модок" );
+            talkCr.Say( SAY_DIALOGBOX_BUTTON( 2 ), "В Саттер" );
+            //if(isAdv){
+                talkCr.Say( SAY_DIALOGBOX_BUTTON( 3 ), "На Свалку" );
+            //}
+        //}
+        return false;
+    //}
+    //else
+    //    talkCr.Say( SAY_NETMSG, "Ошибка, обратитесь к ГеймМастерам." );
+    //return false;
+}
+
+bool _TransitToStartMap(Critter& player, uint pid){
+
+        Location @ loc = GetLocationByPid( pid, 0 );
+        Map @ map = loc.GetMapByIndex( 0 );
+        Map@ start = GetMapByPid( MAP_UTILITY_START, 0 );
+
+        _crOut( start, player );
+        player.TransitToMap( map.Id, 0 );
+
+        return true;
+}
+
+void answer_StartGM_talk( Critter& player, uint answerI, string& answerS )
+{
+    /*if( player.ParamBase[ QST_GAMEMODE ] != GAME_START )
+    {
+        player.Say( SAY_NETMSG, "У вас не стартовый режим." );
+        return;
+    }*
+
+    bool isAct = (CharacterActiveGet(player.Id) >= LOGIN_STATUS_ACTIVE);
+    bool isAdv = (player.StatBase[QST_GAMEMODE] == GAME_ADVENTURE);
+
+    if( answerI == 0 )
+    {
+        if(_TransitToStartMap(player, 90)){player.Say( SAY_NETMSG, "Вы выбрали режим обучения." );}
+    }
+    if( answerI == 1)
+    {
+        if(_TransitToStartMap(player, LOCATION_Modoc)  && isAct){player.Say( SAY_NETMSG, "Вы выбрали вход в Модоке." );}
+        else{player.Say( SAY_NETMSG, "Сначала нужно создать персонажа и активироваться." );}
+    }
+    if( answerI == 2 && isAct)
+    {
+        uint LocPid = Random( 21, 24 );
+
+        kind_tele2( player, null, LocPid );
+    }
+    if( answerI == 3 && isAct && isAdv)
+    {
+        if(_TransitToStartMap(player, LOCATION_Junkyard)){player.Say( SAY_NETMSG, "Вы выбрали вход на Свалке." );}
+        else{player.Say( SAY_NETMSG, "Сначала нужно создать персонажа и активироваться.");}
+    }
+}
+*/
 void _InitAdventureGM( Critter& cr, bool firstTime ) // нпц приключенцев
 {
     cr.StatBase[ ST_DIALOG_ID ] = 331;               // нпц_гайд
@@ -806,7 +897,7 @@ void CheckItems( Item& cont, uint type )
             PID_RPSTUFF4,
             PID_PILLS,
             PID_MEAT,
-            PID_CIGARETTES		
+            PID_CIGARETTES
         };
 
         for( uint i = 0; i < items.length(); i++ )
@@ -984,7 +1075,7 @@ void CheckItems( Item& cont, uint type )
 			PID_CRAFT_E_CHIP,
 			PID_CRAFT_M_JUNK,
 			PID_CRAFT_M_BARS,
-			PID_CRAFT_M_STEL		
+			PID_CRAFT_M_STEL
         };
 
         for( uint i = 0; i < items.length(); i++ )
@@ -1671,7 +1762,7 @@ void kind_tele2( Critter& master, Critter@ slave, int val )
         master.Say( SAY_NETMSG, "Map index not found" );
         return;
     }
-	
+
     if( master.GetAccess() == ACCESS_CLIENT )
     {
         Item@[] items;
@@ -1681,13 +1772,13 @@ void kind_tele2( Critter& master, Critter@ slave, int val )
         master.GetItems( SLOT_HAND2, items );
         DeleteItems( items );
 	}
-		
+
 	if( master.ParamBase[ QST_GAMEMODE ] == GAME_ADVENTURE )
 	{
 		file f;
 		if( f.open( "adventurers\\" + master.Id + ".txt", "r" ) >= 0 )
 		{
-			Item@ item;	
+			Item@ item;
 			string text = "";
 			uint   pos = 0;
 			uint   line = 0;
@@ -1737,12 +1828,12 @@ void kind_tele2( Critter& master, Critter@ slave, int val )
 		return;
 		}
     }
-	
+
     master.ToKnockout( KNOCKOUT_ANIM2_DEFAULT( ( Random( 0, 1 ) == 1 ) ), 10, master.HexX, master.HexY );
 
     uint16 hexX = 0, hexY = 0, hexX0 = 0, hexY0 = 0;
     map.GetEntireCoords( 255, 0, hexX0, hexY0 );
-	
+
     for( uint i = 0; i < 10; i++ )
     {
 	hexX = hexX0 + Random(20, 130 );
@@ -1753,8 +1844,8 @@ void kind_tele2( Critter& master, Critter@ slave, int val )
     master.SetEvent( CRITTER_EVENT_USE_ITEM, null );
     master.SetEvent( CRITTER_EVENT_DROP_ITEM, null );
     master.SetEvent( CRITTER_EVENT_ATTACK, null );
-    master.SetEvent( CRITTER_EVENT_DEAD, null );	
-	
+    master.SetEvent( CRITTER_EVENT_DEAD, null );
+
 	Map@ start = GetMapByPid( MAP_UTILITY_START, 0 );
     master.TransitToMap( map.Id, hexX, hexY, 0 );
     master.Say( SAY_NETMSG, "Вы пришли в себя в руинах какого-то города." );
@@ -1774,13 +1865,14 @@ void _crIn( Map& map, Critter& cr )
 
 void _crOut( Map& map, Critter& cr )
 {
-    if( cr.IsPlayer() && cr.GetAccess() > ACCESS_CLIENT )
+//     if( cr.IsPlayer() && cr.GetAccess() > ACCESS_CLIENT )
+    if( cr.IsPlayer())// && cr.GetAccess() > ACCESS_CLIENT )
     {
         cr.SetEvent( CRITTER_EVENT_USE_ITEM, null );
         cr.SetEvent( CRITTER_EVENT_DROP_ITEM, null );
         cr.SetEvent( CRITTER_EVENT_ATTACK, null );
         cr.SetEvent( CRITTER_EVENT_DEAD, null );
-		//if( cr.ParamBase[ QST_GAMEMODE ] == GAME_START ) cr.ParamBase[ QST_GAMEMODE ] = GAME_SURVIVAL;	
+		//if( cr.ParamBase[ QST_GAMEMODE ] == GAME_START ) cr.ParamBase[ QST_GAMEMODE ] = GAME_SURVIVAL;
     }
 	else if( cr.ParamBase[ QST_GAMEMODE ] == GAME_START )
 	{
@@ -1789,7 +1881,7 @@ void _crOut( Map& map, Critter& cr )
     cr.GetItems( SLOT_INV, items );
     cr.GetItems( SLOT_HAND1, items );
     cr.GetItems( SLOT_HAND2, items );
-    DeleteItems( items );	
+    DeleteItems( items );
 	}
 }
 
@@ -1823,3 +1915,48 @@ bool _Start_Player_use( Critter& cr, Item& item, Critter@ onCritter, Item@ onIte
     cr.Say( SAY_NETMSG, "Вам кажется сейчас это неуместо." );
     return true;
 }
+
+import void CharacterActiveNew(uint id) from "activation";
+
+bool _StartSurvival(Critter& cr){
+
+    CharacterActiveNew(cr.Id);
+/*
+    bool inModoc = (Random(0,1) > 0 ? true : false);
+
+    uint locId = (inModoc ? LOCATION_Modoc : LOCATION_Sutter_Center);
+
+    int x = (Random(-40, 40)), y = (Random(-40, 40));
+
+    Location @ loc = GetLocation(locId);
+    if(loc is null) return false;
+
+    x += loc.WorldX;
+    y += loc.WorldY;
+
+    Cell @ cell = CellGetCell(x, y);
+    if(cell is null) return false;
+
+    CellContent @ cont = cell.Content;
+    if(cont is null){
+        CreateCell(x*0.1, y*0.1, 0, CELLMAP_TYPE_ENCOUTER, 100 );
+
+        Cell @ cell = CellGetCell(x, y);
+        if(cell is null || cell.Content is null) return false;
+
+        @cont = cell.Content;
+    }
+
+    locId = cont.MapId[ CELL_LEVEL_DEFAULT ];
+
+    Map @ map = GetMap(locId);
+    if(map is null) return false;
+
+    uint16 xX = 0, yY = 0;
+    map.GetEntireCoords(255, 0, xX, yY);
+
+    cr.TransitToMap(locId, Random(xX, xX+148), Random(yY, yY+148), Random(0,5));
+*/
+    return true;
+}
+

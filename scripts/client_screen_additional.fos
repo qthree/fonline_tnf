@@ -109,11 +109,11 @@ void DrawHives( uint8 hiveCount )
     for( uint8 i = 0; i < hiveCount; i++ )
     {
         GlobalMapArcadeHiveBtn arcadeGlobalButton( i );
-        @tempOpt = GUI_AddScreenElement( CLIENT_MAIN_SCREEN_GLOBAL_MAP, "ebut_out.frm", 95, 70 )
+        @tempOpt = GUI_AddScreenElement( CLIENT_MAIN_SCREEN_GLOBAL_MAP, "hotspot1.frm", 95, 70 )
                    .CallbackInit( arcadeGlobalButton )
                    .CallbackMouseClick( arcadeGlobalButton )
                    // .SetVisible(false)
-                   .DownPic( "ebut_in.frm" );
+                   .DownPic( "hotspot2.frm" );
         // Message(""+i);
 
         // @hiveBtnsOpt[i] = tempOpt;

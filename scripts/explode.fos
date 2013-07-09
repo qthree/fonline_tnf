@@ -223,8 +223,14 @@ void Explode( Map@ map, uint16 hexX, uint16 hexY, Critter@ cr, uint16 explodePid
         damageRadius = 3;
         break;
     default:
-        Log( "Invalid explode pid." );
-        return;
+        Log( "Invalid explode pid use dynamite." );
+        effectPid = PID_EXPLODE_ROCKET;
+        effectRadius = 1;
+        damage = Random( 30, 50 );
+        damageType = DAMAGE_EXPLODE;
+        damageRadius = 3;
+        break;
+        //return;
     }
 
     damage += bonusDamage;
@@ -246,6 +252,9 @@ void ExplodeEx( Map& map, uint16 hexX, uint16 hexY, uint16 effectPid, uint effec
     map.PlaySound( Random( 0, 1 ) == 0 ? "WHN1XXX1.ACM" : "WHN1XXX2.ACM" );
     QuakeScreen( map );
 
+    ExplodeDoors(map, hexX, hexY, damage, damageRadius); //pm added;
+    //ExplodeExplosive(map, hexX, hexY, damage, damageRadius);
+
     Critter@[] critters;
     if( map.GetCrittersHex( hexX, hexY, damageRadius, FIND_LIFE_AND_KO, critters ) == 0 )
         return;
@@ -257,6 +266,58 @@ void ExplodeEx( Map& map, uint16 hexX, uint16 hexY, uint16 effectPid, uint effec
         InjureCritter( cr, damage, damageType, dir, ownerId );
         if( ownerId != 0 )
             cr.AddEnemyInStack( ownerId );
+    }
+}
+
+#define ISCOLL  #(hex, point, radius)(hex >= point-(radius*0.5) && hex <= point+(radius*0.5))
+
+void ExplodeDoors(Map& map, uint hexX, uint hexY, uint damage, uint damageRadius){
+    Item@[] doors;
+
+    map.GetItemsByType(ITEM_TYPE_DOOR, doors);
+    map.GetItemsByType(ITEM_TYPE_CONTAINER, doors);
+
+    for(uint i = 0, j = doors.length(); i < j; ++i){
+            if(ISCOLL(doors[i].HexX, hexX, damageRadius) && ISCOLL(doors[i].HexY, hexY, damageRadius)){
+                if(doors[i].Val1 != 0) continue; //not explodable
+
+                doors[i].Val2 -= damage;
+
+                if(doors[i].Val2 > 0) continue;
+
+                if(doors[i].GetType() == ITEM_TYPE_CONTAINER){
+
+                    Item@[] contInv;
+                    doors[i].GetItems(-1, contInv);
+
+                    MoveItems(contInv, map, doors[i].HexX, doors[i].HexY);
+
+                }
+                DeleteItem(doors[i]);
+
+            }
+    }
+}
+
+const uint[] expPid = {PID_EXPLOSIVE_ROCKET, PID_ROCKET_AP, PID_DYNAMITE, PID_ACTIVE_DYNAMITE, PID_ACTIVE_PLASTIC_EXPLOSIVE, PID_PLASTIC_EXPLOSIVES};
+
+void ExplodeExplosive(Map& map, uint hexX, uint hexY, uint damage, uint damageRadius){
+    Item@[] explosive;
+
+    for(uint8 i = 0, j = expPid.length(); i < j; ++i){
+        map.GetItems(expPid[i], explosive);
+
+        for(uint ii = 0, jj = explosive.length(); ii < jj; ++ii){
+
+            if(explosive[ii].Accessory != ACCESSORY_CONTAINER){
+
+                if(!ISCOLL(explosive[ii].HexX, hexX, damageRadius) || !ISCOLL(explosive[ii].HexY, hexY, damageRadius)){
+                    continue;
+                }
+
+                Explode(map, explosive[ii].HexX, explosive[ii].HexY, null, explosive[ii].GetProtoId(), 0, 0, 0);
+            }
+        }
     }
 }
 

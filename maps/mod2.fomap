@@ -2,8 +2,8 @@
 Version              4
 MaxHexX              700
 MaxHexY              700
-WorkHexX             212
-WorkHexY             168
+WorkHexX             181
+WorkHexY             193
 ScriptModule         -
 ScriptFunc           -
 NoLogOut             0
@@ -10362,17 +10362,17 @@ tile       100  165            art\tiles\brdb041.frm
 tile       102  165            art\tiles\brdb040.frm
 tile       104  165            art\tiles\brdb040.frm
 roof       104  165            art\tiles\tp092.frm
-tile       106  165            art\tiles\vtgbr007.frm
+tile       106  165            art\tiles\VTGBR007.FRM
 roof       106  165            art\tiles\tp090.frm
-tile       108  165            art\tiles\vtgbr012.frm
+tile       108  165            art\tiles\VTGBR012.FRM
 roof       108  165            art\tiles\tp089.frm
-tile       110  165            art\tiles\vtgbr012.frm
+tile       110  165            art\tiles\VTGBR012.FRM
 roof       110  165            art\tiles\tp087.frm
-tile       112  165            art\tiles\vtgbr012.frm
+tile       112  165            art\tiles\VTGBR012.FRM
 roof       112  165            art\tiles\tp086.frm
-tile       114  165            art\tiles\vtgbr012.frm
+tile       114  165            art\tiles\VTGBR012.FRM
 roof       114  165            art\tiles\tp087.frm
-tile       116  165            art\tiles\vtgbr005.frm
+tile       116  165            art\tiles\VTGBR005.FRM
 roof       116  165            art\tiles\tp088.frm
 tile       118  165            art\tiles\tp161.frm
 roof       118  165            art\tiles\tp089.frm
@@ -10544,17 +10544,17 @@ tile       100  167            art\tiles\edg6006.frm
 tile       102  167            art\tiles\edg6004.frm
 tile       104  167            art\tiles\edg6004.frm
 roof       104  167            art\tiles\tp108.frm
-tile       106  167            art\tiles\vtgst014.frm
+tile       106  167            art\tiles\VTGST014.FRM
 roof       106  167            art\tiles\tp086.frm
-tile       108  167            art\tiles\vtgst003.frm
+tile       108  167            art\tiles\VTGST003.FRM
 roof       108  167            art\tiles\tp087.frm
-tile       110  167            art\tiles\vtgst002.frm
+tile       110  167            art\tiles\VTGST002.FRM
 roof       110  167            art\tiles\tp088.frm
-tile       112  167            art\tiles\vtgst004.frm
+tile       112  167            art\tiles\VTGST004.FRM
 roof       112  167            art\tiles\tp089.frm
-tile       114  167            art\tiles\vtgst001.frm
+tile       114  167            art\tiles\VTGST001.FRM
 roof       114  167            art\tiles\tp090.frm
-tile       116  167            art\tiles\vtgbr009.frm
+tile       116  167            art\tiles\VTGBR009.FRM
 roof       116  167            art\tiles\tp091.frm
 tile       118  167            art\tiles\tp158.frm
 roof       118  167            art\tiles\tp090.frm
@@ -10728,17 +10728,17 @@ tile       100  169            art\tiles\edg2003.frm
 tile       102  169            art\tiles\edg6007.frm
 tile       104  169            art\tiles\edg6007.frm
 roof       104  169            art\tiles\tp116.frm
-tile       106  169            art\tiles\vtgbr006.frm
+tile       106  169            art\tiles\VTGBR006.FRM
 roof       106  169            art\tiles\tp113.frm
-tile       108  169            art\tiles\vtgbr010.frm
+tile       108  169            art\tiles\VTGBR010.FRM
 roof       108  169            art\tiles\tp112.frm
-tile       110  169            art\tiles\vtgbr010.frm
+tile       110  169            art\tiles\VTGBR010.FRM
 roof       110  169            art\tiles\tp111.frm
-tile       112  169            art\tiles\vtgbr010.frm
+tile       112  169            art\tiles\VTGBR010.FRM
 roof       112  169            art\tiles\tp110.frm
-tile       114  169            art\tiles\vtgbr010.frm
+tile       114  169            art\tiles\VTGBR010.FRM
 roof       114  169            art\tiles\tp111.frm
-tile       116  169            art\tiles\vtgbr008.frm
+tile       116  169            art\tiles\VTGBR008.FRM
 roof       116  169            art\tiles\tp112.frm
 tile       118  169            art\tiles\tp162.frm
 roof       118  169            art\tiles\tp113.frm
@@ -67932,6 +67932,16 @@ MapObjType           2
 ProtoId              2344
 MapX                 248
 MapY                 180
+
+MapObjType           2
+ProtoId              4037
+MapX                 249
+MapY                 177
+
+MapObjType           2
+ProtoId              4038
+MapX                 251
+MapY                 178
 
 MapObjType           2
 ProtoId              5621

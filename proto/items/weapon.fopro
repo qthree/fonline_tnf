@@ -1,5 +1,6 @@
-# 3.0.8 changelog - added various /items .frms, proto by Android & VVish, graphic by Android & VVisH
+# 3.0.8 changelog - added various /items .frms, proto by Android & VVish, graphic by Android & VVish
 # 3.0.9 changelog - weapon balance change, http://www.everfall.com/paste/id.php?3q8tj6wie1uc
+# 3.1.0 changelog - added various /items .pngs, proto & graphics by VVish
 
 [Proto]
 ProtoId=4
@@ -572,7 +573,7 @@ Weapon_SoundId_0=53
 [Proto]
 ProtoId=21
 Type=3
-PicMap=art\items\wepnbox.frm
+PicMap=art\items\BRSNUCK.png
 PicInv=art\inven\brsnuck.frm
 Flags=134217758
 DisableEgg=1
@@ -1448,7 +1449,7 @@ Weapon_SoundId_0=75
 [Proto]
 ProtoId=234
 Type=3
-PicMap=art\items\wepnbox.frm
+PicMap=art\items\BRSKNKLS.png
 PicInv=art\inven\brsknkls.frm
 Flags=134217758
 DisableEgg=1
@@ -2155,7 +2156,7 @@ PicInv=art\inven\switchbd.frm
 Flags=134217758
 DisableEgg=1
 Stackable=1
-Weight=453
+Weight=220
 Volume=1
 SoundId=48
 Cost=50
@@ -2700,7 +2701,7 @@ ProtoId=385
 Type=3
 ScriptModule=item
 ScriptFunc=_TestTrapInit
-PicMap=art\items\rifle.frm
+PicMap=art\items\SOSHOTGN.png
 PicInv=art\inven\soshotgn.frm
 Flags=134217758
 DisableEgg=1
@@ -3733,7 +3734,7 @@ Weapon_SoundId_0=73
 [Proto]
 ProtoId=486
 Type=3
-PicMap=art\items\rock2.frm
+PicMap=art\items\rock3.png
 PicInv=art\inven\rock4.frm
 Flags=134217758
 DisableEgg=1
@@ -5064,7 +5065,7 @@ ProtoId=1040
 Type=3
 ScriptModule=item
 ScriptFunc=_RevolverInit
-PicMap=art\items\revolver_anaconda.frm
+PicMap=art\items\revolver_hrenov.frm
 PicInv=art\inven\revolver44.PNG
 Flags=134217758
 DisableEgg=1
@@ -5330,9 +5331,9 @@ Weapon_Anim2_1=Anim2Burst
 Weapon_PicUse_0=art\intrface\single.frm
 Weapon_PicUse_1=art\intrface\swing.frm
 Weapon_PicUse_2=art\intrface\blank.frm
-Weapon_DmgMin_0=10
+Weapon_DmgMin_0=31
 Weapon_DmgMin_1=30
-Weapon_DmgMax_0=15
+Weapon_DmgMax_0=49
 Weapon_DmgMax_1=40
 Weapon_Effect_0=4049
 Weapon_MaxDist_0=25
@@ -5347,7 +5348,7 @@ Weapon_SoundId_1=48
 [Proto]
 ProtoId=1401
 Type=3
-PicMap=art\items\minigun.frm
+PicMap=art\items\gatling_low.png
 PicInv=art\inven\gatling_low.png
 Flags=134218142
 DisableEgg=1
@@ -5554,7 +5555,7 @@ Weapon_SoundId_1=82
 ProtoId=1406
 Type=3
 PicMap=art\items\custrevolv_low.png
-PicInv=art\inven\custrevolv_low.png
+PicInv=art\inven\custrevolv_low.gif
 Flags=134217758
 DisableEgg=1
 Deteriorable=1
@@ -5812,7 +5813,7 @@ Weapon_SoundId_0=69
 [Proto]
 ProtoId=1413
 Type=3
-PicMap=art\items\rev_throw2_low.png
+PicMap=art\items\rev_throw2_low.frm
 PicInv=art\inven\rev_throw1_low.png
 Flags=134217758
 DisableEgg=1
@@ -6195,7 +6196,7 @@ Weapon_SoundId_1=72
 [Proto]
 ProtoId=1423
 Type=3
-PicMap=art\items\club.frm
+PicMap=art\items\iron_prod.png
 PicInv=art\inven\iron_prod.png
 Flags=134217758
 DisableEgg=1
@@ -6260,7 +6261,7 @@ Weapon_SoundId_0=54
 [Proto]
 ProtoId=1425
 Type=3
-PicMap=art\items\club.frm
+PicMap=art\items\wood_plank.png
 PicInv=art\inven\wood_plank.png
 Flags=134217758
 DisableEgg=1
@@ -6292,7 +6293,7 @@ Weapon_SoundId_0=54
 [Proto]
 ProtoId=1426
 Type=3
-PicMap=art\items\club.frm
+PicMap=art\items\water_tube.png
 PicInv=art\inven\water_tube.png
 Flags=134217758
 DisableEgg=1
@@ -6533,7 +6534,7 @@ Weapon_SoundId_0=67
 [Proto]
 ProtoId=1522
 Type=3
-PicMap=art\items\drill.frm
+PicMap=art\items\drill..frm
 PicInv=art\inven\drill.png
 Flags=134218142
 DisableEgg=1
@@ -6843,7 +6844,7 @@ Weapon_SoundId_1=64
 [Proto]
 ProtoId=3983
 Type=3
-PicMap=art\items\4shotgun.frm
+PicMap=art\items\4shotgun.png
 PicInv=art\inven\4shotgun.gif
 Flags=134217886
 DisableEgg=1

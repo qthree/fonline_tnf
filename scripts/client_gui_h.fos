@@ -112,9 +112,9 @@ shared interface IGUIElementOpt
     IGUIElementOpt@ Realese();
     IGUIElementOpt@ SetElementType( uint8 type );
     IGUIElementOpt@ SetDescription( string desc );
-    IGUIElementOpt@ SetElementBtnNum( uint8 btnNum );
-    IGUIElementOpt@ SetElementFastPanelType( uint8 type );
-    IGUIElementOpt@ SetElementFastPanelId( uint16 id );
+    //IGUIElementOpt@ SetElementBtnNum( uint8 btnNum );
+    //IGUIElementOpt@ SetElementFastPanelType( uint8 type );
+    //IGUIElementOpt@ SetElementFastPanelId( uint16 id );
     IGUIElementOpt@ UpPic( string@ sprName );
     IGUIElementOpt@ Pic( string@ sprName, int path );
     IGUIElementOpt@ SetLayer( uint8 layer );

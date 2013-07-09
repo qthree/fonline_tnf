@@ -13,20 +13,29 @@
 
 // @pm menu
 import void ShowContScreen( uint8 screenType, uint8 actionType ) from "client_screen_contmenu";
-import void GetActiveLayer( IGUIElementOpt@[] @ activeBtnLayer ) from "client_screen_fastpanel";
-import int8 ChangeLayer( int8 layer ) from "client_screen_fastpanel";
-import void HidePanel( bool show ) from "client_screen_fastpanel";
-import void GetPanelButtons( IGUIElementOpt@[] @ panelBtns ) from "client_screen_fastpanel";
+//import void GetActiveLayer( IGUIElementOpt@[] @ activeBtnLayer ) from "client_screen_fastpanel";
+//import int8 ChangeLayer( int8 layer ) from "client_screen_fastpanel";
+//import void HidePanel( bool show ) from "client_screen_fastpanel";
+//import void GetPanelButtons( IGUIElementOpt@[] @ panelBtns ) from "client_screen_fastpanel";
+import void ShowPanel(bool show) from "client_screen_fastpanel";
+import void FastPanelKeyPress(uint8 key) from "client_screen_fastpanel";
 import void InputBoxKeyPressed( uint8 key, uint8 kbData ) from "client_screen_inputbox";
 import void InputBoxClipboardInsert()  from "client_screen_inputbox";
 import void InventoryKeyboardControl(uint8 key) from "client_screen_inventory";
 import void GetClientDrawItemData(uint[]& clientDrawItemData) from "client_main";
 import void ClearClientDrawItemData() from "client_main";
-import void LoginSetText(uint8 key, uint8 letter) from "client_screen_login";
+/*import void LoginSetText(uint8 key, uint8 letter) from "client_screen_login";
 import void LoginTabPress() from "client_screen_login";
 import void LoginEnterPress() from "client_screen_login";
 import void LoginInputCharName(uint8 key, uint8 letter) from "client_screen_login";
 import bool LoginIsRegActive() from "client_screen_login";
+*/
+import void LoginSetText(uint8 key, uint8 letter) from "client_screen_register_tmp";
+import void LoginTabPress() from "client_screen_register_tmp";
+import void LoginEnterPress() from "client_screen_register_tmp";
+//import void LoginInputCharName(uint8 key, uint8 letter) from "client_screen_register_tmp";
+//import bool LoginIsRegActive() from "client_screen_register_tmp";
+
 // #pm menu
 
 // binyan - Hotkeys
@@ -302,7 +311,7 @@ class GUIElement : IGUIElementOpt
         Description = desc;
         return this;
     }
-
+/*
     IGUIElementOpt@ SetElementBtnNum( uint8 btnNum )   // pm add
     {
         ElementBtnNum = btnNum;
@@ -319,7 +328,7 @@ class GUIElement : IGUIElementOpt
     {
         ElementFastPanelId = id;
         return this;
-    }
+    }*/
 
     IGUIElementOpt@ Pic( string@ sprName, int path )
     {
@@ -539,31 +548,43 @@ class GUIScreen : IGUIScreenOpt
 		  }
 	    }
 
-            uint8 hungerProc = GetChosen().StatBase[ST_HUNGER] * 0.1,
-		  thristProc = GetChosen().StatBase[ST_THRIST] * 0.1,
-		  dyspneaProc = GetChosen().StatBase[ST_DYSPNEA];
+        CritterCl@ choo = GetChosen();
+        if(!(choo is null)){
+            uint8 hungerProc = choo.StatBase[ST_HUNGER] * 0.1,
+            thristProc = GetChosen().StatBase[ST_THRIST] * 0.1,
+            dyspneaProc = GetChosen().StatBase[ST_DYSPNEA];
             //DrawBar(int startX, int endX, int startY, uint8 proc, uint color0, uint color1, bool invertX, bool invertY)
              DrawBar(20, 220, 70, hungerProc, COLOR_DDGREEN, COLOR_GREEN, false, false, "сытость");
-	     DrawBar(20, 220, 80, thristProc, 0, 0, false, false, "Жажда");
+            DrawBar(20, 220, 80, thristProc, 0, 0, false, false, "Жажда");
 
-	     if(dyspneaProc < 100){
-			DrawBar(20, 220, 90, dyspneaProc, COLOR_DBLUE, COLOR_WHITE, false, false, "Воздух");
-	     }
+            if(dyspneaProc < 100){
+                DrawBar(20, 220, 90, dyspneaProc, COLOR_DBLUE, COLOR_WHITE, false, false, "Воздух");
+            }
 
-	     ItemCl@ gasMask =GetChosen().GetItem( 0, SLOT_HAND2 );
-	     if(gasMask !is null && gasMask.GetProtoId() == 1399){
+
+            ItemCl@ gasMask =choo.GetItem( 0, SLOT_HAND2 );
+            if(gasMask !is null && gasMask.GetProtoId() == 1399){
 				  uint8 gasMaskProc = gasMask.Indicator;
 				  if(gasMaskProc < 100){
 					DrawBar(20, 220, 90, gasMaskProc, COLOR_DBLUE, COLOR_GRAY, false, false, "Воздух");
 				  }
-			}
+                }
+            }
         }
     }
 
     bool MouseDown( int click, int x, int y )
     {
-        if( IsHardcoded && Index == CLIENT_MAIN_SCREEN_GAME && click == MOUSE_CLICK_RIGHT )
+        if( IsHardcoded && Index == CLIENT_MAIN_SCREEN_GAME && click == MOUSE_CLICK_RIGHT ){
             __mouse2Pressed = true;                                                                                        // pm added
+            if(__fastPanel){
+                __fastPanel = false;
+                ChangeCursor(CURSOR_DEFAULT);
+            }
+        }
+        
+        //if(click == MOUSE_CLICK_LEFT && (Index == CLIENT_MAIN_SCREEN_GAME && GetCurrentCursor() == CURSOR_DEFAULT)){Message("lmousedown");return true;}
+
 
         if( IsHardcoded && Index == CLIENT_MAIN_SCREEN_GAME )
         {
@@ -985,7 +1006,7 @@ class GUIScreen : IGUIScreenOpt
     bool KeyPress( uint8 key )
     {
 
-
+/*
         if( key == DIK_F4 )     // pm added && __fastPanel
         {
             {
@@ -996,32 +1017,42 @@ class GUIScreen : IGUIScreenOpt
                 else
                     __f4Pressed = ( __f4Pressed ? false : true );
 
-            }
-        }
+           - }
+        }*/
 // @pm menu
         if( Index == CLIENT_MAIN_SCREEN_GAME )
         {
-            if( key == DIK_ESCAPE && __getExpToPlayer )
+            if( key == DIK_ESCAPE)// && __getExpToPlayer )
             {
-                __getExpToPlayer = false;
-                return true;
+                if(__getExpToPlayer){
+                    __getExpToPlayer = false;
+                    ChangeCursor(CURSOR_DEFAULT);
+                    return true;
+                }
+
+                 if(__fastPanel){
+                    __fastPanel = false;
+                    ChangeCursor(CURSOR_DEFAULT);
+                    return true;
+                 }
+
             }
 
             // Message("screen game"+"\n"+"key pressed = "+key);
-            if( key >= DIK_1 && key <= DIK_0 && __fastPanel  && !__ConsoleActive )
+            if( key >= DIK_1 && key <= DIK_0 && !__ConsoleActive )
             {
-
-                IGUIElementOpt@[] panelBtns;
+                FastPanelKeyPress(key);
+                //IGUIElementOpt@[] panelBtns;
                 // activeLayerBtn.resize(9);
-                GetActiveLayer( panelBtns );
+                //GetActiveLayer( panelBtns );
                 // GetPanelButtons(panelBtns);
-                uint8 length = panelBtns.length();
-                if( length == 0 )
-                {
-                    Message( "ziro length" );
-                    return false;
-                }
-                panelBtns[ key - 2 ].Realese();
+                //uint8 length = panelBtns.length();
+                //if( length == 0 )
+                //{
+                    //Message( "ziro length" );
+                    //return false;
+                //}
+                //panelBtns[ key - 2 ].Realese();
 //                       Message("key pressed = "+key);
                 return true;
             }
@@ -1048,15 +1079,20 @@ class GUIScreen : IGUIScreenOpt
                {
                    ChangeLayer(key-2);
                }*/
-               if(key==DIK_I && KeyPressed[ DIK_LCONTROL ] && !__ConsoleActive)
+               if(key==DIK_I/* && KeyPressed[ DIK_LCONTROL ] */&& !__ConsoleActive)
                {
                     ::ShowScreen(CLIENT_SCREEN_INVENTORY_TNF, 0, 0, 0);
                     return true;
                }
 
+               if(key == DIK_F4){
+                   __fastPanelShow = !__fastPanelShow;
+                   ShowPanel(__fastPanelShow);
+               }
+
         }
         else if(Index == CLIENT_MAIN_SCREEN_LOGIN){
-                if(!(KeyPressed[DIK_LSHIFT] || KeyPressed[DIK_RSHIFT] || KeyPressed[DIK_LMENU] || key == DIK_ESCAPE)){
+                if(!(KeyPressed[DIK_LMENU] || key == DIK_ESCAPE || key == DIK_LCONTROL)){ //(KeyPressed[DIK_LSHIFT] || KeyPressed[DIK_RSHIFT] ||
                         if(key == DIK_TAB){
                                 LoginTabPress();
                         }else if(key == DIK_RETURN || key == DIK_NUMPADENTER){
@@ -1067,13 +1103,13 @@ class GUIScreen : IGUIScreenOpt
 
                         return true;
                 }
-        }
+        }/*
         else if(Index == CLIENT_SCREEN_LOGIN_TNF){
                 if(LoginIsRegActive()){
                     LoginInputCharName(key, key);
                     return true;
                 }
-        }
+        }*/
         else if( Index == CLIENT_SCREEN_CLOCK )
         {
             if( key == DIK_P && !__ConsoleActive )

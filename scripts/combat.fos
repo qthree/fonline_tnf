@@ -27,6 +27,8 @@ import bool FlareGunUse( Critter& cr, Item& item ) from "item";                 
 import void ExplodeEx( Map& map, uint16 hexX, uint16 hexY, uint16 effectPid, uint effectRadius, uint damage, uint damageType, uint damageRadius, uint ownerId ) from "explode";
 import bool DisassembleItemForce(Critter& cr, Item& item, bool ground, bool msg) from "repair";
 
+import bool CreateFly(Map@ map, uint16 hx, uint16 hy, uint16 tx, uint16 ty,  uint hexPerTick, uint wpid, uint time, uint crId) from "flying_objects";
+
 
 // binyan
 /*---------------------------Ball---------------------------------------------*/
@@ -283,6 +285,13 @@ void CombatAttack( Critter& cr, Critter@ target, ProtoItem& weapon, uint8 weapon
             cr.ModeBase[ MODE_HIDE ] = 0;
         isSneak = true;
     }
+
+    //rocket attack
+    if(isRocket){
+        CreateFly(cr.GetMap(), cr.HexX, cr.HexY, tx, ty,  3, PID_ACTIVE_PLASTIC_EXPLOSIVE, REAL_SECOND(5), cr.Id);
+        return;
+    }
+
     /*          if(valid(target)) //binyan - Hex attack - added
             {
                     if (!target.IsPlayer() || target.GetAccess()==ACCESS_CLIENT)
@@ -1689,7 +1698,7 @@ void ApplyDamage( AttackStruct& attack, Critter& target, uint rounds, bool isCri
 
     bool     targetIsPlayer = target.IsPlayer();
     bool     attackerIsPlayer = ( valid( attacker ) ? attacker.IsPlayer() : false );
-    
+
     Item@ targetWeapon = _CritGetItemHand(target);
 
     if( target.IsDead() || not valid( map ) )
@@ -2607,16 +2616,16 @@ void ApplyDamage( AttackStruct& attack, Critter& target, uint rounds, bool isCri
 		if(valid(targetWeapon)){
 			if(targetWeapon.GetProtoId() == PID_FLAMER){
 				if(targetWeapon.AmmoCount > 0){
-		      
+
 					bool isFireDmg = (attack.RealWeapon.Proto.Weapon_DmgType_0 == DAMAGE_FIRE);
 					if((isFireDmg && Random(0,99) < 95) ||
 					    target.Stat[ST_LUCK] * 10 < Random(1,90) || target.Param[TRAIT_JINXED] != 0 || target.Param[PE_JINXED_II] != 0){
-			
+
 						uint8 expldRadius = CLAMP(attack.RealWeapon.AmmoCount, 2, 5); //(attack.RealWeapon.AmmoCount > 1 ? attack.RealWeapon.AmmoCount : 2);
 						ExplodeEx( target.GetMap(), target.HexX, target.HexY, PID_EXPLODE_ROCKET, expldRadius, Random(30, 50), DAMAGE_FIRE, expldRadius, attack.Attacker.Id );
 						DisassembleItemForce(target, targetWeapon, true, false);
-				
-				      
+
+
 					}
 				}
 			}

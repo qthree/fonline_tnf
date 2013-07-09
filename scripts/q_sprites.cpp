@@ -799,8 +799,11 @@ EXPORT void NetDisconnect()
     }
 }
 
+#define NETLOGIN_NULL_LEN  (-1)
+#define NETLOGIN_WRONG_LEN  (-2)
+#define NETLOGIN_WRONG_MODE  (-3)
 
-void NetLogin(uint mode, ScriptString* login, ScriptString* pass)
+int NetLogin(uint mode, ScriptString* login, ScriptString* pass)
 {
     NetDisconnect();
 
@@ -809,9 +812,9 @@ void NetLogin(uint mode, ScriptString* login, ScriptString* pass)
         case 1: break; //коннект без логина и пароля, для скачивания кеша
         case 2: //обычный логин
         {
-            if(login==NULL || pass==NULL) return;
+            if(login==NULL || pass==NULL) return NETLOGIN_NULL_LEN;
             uint passlen = pass->length(), loglen = login->length();
-            if(passlen>14 || passlen<3 || loglen<FOnline->MinNameLength || loglen>FOnline->MaxNameLength) return;
+            if(passlen>14 || passlen<3 || loglen<FOnline->MinNameLength || loglen>FOnline->MaxNameLength) return NETLOGIN_WRONG_LEN;
 
             memcpy(GameMain.pass, pass->c_str(), passlen+1);
 
@@ -821,9 +824,9 @@ void NetLogin(uint mode, ScriptString* login, ScriptString* pass)
         }
         case 3: //регистрация
         {
-            if(login==NULL || pass==NULL) return;
+            if(login==NULL || pass==NULL) return NETLOGIN_NULL_LEN;
             uint passlen = pass->length(), loglen = login->length();
-            if(passlen>14 || passlen<3 || loglen<FOnline->MinNameLength || loglen>FOnline->MaxNameLength) return;
+            if(passlen>14 || passlen<3 || loglen<FOnline->MinNameLength || loglen>FOnline->MaxNameLength) return NETLOGIN_WRONG_LEN;
 
             GameMain.ShowMainScreen(2);
 /*
@@ -834,18 +837,19 @@ void NetLogin(uint mode, ScriptString* login, ScriptString* pass)
             if(*GameMain.RegCritter)
             {
                 const_cast<ScriptString&>((*GameMain.RegCritter)->Name) = *login;
-                memcpy((void*)(*GameMain.RegCritter)->PasswordReg, pass->c_str(), passlen);
+                //memcpy((void*)(*GameMain.RegCritter)->PasswordReg, pass->c_str(), passlen);
+                memcpy((void*)(*GameMain.RegCritter)->PasswordReg, pass->c_str(), passlen+1);
 /*
                 MessageBoxA(0, (*GameMain.RegCritter)->Name.c_str(), "rty", 0);
                 MessageBoxA(0, (*GameMain.RegCritter)->PasswordReg, "rty", 0);
 */
                 break;
             }
-            return;
+            return 0;
 
         }
 
-        case 4: return; // сэйв/лоад сингла
+        case 4: return 0; // сэйв/лоад сингла
 
              //const_cast<int&>((*GameMain.RegCritter)->Params[ST_STRENGTH]) = 10;
 /*        case 5:
@@ -860,10 +864,12 @@ void NetLogin(uint mode, ScriptString* login, ScriptString* pass)
         }
         return;
 */
-        default: return;  // дисконнект
+        default: return NETLOGIN_WRONG_MODE;  // дисконнект
     }
 
     *GameMain.doConnect = mode;
+
+    return 0;
 }
 
 
@@ -1198,7 +1204,7 @@ void RegisterNativeSprites( asIScriptEngine* engine, bool compiler )
 
     r = engine->RegisterGlobalFunction( "void GenerateDesert(float[]&, uint)", asFUNCTION( GenerateDesert ), asCALL_CDECL );
 
-    r = engine->RegisterGlobalFunction( "void NetLogin(uint, string@, string@)", asFUNCTION( NetLogin ), asCALL_CDECL );
+    r = engine->RegisterGlobalFunction( "int NetLogin(uint, string@, string@)", asFUNCTION( NetLogin ), asCALL_CDECL );
     r = engine->RegisterGlobalFunction( "void NetDisconnect()", asFUNCTION( NetDisconnect ), asCALL_CDECL );
 
 //    r = engine->RegisterGlobalFunction( "int TestDirect3d(uint)", asFUNCTION( TestDirect3d ), asCALL_CDECL );

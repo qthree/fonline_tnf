@@ -89,6 +89,8 @@ import uint8 current() from "client_gui";
 
 #define ITEM_SET_MAP_PIC                               ( "#setmappic" )      // #setmappic [id] [path]
 
+#define SLEEP_COMMAND_NAME                              ("#sleep")          // #sleep [side] [id]
+
 // 3 AND MORE ARGUMENTS COMMANDS
 #define ADVANCED_SPAWN_COMMAND_NAME                    ( "#spawn" )          // #spawn [mob_type] [weapon] [behavior_type] - complex mob spawn
 #define BUILD_COMMAND_NAME                             ( "#build" )          // #build [unknown] [unknown] [unknown] [unknown] - ???
@@ -686,6 +688,10 @@ Command@ GetCommandByName( string& commandName )
     else if( commandName == ITEM_SET_MAP_PIC )
     {
         @command = ItemSetMapPicCommand();
+    }
+    else if( commandName == SLEEP_COMMAND_NAME )
+    {
+        @command = SleepCommand();
     }
     else if( substring( commandName, 0, RUN_MODULE_COMMAND_PREFIX.length() ) == RUN_MODULE_COMMAND_PREFIX )
     {
@@ -2488,6 +2494,23 @@ class ItemSetMapPicCommand : Command
         int hash = int(GetStrHash("art\\scenery\\"+pathArg.getStringData()));
 
         RunServerScriptUnsafe( "gm@unsafe_ChangePic",idArg.getIntData(), hash, 0, null, null );
+    }
+}
+
+class SleepCommand : Command
+{
+    SleepCommand()
+    {
+        argsRequired = 2;
+        @description = "#sleep [side] [id]\nКидает в сон перса [id] на сторону [side].";
+    }
+    private void process()
+    {
+
+        CommandArgument idArg = getArg( 0 );
+        CommandArgument sideArg = getArg( 1 );
+
+        RunServerScriptUnsafe( "general_unsafe@unsafe_sleep", sideArg.getIntData(), idArg.getIntData(), 0, null, null );
     }
 }
 

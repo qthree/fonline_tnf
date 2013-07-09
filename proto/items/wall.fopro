@@ -891,6 +891,7 @@ Type=12
 PicMapName=art\walls\jaw1000.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
+Flags=16
 
 [Proto]
 Pid=5123
@@ -898,7 +899,7 @@ Type=12
 PicMapName=art\walls\jaw1001.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=16
+Flags=24
 
 [Proto]
 Pid=5124
@@ -906,6 +907,7 @@ Type=12
 PicMapName=art\walls\jaw1002.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
+Flags=16
 
 [Proto]
 Pid=5125
@@ -4018,7 +4020,7 @@ Type=12
 PicMapName=art\walls\nec054.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=5548
@@ -4107,7 +4109,7 @@ Pid=5559
 Type=12
 PicMapName=art\walls\nec066.frm
 PicInvName=art\inven\reserved.frm
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=5560
@@ -4527,14 +4529,14 @@ Type=12
 PicMapName=art\walls\nec125.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=5618
 Type=12
 PicMapName=art\walls\nec126.frm
 PicInvName=art\inven\reserved.frm
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=5619
@@ -6208,12 +6210,14 @@ Pid=5859
 Type=12
 PicMapName=art\walls\adb0999.frm
 PicInvName=art\inven\reserved.frm
+Flags=24
 
 [Proto]
 Pid=5860
 Type=12
 PicMapName=art\walls\adb1000.frm
 PicInvName=art\inven\reserved.frm
+
 
 [Proto]
 Pid=5861
@@ -6298,6 +6302,7 @@ Type=12
 PicMapName=art\walls\adb1012.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
+Flags=24
 
 [Proto]
 Pid=5873
@@ -6326,6 +6331,7 @@ Type=12
 PicMapName=art\walls\adb1016.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
+Flags=24
 
 [Proto]
 Pid=5877
@@ -11935,28 +11941,28 @@ Pid=6625
 Type=12
 PicMapName=art\walls\vwindw2.frm
 PicInvName=art\inven\reserved.frm
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6626
 Type=12
 PicMapName=art\walls\vwindw3.frm
 PicInvName=art\inven\reserved.frm
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6627
 Type=12
 PicMapName=art\walls\vwindw4.frm
 PicInvName=art\inven\reserved.frm
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6628
 Type=12
 PicMapName=art\walls\vwindw5.frm
 PicInvName=art\inven\reserved.frm
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6629
@@ -11970,7 +11976,7 @@ Pid=6630
 Type=12
 PicMapName=art\walls\vwindw7.frm
 PicInvName=art\inven\reserved.frm
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6631
@@ -12131,12 +12137,14 @@ Pid=6655
 Type=12
 PicMapName=art\walls\grid1.frm
 PicInvName=art\inven\reserved.frm
+Flags=24
 
 [Proto]
 Pid=6656
 Type=12
 PicMapName=art\walls\grid2.frm
 PicInvName=art\inven\reserved.frm
+Flags=24
 
 [Proto]
 Pid=6657
@@ -12336,17 +12344,17 @@ Material=1
 [Proto]
 Pid=6682
 Type=12
-PicMapName=art\scenery\gate_door_lt.frm
+PicMapName=art\scenery\mstr70.frm
 PicInvName=art\inven\reserved.frm
-Flags=33554432
+Flags=28
 Material=1
 
 [Proto]
 Pid=6683
 Type=12
-PicMapName=art\scenery\gate_door_rt.frm
+PicMapName=art\scenery\mstr70.frm
 PicInvName=art\inven\reserved.frm
-Flags=33554432
+Flags=28
 Material=1
 
 [Proto]
@@ -12608,7 +12616,7 @@ Type=12
 PicMapName=art\walls\shipw002.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6731
@@ -12616,7 +12624,7 @@ Type=12
 PicMapName=art\walls\shipw003.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6732
@@ -12624,7 +12632,7 @@ Type=12
 PicMapName=art\walls\shipw004.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6733
@@ -12632,7 +12640,7 @@ Type=12
 PicMapName=art\walls\shipw005.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6734
@@ -12640,7 +12648,7 @@ Type=12
 PicMapName=art\walls\shipw006.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6735
@@ -12648,7 +12656,7 @@ Type=12
 PicMapName=art\walls\shipw007.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6736
@@ -12656,7 +12664,7 @@ Type=12
 PicMapName=art\walls\shipw008.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6737
@@ -12664,7 +12672,7 @@ Type=12
 PicMapName=art\walls\shipw009.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6738
@@ -12672,7 +12680,7 @@ Type=12
 PicMapName=art\walls\shipw010.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6739
@@ -12680,7 +12688,7 @@ Type=12
 PicMapName=art\walls\vaultbr1.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6740
@@ -12688,7 +12696,7 @@ Type=12
 PicMapName=art\walls\vaultbr2.frm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=33554432
+Flags=24
 
 [Proto]
 Pid=6741
@@ -13838,7 +13846,7 @@ Type=12
 PicMapName=art\walls\window4.fofrm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=24
+Flags=16
 
 [Proto]
 Pid=6914
@@ -13854,7 +13862,7 @@ Type=12
 PicMapName=art\walls\window6.fofrm
 PicInvName=art\inven\reserved.frm
 Corner=5
-Flags=24
+Flags=16
 
 [Proto]
 Pid=6918
@@ -13964,6 +13972,38 @@ Flags=24
 Pid=6933
 Type=12
 PicMapName=art\walls\brick22.fofrm
+PicInvName=art\inven\reserved.frm
+Corner=5
+Flags=24
+
+[Proto]
+Pid=6934
+Type=12
+PicMapName=art\walls\brick23.fofrm
+PicInvName=art\inven\reserved.frm
+Corner=5
+Flags=24
+
+[Proto]
+Pid=6935
+Type=12
+PicMapName=art\walls\brick24.fofrm
+PicInvName=art\inven\reserved.frm
+Corner=5
+Flags=24
+
+[Proto]
+Pid=6936
+Type=12
+PicMapName=art\walls\brick25.fofrm
+PicInvName=art\inven\reserved.frm
+Corner=5
+Flags=24
+
+[Proto]
+Pid=6937
+Type=12
+PicMapName=art\walls\brick26.fofrm
 PicInvName=art\inven\reserved.frm
 Corner=5
 Flags=24

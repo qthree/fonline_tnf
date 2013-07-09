@@ -1,0 +1,166 @@
+//slq server query
+
+#include "_defines.fos"
+
+bool SqlQueryCharStatusChange(uint id, uint8 status){
+
+    if(status < LOGIN_STATUS_NOT_PLAYED && status > LOGIN_STATUS_DEAD) return false;
+
+    MysqlInit();
+
+    if(MysqlConnect(true)){
+        if(MysqlSelectDb() == 0){
+
+            string query = "UPDATE characters SET charStatus =  '" + status + "' WHERE charId = '" + id + "'";
+
+            if(MysqlQuery(query) != 0){
+                MysqlError(query);
+                Log( "sql error : "+query);
+            }else{
+                return true;//action here
+            }
+
+            MysqlClose();
+        }
+    }
+
+    return false;
+}
+
+int SqlQueryCharStatusGet(uint id){
+
+    MysqlInit();
+
+    if(MysqlConnect(true)){
+        if(MysqlSelectDb() == 0){
+
+            string query = "SELECT charStatus FROM characters WHERE charId = '" + id + "'";
+
+            if(MysqlQuery(query) != 0){
+                MysqlError(query);
+                Log( "sql error : "+query);
+            }else{
+                string sOut = "";
+                if(MysqlGetRow(query, sOut) < 0){
+                    int iTemp = 0;
+                    StrToInt(sOut, iTemp);
+
+                    return iTemp;
+                }
+            }
+
+            MysqlClose();
+        }
+    }
+
+    return -2;
+}
+
+void SaveNameFirst(uint id){
+
+    MysqlInit();
+
+    if(MysqlConnect(true)){
+        if(MysqlSelectDb() == 0){
+            string query = "SELECT charNameView FROM characters WHERE charNameReal = '"+GetPlayerName(id)+"'";
+            if(MysqlQuery(query) != 0){
+                MysqlError(query);
+                Log( "sql error : "+query);
+            }/*else{
+                Log( "successful");
+                string sOut = "";
+                if(MysqlGetRow(query, sOut) < 0){
+                    MysqlError(query);
+                    Log( "getrow faild "+query);
+                }else{
+
+                    sOut.resize(sOut.length()-1);
+                    string query = "INSERT INTO characters_names SET id = '"+(id)+"', hash = '"+(id)+"', name = '"+sOut+"'";
+
+                    if(MysqlQuery(query) != 0){
+                        MysqlError(query);
+                        Log( "sql error : "+query);
+                        return;
+                    }
+                    //string query = "UPDATE charter_new SET charNameView = '" + sOut + " WHERE charNameReal = '"+GetPlayerName(val != 0 ? val : cr.Id)+"'";
+                    //cr.RunClientScript("client_names@_updateAllNicks", 0, 0, 0, null, null );
+                    Log( "getrow info : "+sOut);
+                }
+            }*/
+        MysqlClose();
+        }else{Log( "select db fail");}
+    }else{Log( "connect problem");}
+}
+/*
+bool SaveMyName(){
+}
+*/
+#define MYSQL_TABLE_CHARACTERS  ("CREATE TABLE `characters` (  `charId` int(10) unsigned NOT NULL AUTO_INCREMENT,  `forumId` decimal(10,0) DEFAULT NULL,  `charNameReal` tinytext,  `charNameView` tinytext,  `charPass` tinytext,  `charStatus` tinyint(1) DEFAULT NULL,  PRIMARY KEY (`charId`))")
+#define MYSQL_TABLE_CHARACTERS_NAMES ("create table `tnf`.`characters_names`(  `id` int(10) ,   `name` text(20) ,   `hash` text(20) ) ;")
+
+bool MysqlCreateTables(){
+
+    MysqlInit();
+
+    if(MysqlConnect(true)){
+        if(MysqlSelectDb() == 0){
+
+            string query = "";
+
+            MysqlQuery(MYSQL_TABLE_CHARACTERS);
+            MysqlQuery(MYSQL_TABLE_CHARACTERS_NAMES);
+
+            MysqlClose();
+        }
+    }
+
+    return true;
+}
+
+void createtables(Critter& cr, int, int, int){MysqlCreateTables();}
+
+/*
+
+QUERY PATTERN
+
+///////////////////////////////////////
+
+MysqlInit();
+
+    if(MysqlConnect(true)){
+        if(MysqlSelectDb() == 0){
+
+            string query = "";
+
+            if(MysqlQuery(query) != 0){
+                MysqlError(query);
+                Log( "sql error : "+query);
+            }else{
+                //action here
+            }
+            MysqlClose();
+        }
+    }
+
+///////////////////////////////////////
+
+QUERY
+//character
+CREATE TABLE `characters` (
+  `charId` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `forumId` decimal(10,0) DEFAULT NULL,
+  `charNameReal` tinytext,
+  `charNameView` tinytext,
+  `charPass` tinytext,
+  `charStatus` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`charId`)
+)
+
+
+//characters_names
+create table `tnf`.`characters_names`(
+   `id` int(10) ,
+   `name` text(20) ,
+   `hash` text(20)
+ ) ;
+*/

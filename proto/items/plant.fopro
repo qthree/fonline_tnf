@@ -1,5 +1,3 @@
-# 3.0.8
-
 [Proto]
 ProtoId=1597
 Type=15
@@ -13,6 +11,7 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=10
 
 [Proto]
 ProtoId=1598
@@ -27,6 +26,7 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=5
 
 [Proto]
 ProtoId=1599
@@ -41,6 +41,7 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=0
 
 [Proto]
 ProtoId=1600
@@ -55,6 +56,9 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=0
+Start_Value_3=0
+Food_Restore=3
 
 [Proto]
 ProtoId=1601
@@ -69,6 +73,8 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=1
+Start_Value_3=0
 
 [Proto]
 ProtoId=1602
@@ -77,12 +83,13 @@ ScriptModule=plant
 ScriptFunc=_InitPlant
 PicMap=art\items\plant_radcvet2.png
 PicInv=art\inven\brocflwr.frm
-Flags=134217756
+Flags=134217758
 DisableEgg=1
 Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=2
 
 [Proto]
 ProtoId=1603
@@ -91,26 +98,28 @@ ScriptModule=plant
 ScriptFunc=_InitPlant
 PicMap=art\items\plant_radcvet3.png
 PicInv=art\inven\radcvet.png
-Flags=134217756
+Flags=134217758
 DisableEgg=1
 Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=3
 
 [Proto]
-ProtoId=1604
+ProtoId=1609
 Type=15
 ScriptModule=plant
 ScriptFunc=_InitPlant
 PicMap=art\items\plant_radcvet3.png
 PicInv=art\inven\radcvet.png
-Flags=134217756
+Flags=134217758
 DisableEgg=1
 Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=-1
 
 [Proto]
 ProtoId=1610
@@ -125,6 +134,9 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=0
+Start_Value_3=1
+Food_Restore=3
 
 [Proto]
 ProtoId=1611
@@ -133,12 +145,14 @@ ScriptModule=plant
 ScriptFunc=_InitPlant
 PicMap=art\scenery\cabbage_med.fofrm
 PicInv=art\scenery\cabbage_med.fofrm
-Flags=134217756
+Flags=134217758
 DisableEgg=1
 Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=1
+Start_Value_3=1
 
 [Proto]
 ProtoId=1612
@@ -153,6 +167,8 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=2
+Start_Value_3=1
 
 [Proto]
 ProtoId=1613
@@ -167,9 +183,11 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=3
+Start_Value_3=1
 
 [Proto]
-ProtoId=1614
+ProtoId=1619
 Type=15
 ScriptModule=plant
 ScriptFunc=_InitPlant
@@ -181,6 +199,8 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=-1
+Start_Value_3=1
 
 [Proto]
 ProtoId=1620
@@ -195,6 +215,9 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=0
+Start_Value_3=2
+Food_Restore=3
 
 [Proto]
 ProtoId=1621
@@ -209,6 +232,8 @@ Weight=5
 SoundId=48
 Cost=1
 Material=1
+#Start_Value_1=1
+#Start_Value_3=2
 
 [Proto]
 ProtoId=1622
@@ -217,12 +242,14 @@ ScriptModule=plant
 ScriptFunc=_InitPlant
 PicMap=art\scenery\corn_low.fofrm
 PicInv=art\scenery\corn_low.fofrm
-Flags=134217756
+Flags=134217758
 DisableEgg=1
 Weight=5
 SoundId=48
 Cost=1
 Material=1
+#Start_Value_1=2
+#Start_Value_3=2
 
 [Proto]
 ProtoId=1623
@@ -231,12 +258,14 @@ ScriptModule=plant
 ScriptFunc=_InitPlant
 PicMap=art\scenery\corn_med.fofrm
 PicInv=art\scenery\corn_med.fofrm
-Flags=134217756
+Flags=134217758
 DisableEgg=1
 Weight=5
 SoundId=48
 Cost=1
 Material=1
+#Start_Value_1=3
+#Start_Value_3=1
 
 [Proto]
 ProtoId=1624
@@ -245,24 +274,109 @@ ScriptModule=plant
 ScriptFunc=_InitPlant
 PicMap=art\scenery\corn_high.fofrm
 PicInv=art\scenery\corn_high.fofrm
-Flags=134217756
+Flags=134217758
 DisableEgg=1
 Weight=5
 SoundId=48
 Cost=1
 Material=1
+#Start_Value_1=4
+#Start_Value_3=1
 
 [Proto]
-ProtoId=1625
+ProtoId=1629
 Type=15
 ScriptModule=plant
 ScriptFunc=_InitPlant
 PicMap=art\scenery\corn_dead.fofrm
 PicInv=art\scenery\corn_dead.fofrm
-Flags=134217756
+Flags=134217758
 DisableEgg=1
 Weight=5
 SoundId=48
 Cost=1
 Material=1
+Start_Value_1=-1
+Start_Value_3=1
+
+[Proto]
+ProtoId=1630
+Type=15
+ScriptModule=plant
+ScriptFunc=_InitPlant
+PicMap=art\scenery\marijuana_ground.fofrm
+PicInv=art\scenery\farm\marijuana\marijuana_seed_inv.png
+Flags=134217758
+DisableEgg=1
+Weight=5
+SoundId=48
+Cost=1
+Material=1
+Start_Value_1=0
+Start_Value_3=2
+
+
+[Proto]
+ProtoId=1631
+Type=15
+ScriptModule=plant
+ScriptFunc=_InitPlant
+PicMap=art\scenery\marijuana_low.fofrm
+PicInv=art\scenery\marijuana_low.fofrm
+Flags=134217758
+DisableEgg=1
+Weight=5
+SoundId=48
+Cost=1
+Material=1
+#Start_Value_1=1
+#Start_Value_3=2
+
+[Proto]
+ProtoId=1632
+Type=15
+ScriptModule=plant
+ScriptFunc=_InitPlant
+PicMap=art\scenery\marijuana_med.fofrm
+PicInv=art\scenery\marijuana_med.fofrm
+Flags=134217758
+DisableEgg=1
+Weight=5
+SoundId=48
+Cost=1
+Material=1
+#Start_Value_1=2
+#Start_Value_3=2
+
+[Proto]
+ProtoId=1633
+Type=15
+ScriptModule=plant
+ScriptFunc=_InitPlant
+PicMap=art\scenery\marijuana_high.fofrm
+PicInv=art\scenery\marijuana_high.fofrm
+Flags=134217758
+DisableEgg=1
+Weight=5
+SoundId=48
+Cost=1
+Material=1
+#Start_Value_1=3
+#Start_Value_3=2
+
+[Proto]
+ProtoId=1639
+Type=15
+ScriptModule=plant
+ScriptFunc=_InitPlant
+PicMap=art\scenery\marijuana_dead.fofrm
+PicInv=art\scenery\marijuana_dead.fofrm
+Flags=134217758
+DisableEgg=1
+Weight=5
+SoundId=48
+Cost=1
+Material=1
+#Start_Value_1=-1
+#Start_Value_3=2
 

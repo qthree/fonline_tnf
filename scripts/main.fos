@@ -5,6 +5,7 @@
 #include "_animation.fos"
 #include "teams_table.fos"
 #include "_colors.fos"
+#include "tools_ip.fos"
 
 #define __MAIN_MODULE__
 #include "_global_events.fos"
@@ -99,8 +100,9 @@ import bool e_CoockingPick( Critter& cr ) from "item";
 //import bool UseCookingStuff( Scenery& scen, Critter& cr ) from "cooking";
 import bool CanCook( Scenery@ fire ) from "cooking";
 
-import bool IsDoorAutomatic( uint pid ) from "map_sutter_objects";
-
+import bool IsDoorAutomatic( uint pid ) from "interactive_obj"; //map_sutter_objects
+import bool SqlQueryCharStatusChange(uint id, uint8 status) from "sql_query";
+//import void SaveNameFirst(uint id) from "sql_query";
 
 // //////////////////////////////////////////////////////////////////////////////////////////////////
 // Called before world generation.
@@ -193,7 +195,7 @@ bool start()
     // ITEM_DATA_MASK_CONTAINER                                                                                        ITEM_DATA_MASK_CONTAINER                                                                                             ITEM_DATA_MASK_CONTAINER
     int8[] mask3 = {  -1, -1,     -1,   -1,      0,  0,  0,  0,  -1, -1, -1, -1,    0,  0,   0,  0,   0,  0,   0,  0,   -1, -1, -1, -1,  -1,    -1,    -1,    -1,  -1, -1, -1, -1,   0, 0,     0, 0,    -1, -1, -1, -1,  -1, -1, -1, -1,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0 };
     // ITEM_DATA_MASK_MAP                                                                                              ITEM_DATA_MASK_MAP                                                                                                   ITEM_DATA_MASK_MAP
-    int8[] mask4 = {  -1, -1,     -1,   -1,     -1, -1, -1, -1,   0,  0,  0,  0,   -1, -1,  -1, -1,  -1, -1,  -1, -1,   -1, -1, -1, -1,  -1,    -1,    -1,    -1,  -1, -1, -1, -1,   0, 0,     0, 0,     0,  0,  0,  0,   0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0 };
+    int8[] mask4 = {  -1, -1,     -1,   -1,     -1, -1, -1, -1,   0,  0,  0,  0,   -1, -1,  -1, -1,  -1, -1,  -1, -1,   -1, -1, -1, -1,  -1,    -1,    -1,    -1,  -1, -1, -1, -1,   0, 0,     0, 0,    -1, -1, -1, -1,   0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0 };
     SetItemDataMask( ITEM_DATA_MASK_CHOSEN, mask0 );
     SetItemDataMask( ITEM_DATA_MASK_CRITTER, mask1 );
     SetItemDataMask( ITEM_DATA_MASK_CRITTER_EXT, mask2 );
@@ -257,6 +259,7 @@ void critter_attack( Critter& cr, Critter& target, ProtoItem& weapon, uint8 weap
 {
     // Critter@ trg = GetCritter(target.Id);
     cr.TimeoutBase[ TO_AGGRESSOR ] = __FullSecond + REAL_MINUTE( 1 );
+
     CombatAttack( cr, target, weapon, weaponMode, ammo, 0, 0 );
 }
 
@@ -1083,11 +1086,13 @@ bool critter_use_skill( Critter& cr, int skill, Critter@ targetCr, Item@ targetI
         return false;
     // cr.Say(SAY_NETMSG, "put_cont "+targetItem.Id+" acc "+targetItem.Accessory);
     case SKILL_TAKE_CONT:     // Take item from container, only targetItem is valid
+        //cr.Say(SAY_NETMSG, "TAKE_cont "+targetItem.Id+" acc "+targetItem.Accessory);
         if( targetItem.Accessory == ACCESSORY_CONTAINER && targetItem.ContainerId != 0 )
         {
             Item@ cont = GetItem( targetItem.ContainerId );
             if( @cont != null && cont.Accessory == ACCESSORY_CRITTER && cont.CritId == cr.Id )
             {
+
                 cr.ParamBase[ ST_CARRY_WEIGHT_EXT ] += int( targetItem.Proto.Weight * cr.GetItemTransferCount() );
                 ChangeCritterSpeed( cr );                       // pm added
             }
@@ -2013,6 +2018,8 @@ void critter_init( Critter& cr, bool firstTime )
     {
         if( cr.IsPlayer() )
         {
+	    //cr.RunClientScript("client_names@_saveMe", 0, 0, 0, null, null);
+	  
             AddNewCritterHistoryBase( cr );                             // pm menu
             GameVar@ TotalPlayers = GetGlobalVar( GVAR_total_players ); // общее число персонажей
             if( TotalPlayers.GetValue() < cr.Id )
@@ -2046,6 +2053,7 @@ void critter_init( Critter& cr, bool firstTime )
 
             cr.StatBase[ ST_EMP_RESIST ] = 500;
             // cr.AddHolodiskInfo(42); // Journalist's research
+            SqlQueryCharStatusChange(cr.Id, LOGIN_STATUS_NOT_ACTIVE); //change sql char status
 
             // Default skin
             #ifdef PLAYERS_3D
@@ -2342,6 +2350,15 @@ void critter_respawn( Critter& cr )
 // Call on something critter in to map.
 void map_critter_in( Map& map, Critter& cr )
 {
+
+    Location @ loc = map.GetLocation();
+    if(loc !is null){
+        cr.SetWorldPos(loc.WorldX, loc.WorldY);
+	
+	int tt = ( ( int(loc.WorldX * 0.1) & 0xFFFF ) | ( int(loc.WorldY * 0.1) << 16 ) );
+	cr.ParamBase[ ST_VAR6 ] = tt;
+    }
+
     if( cr.IsPlayer() )
     {
         qmap_critter_in( map.Id, cr );
@@ -2430,6 +2447,8 @@ bool check_look( Map& map, Critter& cr, Critter& opponent )
     {
         return false;
     }
+
+    if(opponent.ParamBase[MODE_HIDE] > 0) return false;
 
     if( map.GetProtoId() == MAP_UTILITY_START && opponent.IsPlayer() && cr.IsPlayer() && cr.GetAccess() < ACCESS_MODER )
         return false;
@@ -2989,6 +3008,9 @@ bool player_registration( uint ip, string& name, uint& textMsg, uint& strNum )
 // Return true to allow, false to disallow
 bool player_login( uint ip, string& name, uint id, uint& textMsg, uint& strNum )
 {
+    //second session unreleased
+    //if(name.length() != __MaxNameLength){textMsg = TEXTMSG_GAME; strNum = 1050; Log("!!!OLD LOGIN WAY. DISCONNECT!!! ip:"+GetIpFromUint(ip)+" name:"+name+" id:"+id);return false;}
+
     if( !manager_player_login( ip, name, id, textMsg, strNum ) )
         return false;
 
@@ -3005,6 +3027,8 @@ bool player_login( uint ip, string& name, uint id, uint& textMsg, uint& strNum )
         // cr.ParamBase[MODE_WAIT]=0;
         // cr.SetEvent(CRITTER_EVENT_IDLE, null);
     }
+
+    Log("LOGIN +"+__FullSecond);
 
     return true;
 }
@@ -3150,8 +3174,8 @@ bool player_allowcommand( Critter@ player, string@ adminPanel, uint8 command )
     switch( command )
     {
     // ACCESS_CLIENT
-    case COMMAND_CHANGE_PASSWORD:
-    case COMMAND_DELETE_ACCOUNT:
+    //case COMMAND_CHANGE_PASSWORD:
+    //case COMMAND_DELETE_ACCOUNT:
     case COMMAND_EXIT:
     case COMMAND_GETACCESS:
     case COMMAND_MYINFO:
@@ -3252,3 +3276,25 @@ void showBunch( Critter& cr, uint answerI, string& answerS )
 
     UseItemOnLocker( cr, locker, item );
 }
+/*
+#define MAP_X (5000)
+#define MAP_Y (5000)
+
+uint8[] globalMask;
+
+void PasreGlobalFromMask(){
+  
+  uint8 pixel = 0;
+  
+  globalMask.resize(MAP_X*MAP_Y);
+  
+  for(uint i = 1; i =< MAP_Y; ++i){
+    for(uint ii = 1; ii =< MAP_X; ++ii){
+      
+      pixel = GetGlobalMapRelief(ii, i);
+      globalMask[ii*i];
+    
+    }
+  }
+  
+}*/

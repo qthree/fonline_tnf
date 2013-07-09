@@ -5,8 +5,8 @@
 #define PATH_TO_FASTPANEL_FOLDER                 "./fastpanel/"
 
 // 3d players mod, uncomment for use
-// #define PLAYERS_3D             // Enable 3d players // включает 3д чаров по дефолту, нам не нужно.
-#define PLAYERS_3D_NO_HEAD                       // No head slot
+//#define PLAYERS_3D             // Enable 3d players // включает 3д чаров по дефолту, нам не нужно.
+//#define PLAYERS_3D_NO_HEAD                       // No head slot
 // #define PLAYERS_3D_VAULT_SUITE // Vault suite by default, not naked
 
 // Say types
@@ -283,6 +283,7 @@
 #define SLOT_INV                                 ( 0 )   // Inventory
 #define SLOT_HAND1                               ( 1 )   // Weapon slot
 #define SLOT_HAND2                               ( 2 )   // Extended slot
+#define SLOT_HEAD                                ( 4 )   // Head slot
 #define SLOT_ARMOR                               ( 3 )   // Armor slot
 #define SLOT_GROUND                              ( 255 ) // Ground slot, used when critter drop/pick item
 
@@ -840,6 +841,12 @@
 #define QST_INVIS                                ( 701 )
 #define QST_VISION                               ( 702 )
 #define QST_GAMEMODE                             ( 703 )
+
+#define LOGIN_STATUS_NOT_PLAYED                 (0)
+#define LOGIN_STATUS_NOT_ACTIVE                 (1)
+#define LOGIN_STATUS_ACTIVE                     (2)
+#define LOGIN_STATUS_DEAD                       (3)
+
 
 #define ST_CELL_X                                ( 720 )
 #define ST_CELL_Y                                ( 721 )
@@ -1682,6 +1689,12 @@
 # pragma bindfield "const uint16	ProtoItem::Food_Thrist -> 316"
 # pragma bindfield "const uint16	ProtoItem::Food_Restore -> 318"
 # pragma bindfield "const uint	ProtoItem::Food_Flags   -> 320"
+
+# pragma bindfield "const uint      ProtoItem::Ident_BasePic -> 324"
+# pragma bindfield "const uint16    ProtoItem::Ident_StatId  -> 328"
+# pragma bindfield "const uint16    ProtoItem::Ident_StatVal0 -> 330"
+# pragma bindfield "const uint16    ProtoItem::Ident_StatVal1 -> 332"
+
 
 // Test function
 # ifdef __SERVER

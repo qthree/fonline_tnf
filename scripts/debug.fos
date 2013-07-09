@@ -2014,3 +2014,77 @@ void addflamenpchand(Critter& cr, int id, int, int){
 
 	cr.MoveItem(weap.Id, weap.GetCount(), SLOT_HAND1);
 }
+
+void dddstatflushs(Critter& cr, int, int, int){
+    for(uint i = 150; i < 180; ++i){
+        cr.StatBase[i] = 0;
+    }
+}
+
+const uint[] expPid = {PID_EXPLOSIVE_ROCKET, PID_ROCKET_AP, PID_DYNAMITE, PID_ACTIVE_DYNAMITE, PID_ACTIVE_PLASTIC_EXPLOSIVE, PID_PLASTIC_EXPLOSIVES};
+
+void explodeme(Critter& cr, int count, int radius, int){
+
+    Map @ map = cr.GetMap();
+    if(map is null) return;
+
+    uint16 hx = 0, hy = 0;
+
+    radius = (radius > 0 ? radius : 20);
+
+    for(uint i = 0; i < count; ++i){
+
+        hx = Random(cr.HexX-radius, cr.HexX+radius);
+        hy = Random(cr.HexY-radius, cr.HexY+radius);
+
+        Item @ cont = (Random(0,100) > 50 ? map.AddItem(PID_CONTAINER_WOOD_CRATE, 1, hx, hy) : null);
+
+        uint16 pid = expPid[Random(0, expPid.length()-1)];
+
+        if(cont is null){
+
+            map.AddItem(pid, 1, hx, hy);
+        }else{
+            cont.AddItem(pid, Random(1, 5), 0);
+        }
+    }
+}
+
+void testsql(Critter& cr, int, int, int){
+  MysqlInit();
+
+    if(MysqlConnect(true)){
+        if(MysqlSelectDb() == 0){
+
+	    string pname = GetPlayerName(cr.Id);
+            string query = "SELECT charNameView FROM characters WHERE charNameReal = '"+pname+"'";
+
+            if(MysqlQuery(query) != 0){
+                MysqlError(query);
+                Log( "sql error : "+query);
+            }else{
+                Log("getit!");
+		string sOut = "";
+                if(MysqlGetRow(query, sOut) < 0){
+                    MysqlError(query);
+                    Log( "getrow faild "+query);
+                }else{
+
+                    sOut.resize(sOut.length()-1);
+                    string query = "INSERT INTO characters_names SET id = '"+(cr.Id)+"', hash = '"+(cr.Id)+"', name = '"+sOut+"'";
+
+                    if(MysqlQuery(query) != 0){
+                        MysqlError(query);
+                        Log( "sql error : "+query);
+                        return;
+                    }
+                    //string query = "UPDATE charter_new SET charNameView = '" + sOut + " WHERE charNameReal = '"+GetPlayerName(val != 0 ? val : cr.Id)+"'";
+                    //cr.RunClientScript("client_names@_updateAllNicks", 0, 0, 0, null, null );
+                    Log( "getrow info : "+sOut);
+                }
+            }
+            MysqlClose();
+        }
+    }
+}
+

@@ -2,19 +2,17 @@
 #include "_macros.fos"
 #include "_colors.fos"
 
-
 #define VERSION_HASH          ( 2 )
 
 #define VERSION_SAVE_NONE     ( 10000000 )
 #define VERSION_SAVE_FIRST    ( 10000001 )
 #define VERSION_SAVE_NO_ID    ( 10000002 )
-#define VERSION_SAVE_DATABASE ( 10000004 )
 
-#define VERSION_SAVE          ( 10000002 )  //pm edit
+#define VERSION_SAVE          ( 10000002 )
 
 // #define DEBUG_POSTCLEAR
 
-//#define DEBUG_NAMES
+// #define DEBUG_NAMES
 
 // #ifdef DEBUG_NAMES
 // #endif
@@ -42,6 +40,7 @@ uint getHash( uint id, uint8 version )
 
         return temp;
     }
+
     else
         return 0;
 }
@@ -161,9 +160,6 @@ void _rememberChar( int param0, int param1, int param2, string@ param3, int[] @ 
     {
         // target.Name=param3;
         updateNick( target );
-
-        if(VERSION_SAVE == VERSION_SAVE_DATABASE){SaveNames();}
-
         Message( "Вы запомнили: \"|" + COLOR_GRAY + " " + param3 + "|" + COLOR_TEXT + " \"." );
     }
     else
@@ -179,9 +175,7 @@ bool RememberName( uint id, string& name )
 {
     uint t_count = 0;
 
-    uint hash = 0;
-    if(VERSION_SAVE != VERSION_SAVE_DATABASE){hash = getHash( id, VERSION_HASH );} //pm added if
-
+    uint hash = getHash( id, VERSION_HASH );
     #ifdef DEBUG_NAMES
     Message( "id: " + id + " hash: " + hash + " name: " + name );
     #endif
@@ -232,8 +226,7 @@ bool RememberName( uint id, string& name )
         {
             uint len = CritterNames.length();
             CritterNames.resize( len + 1 );
-            //CritterName critterName( id, name );
-            CritterName critterName( id, name, id );
+            CritterName critterName( id, name );
             @CritterNames[ len ] = critterName;
             t_count += 1;
         }
@@ -246,8 +239,7 @@ bool RememberName( uint id, string& name )
 
 string@ GetName( uint id )
 {
-    uint    hash = id;
-    if(VERSION_SAVE != VERSION_SAVE_DATABASE){getHash( id, VERSION_HASH );} //pm added if
+    uint    hash = getHash( id, VERSION_HASH );
 
     string@ s_temp = null;
     for( uint i = 0; i < CritterNames.length(); i++ )
@@ -299,12 +291,9 @@ void SaveNames()
             {
                 if( cn.Id == 0 )
                     continue;
-
-                if(VERSION_SAVE != VERSION_SAVE_DATABASE){      //pm added if
-                    cn.Hash = getHash( cn.Id, VERSION_HASH );
-                    if( cn.Hash == 0 )
-                        continue;
-                }
+                cn.Hash = getHash( cn.Id, VERSION_HASH );
+                if( cn.Hash == 0 )
+                    continue;
             }
         }
 
@@ -319,85 +308,44 @@ void SaveNames()
         return;
     }
 
-    if(VERSION_SAVE == VERSION_SAVE_DATABASE){   //pm edit
-         MysqlInit();
-            if(MysqlConnect()){
-                if(MysqlSelectDb() == 0){
-                        for(uint16 i = 0; i < len; ++i){
+    file f;
 
-                            @cn = CritterNames[ i ];
-
-                            if( (cn is null) || ( cn.Hash == 0 ) || ( cn.Name.length() < 1 ) )
-                                continue;
-
-                            #ifdef DEBUG_NAMES
-                            Message( "cn.Hash " + cn.Hash );
-                            #endif
-                            string tname = "";
-
-                            bool replace = (MysqlGetNameByHash(GetChosen().Id, cn.Hash, tname) > 0);
-                            string s_hash = "", s_name = cn.Name;//+replace;
-                            //cn.Id
-                            int r = MysqlInsertName(GetChosen().Id, cn.Hash, s_name, s_hash);//replace);
-
-                            #ifdef DEBUG_NAMES
-                            Message("test "+cn.Id+" "+cn.Hash+" "+cn.Name+" "+s_hash+" "+s_name+" "+replace+" "+tname);
-                            #endif
-
-                            if(r < 0){
-                                string error = "";
-                                MysqlError(error);
-                                Message("error "+error+" ext code "+r);
-                                continue;
-                            }/*else{
-                            }*/
-                        }
-                    }
-                    MysqlClose();
-            }else{
-                    Message("sql connect error");
-            }
-    }else{
-
-        file f;
-
-        if( !( f.open( "CritterNames_" + GetChosen().Id + ".txt", "w" ) >= 0 ) )
-        {
-            Message( "Ошибка создания файла CritterNames" + GetChosen().Id + ".txt" );
-            return;
-        }
-
-        f.setPos( 0 );
-
-        f.writeString( VERSION_SAVE + "\n" );
-
-        f.writeString( t_count + "\n" );
-
-        @cn = null;
-
-        for( uint i = 0; i < len; i++ )
-        {
-            @cn = CritterNames[ i ];
-
-            if( VERSION_SAVE < VERSION_SAVE_NO_ID )
-            {
-                if( (cn is null) || ( cn.Id == 0 ) || ( cn.Name.length() < 1 ) )
-                    continue;
-                f.writeString( cn.Id + "\n" );
-            }
-            else
-            {
-                if( (cn is null) || ( cn.Hash == 0 ) || ( cn.Name.length() < 1 ) )
-                    continue;
-            }
-
-            if( VERSION_SAVE >= VERSION_SAVE_FIRST )
-                f.writeString( int(cn.Hash) + "\n" );
-            f.writeString( cn.Name + "\n" );
-        }
-
-        f.close();
+    if( !( f.open( "CritterNames_" + GetChosen().Id + ".txt", "w" ) >= 0 ) )
+    {
+        Message( "Ошибка создания файла CritterNames" + GetChosen().Id + ".txt" );
+        return;
     }
+
+    f.setPos( 0 );
+
+    f.writeString( VERSION_SAVE + "\n" );
+
+    f.writeString( t_count + "\n" );
+
+    @cn = null;
+
+    for( uint i = 0; i < len; i++ )
+    {
+        @cn = CritterNames[ i ];
+
+        if( VERSION_SAVE < VERSION_SAVE_NO_ID )
+        {
+            if( (cn is null) || ( cn.Id == 0 ) || ( cn.Name.length() < 1 ) )
+                continue;
+            f.writeString( cn.Id + "\n" );
+        }
+        else
+        {
+            if( (cn is null) || ( cn.Hash == 0 ) || ( cn.Name.length() < 1 ) )
+                continue;
+        }
+
+        if( VERSION_SAVE >= VERSION_SAVE_FIRST )
+            f.writeString( int(cn.Hash) + "\n" );
+        f.writeString( cn.Name + "\n" );
+    }
+
+    f.close();
     #ifdef DEBUG_NAMES
     Message( "Сохранено имен: " + t_count );
     #endif
@@ -415,16 +363,62 @@ void LoadNames()
     #ifndef DEBUG_POSTCLEAR
     CritterNames.resize( 0 );
     #endif
+    file f;
 
-    //pm move var
+    if( !( f.open( "CritterNames_" + GetChosen().Id + ".txt", "r" ) >= 0 ) )
+    {
+//		Message("Ошибка открытия файла CritterNames"+GetChosen().Id+".txt");
+        return;
+    }
+
     int version = 0;
 
     int count = 0;
+
+    f.setPos( 0 );
 
     string s_version;
 
     string s_count;
 
+    f.readLine( s_version );
+
+    delN( s_version );
+
+    if( !StrToInt( s_version, version ) )
+    {
+        Message( "Файл с сохранением поврежден.1-1" );
+        return;
+    }
+
+    if( version <= VERSION_SAVE_NONE )
+    {
+        count = version;
+    }
+    else
+    {
+        f.readLine( s_count );
+
+        delN( s_count );
+
+        if( !StrToInt( s_count, count ) )
+        {
+            Message( "Файл с сохранением поврежден.1-2" );
+            return;
+        }
+    }
+    #ifdef DEBUG_NAMES
+    Message( "Loading... " + CritterNames.length() );
+    #endif
+
+    #ifdef DEBUG_POSTCLEAR
+    CritterNames.resize( 0 );
+    #endif
+
+    // CritterNames.resize(count);
+    #ifdef DEBUG_NAMES
+    Message( "a " + CritterNames.length() );
+    #endif
     int    id = 0;
     string s_id;
 
@@ -436,140 +430,41 @@ void LoadNames()
 
     uint   t_count2 = 0;
 
-    file f;
-
-    //version save db
-    string@[]@ s_names, s_hashes; //all names && hashes from db in one string
-
-    if(VERSION_SAVE == VERSION_SAVE_DATABASE){   //pm edit
-        string s_tempNames = "", s_tempHashes = "";
-
-        MysqlInit();
-        if(MysqlConnect()){
-            if(MysqlSelectDb() == 0){
-                    count = MysqlGetNames(GetChosen().Id, s_tempNames, s_tempHashes);
-                }
-                MysqlClose();
-        }else{
-            Message("sql connect error");
-        }
-
-        @s_names = split(s_tempNames, "&");
-        @s_hashes = split(s_tempHashes, "&");
-
-        uint16  i_lenName = s_names.length(),
-                i_lenHash = s_hashes.length();
-
-        if(i_lenName > 0 && i_lenHash > 0){
-
-            s_names.resize(i_lenName-1);
-            s_hashes.resize(i_lenHash-1);
-        }
-
-        if(i_lenName != i_lenHash){
-            Message( "Файл с сохранением поврежден. Обратитесь к геим мастеру." );
-            return;
-        }
-
-        count = s_names.length();
-
-        Message("count "+count);
-
-    }else{
-
-        if( !( f.open( "CritterNames_" + GetChosen().Id + ".txt", "r" ) >= 0 ) )
-        {
-    //		Message("Ошибка открытия файла CritterNames"+GetChosen().Id+".txt");
-            return;
-        }
-
-        f.setPos( 0 );
-
-        f.readLine( s_version );
-
-        delN( s_version );
-
-        if( !StrToInt( s_version, version ) )
-        {
-            Message( "Файл с сохранением поврежден.1-1" );
-            return;
-        }
-
-        if( version <= VERSION_SAVE_NONE )
-        {
-            count = version;
-        }
-        else
-        {
-            f.readLine( s_count );
-
-            delN( s_count );
-
-            if( !StrToInt( s_count, count ) )
-            {
-                Message( "Файл с сохранением поврежден.1-2" );
-                return;
-            }
-        }
-        #ifdef DEBUG_NAMES
-        Message( "Loading... " + CritterNames.length() );
-        #endif
-
-        #ifdef DEBUG_POSTCLEAR
-        CritterNames.resize( 0 );
-        #endif
-
-        // CritterNames.resize(count);
-        #ifdef DEBUG_NAMES
-        Message( "a " + CritterNames.length() );
-        #endif
-    }
-
     for( uint i = 0; i < count; i++ )
     {
         hash = 0;
         id = 0;
-        if(VERSION_SAVE == VERSION_SAVE_DATABASE){
 
-                if(StrToInt(s_hashes[i], i_hash)){
-                    hash = uint(i_hash);
-                    id = hash;
-                    s_name = s_names[i];
-                }
-
-        }else{
-            if( version < VERSION_SAVE_NO_ID )
+        if( version < VERSION_SAVE_NO_ID )
+        {
+            f.readLine( s_id );
+            delN( s_id );
+            if( !StrToInt( s_id, id ) || id < 1 )
             {
-                f.readLine( s_id );
-                delN( s_id );
-                if( !StrToInt( s_id, id ) || id < 1 )
-                {
-                    Message( "Файл с сохранением поврежден.2" );
-                    return;
-                }
-            }
-            if( version >= VERSION_SAVE_FIRST )
-            {
-                f.readLine( s_hash );
-                delN( s_hash );
-                i_hash = 0;
-                if( !StrToInt( s_hash, i_hash ) || i_hash == 0 )
-                {
-                    Message( "Файл с сохранением поврежден.2-2" );
-                    return;
-                }
-                hash = uint( i_hash );
-            }
-            f.readLine( s_name );
-            if( s_name.length() < 2 )
-            {
-                Message( "Файл с сохранением поврежден.3" );
+                Message( "Файл с сохранением поврежден.2" );
                 return;
             }
-            delN( s_name );
         }
+        if( version >= VERSION_SAVE_FIRST )
+        {
+            f.readLine( s_hash );
+            delN( s_hash );
+            i_hash = 0;
+            if( !StrToInt( s_hash, i_hash ) || i_hash == 0 )
+            {
+                Message( "Файл с сохранением поврежден.2-2" );
+                return;
+            }
+            hash = uint( i_hash );
+        }
+        f.readLine( s_name );
+        if( s_name.length() < 2 )
+        {
+            Message( "Файл с сохранением поврежден.3" );
+            return;
+        }
+        delN( s_name );
 
-        //load name to name_array
         uint t_count = 0;
         for( uint i = 0; i < CritterNames.length(); i++ )
         {
