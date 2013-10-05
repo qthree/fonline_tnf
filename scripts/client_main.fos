@@ -87,6 +87,7 @@ import void RegScreenTmpInit() from "client_screen_register_tmp";
 import void InitCharacterScreen() from "client_screen_character";
 import void InitTransferTnfScreen() from "client_screen_transfer";
 import void LoadPanel20() from "client_screen_fastpanel";
+import void CountDialogInit() from "client_screen_counter";
 // #pm menu
 
 uint prevId = 0; // нужен для определения, когда загружать сохраненные имена
@@ -158,6 +159,7 @@ bool start()
     InitTransferTnfScreen();
     RegScreenTmpInit();
     InitCharacterScreen();
+    CountDialogInit();
 
     ExpBarSetPos();
 
@@ -1220,6 +1222,11 @@ bool out_message( string& message, int& sayType )
         ::ShowScreen(CLIENT_SCREEN_REG_TNF, 0,0,0);
         return true;
     }
+    if(message == "~cnt"){
+        ShowScreen(CLIENT_SCREEN_COUNT_DIALOG, 1,0,0);
+        return true;
+    }
+    
     /*if(message == "~sql"){
             MysqlInit();
             if(MysqlConnect()){
@@ -1316,6 +1323,15 @@ bool out_message( string& message, int& sayType )
             Message( "Hotkeys use is now " + ( __IsHotkeysUse ? "on" : "off" ) );
         }
         return false;
+    }
+    
+    if( findFirst( message, "~item" ) == 0 )
+    {
+		string@[] @ msg = split( message, " " );
+		int temp = 0;
+		StrToInt(msg[1], temp);
+		ItemCl@ item = GetItem(temp);
+		Message(""+(item !is null)+" "+temp);
     }
     // /////////////////////////////////////////////
 
@@ -2314,11 +2330,20 @@ string generic_description( int descType, int& offsX, int& offsY )
 // Item description. Look types look in _client_defines.fos, Item look types.
 string item_description( ItemCl& item, int lookType )
 {
-    // Default error text
-    if( not IsMsgStr( TEXTMSG_ITEM, STR_ITEM_INFO( item ) + ( lookType != ITEM_LOOK_ONLY_NAME ? 1 : 0 ) ) )
-        return GetMsgStr( TEXTMSG_GAME, STR_ITEM_LOOK_NOTHING );
-
+  
     string result;
+  
+    // Default error text
+    if( not IsMsgStr( TEXTMSG_ITEM, STR_ITEM_INFO( item ) + ( lookType != ITEM_LOOK_ONLY_NAME ? 1 : 0 ) ) ){
+	if( ( ( __sinf & SINF_ITEMID ) != 0 ) && item.GetType() > 0 && item.GetType() < 10 )
+        {
+            result += " |0xffff0000 id: " + item.Id + " pid: " + item.GetProtoId();
+        }
+	
+	return GetMsgStr( TEXTMSG_GAME, STR_ITEM_LOOK_NOTHING )+result;
+    }
+
+    
 
     // Car on world map
     if( lookType == ITEM_LOOK_WM_CAR )
@@ -3226,6 +3251,9 @@ uint item_cost( ItemCl& item, CritterCl& chosen, CritterCl& npc, bool sell )
 
     if( pid == PID_BOTTLE_CAPS || pid == PID_REAL_BOTTLE_CAPS )
         return 1;
+		
+	if( itemType == ITEM_TYPE_FOOD )
+		return cost;
 
     if( itemType == ITEM_TYPE_ARMOR || itemType == ITEM_TYPE_WEAPON )
     {

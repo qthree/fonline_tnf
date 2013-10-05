@@ -11,6 +11,8 @@
 #include "_defines.fos"
 #include "_macros.fos"
 
+import string GetLastIp(int id) from "banhammer";
+
 #define ACCESS_DB_PATH		(".\\")
 #define ACCESS_DB_NAME		("access.db")
 
@@ -45,7 +47,7 @@ void CritterAccessDrop(Critter& cr, uint id){
 	tar.SetAccess(0);
 	testdbsetuse(tar.StatBase[ST_ACCESS_LEVEL], false);
 
-	string msg = ""+"Access droped for critter : "+tar.Id+"\naccount name : "+testdbgetaccname(tar.StatBase[ST_ACCESS_LEVEL]);
+	string msg = ""+"Access droped for critter : "+tar.Id+"\naccount name : "+testdbgetaccname(tar.StatBase[ST_ACCESS_LEVEL])+"\nip "+GetLastIp(tar.Id);
 	cr.Say(SAY_NETMSG, msg);
 	Log(msg);
 

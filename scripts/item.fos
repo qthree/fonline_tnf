@@ -952,6 +952,7 @@ bool e_MasterKeyUse( Item& item, Critter& cr, Critter@ onCritter, Item@ onItem, 
     return false;
 }
 
+import void GetItemsToCL(Critter& cr, Item& locker, bool showWindow) from "general_unsafe";
 import bool SlotMachineWork( Critter& cr, Item& onehanded, int skill, Item@ item ) from "casino";
 
 void _InitSlotMachine( Item& item, bool firstTime )
@@ -968,7 +969,7 @@ bool e_SlotMachineUse( Item& item, Critter& cr, int skill )
     case SK_REPAIR:
         if( item.LockerComplexity != 0 )
         {
-            cr.Say( SAY_NETMSG, "not repair needed" );
+            cr.Say( SAY_NETMSG, "Ремонт не требуется." );
             return true;
         }
         else if( @key1 != null )
@@ -976,7 +977,7 @@ bool e_SlotMachineUse( Item& item, Critter& cr, int skill )
             item.LockerId = key1.LockerId;
             item.LockerComplexity = 100;
             item.Update();
-            cr.Say( SAY_NETMSG, "U are repair slot machine" );
+            cr.Say( SAY_NETMSG, "Вы заперли автомат на ключ." );
         }
         else
         {
@@ -987,9 +988,10 @@ bool e_SlotMachineUse( Item& item, Critter& cr, int skill )
             item.LockerComplexity = 100;
             item.Update();
             key.Update();
-            cr.Say( SAY_NETMSG, "U are repair slot machine" );
+            cr.Say( SAY_NETMSG, "Вы заперли автомат на новый ключ." );
             return true;
         }
+        break;
     case SK_LOCKPICK:
         if( cr.StatBase[ ST_AGILITY ] * 2 > Random( 15, 25 - ( cr.StatBase[ ST_LUCK ] / 2 ) ) )
         {
@@ -997,12 +999,19 @@ bool e_SlotMachineUse( Item& item, Critter& cr, int skill )
         }
         else
         {
-            cr.Say( SAY_EMOTE_ON_HEAD, "do something with machine" );
+            cr.Say( SAY_EMOTE_ON_HEAD, "Делает что-то с игровым автоматом" );
             return true;
         }
+        break;
     case SKILL_PICK_ON_GROUND:
         if( item.LockerComplexity == 0 || ( @key1 != null && key1.LockerId == item.LockerId ) )
-            cr.ShowContainer( null, item, item.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
+	{
+	    //depracated
+	    //cr.ShowContainer( null, item, item.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
+	    
+	    cr.ParamBase[ ST_LAST_CONT_ID ] = item.Id;
+	    GetItemsToCL(cr, item, true);
+	}
         else if( cr.CountItem( PID_BOTTLE_CAPS ) >= 5 )
         {
             SlotMachineWork( cr, item, skill, null );
@@ -1010,7 +1019,7 @@ bool e_SlotMachineUse( Item& item, Critter& cr, int skill )
         }
         else
         {
-            cr.Say( SAY_NETMSG, "need money" );
+            cr.Say( SAY_NETMSG, "В автомате кончились деньги." );
             return true;
         }
         // case SKILL_PUT_CONT : if(valid(item)) cr.Say(SAY_NORM, "yep"); return true;

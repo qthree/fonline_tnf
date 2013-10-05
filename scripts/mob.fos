@@ -113,7 +113,8 @@ void _MobsMapInit( Map& map, bool firstTime )
 
 void _MobInit( Critter& npc, bool firstTime )
 {
-    npc.ModeBase[ MODE_NO_HOME ] = 1;
+    //npc.ModeBase[ MODE_NO_HOME ] = 1; //отключил. Android
+    npc.StatBase[ST_DESEASE] = 0;
 
     uint16 locPid = npc.GetMap().GetLocation().GetProtoId();
     if( LOCATION_IS_CITY( locPid ) )

@@ -418,7 +418,10 @@ void CombatAttack( Critter& cr, Critter@ target, ProtoItem& weapon, uint8 weapon
     @attack.Ammo = ammo;
 
     if( isHthAttack )
+	{
+		attack.DmgMin += cr.Stat[ ST_MELEE_DAMAGE ] / 2 ;
         attack.DmgMax += cr.Stat[ ST_MELEE_DAMAGE ];
+	}
     if( weaponSubtype == WS_GUN )
         attack.BonusDmg += cr.Perk[ PE_BONUS_RANGED_DAMAGE ] * 2;
 
@@ -2767,7 +2770,8 @@ void ApplyDamage( AttackStruct& attack, Critter& target, uint rounds, bool isCri
             }
         }
     }
-    if( attack.WeaponPid == PID_SHOTGUN )    // remington knockout
+    if( attack.WeaponPid == PID_SHOTGUN || attack.WeaponPid == PID_GECKO_LOW || 
+        attack.WeaponPid == PID_QUADRO_SHOTGUN)    // remington knockout
     {
         if( !target.IsDead() && !target.IsKnockout() && target.TimeoutBase[ TO_STEALING ] <= 0 )
         {

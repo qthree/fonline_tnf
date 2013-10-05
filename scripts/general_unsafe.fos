@@ -1330,38 +1330,72 @@ void unsafe_itemhit( Critter& player, int id, int itemId, int param2, string@ pa
 }
 
 import bool CritterGenerateCheck(Critter& cr, int[]& data) from "parameters";
+import void CritterGenerate(Critter& cr) from "parameters";
+
 import bool _StartSurvival(Critter& cr) from "map_start";
 
 void unsafe_regchar(Critter& cr, int, int, int, string@, int[]@ param){
-
-    if(!CritterGenerateCheck(cr, param)) {
+  
+   
+    /*
+    for(uint i = 0; i < 7; ++i){
+	cr.ParamBase[i] = param[i]+param[ST_STRENGTH_EXT+i];
+	param[ST_STRENGTH_EXT+i] = 0;
+    }*/
+    
+    //CritterGenerate(cr);
+    
+     if(!CritterGenerateCheck(cr, param)) {
         cr.Say(SAY_NETMSG, "CHEATER!");
         Log("!!!CHEATER!!! "+cr.Id/*+cr.GetIp()*/);
         return;
     }
+    /*
+    for(uint i = 0; i < STAT_COUNT; i++){
+	cr.StatBase[i] = param[i];
+    }*/
 
     for(uint i = 0, j = param.length(); i < j; ++i){
-        cr.ParamBase[i] = param[i];
+	if(i >= ST_STRENGTH && i <= ST_LUCK){
+		cr.ParamBase[i] = param[i]+param[ST_STRENGTH_EXT+i];
+		param[ST_STRENGTH_EXT+i] = 0;
+	}else{
+	        cr.ParamBase[i] = param[i];
+	}
+	
+	//FUCVET!!!! fix duplicated stat
+// 	if(i >= ST_STRENGTH_EXT && i <= ST_POISON_RESISTANCE_EXT){
+	if(i >= ST_MAX_LIFE_EXT && i <= ST_POISON_RESISTANCE_EXT){
+	    //Log("i "+i+" "+cr.ParamBase[i]+":"+cr.Param[i]+" "+param[i]+" orig "+cr.ParamBase[i-ST_STRENGTH_EXT]);
+	    if(i == ST_ACTION_POINTS_EXT)
+	      //if(cr.ParamBase[ST_ACTION_POINTS] > 5)
+		cr.ParamBase[i] -= cr.ParamBase[ST_AGILITY] * 0.5;
+	    else
+	      cr.ParamBase[i] -= cr.ParamBase[i-ST_STRENGTH_EXT];
+	}
     }
     
     skin(cr, cr.StatBase[ST_BASE_CRTYPE]);
+    
+    //temp for dialog transfer
+    cr.ParamBase[ST_AI_ID] = cr.ParamBase[QST_GAMEMODE];
 
-    cr.Say(SAY_NETMSG, "|0xFFFFFF Регистрация прошла успешно.");
-
+    cr.Say(SAY_NETMSG, "|0xFFFFFF Генерация персонажа прошла успешно.");
+    
     //cr.StatBase[ST_REGISTER] = 1;
 
-    if(cr.ParamBase[QST_GAMEMODE] == GAME_SURVIVAL){_StartSurvival(cr); cr.Say(SAY_NETMSG, "|0xFFFFFF Добро пожаловать в игровой мир.");}
+    //if(cr.ParamBase[QST_GAMEMODE] == GAME_SURVIVAL){_StartSurvival(cr); cr.Say(SAY_NETMSG, "|0xFFFFFF Добро пожаловать в игровой мир.");}
     //temp
-    if(cr.ParamBase[QST_GAMEMODE] == GAME_ADVENTURE){
+    /*if(cr.ParamBase[QST_GAMEMODE] == GAME_ADVENTURE){
       if(cr.StatBase[ST_BODY_TYPE] == BT_MEN || cr.StatBase[ST_BODY_TYPE] == BT_WOMEN){
 	GameVar@ citizenship = GetLocalVar(LVAR_modoc_citizenship, cr.Id );
 	if(citizenship !is null){citizenship.opAssign(3);}
-      }
+      }*/
       
       //432 490
-      cr.TransitToMap(1, Random(428, 434), Random(487, 492), 5);
-      cr.Say(SAY_NETMSG, "|0xFFFFFF Добро пожаловать в Модок.");
-    }
+      //cr.TransitToMap(1, Random(428, 434), Random(487, 492), 5);
+      //cr.Say(SAY_NETMSG, "|0xFFFFFF Добро пожаловать в Модок.");
+    //}
 
 }
 
@@ -1386,9 +1420,10 @@ void GetItemsToCL(Critter& cr, Item& locker, bool showWindow){
 
             Item@[] contItems;
             locker.GetItems(-1, contItems);
+	    _CritAnimateUse(cr);
             //contItems.insertLast(locker);
 
-            Log("item "+contItems.length());
+            //Log("item "+contItems.length());
 
             int[] ids;
 
@@ -1402,7 +1437,7 @@ void GetItemsToCL(Critter& cr, Item& locker, bool showWindow){
                 //ids.insertLast(int(contItems[i].PicInv));
                 //ids.insertLast(int(contItems[i].GetType()));
 
-                Log("itemid "+ids[i]+" "+showWindow);
+                //Log("itemid "+ids[i]+" "+showWindow);
             }
 
             cr.RunClientScript("client_screen_transfer@ShowTransferScreen", showWindow ? 1 : 0, 0, 0, null, ids);
@@ -1426,4 +1461,64 @@ void unsafe_fastpanel_pocket( Critter& cr, int id, int screenId, int actionId, s
             cr.RunClientScript("client_screen_fastpanel@ActionUseItemPocket", 0, 0, 0, null, arr);
         }
     }
+}
+
+void unsafe_charsSkillInc( Critter& cr, int, int, int, string@, int[]@ skillArr){
+	if(CheckSkillPoints(cr, skillArr)) {SetSkillPoints(cr, skillArr);}else{Log("!!!SKILL POINTS CHEATER!!!\n"+cr.Id+" "+GetPlayerName(cr.Id));}
+}
+
+bool CheckSkillPoints(Critter& cr, int[] skillArr){
+	
+	uint skillPoint = 0;
+	uint skillMod = 1;
+	uint skill = SKILL_BEGIN;
+	
+	for(uint8 i = 0, j = skillArr.length(); i < j; ++i){
+	  
+		if(skillArr[i] == 0) continue;
+		
+		for(uint ii = skillArr[i]; ii > 0; --ii){
+			skillMod = 1;
+			
+			skill = ii+cr.ParamBase[SKILL_BEGIN+i];
+		  
+			if(skill >= __SkillModAdd2){
+				skillMod = 2;
+			}
+			if(skill >= __SkillModAdd3){
+				skillMod = 3;
+			}
+			if(skill >= __SkillModAdd4){
+				skillMod = 4;
+			}
+			if(skill >= __SkillModAdd5){
+				skillMod = 5;
+			}
+			if(skill >= __SkillModAdd6){
+				skillMod = 6;
+			}
+			
+			skillPoint += skillMod;
+			
+			//cr.Say(SAY_NETMSG, "sk "+skillMod+" "+skillPoint+" "+skill);
+		}
+	}
+	
+	if(skillPoint <= cr.StatBase[ST_UNSPENT_SKILL_POINTS]){
+		cr.StatBase[ST_UNSPENT_SKILL_POINTS] -= skillPoint;
+		return true;
+	}
+	
+	return false;
+}
+
+void SetSkillPoints(Critter& cr, int[] skillArr){
+	for(uint i = SKILL_BEGIN; i <= SKILL_END; ++i){
+		cr.ParamBase[i] += skillArr[i-SKILL_BEGIN];
+		//cr.Say(SAY_NETMSG, "sk1 "+skillArr[i-SKILL_BEGIN]);
+	}
+}
+
+void GM_NULL(Critter& cr, int, int, int, string, int[]){
+  return;
 }

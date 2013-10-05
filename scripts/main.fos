@@ -104,6 +104,8 @@ import bool IsDoorAutomatic( uint pid ) from "interactive_obj"; //map_sutter_obj
 import bool SqlQueryCharStatusChange(uint id, uint8 status) from "sql_query";
 //import void SaveNameFirst(uint id) from "sql_query";
 
+import void GetEncounter(Critter& cr) from "encounters";
+
 // //////////////////////////////////////////////////////////////////////////////////////////////////
 // Called before world generation.
 void init()
@@ -486,6 +488,10 @@ bool critter_stealing( Critter& cr, Critter& thief, Item& item, uint count )
 // Call on something critter use item.
 bool critter_use_item( Critter& cr, Item& item, Critter@ targetCr, Item@ targetItem, Scenery@ targetScen, uint param )
 {
+ /*   if(manager_critter_use_item( cr, item, targetCr, targetItem, targetScen, param )){
+	   return true;
+    }*/
+  
     bool   isPlayer = cr.IsPlayer();
     uint16 pid = item.GetProtoId();
     bool   useOnSelf = ( not valid( targetCr ) && not valid( targetItem ) && not valid( targetScen ) );
@@ -708,43 +714,53 @@ bool critter_use_item( Critter& cr, Item& item, Critter@ targetCr, Item@ targetI
         uint8  thristBonus = item.Proto.Food_Thrist;
 
         switch(pid)
-           {
-                case PID_STIMPAK: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10310 ); break;
-                case PID_RADAWAY: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10311	); break;
-                case PID_ANTIDOTE: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10312 ); break;
-                case PID_MENTATS: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10313 ); break;
-                case 71: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10314 ); break;
-                case 81: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10315 ); break;
-                case 87: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10316 ); break;
-                case 103: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10317 ); break;
-                case 106: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10318 ); break;
-                case 109: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10319 ); break;
-                case 110: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10320 ); break;
-                case 124: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10311 ); break;
-                case 125: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10312 ); break;
-                case 144: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10313 ); break;
-                case 259: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10314 ); break;
-                case 260: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10315 ); break;
-                case 273: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10316 ); break;
-                case 310: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10317 ); break;
-                case 311: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10318 ); break;
-                case 378: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10319 ); break;
-                case 469: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10330 ); break;
-                case PID_MEAT_JERKY : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10331 ); break;
-                case PID_MEAT : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10331 ); break;
-                case PID_RAD_MEAT : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_TEXT, 10331 ); break;
+        {
+                case PID_STIMPAK: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10310 ); break;
+                case PID_RADAWAY: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10311	); break;
+                case PID_ANTIDOTE: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10312 ); break;
+                case PID_MENTATS: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10313 ); break;
+                case PID_MUTATED_FRUIT: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10314 ); break;
+                case PID_IGUANA_ON_A_STICK: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10315 ); break;
+                case PID_BUFFOUT: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10316 ); break;
+                case PID_MEAT_ON_A_STICK: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10317 ); break;
+                case PID_NUKA_COLA: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10318 ); break;
+                case PID_RAD_X: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10319 ); break;
+                case PID_PSYCHO: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10320 ); break;
+                case PID_BEER: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10321 ); break;
+                case PID_BOOZE: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10322 ); break;
+                case PID_SUPER_STIMPAK: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10323 ); break;
+                case PID_JET: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10324 ); break;
+                case PID_JET_ANTIDOTE: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10325 ); break;
+                case PID_HEALING_POWDER: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10326 ); break;
+                case PID_GAMMA_GULP_BEER: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10327 ); break;
+                case PID_ROENTGEN_RUM: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10328 ); break;
+                case PID_COOKIE: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10329 ); break;
+                case PID_ROT_GUT: cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10330 ); break;
+                case PID_MEAT_JERKY : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10331 ); break;
+                case PID_MEAT : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10331 ); break;
+                case PID_RAD_MEAT : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10331 ); break;
+				case PID_GECKO_MEAT : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10331 ); break;
+				case PID_COOKED_MEAT : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10332 ); break;
+				case PID_COOKED_GECKO_MEAT : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10332 ); break;
+				case PID_COOKED_FISH : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10333 ); break;
+				case PID_FLAPJACK : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10334 ); break;
+				case PID_COOKED_MOLERAT_STOMATCH : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10335 ); break;
+				case PID_SALAD : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10336 ); break;
+				case PID_CABBAGE : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10337 ); break;
+				case PID_CORN : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10338 ); break;
+				case PID_RAGOUT : cr.SayMsg( SAY_EMOTE_ON_HEAD, TEXTMSG_GAME, 10339 ); break;
                 default : break;
-           }
+        }
 
         int16 foodMod = 1;
 
-	uint16 bodyType = (targetCr is null ? cr.StatBase[ST_BODY_TYPE] : targetCr.StatBase[ST_BODY_TYPE]);
+		uint16 bodyType = (targetCr is null ? cr.StatBase[ST_BODY_TYPE] : targetCr.StatBase[ST_BODY_TYPE]);
 
-	switch(bodyType){
-		case  BT_SUPER_MUTANT	: foodMod = 2; break;
-		case BT_GHOUL  		: foodMod = 3; break;
-		default	       		: foodMod = 1; break;
-	}
+		switch(bodyType){
+			case  BT_SUPER_MUTANT	: foodMod = 2; break;
+			case BT_GHOUL  		: foodMod = 3; break;
+			default	       		: foodMod = 1; break;
+		}
 
         if( useOnSelf )
         {
@@ -1371,7 +1387,8 @@ bool critter_use_skill( Critter& cr, int skill, Critter@ targetCr, Item@ targetI
                     {
                         // cr.Action(ACTION_PICK_CRITTER,1,null);
                         cr.ShowContainer( targetCr, null, TRANSFER_CRIT_STEAL );
-                        cr.TimeoutBase[ TO_SK_STEAL ] = STEAL_TIMEOUT( cr );
+                        if( cr.GetAccess() < ACCESS_MODER ) 
+							cr.TimeoutBase[ TO_SK_STEAL ] = STEAL_TIMEOUT( cr );
                         cr.StatBase[ ST_LAST_STEAL_CR_ID ] = 0;
                         cr.StatBase[ ST_STEAL_COUNT ] = 0;
                     }
@@ -2340,6 +2357,10 @@ void critter_respawn( Critter& cr )
             DeleteItem( block );
         cr.StatBase[ ST_DEAD_BLOCKER_ID ] = 0;
     }
+    
+    if(cr.IsNpc()){
+		cr.StatBase[ST_DESEASE] = 0;
+    }
 
     manager_critter_respawn( cr );
 }
@@ -2371,9 +2392,13 @@ void map_critter_in( Map& map, Critter& cr )
                 return;
             lastCityVar = locPid;
         }
+        
+        if(cr.StatBase[ST_VAR9] >= 0){
+		//GetEncounter(cr);
+        }
     }
 
-    // RefrashCoords(cr);
+    //RefrashCoords(cr);
 
     manager_map_critter_in( map, cr );
 }
@@ -2448,7 +2473,7 @@ bool check_look( Map& map, Critter& cr, Critter& opponent )
         return false;
     }
 
-    if(opponent.ParamBase[MODE_HIDE] > 0) return false;
+    //if(opponent.ParamBase[MODE_HIDE] > 0) return false;
 
     if( map.GetProtoId() == MAP_UTILITY_START && opponent.IsPlayer() && cr.IsPlayer() && cr.GetAccess() < ACCESS_MODER )
         return false;
@@ -2558,6 +2583,9 @@ uint item_cost( Item& item, Critter& cr, Critter& npc, bool sell )
     if( pid == PID_BOTTLE_CAPS || pid == PID_REAL_BOTTLE_CAPS )
         return 1;
 
+	if( itemType == ITEM_TYPE_FOOD )
+		return cost;
+		
     if( itemType == ITEM_TYPE_ARMOR || itemType == ITEM_TYPE_WEAPON )
     {
         uint8 brokenCount = item.BrokenCount;

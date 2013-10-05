@@ -803,6 +803,72 @@ void dlg_TrySearching( Critter& player, Critter@ barman, string@ playerName )
     }
 }
 
+void r_FirstRun(Critter& cr, Critter@ npc){
+  
+	Location @ loc = GetLocationByPid( 90, 0 );
+	if(loc is null){Log("err0");return;}
+        Map @ map = loc.GetMapByIndex( 0 );
+	if(map is null){Log("err1");return;}
+	//Map@ map = GetMapByPid( MAP_UTILITY_START, 0 );
+	if(map is null){Log("err0");return;}
+        cr.Say( SAY_NETMSG, "Вы выбрали режим обучения." );
+        cr.TransitToMap( map.Id, 0 );
+}
+
+void r_ToModoc( Critter& player, Critter@ npc){
+	Map @ map = GetLocation(LOCATION_Modoc_4_3).GetMapByIndex(0);
+	if(map is null) {player.Say(SAY_NETMSG, "oops!"); return;}
+	
+	player.TransitToMap(map.Id, 165, 172, 5);
+}
+
+void r_ToSutter(Critter& cr, Critter@ npc){
+
+    uint locId = Random(20, 31);
+
+    //int x = ();
+
+    Location @ loc = GetLocation(locId);
+    if(loc is null) return;
+    
+    Map @ map = loc.GetMapByIndex(0);
+    if(map is null) return;
+    
+    uint16 hexx = 0;
+    uint16 hexy = 0;
+    
+    map.GetEntireCoords(255, 0, hexx, hexy);
+    
+    uint16 x = Random(hexx+2, hexx+146);
+    uint16 y = Random(hexy+2, hexy+146);
+    
+    cr.TransitToMap(map.Id, hexx, hexy, Random(0,5));
+    
+/*
+    Cell @ cell = CellGetCell(x, y);
+    if(cell is null) return false;*/
+
+    /*CellContent @ cont = cell.Content;
+    if(cont is null){
+        CreateCell(x*0.1, y*0.1, 0, CELLMAP_TYPE_ENCOUTER, 100 );
+
+        Cell @ cell = CellGetCell(x, y);
+        if(cell is null || cell.Content is null) return false;
+
+        @cont = cell.Content;
+    }
+
+    locId = cont.MapId[ CELL_LEVEL_DEFAULT ];
+
+    Map @ map = GetMap(locId);
+    if(map is null) return false;
+
+    uint16 xX = 0, yY = 0;
+    map.GetEntireCoords(255, 0, xX, yY);*/
+
+  //  cr.TransitToMap(locId, Random(xX, xX+148), Random(yY, yY+148), Random(0,5));
+}
+
 void r_ToHeal( Critter& player, Critter@ npc )
 {
     HealCritter( player );

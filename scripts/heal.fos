@@ -15,12 +15,30 @@ import void UseDrug( Critter& cr, Item& drug ) from "drugs";
 
 void ProccessFirstAidSkill( Critter& cr, Critter& targetCr )
 {
-    if( targetCr.Stat[ ST_CURRENT_HP ] <= -30 )
-    {
-        cr.Say( SAY_NETMSG, "Это уже не поможет." );
-        return;
-    }
-
+	if( targetCr.Stat[ ST_CURRENT_HP ] <= -30 )
+	{
+		cr.Say( SAY_NETMSG, "Это уже не поможет." );
+		return;
+	}
+	
+	targetCr.StatBase[ST_VAR0] = cr.Id;
+	cr.StatBase[ST_VAR0] = targetCr.Id;
+	
+	if(targetCr.Id != cr.Id && targetCr.Stat[ST_CURRENT_HP] > 0){
+		targetCr.Say( SAY_DIALOGBOX_TEXT, "Вас хотят осмотреть, согласиться?");
+		targetCr.ShowScreen( SCREEN_DIALOGBOX, 1, "answer_ProccessFirstAidSkill" );
+		targetCr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "Да" );
+	}else{
+		answer_ProccessFirstAidSkill(targetCr, 0, "");
+	}
+}
+    
+void answer_ProccessFirstAidSkill( Critter& targetCr, uint answerI, string& answerS)
+{
+  
+    Critter@ cr = GetCritter(targetCr.StatBase[ST_VAR0]);
+    if(cr is null) return;
+    
     bool isBandaged = ( targetCr.GetTimeEvents( CTE_HEAL, null, null, null ) > 0 );
 
 	bool powder = (_CritCountItem( cr, PID_HEALING_POWDER )>0);
@@ -296,6 +314,24 @@ void answer_FIRSTAID_TO_UNBANDAGE( Critter& player, uint answerI, string& answer
 void ProccessDoctorSkill( Critter& cr, Critter& targetCr )
 {
 	cr.StatBase[ ST_VAR0 ] = targetCr.Id;
+	targetCr.StatBase[ ST_VAR0 ] = cr.Id;
+	
+	if(targetCr.Id != cr.Id && targetCr.Stat[ST_CURRENT_HP] > 0){
+		targetCr.Say( SAY_DIALOGBOX_TEXT, "Вас хотят оперировать, согласиться?");
+		targetCr.ShowScreen( SCREEN_DIALOGBOX, 1, "answer_ProccessDoctorSkill" );
+		targetCr.Say( SAY_DIALOGBOX_BUTTON( 0 ), "Да" );
+	}else{
+		answer_ProccessDoctorSkill(targetCr, 0, "");
+	}
+}
+
+void answer_ProccessDoctorSkill(Critter& targetCr, uint answerI, string& answerS)
+{
+	if(answerI != 0) return;
+	
+	Critter@ cr = GetCritter(targetCr.StatBase[ST_VAR0]);
+	if(cr is null) return;
+	
 	uint16 statusFlag = targetCr.StatBase[ ST_CRSTATUS ];
 	string state;
 
@@ -824,7 +860,7 @@ bool ItemStimpackUse( Critter& cr, Item& item )
         ChangeStatus( cr, CR_STATUS_BLEED, healAdd * 0.5, false );
     }
 
-    if (valid(item)) _DecItem( item, 1 );                                   // delete stimpack
+    //if (valid(item)) _DecItem( item, 1 );                                   // delete stimpack
 
 
     if (cr.IsNpc()) return true;
@@ -899,7 +935,7 @@ bool ItemPowderUse( Critter& cr, Item& item )
         }
     }
 
-    if (valid(item)) _DecItem( item, 1 );                                   // delete stimpack
+    //if (valid(item)) _DecItem( item, 1 );                                   // delete stimpack
     return true;
 }
 

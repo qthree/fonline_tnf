@@ -895,11 +895,27 @@ void lock( Critter& player, int itemId, int complexity, int lockId )
         item.LockerCondition = LOCKER_LOCKED;
         item.LockerComplexity = complexity;
         item.LockerId = lockId;
+			
+		//android 
+		uint8 locker_type = 0;
+			
+		if (complexity < 100) 
+			locker_type = 1;
+		else if (complexity >= 100 && complexity < 200)
+			locker_type = 2;
+		else
+			locker_type = 3;
+		
+		item.Val0 = locker_type;
+		//android hvatit
+		
         item.Update();
         Item@ key = player.AddItem( PID_KEY, 1 );
         if( valid( key ) )
             key.LockerId = lockId;
         key.Update();
+		
+		player.Say( SAY_NETMSG, "Замок успешно установлен." );
     }
 }
 
@@ -915,6 +931,34 @@ void unlock( Critter& player, int itemId, int param, int param2 )
         item.LockerId = 0;
         item.Update();
     }
+}
+
+void GM_getkey( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
+{
+    Map@  map = player.GetMap();
+    Item@ item = map.GetItem( param0 );
+    if( valid( item ) )
+        getkey( player, param0, param1, param2 );
+}
+
+void getkey( Critter& player, int itemId, int param, int param2 ) //android
+{
+	Map@ map = player.GetMap();
+	Item@ item = map.GetItem( itemId );
+	
+	if( valid( item ) )
+	{
+		int lockId = item.LockerId;
+		
+		Item@ key = player.AddItem( PID_KEY, 1 );
+		if( valid( key ) )
+		{
+			key.LockerId = lockId;
+			key.Update();
+		}
+		
+		player.Say( SAY_NETMSG, "Ключ номер " + lockId + " успешно добавлен в инвентарь." );
+	}
 }
 
 void cleanEnemyStacks( Critter& player, int, int, int )
@@ -1428,6 +1472,15 @@ void GM_delItem( Critter& player, int param0, int param1, int param2, string@ pa
     if( !valid( item ) )
         return;
     DeleteItem( item );
+}
+
+void GM_delItemByHex( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 ) //android
+{
+    Item@[] items;
+	
+    uint count = player.GetMap().GetItems( param0, param1, items );
+    for( uint i = 0; i < count; i++ )
+		DeleteItem( items[ i ]);
 }
 
 void GM_brokeItem( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
@@ -2088,3 +2141,30 @@ void testsql(Critter& cr, int, int, int){
     }
 }
 
+void addlight(Critter& cr, int valNum, int color, int x, int y){
+	Map @ map = cr.GetMap();
+	if(map is null) {cr.Say(SAY_NETMSG, "null map"); return;}
+	
+	Item @ item = map.AddItem(cr.HexX, cr.HexY, 1305, 1);
+	if(item is null) {cr.Say(SAY_NETMSG, "null item"); return;}
+	
+	item.Val0 = valNum;
+	item.Val3 = color;
+	
+	item.Update();
+}
+
+void gm_addlight( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
+{
+	if( player.GetAccess() < ACCESS_ADMIN )
+	{
+		player.Say( SAY_NETMSG, "Отказано в доступе." );
+		return;
+	}
+	else
+	{
+	addlight (player, param0, param1, param4[0], param4[1]);
+	player.Say( SAY_NETMSG, "Свет успешно установлен в гекс "+param4[0]+" "+param4[1]+"." );
+	}
+}
+	

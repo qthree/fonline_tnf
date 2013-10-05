@@ -62,12 +62,12 @@
 
 
 //other
-#define LOCATION_Bridge                        ( 90 )
-#define LOCATION_Cell 	                       ( 91 )
-#define LOCATION_StartMap                      ( 92 )
-#define LOCATION_Dream		                   ( 93 )
-#define LOCATION_Arcade		                   ( 94 )
-#define LOCATION_Deadloc	                   ( 95 )
+#define LOCATION_Bridge			( 90 )
+#define LOCATION_Cell				( 91 )
+#define LOCATION_StartMap			( 93 )
+#define LOCATION_Dream				( 94 )
+#define LOCATION_Arcade			( 95 )
+#define LOCATION_Deadloc			( 96 )
 
 /*
 #define LOCATION_Modoc_1                       ( 1 )
@@ -173,8 +173,8 @@ bool LocIsHidden( uint locPid )
 #define MAP_PHOENIX	                           ( 30 )
 #define MAP_PHOENIX_DN                         ( 31 )
 
-#define MAP_JUNKYARD	                       ( 35 )
-#define MAP_JUNKYARD_DN                        ( 36 )
+#define MAP_JUNKYARD	                        ( 135 )
+#define MAP_JUNKYARD_DN                        ( 136 )
 
 #define MAP_SUTTER_11                          ( 60 )
 #define MAP_SUTTER_11_DN                       ( 61 )
@@ -205,9 +205,9 @@ bool LocIsHidden( uint locPid )
 
 #define MAP_SUTTER_CENTER                      ( 88 )
 #define MAP_SUTTER_CENTER_DN                   ( 89 )
-#define MAP_SUTTER_CENTER_DN_2                 ( 59 )
 #define MAP_SUTTER_CENTER_UP                   ( 90 )
 #define MAP_SUTTER_CENTER_UP_1                 ( 91 )
+#define MAP_SUTTER_CENTER_DN_2                 ( 92 )
 
 #define MAP_UTILITY_START	                   ( 400 )
 #define MAP_UTILITY_ARCADE	                   ( 402 )

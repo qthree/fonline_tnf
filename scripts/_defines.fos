@@ -802,6 +802,13 @@
 #define TRAIT_SEX_APPEAL                         ( 563 )
 #define TRAIT_SKILLED                            ( 564 )
 #define TRAIT_NIGHT_PERSON                       ( 565 )
+#define TRAIT_STEEL_LOGIC			   ( 566 )
+#define TRAIT_CREATIVE_DUDE			   ( 567 )
+#define TRAIT_SHAMAN				   ( 568 )
+#define TRAIT_TRUSTED				   ( 569 )
+#define TRAIT_NATURAL_BORN_LEADER		   ( 570 )
+#define TRAIT_BLUES_MAN			   ( 571 )
+#define TRAIT_VAULT_CLEANITY			   ( 572 )
 // #define TRAIT_GIFTED                (566)
 // 17..19
 
@@ -810,6 +817,7 @@
 #define REPUTATION_BEGIN                         ( __ReputationBegin )
 #define REPUTATION_END                           ( __ReputationEnd )
 #define REPUTATION_COUNT                         ( REPUTATION_END - REPUTATION_BEGIN + 1 )
+/* deprecated
 #define REPUTATION_DEN                           ( 570 )
 #define REPUTATION_KLAMATH                       ( 571 )
 #define REPUTATION_MODOC                         ( 572 )
@@ -820,6 +828,7 @@
 #define REPUTATION_SIERRA                        ( 577 )
 #define REPUTATION_VAULT15                       ( 578 )
 #define REPUTATION_NCR                           ( 579 )
+*/
 #define REPUTATION_CATHEDRAL                     ( 580 )
 #define REPUTATION_SAD                           ( 581 )
 #define REPUTATION_REDDING                       ( 582 )
@@ -1690,10 +1699,12 @@
 # pragma bindfield "const uint16	ProtoItem::Food_Restore -> 318"
 # pragma bindfield "const uint	ProtoItem::Food_Flags   -> 320"
 
-# pragma bindfield "const uint      ProtoItem::Ident_BasePic -> 324"
-# pragma bindfield "const uint16    ProtoItem::Ident_StatId  -> 328"
-# pragma bindfield "const uint16    ProtoItem::Ident_StatVal0 -> 330"
-# pragma bindfield "const uint16    ProtoItem::Ident_StatVal1 -> 332"
+# pragma bindfield "const uint	ProtoItem::EffectId   -> 324"
+
+# pragma bindfield "const uint      ProtoItem::Ident_BasePic -> 328"
+# pragma bindfield "const uint16    ProtoItem::Ident_StatId  -> 332"
+# pragma bindfield "const uint16    ProtoItem::Ident_StatVal0 -> 334"
+# pragma bindfield "const uint16    ProtoItem::Ident_StatVal1 -> 336"
 
 
 // Test function

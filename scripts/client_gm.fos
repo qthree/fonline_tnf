@@ -43,6 +43,7 @@ import uint8 current() from "client_gui";
 #define PUPPET_WALK_COMMAND_NAME                       ( "#zw" )             // #zw - makes puppets walk to target hex
 #define PUPPET_STOP_COMMAND_NAME                       ( "#zs" )             // #zs - makes puppets stop, look at cursor and prepare weapons
 #define PUPPET_TIE_COMMAND_NAME                        ( "#zp" )             // #zp - ties puppets to target critter
+#define INTOBJ_ERASE_DOUBLE_COMMAND_NAME		("#interdb")		// #interdb
 
 // 1 ARGUMENT COMMANDS
 #define ADD_ITEM_COMMAND_NAME                          ( "#additem" )        // #additem [proto_id] - adds item to target hex
@@ -73,6 +74,13 @@ import uint8 current() from "client_gui";
 #define CLONE_COMMAND_NAME                             ( "#clone" )          // #clone [id] - ???
 #define UNCLONE_COMMAND_NAME                           ( "#unclone" )        // #unclone [id] - ???
 #define DELETE_ITEM_COMMAND_NAME                       ( "#delitem" )        // #delitem [id] - deletes target item
+#define GET_KEY_COMMAND_NAME						   ( "#getkey" )		 // #getkey [id] - creates key with container's id 
+#define CLEAR_HEX_COMMAND_NAME                         ( "#clearhex" )       // #clearhex - deletes all items in target hex 
+#define SHOW_INVENTORY_COMMAND_NAME			("#showinv")		// #showinv [id]
+#define SHOW_CHAR_COMMAND_NAME				("#showchar")		// #showchar [id]
+#define INTOBJ_GET_VAL_COMMAND_NAME			("#intgetv")		// #intgetv [itemId]
+#define DYSPNEA_GET_COMMAND_NAME			("#dyspneaget")		// #dyspneaget [mapId]
+
 
 // 2 ARGUMENTS COMMANDS
 #define RESTORE_COMMAND_NAME                           ( "#restore" )        // #restore [unknown] [unknown] - ???
@@ -84,12 +92,19 @@ import uint8 current() from "client_gui";
 #define GIVE_ITEM_COMMAND_NAME                         ( "#give" )           // #give [id] [pid] - gives item to target critter
 #define GET_PARAMETER_COMMAND_NAME                     ( "#getp" )           // #getp [id] [param_id] - prints value of parameter with specified id
 #define SET_SKIN_COMMAND_NAME                          ( "#skin" )           // #skin [id] [proto_id] - sets skin to target critter
+#define	ADD_LIGHT_COMMAND_NAME						   ( "#addlight" )		 // #addlight [genId] [color]
 
 #define CELL_DEL                                       ( "#celldel" )        // #celldel [x] [y]
 
 #define ITEM_SET_MAP_PIC                               ( "#setmappic" )      // #setmappic [id] [path]
 
 #define SLEEP_COMMAND_NAME                              ("#sleep")          // #sleep [side] [id]
+
+#define INTOBJ_ADD_COMMAND_NAME			("#interadd")		//#interadd [itemId] [setSctipt]
+
+#define DYSPNEA_SET_COMMAND_NAME			("#dyspneaset")		// #dyspneaset [mapId] [value]
+
+#define DELETE_MAP_ITEM_PID_COMMAND_NAME		("#mapdelpid")		// #mapdelpid [pid] [mapId]
 
 // 3 AND MORE ARGUMENTS COMMANDS
 #define ADVANCED_SPAWN_COMMAND_NAME                    ( "#spawn" )          // #spawn [mob_type] [weapon] [behavior_type] - complex mob spawn
@@ -110,6 +125,11 @@ import uint8 current() from "client_gui";
 #define CELL_CREATE_WILD                               ( "#cellcreatewild" ) // #cellcreate [pid] [x] [y] [wild] [livetime] [force]
 #define CELL_MOVE                                      ( "#cellmove" )       // #cellcreate [x] [y] [x1] [y1]
 #define CELL_SIZE                                      ( "#cellsize" )       // #cellsize [x] [y] [sizeX] [sizeY]
+
+#define INTOBJ_SET_VAL_COMMAND_NAME			("#intsetv")		// #intsetv [itemId] [val] [value]
+#define INTOBJ_SHUTDOWN_COMMAND_NAME			("#intsd")		// #intsd [genVal] [objType] [on/off]
+
+#define TELEPORT_ITEM_COMMAND_NAME			("#tpitm")		//teleportitem [itemId][tX] [tY]] [mapId] 
 
 // STRING COMMANDS
 #define GETID_COMMAND_NAME		                       ( "$getid" )           // $name - deprecated
@@ -140,6 +160,7 @@ import uint8 current() from "client_gui";
 #define RUN_ACTIVATION_COMMAND_NAME                    ( "%ac" )             // %ac - same as "~run activation"
 #define RUN_SKINS_COMMAND_NAME                         ( "%sk" )             // %sk - same as "~run skins"
 #define RUN_QMAP_DEBUG_COMMAND_NAME                    ( "%qd" )             // %qd - same as "~run qmap_debug"
+#define RUN_INTERACTIVE_OBJ_COMMAND_NAME		("%intobj")		// %intobj - same as "~run interactive_obj"
 
 // AUXILIARY
 #define DEBUG_MODULE_NAME                              ( "debug" )
@@ -147,6 +168,7 @@ import uint8 current() from "client_gui";
 #define ACTIVATION_MODULE_NAME                         ( "activation" )
 #define SKINS_MODULE_NAME                              ( "skins" )
 #define QMAP_DEBUG_MODULE_NAME                         ( "qmap_debug" )
+#define INTERACTIVE_OBJ_MODULE_NAME			("interactive_obj")
 #define RUN_MODULE_COMMAND_PREFIX                      ( "%" )
 
 // arcade hive commands
@@ -345,6 +367,14 @@ Command@ GetCommandByName( string& commandName )
     {
         @command = DeleteItemCommand();
     }
+	else if( commandName == GET_KEY_COMMAND_NAME )
+    {
+        @command = GetKeyCommand();
+    }
+	else if( commandName == CLEAR_HEX_COMMAND_NAME ) //android
+    {
+        @command = ClearHexCommand();
+    }
     else if( commandName == OPEN_DOOR_COMMAND_NAME )
     {
         @command = OpenDoorCommand();
@@ -408,6 +438,10 @@ Command@ GetCommandByName( string& commandName )
     else if( commandName == SET_SKIN_COMMAND_NAME )
     {
         @command = SetSkinCommand();
+    }
+	else if( commandName == ADD_LIGHT_COMMAND_NAME )
+    {
+        @command = AddLightCommand();
     }
     else if( commandName == GM_SAY_COMMAND_NAME )
     {
@@ -693,6 +727,39 @@ Command@ GetCommandByName( string& commandName )
     {
         @command = SleepCommand();
     }
+    else if(commandName == SHOW_INVENTORY_COMMAND_NAME){
+	@command = ShowInventory();
+    }
+    else if(commandName == SHOW_CHAR_COMMAND_NAME){
+	@command = ShowChar();
+    }
+    else if(commandName == INTOBJ_ERASE_DOUBLE_COMMAND_NAME){
+	@command = IntObjEraseDblCommand();
+    }
+    else if(commandName == INTOBJ_GET_VAL_COMMAND_NAME){
+	@command = IntObjGetValCommand();
+    }
+    else if(commandName == INTOBJ_SET_VAL_COMMAND_NAME){
+	@command = IntObjSetValCommand();
+    }
+    else if(commandName == INTOBJ_SHUTDOWN_COMMAND_NAME){
+	@command = IntObjShutDownCommand();
+    }
+    else if(commandName == DYSPNEA_GET_COMMAND_NAME){
+	@command = DyspneaGetCommand();
+    }
+    else if(commandName == DYSPNEA_SET_COMMAND_NAME){
+	@command = DyspneaSetCommand();
+    }
+    else if(commandName == TELEPORT_ITEM_COMMAND_NAME){
+	@command = TeleportItemCommand();
+    }
+    else if(commandName == INTOBJ_ADD_COMMAND_NAME){
+	@command = IntObjAddCommand();
+    }
+    else if(commandName == DELETE_MAP_ITEM_PID_COMMAND_NAME){
+	@command = DelMapItemPid();
+    }
     else if( substring( commandName, 0, RUN_MODULE_COMMAND_PREFIX.length() ) == RUN_MODULE_COMMAND_PREFIX )
     {
         @command = RunModuleCommand();
@@ -756,7 +823,7 @@ class MorCommand : Command
 
         CommandArgument idArg = getArg( 0 );
 
-        RunServerScript( "morphes@ApplyDesease", idArg.getIntData() , 0, 0, null, null );
+        RunServerScript( "morphes@GM_ApplyDesease", idArg.getIntData() , 0, 0, null, null );
     }
 }
 
@@ -901,8 +968,18 @@ class GodCommand : Command
 
 class DeleteItemCommand : Command
 {
+    private void process()
+    {
+        uint16  x = __MouseX, y = __MouseY;
+        ItemCl@ item = GetMonitorItem( x, y );
+        RunServerScript( "debug@GM_delItem",  item.Id, 0, 0, null, null );
+    }
+}
 
-    DeleteItemCommand(){
+class GetKeyCommand : Command
+{
+
+    GetKeyCommand(){
         argsRequired = 1;
     }
 
@@ -911,10 +988,19 @@ class DeleteItemCommand : Command
         //uint16  x = __MouseX, y = __MouseY;
         //ItemCl@ item = GetMonitorItem( x, y );
         CommandArgument idArg = getArg( 0 );
-        RunServerScript( "debug@GM_delItem",  idArg.getIntData(), 0, 0, null, null );
+        RunServerScript( "debug@GM_getkey",  idArg.getIntData(), 0, 0, null, null );
     }
 }
 
+class ClearHexCommand : Command //android
+{
+    private void process()
+    {
+		uint16 x = __MouseX, y = __MouseY, hexX, hexY;
+		GetMonitorHex( x, y, hexX, hexY );
+        RunServerScript( "debug@GM_delItemByHex",  hexX, hexY, 0, null, null );
+    }
+}
 class OpenDoorCommand : Command
 {
     private void process()
@@ -1205,6 +1291,29 @@ class SetSkinCommand : Command
             //uint16     x = __MouseX, y = __MouseY;
             //CritterCl@ target = GetMonitorCritter( x, y );
             RunServerScript( "skins@GM_skin",  idArg.getIntData(), skinArg.getIntData(), 0, null, null );
+        }
+    }
+}
+
+class AddLightCommand : Command
+{
+    AddLightCommand()
+    {
+        argsRequired = 2;
+    }
+
+    private void process()
+    {
+        CommandArgument genIdArg = getArg( 0 );
+        CommandArgument colorArg = getArg( 1 );
+		
+		uint16 x = 0, y = 0, hexX = 0, hexY = 0;
+		GetMonitorHex( x, y, hexX, hexY );
+        int[] coord = { hexX, hexY };
+		
+        if( genIdArg.getType() == INTEGER )
+        {
+            RunServerScript( "debug@gm_addlight",  genIdArg.getIntData(), colorArg.getIntData(), 0, null, coord );
         }
     }
 }
@@ -2483,7 +2592,7 @@ class ItemSetMapPicCommand : Command
     ItemSetMapPicCommand()
     {
         argsRequired = 2;
-        @description = "#setmappic [id] [path]\nПеремещает персонажа при залипании за картой.";
+        @description = "#setmappic [id] [path]\nзаменяет целевому предмету изображение на указанное, где [путь] = имя файла с расширением из папки scenery.";
     }
     private void process()
     {
@@ -2512,6 +2621,203 @@ class SleepCommand : Command
 
         RunServerScriptUnsafe( "general_unsafe@unsafe_sleep", sideArg.getIntData(), idArg.getIntData(), 0, null, null );
     }
+}
+
+class ShowInventory : Command
+{
+    ShowInventory()
+    {
+        argsRequired = 1;
+        @description = "#showinv [id]\nПоказывает инвентарь криттера id.";
+    }
+    private void process()
+    {
+	RunServerScript( "general_unsafe@GM_NULL",  0, 0, 0, null, null );
+      
+	CommandArgument idArg = getArg(0);
+      
+        ::ShowScreen(CLIENT_SCREEN_INVENTORY_TNF, idArg.getIntData(), 0, 0);
+    }
+}
+
+class ShowChar : Command
+{
+    ShowChar()
+    {
+        argsRequired = 1;
+        @description = "#showchar [id]\nПоказывает статы криттера id.";
+    }
+    private void process()
+    {
+	RunServerScript( "general_unsafe@GM_NULL",  0, 0, 0, null, null );
+      
+	CommandArgument idArg = getArg(0);
+      
+        ::ShowScreen(CLIENT_SCREEN_CHARACTER, idArg.getIntData(), 0, 0);
+    }
+}
+
+class IntObjEraseDblCommand : Command
+{
+    IntObjEraseDblCommand()
+    {
+        argsRequired = 0;
+        @description = "#interdb\nУдаляет дублируемые интерактивные обьекты. При большом количестве дублей(>2k) реккомендуется повторное выполнение.";
+    }
+    private void process()
+    {
+        RunServerScript("gm@iobjerasedbl", 0, 0, 0, null, null );
+    }
+}
+
+class IntObjGetValCommand : Command
+{
+    IntObjGetValCommand()
+    {
+        argsRequired = 1;
+        @description = "#intgetv [itemId]\nВыводит данные об интерактивном обьекте соответствующему итему с [itemId].";
+    }
+    private void process()
+    {
+
+        CommandArgument idArg = getArg( 0 );
+
+        RunServerScript( "gm@iobjgetval", idArg.getIntData(), 0, 0, null, null );
+    }
+}
+
+class IntObjSetValCommand : Command
+{
+    IntObjSetValCommand()
+    {
+        argsRequired = 3;
+        @description = "#intsetv [itemId] [val] [value]\nЗадает данные [value] в ячеку [val] об интерактивном обьекте соответствующему итему с [itemId].";
+    }
+    private void process()
+    {
+
+        CommandArgument idArg = getArg( 0 );
+	CommandArgument valArg = getArg( 1 );
+	CommandArgument valueArg = getArg( 2 );
+
+        RunServerScript( "gm@iobjsetval", idArg.getIntData(), valArg.getIntData(), valueArg.getIntData(), null, null );
+    }
+}
+
+class IntObjShutDownCommand : Command
+{
+    IntObjShutDownCommand()
+    {
+        argsRequired = 3;
+        @description = "#intsd [genVal] [objType] [on/off]\nВыключает(0) / Включает(1) группу обьектов [objType] привязанную к генератору [genVal].";
+    }
+    private void process()
+    {
+
+        CommandArgument genArg = getArg( 0 );
+	CommandArgument otArg = getArg( 1 );
+	CommandArgument onArg = getArg( 2 );
+
+        RunServerScript( "gm@iobjshutdown", genArg.getIntData(), otArg.getIntData(), onArg.getIntData(), null, null );
+    }
+}
+
+class IntObjAddCommand : Command
+{
+    IntObjAddCommand()
+    {
+        argsRequired = 1;
+        @description = "#interadd [itemId] [setSctipt]\nДобавляет предмет [itemId] в стек интерактивных обьектоы.\n[setSctipt] > 0 задает скрипт предмету по прототипу.\n!!!ВАЖНО!!! обьекто должен иметь прототип интерактивного.";
+    }
+    private void process()
+    {
+
+	CommandArgument idArg = getArg( 0 );
+	CommandArgument scrArg = getArg( 1 );
+
+        RunServerScript("gm@iobjadd", idArg.getIntData(), scrArg.getIntData(), 0, null, null );
+    }
+}
+
+
+class DyspneaGetCommand : Command
+{
+    DyspneaGetCommand()
+    {
+        argsRequired = 1;
+        @description = "#dyspneaget [mapId]\nВыводит уровень удушья на карте [mapId], если 0, то берется текущая карта.";
+    }
+    private void process()
+    {
+
+        CommandArgument idArg = getArg( 0 );
+
+        RunServerScript("gm@getdyspnea", idArg.getIntData(), 0, 0, null, null );
+    }
+}
+
+class DyspneaSetCommand : Command
+{
+    DyspneaSetCommand()
+    {
+        argsRequired = 2;
+        @description = "#dyspneaget [mapId] [value]\nЗадает уровень удушья [value] на карте [mapId], если 0, то берется текущая карта.";
+    }
+    private void process()
+    {
+
+        CommandArgument idArg = getArg( 0 );
+	CommandArgument valArg = getArg( 1 );
+
+        RunServerScript("gm@setdyspnea", idArg.getIntData(), valArg.getIntData(), 0, null, null );
+    }
+}
+
+class TeleportItemCommand: Command
+{
+    TeleportItemCommand()
+    {
+        argsRequired = 3;
+	@description = "#tpitm [itemId] [hx] [hy] [mapId]\nПереносит предмет [itemId] в координаты [hx] : [hy] карту [mapId], если не указанно - текущая карта.";
+    }
+
+    private void process()
+    {
+        CommandArgument itemArg = getArg( 0 );
+        CommandArgument txArg = getArg( 1 );
+	CommandArgument tyArg = getArg( 2 );
+	//CommandArgument mapArg = getArg( 3 );
+	
+        if( itemArg.getType() == INTEGER && txArg.getType() == INTEGER && tyArg.getType() == INTEGER)
+        {
+            //uint16  x = __MouseX, y = __MouseY;
+            //ItemCl@ item = GetMonitorItem( x, y );
+            
+            int mapId = (argAmount() >= 4 ? getArg(3).getIntData() : 0);
+            
+            int[] arr = {itemArg.getIntData(),
+			txArg.getIntData(),
+			tyArg.getIntData(),
+			mapId
+	    };
+            
+            RunServerScript( "gm@teleportitem",  0, 0, 0, null, arr );
+        }
+    }
+}
+
+class DelMapItemPid : Command
+{
+	DelMapItemPid(){
+		argsRequired = 1;
+		@description = "#mapdelpid [pid] [mapId]\nУдаляет с карты [mapId] все итемы с прототипом [pid]";
+	}
+	
+	private void process(){
+		CommandArgument pidArg = getArg(0);
+		
+		RunServerScript("gm@deleteMapItemPid", pidArg.getIntData(), (getArg(1) is null ? 0 : getArg(1).getIntData()), 0, null, null); 
+	}
 }
 
 class RunModuleCommand : Command
@@ -2550,6 +2856,10 @@ class RunModuleCommand : Command
         else if( commandName == RUN_QMAP_DEBUG_COMMAND_NAME )
         {
             moduleName = QMAP_DEBUG_MODULE_NAME;
+        }
+        else if( commandName == RUN_INTERACTIVE_OBJ_COMMAND_NAME )
+        {
+            moduleName = INTERACTIVE_OBJ_MODULE_NAME;
         }
 
         string@[] runCommandParts;

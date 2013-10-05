@@ -95,11 +95,11 @@ void Look()
     string callback;
     if( @item != null )
     {
-        callback = item_description( item, ITEM_LOOK_ONLY_NAME );
+        callback = item_description( item, ITEM_LOOK_MAP );
     }
     else if( @cr != null )
     {
-        callback = critter_description( cr, CRITTER_ONLY_NAME );
+        callback = critter_description( cr, CRITTER_LOOK_FULL );
     }
     else
         callback =  "oops, some error here";

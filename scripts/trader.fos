@@ -32,13 +32,16 @@ void _TraderInit( Critter& trader, bool firstTime )
         trader.ModeBase[ MODE_NO_STEAL ] = 1;
         trader.ModeBase[ MODE_NO_LOOT ] = 1;
         trader.ModeBase[ MODE_NO_ENEMY_STACK ] = 1;
+		trader.ModeBase[ MODE_BARTER_ONLY_CASH ] = 1;
 
-        if( trader.GetTimeEvents( CTE_TRADER, null, null, null ) == 0 )
+		/* спавн предметов временно(?) выпилен. Пополнение вещей производится через ГМов.
+       if( trader.GetTimeEvents( CTE_TRADER, null, null, null ) == 0 )
         {
             uint nextCall = UpdateItems( trader );
             if( nextCall > 0 )
                 trader.AddTimeEvent( "cte_UpdateItems", nextCall, CTE_TRADER );
-        }
+        }  
+		*/
     }
 }
 

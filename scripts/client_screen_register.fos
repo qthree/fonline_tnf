@@ -1,7 +1,7 @@
 // pm
 // register screen (character select)
 
-#define __ONE_MODE		//use adventure code
+//#define __ONE_MODE		//use adventure code
 
 #include "_defines.fos"
 #include "_client_defines.fos"
@@ -70,7 +70,7 @@ uint16[] crTypes;
 string[] animIndex;
 
 //////////////////////////////////
-class CRegisterScreenShow : IGUIElementCallbackInit, IGUIElementCallbackMouseClick // , IGUIElementCallbackDraw
+class CRegisterScreenShow : IGUIElementCallbackInit, IGUIElementCallbackMouseClick , IGUIElementCallbackDraw
 {
     IGUIElementOpt@ Options;
 
@@ -89,12 +89,15 @@ class CRegisterScreenShow : IGUIElementCallbackInit, IGUIElementCallbackMouseCli
     void OnInit()
     {
         @Options = GUI_GetElementOptions();
-        Options.SetVisible(GetChosen().Param[QST_GAMEMODE] == GAME_START);
     }
 
     void OnMouseClick( int click )
     {
         ::ShowScreen( CLIENT_SCREEN_REG_TNF, 0, 0, 0 );
+    }
+    
+    void OnDraw(){
+	 Options.SetVisible(GetChosen().Param[QST_GAMEMODE] == GAME_START);
     }
 }
 
@@ -583,7 +586,7 @@ class CRegisterSkillShow : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
 
 
 
-        DrawText(""+Text(Instance.Param[ParamIndex]), x+infoSkillShowTextXY[0], y+infoSkillShowTextXY[1], 40 , 40, color, FONT_FALLOUT,  0);
+        DrawText(""+/*Text(*/Instance.Param[ParamIndex]/*)*/+"%", x+infoSkillShowTextXY[0], y+infoSkillShowTextXY[1], 40 , 40, color, FONT_FALLOUT,  0);
     }
 
     void SetValue(){}
@@ -592,10 +595,10 @@ class CRegisterSkillShow : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
         //Options.Text( text, FONT_BIG_NUM, COLOR_LRED, COLOR_DRED, FT_CENTERX | FT_CENTERY | FT_NOBREAK );
     }
 
-    string Text(uint8 value){
+    string Text(int value){
         string text = "";
-        if(value < 100){text = "0";}
-        if(value < 10){text += "0";}
+        //if(value < 100){text = "0";}
+        //if(value < 10){text += "0";}
 
         text += value+"%";
 
@@ -1297,7 +1300,7 @@ class CRegisterInfoBtn : IGUIElementCallbackMouseClick, IGUIElementCallbackInit,
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {return;}   //gamemode
             if(Instance.Param[QST_GAMEMODE] != GAME_ADVENTURE && Instance.ArchiveIndex == INFO_INDEX_PERK) {return;}
 
-	    Message("set "+IsSet);
+	    //Message("set "+IsSet);
 
             if(IsSet){// && Instance.UnxpTrait > 0
                 if(Instance.ArchiveIndex == INFO_INDEX_PERK){
@@ -1384,7 +1387,7 @@ class CRegisterInfoMoveBtn : IGUIElementCallbackMouseClick, IGUIElementCallbackI
                 Instance.PerkMoveUp();
             }
 
-            Message(""+Index);
+            //Message(""+Index);
         }
 
         void OnInit(){
@@ -1535,6 +1538,8 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
         TraitClear();
         PerkClear();
 	
+	DropSelectSkin();
+	
 #ifdef __ONE_MODE
 	Param[QST_GAMEMODE] = GAME_ADVENTURE;
 	ParamDropChageGamemode();
@@ -1559,14 +1564,14 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
             for(uint16 i = SKILL_BEGIN; i < SKILL_END; ++i){
                 Param[i]+=STAT_ADVN_SKILL_BONUS;
             }
-
             Param[ST_MAX_LIFE] += STAT_ADVN_HEALTH_BONUS;
         }
     }
 
     void ParamUpdate(){
             CritterGenerate(Param);
-            AdnvStatBonus();
+	    //derpecated
+            //AdnvStatBonus();
     }
 
     void GetParam(){
@@ -1606,11 +1611,11 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
 
         for(uint16 i = 0, j = Param.length(); i < j; ++i){
             //if(i == QST_GAMEMODE) continue;         //only gamemode skip
-            if(i >= ST_STRENGTH_EXT && i <= ST_LUCK_EXT){Message("ext "+i+" "+Param[i]);}
+            //if(i >= ST_STRENGTH_EXT && i <= ST_LUCK_EXT){Message("ext "+i+" "+Param[i]);}
             Param[i] = 0;
         }
 
-        for(uint8 i = 0; i < 8; ++i){
+        for(uint8 i = 0; i < 7; ++i){
             Param[i] = 5;
         }
 
@@ -1621,6 +1626,8 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
         UnxpStat = 5;
         Param[ST_AGE] = Random(AGE_HUMAN_MIN+1, AGE_HUMAN_MAX-1);
         Param[QST_GAMEMODE] = GAME_SURVIVAL;
+	
+	Param[ST_BASE_CRTYPE] = crTypes[0];
     }
 
     void ParamDropSoft(){
@@ -1628,7 +1635,7 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
 
                 if(i >= TAG_SKILL1 && i < TAG_SKILL4) continue;
                 if(i >= TRAIT_BEGIN && i < TRAIT_END) continue;
-		if(i >= PERK_BEGIN && i < PERK_END) continue;
+		 if(i >= PERK_BEGIN && i < PERK_END) continue;
                 if(i == ST_GENDER || i == ST_AGE || i == QST_GAMEMODE || i == ST_BODY_TYPE || i == ST_BASE_CRTYPE) continue;
 		
 
@@ -1740,9 +1747,11 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
 
             traits.resize(0);
 
-            for(uint16 i = TRAIT_BEGIN; i < TRAIT_END; ++i){
+            for(uint16 i = TRAIT_BEGIN; i <= TRAIT_END; ++i){
                     traits.insertLast(i);
             }
+            
+            traits.insertLast(TRAIT_VAULT_CLEANITY);
     }
 
     void TraitClear(){
@@ -1778,14 +1787,17 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
     bool PerkIsAvalible(uint16 paramIndex){
 
             //bool r = true;
-
+			/* 
             if(paramIndex > PE_MUTATE && paramIndex < PE_ADRENALINE_RUSH) return false; //skip // 354..379
             if(paramIndex == 418) return false;
             //if(paramIndex > PE_TERMINATOR && paramIndex < PE_GECKO_SKINNING) return false;
             if(paramIndex > PE_VAULT_CITY_TRAINING  && paramIndex < PE_GECKO_SKINNING) return false;
             if(paramIndex > PE_CANNIBAL) return false;
 
-            return true;
+            return true; 
+			*/
+			
+			return false; //до тех пор, пока не разберем список перков. Android
     }
 
     void PerkSetAvalible(uint16[]& perks){
@@ -2023,6 +2035,20 @@ class CRegisterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScre
             for(uint8 j = 0; j < 100; ++j){
                 test[j] = Param[j+(i*100)];
             }*/
+	/*
+	    int[] param_ = {Param[0], Param[1], Param[2], Param[3], Param[4], Param[5], Param[6]};
+	    
+	    for(uint8 j = 0; j < 30; ++j){
+                Message("unsafe i "+j+" "+Param[j]);
+            }*/
+            
+	    /*for(uint i = 0; i < Param.length(); i++){
+	      if((i >= ST_STRENGTH && i <= ST_LUCK) ||
+		  i == ST_AGE || i == ST_BASE_CRTYPE ||
+		  i == QST_GAMEMODE) continue;
+	      
+		  Param[i] = 0;
+	    }*/
 
             RunServerScriptUnsafe("general_unsafe@unsafe_regchar", 0, 0, 0, null, Param);//Param);
         //}
@@ -2124,7 +2150,7 @@ class CCharacterSkinSelectorImage : IGUIElementCallbackInit, IGUIElementCallback
 	XX = Instance.SkinSelectBtn[BUTTON_DN].Options.GetPosX()+Instance.SkinSelectBtn[BUTTON_DN].Options.GetSurfaceWidth();
 	Y  = Instance.SkinSelectBtn[BUTTON_UP].Options.GetPosY()+Instance.SkinSelectBtn[BUTTON_UP].Options.GetSurfaceHeight();
 	
-	Message("XXXX "+X+" "+XX+" "+Y);
+	//Message("XXXX "+X+" "+XX+" "+Y);
     }
 
     void OnDraw(){
@@ -2472,7 +2498,7 @@ class CCharacterGameModeSelect : IGUIElementCallbackInit, IGUIElementCallbackMou
     }
 
     void SetText(){
-            Message("text "+(State-GAME_ADVENTURE));
+            //Message("text "+(State-GAME_ADVENTURE));
             Options.Text(""+BtnName[State-GAME_ADVENTURE], FONT_BIG, COLOR_SAND, COLOR_DRED, FT_CENTERX | FT_CENTERY | FT_NOBREAK );
     }
 }
@@ -2636,6 +2662,7 @@ void InitRegisterScreen()
     GUI_AddScreenElement( CLIENT_MAIN_SCREEN_GAME, "ebut_out.frm", 300, -100 )
     .CallbackInit( regShow )
     .CallbackMouseClick( regShow )
+    .CallbackDraw( regShow )
     // .Position(GetIfaceIniStr("RegChaSel"))
     .DownPic( "ebut_in.frm" );
 

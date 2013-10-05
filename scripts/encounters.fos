@@ -6,6 +6,8 @@
 #include "_npc_pids.fos"
 #include "_macros.fos"
 
+import uint8 GetBiomType(Critter& cr) from "globalmap_group";
+
 #define INDEX_CHANGE_MORNING    (0)
 #define INDEX_CHANGE_AFTERNON   (1)
 #define INDEX_CHANGE_EAVNING    (2)
@@ -55,6 +57,7 @@ class CEncounterGroup
     bool GroupSpawn(Critter& player){
         Map @ map = player.GetMap();
 
+	Log("map");
         if(map is null) return false;
 
         uint8  dir = player.Dir;
@@ -63,7 +66,7 @@ class CEncounterGroup
         //REVERSE_DIRECTION(dir, player.Dir);
 
         map.MoveHexByDir(hexX, hexY, dir, Distance);
-
+	Log("spawn");
         for(uint8 i = 0; i < Count; ++i){
             //map.AddNpc()
             map.AddNpc( /*NpcPid(Random(0, NpcPid.length()))*/NpcPid[0], Random(hexX-5, hexX+5), Random(hexY-5, hexY+5), dir, null, null, null );
@@ -101,28 +104,44 @@ class CEncounterBiom
         Group.insertLast(group);
     }
 
-    void EncounterCheck(Critter& player){
+    bool EncounterCheck(Critter& player){
 
         uint16 outdoorsman = player.Skill[SK_OUTDOORSMAN];
+	
+	bool r = false;
 
         //CEncounterGroup @ group = GROUP[]
+	
+	uint8[] groupsId;
 
         for(uint8 i = 0, j = Group.length(); i < j; ++i){
             if(outdoorsman < Group[i].GetChance()){
-                Group[i].GroupSpawn(player);
+                r = true;
+		
+		 groupsId.insertLast(i);
             }
         }
+        
+        if(r){
+		//for(uint8 i = 0, j = groupsId.length())
+		Log("ecounter "+player.StatBase[ST_VAR9]);
+		player.StatBase[ST_VAR9] = Random(0, groupsId.length());
+	}
+	
+	return r;
     }
 
-    void SpawnEncounter(){
+    void EncounterSpawn(Critter& player){
+		Group[player.StatBase[ST_VAR9]].GroupSpawn(player);
+		player.StatBase[ST_VAR9] = -1;
     }
 }
 
 CEncounterBiom[]   biomEncounters;
 CEncounterGroup[]   groups;
 
-void CheckEncounter(uint8 biomType, Critter& player){
-    biomEncounters[biomType].EncounterCheck(player);
+bool CheckEncounter(Critter& player, uint8 biomType){
+    return biomEncounters[biomType].EncounterCheck(player);
 }
 /*
 void InitGroups(){
@@ -135,8 +154,15 @@ void InitGroups(){
     groups[GROUP_MIRELURK] = CEncounterGroup(npc_group_mirelurk, 100, chances_mirelurk, 10, 10);
 }*/
 
-void GetEncounter(Critter& cr, uint biomType){
-    biomEncounters[biomType].EncounterCheck(cr);
+void GetEncounter(Critter& cr, uint8 biomType){
+    biomEncounters[biomType].EncounterSpawn(cr);
+}
+
+void GetEncounter(Critter& cr){
+    uint8 type = GetBiomType(cr);
+    if(type != uint8(-1)){
+		GetEncounter(cr, type);
+    }
 }
 
 ObjectsManager objectMng;
@@ -188,6 +214,6 @@ void InitEncounters(){
 
 		//biomEncounters[BIOM_TYPE_WASTELAND].InsertGroup(groups[GROUP_RAIDER]);
 		//biomEncounters[BIOM_TYPE_WASTELAND].InsertGroup(groups[GROUP_MIRELURK]);
-		biomEncounters[BIOM_TYPE_WASTELAND].InsertGroup(CEncounterGroup(npc_group_raiders, 100, chances_raiders, 10, 10));
-		biomEncounters[BIOM_TYPE_WASTELAND].InsertGroup(CEncounterGroup(npc_group_mirelurk, 100, chances_mirelurk, 10, 10));
+		biomEncounters[BIOM_TYPE_WASTELAND].InsertGroup(CEncounterGroup(npc_group_raiders, 100, chances_raiders, 10, 0));
+		biomEncounters[BIOM_TYPE_WASTELAND].InsertGroup(CEncounterGroup(npc_group_mirelurk, 100, chances_mirelurk, 10, 0));
 }

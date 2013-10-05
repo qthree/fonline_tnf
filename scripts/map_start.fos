@@ -18,7 +18,7 @@ void _StartMapInit( Map& map, bool firstTime )
 
 void _ArcadeKindmanInit( Critter& cr, bool firstTime )
 {
-    cr.StatBase[ ST_DIALOG_ID ] = 331;   // нпц_гайд
+    cr.StatBase[ ST_DIALOG_ID ] = 360;   // нпц_гайд
     cr.ModeBase[ MODE_NO_WALK ] = 1;
     cr.ModeBase[ MODE_NO_RUN ] = 1;
     cr.ModeBase[ MODE_NO_STEAL ] = 1;
@@ -72,7 +72,7 @@ void answer_ArcadeKindman_talk( Critter& player, uint answerI, string& answerS )
 
 void _SurvivalKindmanInit( Critter& cr, bool firstTime )
 {
-    cr.StatBase[ ST_DIALOG_ID ] = 331;   // нпц_гайд
+    cr.StatBase[ ST_DIALOG_ID ] = 360;   // нпц_гайд
     cr.ModeBase[ MODE_NO_WALK ] = 1;
     cr.ModeBase[ MODE_NO_RUN ] = 1;
     cr.ModeBase[ MODE_NO_STEAL ] = 1;
@@ -141,7 +141,7 @@ void _Survival_sight( Critter& cr, Critter& showCr )
 void _InitStartGM( Critter& cr, bool firstTime ) // самый стартовый нпц
 {
     cr.StatBase[ ST_PERCEPTION ] = 10;
-    cr.StatBase[ ST_DIALOG_ID ] = 331;           // нпц_гайд
+    cr.StatBase[ ST_DIALOG_ID ] = 360;           // нпц_гайд
     cr.ShowCritterDist1 = 15;
     cr.ModeBase[ MODE_NO_WALK ] = 1;
     cr.ModeBase[ MODE_NO_RUN ] = 1;
@@ -174,7 +174,7 @@ void _StartGM_sight( Critter& cr, Critter& showCr )
 
 bool _StartGM_talk( Critter& player, Critter& talkCr, bool attach, uint talkCount ) // выбор режима игры
 {
-    if( talkCr.ParamBase[ QST_GAMEMODE ] == GAME_START )
+    /*if( talkCr.ParamBase[ QST_GAMEMODE ] == GAME_START )
     {
         talkCr.ShowScreen( SCREEN_DIALOGBOX, 4, "answer_StartGM_talk" );
         talkCr.Say( SAY_DIALOGBOX_TEXT, "Выберите РЕЖИМ ИГРЫ, рекомендуется сперва посмотреть обучение" );
@@ -185,8 +185,8 @@ bool _StartGM_talk( Critter& player, Critter& talkCr, bool attach, uint talkCoun
         return false;
     }
     else
-        talkCr.Say( SAY_NETMSG, "Ошибка, обратитесь к ГеймМастерам." );
-    return false;
+        talkCr.Say( SAY_NETMSG, "Ошибка, обратитесь к ГеймМастерам." );*/
+    return true;
 }
 
 void answer_StartGM_talk( Critter& player, uint answerI, string& answerS )
@@ -321,7 +321,7 @@ void answer_StartGM_talk( Critter& player, uint answerI, string& answerS )
 */
 void _InitAdventureGM( Critter& cr, bool firstTime ) // нпц приключенцев
 {
-    cr.StatBase[ ST_DIALOG_ID ] = 331;               // нпц_гайд
+    cr.StatBase[ ST_DIALOG_ID ] = 360;               // нпц_гайд
     cr.ModeBase[ MODE_NO_WALK ] = 1;
     cr.ModeBase[ MODE_NO_RUN ] = 1;
     cr.ModeBase[ MODE_NO_STEAL ] = 1;
@@ -729,21 +729,25 @@ void OpenCrate( Critter& player, uint type )
 void CheckItems( Item& cont, uint type )
 {
 	Item@ myitem;
-    if( type == 1 ) // оружие
+    if( type == 1 ) // оружие лоутек
     {
         uint[] items =
         {
-            PID_SHOTPISTOL_LOW,
-            PID_REVOLVER_LOW,
+			PID_SPRINGER_RIFLE,
+			PID_REV_RIFLE_LOW,
+			PID_LOW_SNIPER2,
+			PID_SNIPER_GUN_LOW,
+			PID_AUTOGUN_LOW,
+		    PID_ZIP_GUN,
             PID_PISTOL_LOW,
-            PID_REV_RIFLE_LOW,
+			PID_REVOLVER_LOW,
+			PID_GECKO_LOW,
+			PID_QUADRO_SHOTGUN,
+			PID_DRUM_GUN_LOW,
+			PID_SPEARTHROWER1,
             PID_BIGGUN_LOW,
+			PID_SPEARTHROWER2,
             PID_BOOMERANG_LOW,
-            PID_SMOKE_GUN_LOW,
-            PID_SPEARTHROWER1,
-            PID_DRUM_GUN_LOW,
-            PID_SNIPER_GUN_LOW,
-            PID_SPRINGER_RIFLE,
             PID_KNIFE,
             PID_SWITCHBLADE,
             PID_SPEAR,
@@ -754,11 +758,9 @@ void CheckItems( Item& cont, uint type )
             PID_SLEDGEHAMMER,
             PID_LOUISVILLE_SLUGGER,
             PID_BRASS_KNUCKLES,
+			PID_SPIKED_KNUCKLES,
             PID_WOOD_PLANK,
-            PID_WATER_TUBE,
-            PID_IRON_PROD,
-            PID_CHAIN,
-            PID_ZIP_GUN
+            PID_CHAIN
         };
 
         for( uint i = 0; i < items.length(); i++ )
@@ -776,47 +778,16 @@ void CheckItems( Item& cont, uint type )
 		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
         }
     }
-    else if( type == 2 )  // броня
+    else if( type == 2 )  // патроны
     {
-        uint[] items =
+         uint[] items =
         {
-            PID_LEATHER_JACKET,
-            PID_LEATHER_ARMOR,
-            PID_LEATHER_ARMOR_MK_II,
-            PID_CURED_LEATHER_ARMOR,
-            PID_MANTIS_ARMOUR,
-            PID_PURPLE_ROBE,
-			PID_JUMPSUIT,
-			PID_FAKE_JUMPSUIT,
-            PID_BLACK_ROBE,
-            PID_SANDROBE
-        };
-
-        for( uint i = 0; i < items.length(); i++ )
-        {
-            if( !valid( cont.GetItem( items[ i ], 0 ) ) )
-			{
-			@ myitem = cont.AddItem( items[ i ], 1, 0 );
-			if( myitem.IsStackable() ) cont.AddItem( items[ i ], 19, 0 );
-			}
-        }
-        Item@[] allitems;
-        cont.GetItems( -1, allitems );
-        for( uint ii = 0; ii < allitems.length(); ii++ )
-        {
-		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
-        }
-    }
-    else if( type == 3 ) // патроны и крышки
-    {
-        uint[] items =
-        {
-            PID_REAL_BOTTLE_CAPS,
             PID_10mm_LOW,
             PID_044mag_LOW,
             PID_14mm_LOW,
             PID_12g_LOW,
             PID_223_LOW,
+			PID_CUENCELL_LOW,
 			PID_DARTS_LOW
         };
 
@@ -835,28 +806,20 @@ void CheckItems( Item& cont, uint type )
 		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
         }
     }
-    else if( type == 4 ) // инструменты
+    else if( type == 3 ) // оружие мид
     {
         uint[] items =
         {
-            PID_ROCK,
-            PID_LOCKPICKS,
-            PID_SCISSORS,
-            PID_CUTTHROAT,
-            PID_SHOVEL,
-            PID_AXE,
-            PID_LIGHTER,
-            PID_HYPODERMIC_NEEDLE,
-            PID_ROPE,
-            PID_HEALING_POWDER,
-			PID_BOOZE,
-            PID_BANDAGE,
-            PID_ANTISEPTIC,
-            PID_MEDCLIP,
-            PID_MEDSPLINT,
-            PID_MEDTHREAD,
-            PID_MEDNEEDLE,
-            PID_ANESTETIC
+			PID_HUNTING_RIFLE,
+			PID_RED_RYDER_BB_GUN,
+			PID_10MM_PISTOL,
+			PID_14MM_PISTOL,
+			PID_DESERT_EAGLE,
+			PID_44_MAGNUM_REVOLVER,
+			PID_NEEDLER_PISTOL,
+			PID_SHOTGUN,
+			PID_SAWED_OFF_SHOTGUN,
+			PID_REMINGTON
         };
 
         for( uint i = 0; i < items.length(); i++ )
@@ -874,114 +837,25 @@ void CheckItems( Item& cont, uint type )
 		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
         }
     }
-    else if( type == 5 ) // разное
+    else if( type == 4 ) // патроны мид
     {
         uint[] items =
         {
-			PID_BOTTLE_GLASS,
-			PID_BOTTLE_EMPTY,
-			PID_BOTTLE_FULL,
-			PID_GLASS_BOTTLE_FULL,
-			PID_BOOZE,
-            PID_GREEN_CONDOM,
-            PID_DICE,
-            PID_DECK_OF_CARDS,
-            PID_HEART_PILLS,
-            PID_SPECTACLES,
-            PID_MIRROR_SHADES,
-            PID_DOG_TAGS,
-            PID_HANDCUFFS,
-            PID_RPSTUFF1,
-            PID_RPSTUFF2,
-            PID_RPSTUFF3,
-            PID_RPSTUFF4,
-            PID_PILLS,
-            PID_MEAT,
-            PID_CIGARETTES
-        };
-
-        for( uint i = 0; i < items.length(); i++ )
-        {
-            if( !valid( cont.GetItem( items[ i ], 0 ) ) )
-			{
-			@ myitem = cont.AddItem( items[ i ], 1, 0 );
-			if( myitem.IsStackable() ) cont.AddItem( items[ i ], 49, 0 );
-			}
-        }
-        Item@[] allitems;
-        cont.GetItems( -1, allitems );
-        for( uint ii = 0; ii < allitems.length(); ii++ )
-        {
-		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
-        }
-    }
-    else if( type == 6 ) // спец эквип
-    {
-        uint[] items =
-        {
-            PID_SPEARTHROWER2,
-            PID_LASER_PISTOL_LOW,
-            PID_LASER_PISTOL,
-			PID_QUADRO_SHOTGUN,
-			PID_DOUBLE_RIFLE,
-			PID_LOW_SNIPER2,
-            PID_GATLING_LOW,
-            PID_9MM_MAUSER,
-            PID_10MM_PISTOL,
-            PID_DESERT_EAGLE,
-            PID_44_MAGNUM_REVOLVER,
-            PID_HUNTING_RIFLE,
-            PID_REMINGTON,
-            PID_ASSAULT_RIFLE,
-            PID_IMPROVED_FLAMETHROWER,
-            PID_SHOTGUN,
-            PID_SAWED_OFF_SHOTGUN,
-            PID_FLAMER,
-            PID_PLASMA_SMG_LOW,
-            PID_SAWGUN_LOW,
-            PID_COMBAT_KNIFE,
-            PID_WAKIZASHI_BLADE,
-            PID_CATTLE_PROD,
-            PID_CURED_LEATHER_ARMOR_MK_II,
-            PID_METAL_ARMOR,
-            PID_METAL_ARMOR_MK_II
-        };
-
-        for( uint i = 0; i < items.length(); i++ )
-        {
-            if( !valid( cont.GetItem( items[ i ], 0 ) ) )
-			{
-			@ myitem = cont.AddItem( items[ i ], 1, 0 );
-			if( myitem.IsStackable() ) cont.AddItem( items[ i ], 19, 0 );
-			}
-        }
-        Item@[] allitems;
-        cont.GetItems( -1, allitems );
-        for( uint ii = 0; ii < allitems.length(); ii++ )
-        {
-		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
-        }
-    }
-    else if( type == 7 ) // норм патроны, деньги
-    {
-        uint[] items =
-        {
-            PID_BOTTLE_CAPS,
-            PID_10MM_JHP,
-            PID_44_MAGNUM_JHP,
-            PID_44_FMJ_MAGNUM,
-            PID_5MM_JHP,
-            PID_9MM_AMMO,
-            PID_9MM_BALL,
-            PID_14MM_AP,
-            PID_45_CALIBER_AMMO,
-            PID_223_FMJ,
-            PID_SHOTGUN_SHELLS,
-            PID_NEED_CART_NT,
-            PID_CUENCELL_LOW,
-            PID_HN_NEEDLER_CARTRIDGE,
-            PID_SMALL_ENERGY_CELL,
-            PID_FLAMETHROWER_FUEL
+			PID_5MM_JHP,
+			PID_5MM_AP,
+			PID_7_62MM_AMMO,
+			PID_10MM_JHP,
+			PID_10MM_AP,
+			PID_14MM_AP,
+			PID_44_MAGNUM_JHP,
+			PID_44_FMJ_MAGNUM,
+			PID_45_CALIBER_AMMO,
+			PID_223_FMJ,
+			PID_SHOTGUN_SHELLS,
+			PID_HN_NEEDLER_CARTRIDGE,
+			PID_NEED_CART_POISON,
+			PID_NEED_CART_NT,
+			PID_SMALL_ENERGY_CELL 
         };
 
         for( uint i = 0; i < items.length(); i++ )
@@ -999,23 +873,22 @@ void CheckItems( Item& cont, uint type )
 		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
         }
     }
-    else if( type == 8 ) // спец инструменты
+    else if( type == 5 ) // броня
     {
         uint[] items =
         {
-            PID_MULTI_TOOL,
-            PID_EXP_LOCKPICK_SET,
-            PID_WELDING,
-            PID_LOCKER_LOW,
-            PID_LOCKER_MED,
-            PID_CHEMISTRY_MANUAL,
-            PID_GUNS_AND_BULLETS,
-            PID_FIRST_AID_BOOK,
-            PID_SCOUT_HANDBOOK,
-            PID_DEANS_ELECTRONICS,
-            PID_BIG_BOOK_OF_SCIENCE,
-			PID_PHOTO,
-			PID_DRILL
+			PID_PURPLE_ROBE,
+			PID_BLACK_ROBE,
+			PID_SANDROBE,
+			PID_LEATHER_JACKET,
+			PID_LEATHER_ARMOR,
+			PID_LEATHER_ARMOR_MK_II,
+			PID_CURED_LEATHER_ARMOR,
+			PID_CURED_LEATHER_ARMOR_MK_II,
+			PID_METAL_ARMOR,
+			PID_METAL_ARMOR_MK_II,
+			PID_JUMPSUIT,
+			PID_FAKE_JUMPSUIT
         };
 
         for( uint i = 0; i < items.length(); i++ )
@@ -1023,7 +896,7 @@ void CheckItems( Item& cont, uint type )
             if( !valid( cont.GetItem( items[ i ], 0 ) ) )
 			{
 			@ myitem = cont.AddItem( items[ i ], 1, 0 );
-			if( myitem.IsStackable() ) cont.AddItem( items[ i ], 49, 0 );
+			if( myitem.IsStackable() ) cont.AddItem( items[ i ], 19, 0 );
 			}
         }
         Item@[] allitems;
@@ -1033,26 +906,11 @@ void CheckItems( Item& cont, uint type )
 		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
         }
     }
-    else if( type == 9 ) // разное
+    else if( type == 6 ) // ресурсы
     {
         uint[] items =
         {
-            PID_MODOC_DOCUMENTS,
-            PID_RADIO,
-            PID_SANDBAG_5,
-            PID_GUARD_BADGE,
-            PID_SHER_BADGE,
-            PID_KHAN_BADGE,
-            PID_SIGN,
-            PID_MUTAGENIC_SYRUM,
-            PID_LOCKER_LOW,
-            PID_LOCKER_MED,
-            PID_LOCKER_HARD,
             PID_ROBOT_PARTS,
-            PID_SUPER_TOOL_KIT,
-            PID_STEALTH_BOY,
-            PID_GEIGER_COUNTER,
-            PID_MOTION_SENSOR,
 			PID_PERED_MEH,
 			PID_SOED_MEH,
 			PID_OHLAD_MEH,
@@ -1084,6 +942,142 @@ void CheckItems( Item& cont, uint type )
 			{
 			@ myitem = cont.AddItem( items[ i ], 1, 0 );
 			if( myitem.IsStackable() ) cont.AddItem( items[ i ], 49, 0 );
+			}
+        }
+        Item@[] allitems;
+        cont.GetItems( -1, allitems );
+        for( uint ii = 0; ii < allitems.length(); ii++ )
+        {
+		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
+        }
+    }
+    else if( type == 7 ) // инструменты
+    {
+        uint[] items =
+        {
+            PID_MULTI_TOOL,
+			PID_SUPER_TOOL_KIT,
+			PID_LOCKPICKS,
+            PID_EXP_LOCKPICK_SET,
+			PID_OIL_CAN,
+            PID_WELDING,
+            PID_LOCKER_LOW,
+            PID_LOCKER_MED,
+			PID_LOCKER_HARD,
+			PID_DRILL,
+			PID_BIO_GEL,
+			PID_AXE,
+			PID_SHOVEL,
+			PID_LIGHTER,
+			PID_ROCK,
+			PID_SCISSORS,
+			PID_CUTTHROAT,
+			PID_ROPE,
+			PID_HANDCUFFS
+        };
+
+        for( uint i = 0; i < items.length(); i++ )
+        {
+            if( !valid( cont.GetItem( items[ i ], 0 ) ) )
+			{
+			@ myitem = cont.AddItem( items[ i ], 1, 0 );
+			if( myitem.IsStackable() ) cont.AddItem( items[ i ], 19, 0 );
+			}
+        }
+        Item@[] allitems;
+        cont.GetItems( -1, allitems );
+        for( uint ii = 0; ii < allitems.length(); ii++ )
+        {
+		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
+        }
+    }
+    else if( type == 8 ) // медикаменты и еда
+    {			
+        uint[] items =
+        {
+			PID_BOTTLE_FULL,
+			PID_GLASS_BOTTLE_FULL,
+			PID_RAT_MEAT,
+			PID_GECKO_MEAT,
+			PID_MEAT,
+			PID_COOKED_MEAT,
+			PID_COOKED_RAT_MEAT,
+			PID_COOKED_GECKO_MEAT,
+			PID_COOKED_FISH,
+			PID_FLAPJACK,
+			PID_COOKED_MOLERAT_STOMATCH,
+			PID_SALAD,
+			PID_RAGOUT,
+			PID_MUTATED_FRUIT,
+			PID_IGUANA_ON_A_STICK,
+			PID_MEAT_ON_A_STICK,
+			PID_STIMPAK,
+			PID_RADAWAY,
+			PID_ANTIDOTE,
+			PID_RAD_X,
+			PID_SUPER_STIMPAK,
+			PID_JET_ANTIDOTE,
+			PID_HEALING_POWDER,
+			PID_BANDAGE,
+			PID_ANTISEPTIC,
+			PID_MEDCLIP,
+			PID_MEDSPLINT,
+			PID_MEDTHREAD,
+			PID_MEDNEEDLE,
+			PID_ANESTETIC
+        };
+
+        for( uint i = 0; i < items.length(); i++ )
+        {
+            if( !valid( cont.GetItem( items[ i ], 0 ) ) )
+			{
+			@ myitem = cont.AddItem( items[ i ], 1, 0 );
+			if( myitem.IsStackable() ) cont.AddItem( items[ i ], 49, 0 );
+			}
+        }
+        Item@[] allitems;
+        cont.GetItems( -1, allitems );
+        for( uint ii = 0; ii < allitems.length(); ii++ )
+        {
+		if( items.find( allitems[ii].GetProtoId() ) == -1 ) DeleteItem( allitems[ii] );
+        }
+    }
+    else if( type == 9 ) // разное
+    {
+        uint[] items =
+        {
+			PID_BOTTLE_CAPS,
+			PID_REAL_BOTTLE_CAPS,
+            PID_RADIO,
+            PID_GUARD_BADGE,
+            PID_SHER_BADGE,
+            PID_KHAN_BADGE,
+            PID_SIGN,
+            PID_STEALTH_BOY,
+            PID_GEIGER_COUNTER,
+            PID_MOTION_SENSOR,
+			PID_COLLAR,
+			PID_CIGARETTES,
+			PID_RPSTUFF1,
+			PID_MIRROR_SHADES,
+			PID_SPECTACLES,
+			PID_DAISIES,
+			PID_FLOWER,
+			PID_DICE,
+			PID_LOADED_DICE,
+			PID_DECK_OF_CARDS,
+			PID_MARKED_DECK_OF_CARDS,
+			PID_BLUE_CONDOM,
+			PID_GREEN_CONDOM,
+			PID_RED_CONDOM			
+        };
+
+        for( uint i = 0; i < items.length(); i++ )
+        {
+            if( !valid( cont.GetItem( items[ i ], 0 ) ) )
+			{
+			@ myitem = cont.AddItem( items[ i ], 1, 0 );
+			if( myitem.IsStackable() ) cont.AddItem( items[ i ], 199, 0 );
 			}
         }
         Item@[] allitems;
@@ -1920,7 +1914,7 @@ import void CharacterActiveNew(uint id) from "activation";
 
 bool _StartSurvival(Critter& cr){
 
-    CharacterActiveNew(cr.Id);
+    //CharacterActiveNew(cr.Id);
 /*
     bool inModoc = (Random(0,1) > 0 ? true : false);
 

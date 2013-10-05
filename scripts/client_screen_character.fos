@@ -4,6 +4,7 @@
 #define __ONE_MODE		//use adventure code
 
 #include "_defines.fos"
+#include "_macros.fos"
 #include "_client_defines.fos"
 #include "client_gui_h.fos"
 #include "_colors.fos"
@@ -65,6 +66,9 @@ import int GetIniValue(string& iniKey, int defaultValue) from "ini_parser";
 
 #define INFO_LENGTH         (10)
 #define SKILL_LENGTH        (20)
+
+#define SKILL_INC		(0)
+#define SKILL_DEC		(1)
 
 #define CRSTATUS_OFFSET	(900)
 
@@ -194,7 +198,7 @@ class CCharacterName : IGUIElementCallbackMouseClick, IGUIElementCallbackInit, I
     void OnInit(){
         @Options = GUI_GetElementOptions();
 	
-	Options.Text( __Name, FONT_BIG, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+	Options.Text( __Name, FONT_BIG, COLOR_SAND, COLOR_LGREEN, FT_CENTERX | FT_CENTERY );
     }
 /*
      void OnKeyPress( uint8 key, uint8 letter ){
@@ -213,7 +217,7 @@ class CCharacterName : IGUIElementCallbackMouseClick, IGUIElementCallbackInit, I
         if( text.length() > 0 && text[ text.length() - 1 ] == '\n' )
             text.resize( text.length() - 1 );
 
-        Options.Text( text, FONT_BIG, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+        Options.Text( text, FONT_BIG, COLOR_SAND, COLOR_LGREEN, FT_CENTERX | FT_CENTERY );
 
     }
 }
@@ -237,6 +241,10 @@ class CCharacterConfirm : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
                     Instance.SendInfo();
                     //NetLogin(3, "test", "test");
                 }*/
+		
+		::HideScreen(CLIENT_SCREEN_CHARACTER, 0, 0, 0);
+		
+		RunServerScriptUnsafe("general_unsafe@unsafe_charsSkillInc", 0, 0, 0, null, Instance.SkillValue);
         }
 
         void OnInit(){
@@ -260,7 +268,7 @@ class CCharacterAge : IGUIElementCallbackMouseClick, IGUIElementCallbackInit, IG
 
         void OnInit(){
             @Options = GUI_GetElementOptions();
-            //Options.Text( ""+14, FONT_BIG, COLOR_SAND, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            //Options.Text( ""+14, FONT_BIG, COLOR_SAND, COLOR_LGREEN, FT_CENTERX | FT_CENTERY );
         }
 
         void OnMouseClick(int click){
@@ -281,7 +289,7 @@ class CCharacterAge : IGUIElementCallbackMouseClick, IGUIElementCallbackInit, IG
 
             Age = uint8(age);
 
-            Options.Text( text, FONT_BIG, COLOR_GREEN, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            Options.Text( text, FONT_BIG, COLOR_LGREEN, COLOR_LGREEN, FT_CENTERX | FT_CENTERY );
         }
 
         void OnDraw(){
@@ -293,6 +301,85 @@ class CCharacterAge : IGUIElementCallbackMouseClick, IGUIElementCallbackInit, IG
             //Message("text = "+Text);
             //DrawText(""+Age, x+325, y+314, 600 , 600, COLOR_SAND, FONT_BIG,  0);
             DrawText(""+Age, x+AgeTextXY[0], y+AgeTextXY[1], Options.GetSurfaceWidth(), Options.GetSurfaceHeight(), COLOR_SAND, FONT_BIG,  FT_CENTERXY);
+        }
+}
+
+class CCharacterHealthShow : IGUIElementCallbackMouseClick, IGUIElementCallbackInit, IGUIElementCallbackDraw
+{
+	int x;
+	int y;
+	int[] infoShowTextXY;
+  
+	uint8	Index;
+        uint16 ParamIndex;
+
+        CCharacterScreen@ Instance;
+        IGUIElementOpt@ Options;
+	
+	CritterCl @ Choo;
+
+        CCharacterHealthShow(CCharacterScreen& instance, uint8 index, uint16 paramIndex){
+            ParamIndex = paramIndex;
+	    Index = index;
+
+            @Instance = instance;
+        }
+
+        void OnMouseClick(int click){
+            Instance.SetHelp(ParamIndex);
+        }
+
+        void OnInit(){
+            @Options = GUI_GetElementOptions();
+	    
+	    @Choo = GetChosen();
+	    
+	    x = Options.GetPosX();
+	    y = Options.GetPosY();
+	    
+	    infoShowTextXY.resize(2);
+	    
+	    infoShowTextXY[0] = 0;
+	    infoShowTextXY[1] = 0;
+	    
+	    infoShowTextXY = GetIniValues2(Index > 0 ? "TnfCharShowHPAText" : "TnfCharShowHPCText", infoShowTextXY);
+        }
+
+        void OnDraw(){
+
+            //string text = Instance.Param[ParamIndex];//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
+            //uint color = COLOR_LGREEN;
+           uint color = (COLOR_GRAY);
+	   
+	   if(Index == 0){
+		  uint8 col = Choo.ParamBase[ST_MAX_LIFE] / Choo.ParamBase[ST_CURRENT_HP];
+		  
+		  if(col <= 1){
+			  color = COLOR_GRAY;
+		  }else if(col == 2){
+			  color = COLOR_SAND;
+		  }else if(col > 2){
+			  color = COLOR_DRED;
+		  }
+	  }
+	  
+	  string text = (Choo.ParamBase[ParamIndex] > 99 ? "" : "0" + (Choo.ParamBase[ParamIndex] > 9 ? "" : "0"));
+	  text+=Choo.ParamBase[ParamIndex];
+	   
+              
+	    DrawText(""+text, Options.GetPosX() + infoShowTextXY[0], Options.GetPosX() + infoShowTextXY[1], 53 , 28, color, FONT_BIG_NUM,  0);
+        }
+
+        void Switch(){
+            //Options.Switch(IsSet);
+        }
+
+        void Visible(bool vis){
+            Options.SetVisible(vis);
+        }
+
+        void SetParamIndex(uint16 paramIndex){
+            ParamIndex = paramIndex;
         }
 }
 
@@ -389,7 +476,7 @@ class CCharacterStatDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
         CCharacterStatDesc(CCharacterScreen& instance, uint8 index, uint16 paramIndex){
 
             Index = index;
-            ParamIndex = (Index != 7 ? paramIndex : STR_UNXP_SPECIAL);
+            ParamIndex = (Index != 7 ? paramIndex : ST_LEVEL);
             Text = "";
 
             @Instance = instance;
@@ -405,7 +492,7 @@ class CCharacterStatDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
 /*
             string text = GetMsgStr(TEXTMSG_GAME, (Index != 7 ?STR_STAT_NAME+ParamIndex : (STR_STAT_FULL+ParamIndex) * 10));
 
-            Options.Text(""+text, FONT_BIG, COLOR_WHITE, COLOR_GREEN, FT_CENTERX | FT_CENTERY );
+            Options.Text(""+text, FONT_BIG, COLOR_WHITE, COLOR_LGREEN, FT_CENTERX | FT_CENTERY );
             Text = text;*/
         }
 
@@ -414,8 +501,8 @@ class CCharacterStatDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
             int x = Options.GetPosX(), y = Options.GetPosY();
 
             uint color = COLOR_SAND;
-            string text = GetMsgStr(TEXTMSG_GAME, (Index != 7 ?STR_STAT_NAME+ParamIndex : (STR_STAT_FULL+ParamIndex) * 10));
-
+            string text = GetMsgStr(TEXTMSG_GAME, (Index != 7 ? STR_STAT_NAME+ParamIndex : (STR_STAT_FULL+ParamIndex) * 10));
+	    
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 
             //string text = Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
@@ -453,7 +540,7 @@ class CCharacterStatShow : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
     void OnInit(){
         @Options = GUI_GetElementOptions();
 	
-	RealStat = GetChosen().StatBase[ParamIndex];
+	RealStat = GetChosen().ParamBase[ParamIndex];
 
 
         //Text(Instance.StatValue[Index]);
@@ -462,14 +549,14 @@ class CCharacterStatShow : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
 
     void OnDraw(){
 
-        int statVal = (Index != 7 ? (Instance.Param[ParamIndex] + Instance.Param[ParamIndex+ST_STRENGTH_EXT]) : Instance.UnxpStat);
+        int statVal = (Index != 7 ? (Instance.Param[ParamIndex] + Instance.Param[ParamIndex+ST_STRENGTH_EXT]) : Instance.Param[ParamIndex]);
 	
 	if(statVal < 1) statVal = 1;
 
         //Message("st_ext "+ParamIndex+" value"+Instance.Param[ParamIndex+ST_STRENGTH_EXT]);
 
         string text = Text(uint8(statVal));
-        uint color = (RealStat != Instance.Param[ParamIndex] ? COLOR_RED : COLOR_WHITE);//(Index != 7 ? COLOR_WHITE : (Instance.UnxpStat > 0 ? COLOR_WHITE : COLOR_RED));
+        uint color = (RealStat != Instance.Param[ParamIndex] ? COLOR_RED : COLOR_GRAY);//(Index != 7 ? COLOR_WHITE : (Instance.UnxpStat > 0 ? COLOR_WHITE : COLOR_RED));
 	
 	/*
         if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;} //gamemode
@@ -521,6 +608,8 @@ class CCharacterSkillDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIn
 
         void OnMouseClick(int click){
             Instance.SetHelp(ParamIndex);
+	    Instance.CurrentSkill = ParamIndex;
+	    Instance.SetSkillIncPos(Options.GetPosY());
         }
 
         void OnInit(){
@@ -530,7 +619,7 @@ class CCharacterSkillDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIn
 
             //string text = GetMsgStr(TEXTMSG_GAME, STR_SKILL*10+Index*10+1);
 
-            //Options.Text(""+text, FONT_FALLOUT, COLOR_GREEN, COLOR_GREEN, FT_CENTERY );
+            //Options.Text(""+text, FONT_FALLOUT, COLOR_LGREEN, COLOR_LGREEN, FT_CENTERY );
         }
 
         void OnDraw(){
@@ -542,14 +631,14 @@ class CCharacterSkillDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIn
 	    //Character screen comment
 	    /*
 	    bool isTagSet = Instance.TagBtn[Index].IsSet;
-            uint color = (isTagSet ? COLOR_GRAY : COLOR_GREEN);
+            uint color = (isTagSet ? COLOR_GRAY : COLOR_LGREEN);
 
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 */
 
             int x = Options.GetPosX(), y = Options.GetPosY();
 
-            DrawText(""+text, x+infoSkillDescTextXY[0], y+infoSkillDescTextXY[1], 200, 40, COLOR_GREEN, FONT_FALLOUT,  0);
+            DrawText(""+text, x+infoSkillDescTextXY[0], y+infoSkillDescTextXY[1], 200, 40, COLOR_LGREEN, FONT_FALLOUT,  0);
         }
 }
 
@@ -573,6 +662,8 @@ class CCharacterSkillShow : IGUIElementCallbackMouseClick, IGUIElementCallbackIn
 
     void OnMouseClick(int click){
         Instance.SetHelp(ParamIndex);
+	Instance.CurrentSkill = ParamIndex;
+	Instance.SetSkillIncPos(Options.GetPosY());
     }
 
     void OnInit(){
@@ -588,7 +679,7 @@ class CCharacterSkillShow : IGUIElementCallbackMouseClick, IGUIElementCallbackIn
         //Character screen comment
         /*
 	bool isTagSet = Instance.TagBtn[Index].IsSet;
-        uint color = (isTagSet ? COLOR_GRAY : COLOR_GREEN);
+        uint color = (isTagSet ? COLOR_GRAY : COLOR_LGREEN);
 
         if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 
@@ -597,9 +688,9 @@ class CCharacterSkillShow : IGUIElementCallbackMouseClick, IGUIElementCallbackIn
         int x = Options.GetPosX(), y = Options.GetPosY();
 
 
+	//Message("len "+Instance.SkillValue.length()+" "+(SKILL_END-ParamIndex-1)+" "+Instance.SkillShow.length());
 
-
-        DrawText(""+Text(Instance.Param[ParamIndex]), x+infoSkillShowTextXY[0], y+infoSkillShowTextXY[1], 40 , 40, COLOR_GREEN, FONT_FALLOUT,  0);
+        DrawText(""+Text(Instance.Param[ParamIndex]+Instance.SkillValue[ParamIndex-SKILL_BEGIN]), x+infoSkillShowTextXY[0], y+infoSkillShowTextXY[1], 40 , 40, COLOR_LGREEN, FONT_FALLOUT,  0);
     }
 
     void SetValue(){}
@@ -705,7 +796,7 @@ class CCharacterInfoShow : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
             int x = Options.GetPosX(), y = Options.GetPosY();
 
             //string text = Instance.Param[ParamIndex];//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
-            uint color = COLOR_GREEN;
+            uint color = COLOR_LGREEN;
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 
             uint statVal = (Instance.Param[ParamIndex]);
@@ -757,7 +848,7 @@ class CCharacterInfoDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
             int x = Options.GetPosX(), y = Options.GetPosY();
 
             string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+3);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
-            uint color = COLOR_GREEN;
+            uint color = COLOR_LGREEN;
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 
             DrawText(""+text, x+325, y+314, 200 , 40, color, FONT_FALLOUT,  0);
@@ -809,7 +900,7 @@ class CCharacterTraitDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIn
 
             string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+1);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
 
-            uint color = (IsSet ? COLOR_GRAY : COLOR_GREEN);
+            uint color = (IsSet ? COLOR_GRAY : COLOR_LGREEN);
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 
             DrawText(""+text, x+325, y+314, 200 , 40, color, FONT_FALLOUT,  0);
@@ -875,7 +966,7 @@ class CCharacterTraitBtn : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
 
             //string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+1);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
 
-            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_GREEN, FONT_FALLOUT,  0);
+            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_LGREEN, FONT_FALLOUT,  0);
         }
 
         void Switch(){
@@ -928,7 +1019,7 @@ class CCharacterPerkDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
 
             string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+1);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
 
-            uint color = (IsSet ? COLOR_GRAY : COLOR_GREEN);
+            uint color = (IsSet ? COLOR_GRAY : COLOR_LGREEN);
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 
             DrawText(""+text, x+325, y+314, 200 , 40, color, FONT_FALLOUT,  0);
@@ -998,7 +1089,7 @@ class CCharacterPerkBtn : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
 
             //string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+1);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
 
-            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_GREEN, FONT_FALLOUT,  0);
+            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_LGREEN, FONT_FALLOUT,  0);
         }
 
         void Switch(){
@@ -1060,7 +1151,7 @@ class CCharacterPerkMoveBtn : IGUIElementCallbackMouseClick, IGUIElementCallback
 
             //string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+1);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
 
-            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_GREEN, FONT_FALLOUT,  0);
+            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_LGREEN, FONT_FALLOUT,  0);
         }
 
         void Visible(bool vis){
@@ -1184,11 +1275,11 @@ class CCharacterInfoShow : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
         void OnDraw(){
 
             //string text = Instance.Param[ParamIndex];//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
-            //uint color = COLOR_GREEN;
+            //uint color = COLOR_LGREEN;
 
             IsSet = (ParamIndex >= SKILL_BEGIN && Instance.Param[ParamIndex] != 0);
 
-            uint color = (IsSet ? COLOR_GRAY : COLOR_GREEN);
+            uint color = (IsSet ? COLOR_GRAY : COLOR_LGREEN);
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 
             uint statVal = (Instance.Param[ParamIndex]);
@@ -1258,25 +1349,29 @@ class CCharacterInfoDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
 
             string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+1);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
 
-            IsSet = (ParamIndex == Instance.Param[TAG_SKILL1] || ParamIndex == Instance.Param[TAG_SKILL2] || ParamIndex == Instance.Param[TAG_SKILL3] || ParamIndex == Instance.Param[TAG_SKILL4]);//(ParamIndex >= SKILL_BEGIN && Instance.Param[ParamIndex] != 0);
+            //IsSet = (ParamIndex == Instance.Param[TAG_SKILL1] || ParamIndex == Instance.Param[TAG_SKILL2] || ParamIndex == Instance.Param[TAG_SKILL3] || ParamIndex == Instance.Param[TAG_SKILL4]);//(ParamIndex >= SKILL_BEGIN && Instance.Param[ParamIndex] != 0);
+            //IsSet = (ParamIndex >= DAMAGE_BEGIN && Instance.Param[ParamIndex] > 0);
 	    
-            uint color = (IsSet ? COLOR_GRAY : COLOR_GREEN);
-            if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
+            uint color = (Instance.IsStatusAvalible(ParamIndex) ? COLOR_LGREEN : COLOR_DGREEN);//(IsSet ? COLOR_LGREEN : COLOR_GRAY);
+            //if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {color = COLOR_LGRAY;}   //gamemode
 
             int x = Options.GetPosX(), y = Options.GetPosY();
             int[] infoDescTextXY = {225, 363};
 
             infoDescTextXY = GetIniValues2("TnfRegInfoDescText", infoDescTextXY);
 	    
+	    DrawText(""+text, x+infoDescTextXY[0], y+infoDescTextXY[1], 200 , 40, color, FONT_FALLOUT,  0);
+	    
 	    if(ParamIndex == ST_HUNGER || ParamIndex == ST_THRIST || ParamIndex == ST_DYSPNEA){
 	      /*text += "\t\t\t";
 	      for(uint8 i = 0, j = Instance.Param[ParamIndex] / 100 + 1; i<j; ++i){
 		      text += " #";
 	      }*/
+	      
 	      DrawStatus(ParamIndex, x+infoDescTextXY[0], y+infoDescTextXY[1]);
-	    }else{
-	      DrawText(""+text, x+infoDescTextXY[0], y+infoDescTextXY[1], 200 , 40, color, FONT_FALLOUT,  0);
-	    }
+	    }//else{
+	     // DrawText(""+text, x+infoDescTextXY[0], y+infoDescTextXY[1], 200 , 40, color, FONT_FALLOUT,  0);
+	    //}
 	    
         }
         
@@ -1293,8 +1388,8 @@ class CCharacterInfoDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
 			//DrawBar(x, x+200, y, dyspneaProc, COLOR_DBLUE, COLOR_WHITE, false, false, "Воздух");
 		  //}
 		  
-		  uint color0 = COLOR_GREEN;
-		  uint color1 = COLOR_GREEN;
+		  uint color0 = COLOR_LGREEN;
+		  uint color1 = COLOR_LGREEN;
 		  
 		  string text = "";
 
@@ -1312,60 +1407,57 @@ class CCharacterInfoDesc : IGUIElementCallbackMouseClick, IGUIElementCallbackIni
 		    }
 		  }
 		  
-		  DrawBar(x, x+200, y, proc, color0, color1, false, false, "");
+		  DrawBar(x+75, x+200, y, proc, color0, color1, false, false, "");
             }
 	}
         
-    void DrawBar(int startX, int endX, int startY, uint8 proc, uint color0, uint color1, bool invertX, bool invertY, string text){
-	  int[] drawData;
+	  void DrawBar(int startX, int endX, int startY, uint8 proc, uint color0, uint color1, bool invertX, bool invertY, string text){
+		int[] drawData;
 
-    uint8 r0 = 0x15,
-           g0 = 0x1F,
-           b0 = 0x00,
+		uint8 r0 = 0x15,
+		g0 = 0x1F,
+		b0 = 0x00,
 
-           r1 = 0x67,
-           g1 = 0x60,
-           b1 = 0x00;
+		r1 = 0x67,
+		g1 = 0x60,
+		b1 = 0x00;
 
-	   proc = CLAMP(proc, 0, 100);
+		proc = CLAMP(proc, 0, 100);
 
-	if(color0 != 0 && color1 != 0){
-		uint8 a = 0;
-		__GetColor(a, r0, g0, b0, color0);
-		__GetColor(a, r1, g1, b1, color1);
+		if(color0 != 0 && color1 != 0){
+			uint8 a = 0;
+			__GetColor(a, r0, g0, b0, color0);
+			__GetColor(a, r1, g1, b1, color1);
+		}
+
+		uint16 tempY = (endX - startX) * (proc * 0.01);
+	
+
+		for( uint16 i = 0; i < tempY; ++i ){
+			i += 3;
+
+			drawData.insertLast( startX + i );
+			drawData.insertLast( startY/* - i*/ );
+			drawData.insertLast( COLOR_RGB( r0, g0, b0 ) );
+
+			drawData.insertLast( startX /*+ 5*/ + i );
+			drawData.insertLast( startY /*- i*/ + 5 );
+			drawData.insertLast( COLOR_RGB( r1, g1, b1 ) );
+
+			drawData.insertLast( startX/* + 5 */ + i);
+			drawData.insertLast( startY/* - i*/ + 5 );
+			drawData.insertLast( COLOR_RGB( r1, g1, b1 ) );
+
+			drawData.insertLast( startX /*+ 8*/ + i );
+			drawData.insertLast( startY /*- i*/ + 8 );
+			drawData.insertLast( COLOR_RGB( r0, g0, b0 ) );
+
+
+		}
+  
+		DrawPrimitive( DRAW_PRIMITIVE_LINELIST, drawData );
+		DrawText( ""+text, endX + 10, startY, 70, 10, COLOR_RGB( r1, g1, b1 ), FONT_FALLOUT, 0 );
 	}
-
-	uint16 tempY = (endX - startX) * (proc * 0.01);
-	//Message("startY "+startY+" : "+tempY);
-	//( ( EXPBAR_POS_Y - EXPBAR_LINE_END ) * ( allTime > 0 ? timeMod * 0.01 :  expMod * 0.01 ) );
-
-    for( uint16 i = 0; i < tempY; ++i )
-    {
-        i += 3;
-
-        drawData.insertLast( startX + i );
-        drawData.insertLast( startY/* - i*/ );
-        drawData.insertLast( COLOR_RGB( r0, g0, b0 ) );
-
-        drawData.insertLast( startX /*+ 5*/ + i );
-        drawData.insertLast( startY /*- i*/ + 5 );
-        drawData.insertLast( COLOR_RGB( r1, g1, b1 ) );
-
-        drawData.insertLast( startX/* + 5 */ + i);
-        drawData.insertLast( startY/* - i*/ + 5 );
-        drawData.insertLast( COLOR_RGB( r1, g1, b1 ) );
-
-        drawData.insertLast( startX /*+ 8*/ + i );
-        drawData.insertLast( startY /*- i*/ + 8 );
-        drawData.insertLast( COLOR_RGB( r0, g0, b0 ) );
-
-
-    }
-
-   // DrawSprite( expbar.Id, -1, EXPBAR_POS_X - 42, EXPBAR_POS_Y - 210, 0 );
-    DrawPrimitive( DRAW_PRIMITIVE_LINELIST, drawData );
-     DrawText( ""+text, endX + 10, startY, 70, 10, COLOR_RGB( r1, g1, b1 ), FONT_FALLOUT, 0 );
-}
 
         void Switch(){
             //Options.Switch(IsSet);
@@ -1412,7 +1504,7 @@ class CCharacterInfoBtn : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
             if(Instance.Param[QST_GAMEMODE] == GAME_ARCADE) {return;}   //gamemode
             if(Instance.Param[QST_GAMEMODE] != GAME_ADVENTURE && Instance.ArchiveIndex == INFO_INDEX_PERK) {return;}
 
-	    Message("set "+IsSet);
+	    //Message("set "+IsSet);
 
             if(IsSet){// && Instance.UnxpTrait > 0
                 if(Instance.ArchiveIndex == INFO_INDEX_PERK){
@@ -1449,7 +1541,7 @@ class CCharacterInfoBtn : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
 
             //string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+1);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
 
-            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_GREEN, FONT_FALLOUT,  0);
+            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_LGREEN, FONT_FALLOUT,  0);
         }
 
         void Switch(){
@@ -1499,7 +1591,7 @@ class CCharacterInfoMoveBtn : IGUIElementCallbackMouseClick, IGUIElementCallback
                 Instance.PerkMoveUp();
             }
 
-            Message(""+Index);
+            //Message(""+Index);
         }
 
         void OnInit(){
@@ -1512,7 +1604,7 @@ class CCharacterInfoMoveBtn : IGUIElementCallbackMouseClick, IGUIElementCallback
 
             //string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+1);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
 
-            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_GREEN, FONT_FALLOUT,  0);
+            //DrawText(""+text, x+325, y+314, 40 , 40, COLOR_LGREEN, FONT_FALLOUT,  0);
         }
 
         void Visible(bool vis){
@@ -1559,6 +1651,84 @@ class CCharacterHelp : IGUIElementCallbackInit, IGUIElementCallbackDraw
         }
 }
 
+class CCharacterSkillIncreaser : IGUIElementCallbackMouseClick, IGUIElementCallbackInit
+{
+	bool Increase;
+  
+	CCharacterScreen@ Instance;
+	IGUIElementOpt@ Options;
+  
+	CCharacterSkillIncreaser(CCharacterScreen& instance, bool increase){
+		@Instance = instance;
+		
+		Increase = increase;
+	}
+	
+	void OnInit(){
+		@Options = GUI_GetElementOptions();
+		@Instance.SkillIncreaser[(Increase ? SKILL_INC : SKILL_DEC)] = this;
+		Options.SetVisible(Instance.Param[ST_UNSPENT_SKILL_POINTS] > 0);
+	}
+	
+	void OnMouseClick(int click){
+		Instance.SkillIncrease(Increase);
+	}
+	
+	void SetPos(int y){
+		y += (Increase ? -5 : 5);
+		Options.Position(Options.GetPosX(), y, 16, 12);
+	}
+	
+	void SetVis(bool vis){
+		Options.SetVisible(vis);
+	}
+	
+	
+}
+
+class CCharacterSkillSlider : IGUIElementCallbackInit
+{
+	IGUIElementOpt@ Options;
+	
+	CCharacterSkillSlider(){}
+	
+	void OnInit(){}
+}
+
+class CCharacterSkillUnxShow : IGUIElementCallbackMouseClick, IGUIElementCallbackInit, IGUIElementCallbackDraw
+{
+  
+	int[] SkillUnxShowTextXY;
+
+        CCharacterScreen@ Instance;
+        IGUIElementOpt@ Options;
+
+        CCharacterSkillUnxShow(CCharacterScreen& instance){
+
+            @Instance = instance;
+            //@Instance.InfoMoveBtn[Index] = this;
+
+        }
+
+        void OnMouseClick(int click){
+            Instance.SetHelp(ST_UNSPENT_SKILL_POINTS);
+        }
+
+        void OnInit(){
+            @Options = GUI_GetElementOptions();
+	    
+	    //SkillUnxShowTextXY = GetIniValues2("TnfChaSkillUnx", SkillUnxShowTextXY);
+        }
+
+        void OnDraw(){
+
+            int x = Options.GetPosX(), y = Options.GetPosY();
+
+            //string text = GetMsgStr(TEXTMSG_GAME, (STR_STAT_FULL+ParamIndex)*10+1);//Text(Index != 7 ? Instance.Param[ParamIndex] : Instance.UnxpStat);
+
+            DrawText(""+Instance.Param[ST_UNSPENT_SKILL_POINTS], x+SkillUnxShowTextXY[0], y+SkillUnxShowTextXY[1], 40 , 40, COLOR_GRAY, FONT_BIG_NUM,  0);
+        }
+}
 
 
 class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScreenCallbackMove
@@ -1566,6 +1736,9 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
     int8   UnxpStat;
     int8   UnxpTag;
     int8   UnxpTrait;
+    
+    uint16 UnxpSkill;
+    uint16	CurrentSkill;
 
     uint8   ArchiveIndex;
 
@@ -1575,9 +1748,11 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
 
     //uint16[]   Perks;
     uint16[][] Info;
+    
+    uint CritterId;
 
     //uint8[] StatValue;
-    //uint16[] SkillValue;
+    int[] SkillValue;
 
     int[]   Param;                  //all character params Critter::Param[]
 
@@ -1606,6 +1781,8 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
     CCharacterArchiveMask@[]         ArchiveMask;
 
     CCharacterInfoMoveBtn@[]         InfoMoveBtn;
+    
+    CCharacterSkillIncreaser@[]		SkillIncreaser;
 
     //CCharacterSkinSelectButton@[]   SkinSelectBtn;
 
@@ -1624,7 +1801,9 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
         Param.resize(1000);
 
         //PerkSetAvalible();
-        SetInfo();
+        
+	//Info.resize(3);
+	SetInfo();
         InfoIndexCurrent.resize(3);// = 0;
 
         for(uint8 i = 0, j = InfoIndexCurrent.length(); i<j;++i){
@@ -1634,6 +1813,10 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
         UnxpStat = 5;
         UnxpTag = 3;
         UnxpTrait = 2;
+	
+	CurrentSkill = SKILL_BEGIN;
+	
+	SkillArrClear();
     }
 
 
@@ -1641,7 +1824,7 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
     {
         @ScreenOpt = GUI_GetScreenOptions();
 	
-	DropSelectSkin();
+	//DropSelectSkin();
 
         //UnxpStat = 5;
         //UnxpTag = 3;
@@ -1652,7 +1835,19 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
         //TraitClear();
         //PerkClear();
 	
-	ParamInsertFromCritter(GetChosen());
+	//-1 default
+	CritterId = (p0 > 0 ? p0 : 0);
+	
+	//Message("load inventory id"+p0);
+	
+	ParamInsertFromCritter(p0 > 0 ? GetCritter(p0) : GetChosen());
+	SkillArrClear();
+	SetSkillIncVis();
+	
+	SetSkillIncPos(SkillShow[0].Options.GetPosY());
+	
+	UnxpSkill = Param[ST_UNSPENT_SKILL_POINTS];
+	//SetInfo();
 	
 #ifdef __ONE_MODE
 	Param[QST_GAMEMODE] = GAME_ADVENTURE;
@@ -1673,15 +1868,74 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
 
     }
     
+    void SetSkillIncVis(){
+      
+	  bool vis =  (Param[ST_UNSPENT_SKILL_POINTS] > 0);
+	  
+	  SkillIncreaser[SKILL_INC].SetVis(vis);
+	  SkillIncreaser[SKILL_DEC].SetVis(vis);
+    }
+    
+    void SetSkillIncPos(int y){
+	  SkillIncreaser[SKILL_INC].SetPos(y);
+	  SkillIncreaser[SKILL_DEC].SetPos(y);
+    }
+    
+    void SkillArrClear(){
+	  SkillValue.resize(SKILL_LENGTH);
+	  
+	  for(uint8 i = 0, j = SkillValue.length(); i < j; ++i){
+		 SkillValue[i] = 0;
+	  }
+    }
+    
+    void SkillIncrease(bool increase){
+      
+		uint skillMod = 1;
+		uint16 skill = (Param[CurrentSkill]+SkillValue[CurrentSkill-SKILL_BEGIN]);
+		
+		//Message("skill mod "+__SkillModAdd2+" "+__SkillModAdd3+" "+__SkillModAdd4);
+		
+		if(skill >= __SkillModAdd2){
+			skillMod = 2;
+		}
+		if(skill >= __SkillModAdd3){
+			skillMod = 3;
+		}
+		if(skill >= __SkillModAdd4){
+			skillMod = 4;
+		}
+		if(skill >= __SkillModAdd5){
+			skillMod = 5;
+		}
+		if(skill >= __SkillModAdd6){
+			skillMod = 6;
+		}
+      
+		if(increase){
+			if(Param[ST_UNSPENT_SKILL_POINTS] >= skillMod){Param[ST_UNSPENT_SKILL_POINTS] -= skillMod;SkillValue[CurrentSkill-SKILL_BEGIN]++;}
+		}else{
+			if(SkillValue[CurrentSkill-SKILL_BEGIN] > 0){
+				
+				if(skill == __SkillModAdd2 || skill == __SkillModAdd3 || skill == __SkillModAdd4 || skill == __SkillModAdd5 || skill == __SkillModAdd6){
+					skillMod -= 1;
+				}
+			  
+				Param[ST_UNSPENT_SKILL_POINTS] += skillMod;
+				SkillValue[CurrentSkill-SKILL_BEGIN]--;
+			}
+		}
+    }
+    
     void ParamInsertFromCritter(CritterCl@ cr){
       
 	if(cr is null) return;
       
 	for(uint i = 0; i < 1000; ++i){
-		Param[i] = cr.ParamBase[i];
-		if(i < 100){
+		Param[i] = cr.Param[i];
+		/*if(i < 100){
 			Message("i "+Param[i]+" "+cr.ParamBase[i]);
-		}
+		}*/
 	}
     }
 /*
@@ -1842,6 +2096,9 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
     void InfoSetAvalible(uint16[]& infos){
 
             infos.resize(0);
+	    
+	    //infos.insertLast(ST_KILL_EXPERIENCE);
+	    infos.insertLast(ST_EXPERIENCE);
 
             for(uint16 i = ST_MAX_LIFE; i <= ST_MAX_CRITICAL; ++i){
                     infos.insertLast(i);
@@ -1850,6 +2107,15 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
             infos.insertLast(ST_NORMAL_RESIST);
             infos.insertLast(ST_POISON_RESISTANCE);
             infos.insertLast(ST_RADIATION_RESISTANCE);
+	    infos.insertLast(ST_RADIATION_RESISTANCE);
+	    
+	    for(uint16 i = TRAIT_BEGIN; i <= TRAIT_END; ++i){
+		  if(Param[i] > 0){infos.insertLast(i);}
+	    }
+	    
+	    for(uint16 i = PERK_BEGIN; i <= PERK_END; ++i){
+		  if(Param[i] > 0){infos.insertLast(i);}
+	    }
     }
     
     void StatusSetAvalible(uint16[]& status){
@@ -1860,16 +2126,50 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
 	    status.insertLast(ST_THRIST);
 	    status.insertLast(ST_DYSPNEA);
 
-            for(uint16 i = DAMAGE_BEGIN; i < DAMAGE_END; ++i){
+            for(uint16 i = DAMAGE_BEGIN; i <= DAMAGE_END; ++i){
                     status.insertLast(i);
             }
             
+            /*status.insertLast(ST_BLOOD_TOXIC);
+	    status.insertLast(ST_OVERDOSE);
+	    status.insertLast(ST_BLEED);*/
+	    
+	    /*
+		CR_STATUS_BLEED                          ( 0x001 )
+		CR_STATUS_STIMPAK_OVER                   ( 0x002 )
+		CR_STATUS_ILL                            ( 0x004 )
+		CR_STATUS_BLOOD_TOXIC                    ( 0x008 )
+		CR_STATUS_HEAVY_DMG                      ( 0x010 )
+		CR_STATUS_POWDER_OVER                    ( 0x020 )
+		CR_STATUS_BULLET_OVER 
+		*/
+            
             //crstatus
-            for(uint16 i = 0; i < 5; ++i){
+            for(uint16 i = 0; i < 7; ++i){
                     status.insertLast(CRSTATUS_OFFSET + i);
             }
             
             
+    }
+    
+    bool IsStatusAvalible(uint16 stat){
+      
+	bool r = false;
+	
+	if(stat <= ST_HUNGER) {r = true;}
+	else if(stat == ST_THRIST) {r = true;}
+	else if(stat == ST_DYSPNEA){r = true;}
+	else if(stat >= DAMAGE_BEGIN && stat <= DAMAGE_END){r = (Param[stat] > 0);}
+	else if(stat == CRSTATUS_OFFSET){r = (FLAG(Param[ST_CRSTATUS], CR_STATUS_BLEED));}
+	else if(stat == CRSTATUS_OFFSET+1){r = (FLAG(Param[ST_CRSTATUS], CR_STATUS_STIMPAK_OVER));}
+	else if(stat == CRSTATUS_OFFSET+2){r = (FLAG(Param[ST_CRSTATUS], CR_STATUS_ILL));}
+	else if(stat == CRSTATUS_OFFSET+3){r = (FLAG(Param[ST_CRSTATUS], CR_STATUS_BLOOD_TOXIC));}
+	else if(stat == CRSTATUS_OFFSET+4){r = (FLAG(Param[ST_CRSTATUS], CR_STATUS_HEAVY_DMG));}
+	else if(stat == CRSTATUS_OFFSET+5){r = (FLAG(Param[ST_CRSTATUS], CR_STATUS_POWDER_OVER));}
+	else if(stat == CRSTATUS_OFFSET+6){r = (FLAG(Param[ST_CRSTATUS], CR_STATUS_BULLET_OVER));}
+	
+	return r;
+	    
     }
 /*
     void TraitSet(uint16 paramIndex){
@@ -2051,7 +2351,7 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
 
                 uint16 avParamIndex = (i + InfoIndexCurrent[index]);
 		
-		Message("i "+i+" "+index+" "+InfoIndexCurrent[index]+" "+avParamIndex);
+		//Message("i "+i+" "+index+" "+InfoIndexCurrent[index]+" "+avParamIndex);
 
                 InfoDesc[i].SetParamIndex(avalibleParam[avParamIndex]);
                 InfoShow[i].SetParamIndex(avalibleParam[avParamIndex]);
@@ -2138,7 +2438,7 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
     }*/
 
     void LoadAnimationIndex(uint16 index)
-    {
+    {/*
         string@[] @ temp_anim = split( GetMsgStr( TEXTMSG_GAME, index ), " " );
         string@[] @ temp_crtype = split( GetMsgStr( TEXTMSG_GAME, index+1 ), " " );
 
@@ -2162,7 +2462,7 @@ class CCharacterScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScr
 
             // Message(""+crTypes[i]+" "+temp_crtype[i]);
             // Message(""+crTypes[i]);
-        }
+        }*/
     }
 
 
@@ -2254,6 +2554,8 @@ class CCharacterSkinSelectorImage : IGUIElementCallbackInit, IGUIElementCallback
     int XX;
     uint Counter;
     Sprite Spr;
+    
+    string SprName;
 
     CCharacterScreen@ 	Instance;
     IGUIElementOpt@            Options;
@@ -2265,11 +2567,24 @@ class CCharacterSkinSelectorImage : IGUIElementCallbackInit, IGUIElementCallback
 
         Dir = 3;
         Counter = 0;
+	
     }
 
     void OnInit()
     {
         @Options = GUI_GetElementOptions();
+	
+	SprName = GetCritterTypeName(GetChosen().StatBase[ST_BASE_CRTYPE]);
+	//Message("sprname "+SprName+" "+"art\\critters\\"+SprName+"aa.frm");
+	
+	X  = GetIniValue("TnfCharSprOffX", X);
+	XX = 0;//Options.GetPosX()+Options.GetSurfaceWidth();
+	Y  = GetIniValue("TnfCharSprOffY", Y);
+	
+	uint hash = GetStrHash("art\\critters\\"+SprName+"aa.frm");
+
+        Spr.Load(hash, uint8(Dir));
+        Spr.DrawFrame = 0;
 	
 	//Character screen comment
 
@@ -2286,13 +2601,13 @@ class CCharacterSkinSelectorImage : IGUIElementCallbackInit, IGUIElementCallback
 	
 	
 	
-	Instance.SetSkinImage(0/*Instance.Param[ST_BASE_CRTYPE]*/, 3);
+	//Instance.SetSkinImage(0/*Instance.Param[ST_BASE_CRTYPE]*/, 3);
 	
 	//Message("XXXX "+X+" "+XX+" "+Y);
     }
 
     void OnDraw(){
-        int /*x = Options.GetPosX()+310, y = Options.GetPosY()+300,*/ xOff = 0, yOff = 60, sprOff = 0;
+        //int /*x = Options.GetPosX()+310, y = Options.GetPosY()+300,*/ xOff = 0, yOff = 60, sprOff = 0;
 /*
         if(Dir == 1 || Dir == 4){
             xOff = 10;
@@ -2300,11 +2615,12 @@ class CCharacterSkinSelectorImage : IGUIElementCallbackInit, IGUIElementCallback
             xOff = -10;
         }*/
 
-	xOff = (XX - X) * 0.5;
+	//xOff = (XX - X) * 0.5;
 	
-	sprOff = Spr.Width * 0.5;
+	//sprOff = Spr.Width * 0.5;
 
-        DrawSprite( Spr.Id, 0, X+xOff-sprOff+200, Y+yOff, 0 );
+        DrawSprite( Spr.Id, 0, X, Y, 0 );
+	//DrawSprite( Spr.Id, 0, 200, 200, 0 );
 
         Counter++;
 
@@ -2536,7 +2852,7 @@ class CCharacterGenderSelect : IGUIElementCallbackInit, IGUIElementCallbackMouse
             Options.UpPic(PicOff[State]);
             Options.DownPic(PicOn[State]);
 
-            Options.Text(""+BtnMark, FONT_BIG, COLOR_GREEN, COLOR_DRED, FT_CENTERX | FT_CENTERY | FT_NOBREAK );
+            Options.Text(""+BtnMark, FONT_BIG, COLOR_LGREEN, COLOR_DRED, FT_CENTERX | FT_CENTERY | FT_NOBREAK );
     }
 
     void DropBtn(){
@@ -2615,7 +2931,7 @@ class CCharacterGameModeSelect : IGUIElementCallbackInit, IGUIElementCallbackMou
                 State = GAME_ADVENTURE;
             }
 
-            Message("state "+State);
+            //Message("state "+State);
 
             //State = CLAMP(State, GAME_ADVENTURE, GAME_ARCADE);
 
@@ -2692,6 +3008,10 @@ class CCharacterAgeShow : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
 
     CCharacterScreen@ Instance;
     // InputCode @ Code;
+    
+    int16 x;
+    int16 y;
+    
     uint16 Age;
     int[] AgeTextXY;
 
@@ -2709,7 +3029,8 @@ class CCharacterAgeShow : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
 	
 	Age = Instance.Param[ST_AGE];
 	
-	int x = Options.GetPosX(), y = Options.GetPosY();
+	x = Options.GetPosX();
+	y = Options.GetPosY();
 	
 	AgeTextXY[0] += x;
 	AgeTextXY[1] += y;
@@ -2727,7 +3048,7 @@ class CCharacterAgeShow : IGUIElementCallbackInit, IGUIElementCallbackMouseClick
 
         //GetOutParam(ST_AGE, Age);
 
-        //DrawText(""+Age, x+AgeTextXY[0], y+AgeTextXY[1], 30 , 40, COLOR_WHITE, FONT_BIG_NUM,  FT_CENTERR);
+        DrawText(""+Age, x+AgeTextXY[0], y+AgeTextXY[1], 30 , 40, COLOR_GRAY, FONT_BIG_NUM,  FT_CENTERR);
     }
 }
 
@@ -2812,7 +3133,7 @@ void InitCharacterScreen()
     .DownPic( "ebut_in.frm" );*/
 
     CCharacterScreen CharScreen;
-    GUI_CreateScreen( CLIENT_SCREEN_CHARACTER, "tnf_reg_screen.png" )
+    GUI_CreateScreen( CLIENT_SCREEN_CHARACTER, "tnf_cha_screen.png" )
     .CallbackShow( CharScreen )
     .CallbackHide( CharScreen )
     //.CallbackMove( LoginScreen )
@@ -2834,6 +3155,8 @@ void InitCharacterScreen()
 
     CharScreen.InfoShow.resize(INFO_LENGTH);
     CharScreen.InfoDesc.resize(INFO_LENGTH);
+    
+    CharScreen.SkillIncreaser.resize(2);
     //CharScreen.InfoBtn.resize(INFO_LENGTH);
 /*
     CharScreen.TraitDesc.resize(16);
@@ -2855,6 +3178,19 @@ void InitCharacterScreen()
     .CallbackMouseClick( skinShow )
     // .Position(GetIfaceIniStr("RegChaSel"))
     .DownPic( GetIfaceIniStr( "RegChaSelDn" ) );
+*/
+    
+    /*
+ uparoff.frm
+uparon.frm
+
+splsoff.frm
+splsofn.frm
+
+snegoff.frm
+snegon.frm
+
+slider.frm
 */
     
     CCharacterScreenHide regHide();
@@ -2889,25 +3225,25 @@ void InitCharacterScreen()
         .Position( "TnfRegAceptBtn" )
         .DownPic( GetIfaceIniStr( "TnfRegAceptBtnPicDn" ) );
 
-
+/* kventa button
     CCharacterInputBox iptBoxBtn(CharScreen);
     GUI_AddScreenElement( CLIENT_SCREEN_CHARACTER, GetIfaceIniStr( "TnfRegHistoryBtnPic" ), 600, 10 )
         .CallbackInit( iptBoxBtn )
         .CallbackMouseClick( iptBoxBtn )
         .Position( "TnfRegHistoryBtn" )
-        .DownPic( GetIfaceIniStr( "TnfRegHistoryBtnPicDn" ) );
+        .DownPic( GetIfaceIniStr( "TnfRegHistoryBtnPicDn" ) );*/
 
 
     int stepX = 0;
     int stepY = 0;
 
-    for(uint16 i = 0; i < 7; i++){
+    for(uint16 i = 0; i < 8; i++){
 
         int[] statShowXY = {50, 60};
         int[] statDescXY = {10, 60};
               //.DownPic( "loginscreen_input_dn.png" );
-        CCharacterStatShow   regShow(CharScreen, i, i);
-        CCharacterStatDesc   regDesc(CharScreen, i, i);
+        CCharacterStatShow   regShow(CharScreen, i, i != 7 ?  i : ST_LEVEL);
+        CCharacterStatDesc   regDesc(CharScreen, i, i != 7 ? i : ST_LEVEL);
 
         if(i != 7)
         for(uint8 ii = 0; ii < 2; ii++){
@@ -2936,11 +3272,11 @@ void InitCharacterScreen()
                 regShow.StatShowTextXY = GetIniValues2("TnfRegStatShowText", null);
                 regDesc.StatDescTextXY = GetIniValues2("TnfRegStatDescText", null);
         }else{
-                statShowXY = GetIniValues2("TnfRegStatShowPL", statShowXY);
-                statDescXY = GetIniValues2("TnfRegStatDescPL", statDescXY);
+                statShowXY = GetIniValues2("TnfChaStatShowPL", statShowXY);
+                statDescXY = GetIniValues2("TnfChaStatDescPL", statDescXY);
 
-                regShow.StatShowTextXY = GetIniValues2("TnfRegStatShowTextPL", null);
-                regDesc.StatDescTextXY = GetIniValues2("TnfRegStatDescTextPL", null);
+                regShow.StatShowTextXY = GetIniValues2("TnfChaStatShowTextPL", null);
+                regDesc.StatDescTextXY = GetIniValues2("TnfChaStatDescTextPL", null);
         }
 
 
@@ -2967,7 +3303,7 @@ void InitCharacterScreen()
 
     stepY = 0;
 
-    for(uint16 i = 0; i < 20; ++i){
+    for(uint16 i = 0; i < SKILL_LENGTH; ++i){
 
             int[] skillShowXY = {700, 60};
             int[] skillDescXY = {500, 60};
@@ -2977,14 +3313,14 @@ void InitCharacterScreen()
             skillDescXY = GetIniValues2("TnfRegSkillDesc", skillDescXY);
             skillBtnXY = GetIniValues2("TnfRegSkillBtn", skillBtnXY);
 
-            CCharacterSkillShow   regSkillShow(CharScreen, i, i+200);
+            CCharacterSkillShow   regSkillShow(CharScreen, i, i+SKILL_BEGIN);
             GUI_AddScreenElement( CLIENT_SCREEN_CHARACTER, GetIfaceIniStr( "TnfRegSkillShowPic" ), skillShowXY[0], skillShowXY[1]+stepY )
                 .CallbackMouseClick( regSkillShow )
                 .CallbackDraw(regSkillShow)
                 .CallbackInit(regSkillShow);
                 //.Position(GetIfaceIniStr( "TnfRegSkillShow" ));
 
-            CCharacterSkillDesc   regSkillDesc(CharScreen, i, i+200);
+            CCharacterSkillDesc   regSkillDesc(CharScreen, i, i+SKILL_BEGIN);
             GUI_AddScreenElement( CLIENT_SCREEN_CHARACTER, GetIfaceIniStr( "TnfRegSkillDescPic" ), skillDescXY[0], skillDescXY[1]+stepY )
                 .CallbackMouseClick( regSkillDesc )
                 .CallbackDraw(regSkillDesc)
@@ -3145,6 +3481,24 @@ void InitCharacterScreen()
 
                 stepY += 10;
     }
+    
+    
+    CCharacterHealthShow	healthCurrent(CharScreen, 0, ST_CURRENT_HP);
+    GUI_AddScreenElement( CLIENT_SCREEN_CHARACTER, GetIfaceIniStr( "TnfChaHealth" ), 385, 16 )
+                .CallbackMouseClick( healthCurrent)
+                .CallbackDraw(healthCurrent)
+                .CallbackInit(healthCurrent)
+                //.SetVisible(false)
+                //.DownPic(GetIfaceIniStr( "TnfRegInfoMoveBtnUpPicDn" ))
+                .Position("TnfCharShowHPC");
+    CCharacterHealthShow	healthMax(CharScreen, 1, ST_MAX_LIFE);
+    GUI_AddScreenElement( CLIENT_SCREEN_CHARACTER, GetIfaceIniStr( "TnfChaHealth" ), 465, 16 )
+                .CallbackMouseClick( healthMax)
+                .CallbackDraw(healthMax)
+                .CallbackInit(healthMax)
+		.Position("TnfCharShowHPA");
+    
+
 
     CCharacterInfoMoveBtn    perkMoveUp(CharScreen, BUTTON_PERK_MOVE_UP);
     GUI_AddScreenElement( CLIENT_SCREEN_CHARACTER, GetIfaceIniStr( "TnfRegInfoMoveBtnUpPic" ), 300, 300 )
@@ -3163,6 +3517,29 @@ void InitCharacterScreen()
                 //.SetVisible(false)
                 .DownPic(GetIfaceIniStr( "TnfRegInfoMoveBtnDnPicDn" ))
                 .Position("TnfRegInfoMoveBtnDn");
+		
+    CCharacterSkillIncreaser   regSkillInc(CharScreen, true);
+    GUI_AddScreenElement(CLIENT_SCREEN_CHARACTER, "splsoff.frm", 500, 20 )
+                .CallbackMouseClick( regSkillInc )
+                //.CallbackDraw(regSkillDesc)
+                .CallbackInit(regSkillInc)
+		.DownPic("splson.frm");
+		
+    CCharacterSkillIncreaser   regSkillDec(CharScreen, false);
+    GUI_AddScreenElement(CLIENT_SCREEN_CHARACTER, "snegoff.frm", 500, 25 )
+                .CallbackMouseClick( regSkillDec )
+                //.CallbackDraw(regSkillDesc)
+                .CallbackInit(regSkillDec)
+		.DownPic("snegon.frm");
+		
+    CCharacterSkillUnxShow   regSkillUnx(CharScreen);
+    GUI_AddScreenElement(CLIENT_SCREEN_CHARACTER, "char_unx_skill_show.png", 480, 290 )
+                .CallbackMouseClick( regSkillUnx )
+                .CallbackDraw(regSkillUnx)
+                .CallbackInit(regSkillUnx);
+		//.DownPic("snegon.frm");
+		
+    regSkillUnx.SkillUnxShowTextXY = GetIniValues2("TnfChaSkillShowTextPL", null);
 
 
     //archive
@@ -3288,8 +3665,9 @@ void InitCharacterScreen()
     GUI_AddScreenElement( CLIENT_SCREEN_CHARACTER, GetIfaceIniStr( "TnfRegAgePic" ), 450, 10 )
         .CallbackInit(charAge)
         .CallbackDraw(charAge)
+	 //.Position("TnfRegHistoryBtn");
         .Position("TnfRegAge");
-    charAge.AgeTextXY = GetIniValues2("TnfRegAgeText", null);
+    charAge.AgeTextXY = GetIniValues2("TnfChaAgeText", null);
 
     //Character screen comment
     /*

@@ -6,12 +6,19 @@
 import void Log_Lockpick( Critter& player, int lock, int force, int succes, string@ param3, int[] @ param4 )  from "gm"; // ErlKing
 import bool IsDoorAutomatic( uint pid ) from "interactive_obj";
 import void GetItemsToCL(Critter& cr, Item& locker, bool showWindow) from "general_unsafe";
+import bool SetTrapOnItem( Critter& cr, Item& trap, Item& onItem ) from "trap";
+import bool UseSkillOnTrappedItem( Item& trappedItem, Critter& cr, int skill ) from "trap";
 //import bool IsDoorAutomatic( uint pid ) from "map_sutter_objects";
 
 bool UseItemOnLocker( Critter& cr, Item& locker, Item& item )                                                            // Export
 {
     if( item.GetType() == ITEM_TYPE_KEY )
     {
+	if(FLAG( locker.LockerCondition, LOCKER_BROKEN)){
+	    cr.Say(SAY_NETMSG, "Замок сломан.");
+	    return true;
+	}
+      
         if( item.LockerId == locker.LockerId )
         {
             if( !FLAG( locker.LockerCondition, LOCKER_ISOPEN ) )
@@ -36,6 +43,8 @@ bool UseItemOnLocker( Critter& cr, Item& locker, Item& item )                   
             cr.Say( SAY_NETMSG, "Ключ не подходит." );
             return true;
         }
+    }else{
+	SetTrapOnItem(cr, item, locker);
     }
 
     return true;
@@ -71,6 +80,10 @@ bool UseSkillOnLocker( Critter& cr, Item& locker, int skill ) // Export
 	cr.Say(SAY_NETMSG, "Это Вам не под силу.");
 	return true;
     }
+    
+    
+    if(UseSkillOnTrappedItem(locker, cr, skill)) {return true;}
+   
 
     if( skill == SKILL_PICK_ON_GROUND )
     {
@@ -379,7 +392,13 @@ void answer_LOCKPICK( Critter& player, uint answerI, string& answerS )
         }
         if( valid( lockpick ) && lockpick.Val0 != 0 && (lockpick.GetProtoId() == PID_EXP_LOCKPICK_SET || lockpick.GetProtoId() == PID_LOCKPICKS) )
         {
-            DeleteItem( lockpick );
+            //DeleteItem( lockpick );
+            _SubItem(lockpick, 1);
+	    
+	    if(Random(1,100)-player.Stat[ST_LUCK] > 90){
+		      SETFLAG(lock.LockerCondition, LOCKER_BROKEN);
+	    }
+	    
             player.Say( SAY_NETMSG, "Отмычка сломалась, видимо ее неудачно вытащили ее из замка в прошлый раз." );
             return;
         }
@@ -566,7 +585,9 @@ void answer_LOCKPICK_lock( Critter& player, uint answerI, string& answerS )
             lock.LockerOpen();
             if( lock.GetType() == ITEM_TYPE_CONTAINER )
             {
-                player.ShowContainer( null, lock, lock.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
+                //player.ShowContainer( null, lock, lock.Proto.GroundLevel ? TRANSFER_HEX_CONT_DOWN : TRANSFER_HEX_CONT_UP );
+                player.ParamBase[ ST_LAST_CONT_ID ] = lock.Id;
+                GetItemsToCL(player, lock, true);
             }
             else
                 player.Say( SAY_NETMSG, "Вы успешно вскрыли замок. Осторожно, дверь может захлонуться." );

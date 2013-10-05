@@ -1,0 +1,348 @@
+//item count dialog box
+//powermagic
+
+#include "_client_defines.fos"
+#include "client_gui_h.fos"
+#include "sprite.fos"
+#include "_colors.fos"
+//#include "
+
+import void DropItem(uint index, uint id, uint count) from "client_screen_inventory";
+
+#define MAX_COUNT		(10000)
+
+#define BUTTON_EXIT		(0)
+#define BUTTON_DONE		(1)
+#define BUTTON_ALL		(2)
+
+
+//MOVEMULT.FRM
+//SEXOFF
+//SKLDXOFF
+//ALLBON
+//ALLBOFF
+//CHARWIN
+//DI_RDBT1
+//DI_RDBT2
+//LILREDUP
+//LILREDDN
+//SNEGOFF
+//SPLSOFF
+
+class CountDialogScreen : IGUIScreenCallbackShow, IGUIScreenCallbackHide, IGUIScreenCallbackMove
+{
+	IGUIScreenOpt@			ScreenOpt;
+	
+	CountDialogButton@[]		Button;
+	CountDialogIncreaser@[]	Increaser;
+	CountDialogSprite@		Sprite;
+	CountDialogCounter@		Counter;
+	
+	uint				Pid;
+	uint				Id;
+	
+	uint				Count;
+	uint				CountMax;
+	
+	uint				ItemIndex;
+	
+	int				ScreenId;
+	
+	
+	int				PosX;
+	int				PosY;
+    
+	CountDialogScreen(){
+		
+		Button.resize(3);
+		Increaser.resize(2);
+	}
+	
+	void OnShow(int index, int screenId, int id)
+	{
+
+		@ScreenOpt=GUI_GetScreenOptions();
+		PosX = ScreenOpt.GetPosX();
+		PosY = ScreenOpt.GetPosY();
+		
+		ScreenId = screenId;
+		
+		Count = 1;
+		//CountMax = max;
+		
+		
+		//ItemCl@ item = GetItem(Id);
+		
+		Message("o "+screenId+" "+index);
+		
+		//fu !!
+		if(tempCountItem is null) {
+			Message("Null item "+Id);
+			::HideScreen(CLIENT_SCREEN_COUNT_DIALOG, 0, 0, 0);
+			return;}
+		
+		CountMax = tempCountItem.GetCount();
+		
+		Pid = tempCountItem.GetProtoId();
+		
+		Id = tempCountItem.Id;
+		
+		ItemIndex = index;
+		
+		SetSprite();
+		
+		SetCounter();
+		
+		//HideScreen(screenId, 0,0,0);
+		
+		//Message("SHOW DIALOG");
+	}
+
+	void OnHide(int p0, int p1, int p2)
+	{
+	}
+	
+	void OnMove(int x, int y){
+		PosX = x;
+		PosY = y;
+	}
+	
+	void CountInc(){
+		if(Count < (MAX_COUNT*10-1) && Count < CountMax){
+			Count++;
+			
+			SetCounter();
+		}
+	}
+	
+	void CountDec(){
+		if(Count>0){
+			Count--;
+			SetCounter();
+		}
+	}
+	
+	void CountAll(){
+		Count = CountMax;
+	}
+	
+	void SetCounter(){
+		Counter.SetCounter(Count);
+	}
+	
+	void SetSprite(){
+		Sprite.SetSprite(Pid);
+	}
+	
+	void SetAll(){
+		Count = CountMax;
+		SetCounter();
+	}
+}
+
+class CountDialogButton : IGUIElementCallbackMouseClick, IGUIElementCallbackInit 
+{
+	CountDialogScreen@ 	Instance;
+	IGUIElementOpt@		Options;
+	
+	uint8			Type;
+  
+	CountDialogButton(CountDialogScreen& instance, uint8 type){
+		@Instance = instance;
+		Type = type;
+	}
+	
+	void OnInit(){
+		@Options = GUI_GetElementOptions();
+		@Instance.Button[Type] = this;
+	}
+	
+	void OnMouseClick(int click){
+		if(Type == BUTTON_EXIT){
+			::HideScreen(CLIENT_SCREEN_COUNT_DIALOG, 0, 0, 0);
+		}else if(Type == BUTTON_ALL){
+			Instance.SetAll();
+		}else{
+			Release(Instance.ScreenId);
+			::HideScreen(CLIENT_SCREEN_COUNT_DIALOG, 0, 0, 0);
+		}
+	}
+	
+	void Release(int id){
+		if(id == CLIENT_SCREEN_INVENTORY_TNF){
+			DropItem(Instance.ItemIndex, Instance.Id, Instance.Count);
+		}
+	}
+}
+
+class CountDialogIncreaser : IGUIElementCallbackMouseClick, IGUIElementCallbackInit 
+{
+	CountDialogScreen@		Instance;
+	IGUIElementOpt@			Options;
+	
+	bool				Inc;
+	
+	CountDialogIncreaser(CountDialogScreen& instance, bool inc){
+		@Instance = instance;
+		Inc = inc;
+	}
+	
+	void OnInit(){
+		@Options = GUI_GetElementOptions();
+		@Instance.Increaser[(Inc ? 0 : 1)] = this;
+	}
+	
+	void OnMouseClick(int click){
+		if(Inc)
+		  Instance.CountInc();
+		else
+		  Instance.CountDec();
+	}
+}
+
+class CountDialogCounter : IGUIElementCallbackInit, IGUIElementCallbackDraw
+{
+	CountDialogScreen@		Instance;
+	IGUIElementOpt@			Options;
+	
+	string				Count;
+	
+	CountDialogCounter(CountDialogScreen& instance){
+		@Instance = instance;
+	}
+	
+	void OnInit(){
+		@Options = GUI_GetElementOptions();
+		@Instance.Counter = this;
+	}
+	
+	void OnDraw(){
+		//Message("0");
+		DrawText(""+Count, Options.GetPosX()+Instance.PosX, Options.GetPosY()+Instance.PosY, 200, 30, COLOR_GRAY, FONT_BIG_NUM, FT_CENTERR);
+	}
+	
+	void SetCounter(uint count){
+		uint maxCount = MAX_COUNT;
+		
+		Count = "";
+		
+		for(uint i = 0; i < 5; i++){
+			if(count < maxCount){
+			
+				Count += "0";
+				maxCount*=0.1;
+			}
+		}
+		
+		Count += count;
+	}
+}
+
+class CountDialogSprite : IGUIElementCallbackInit, IGUIElementCallbackDraw
+{
+	CountDialogScreen@		Instance;
+	IGUIElementOpt@			Options;
+	
+	Sprite				Sprite;
+	
+	bool				Draw;
+	
+	int				Width;
+	int				Height;
+	
+	CountDialogSprite(CountDialogScreen& instance){
+		@Instance = instance;
+		Draw = false;
+	}
+	
+	void OnInit(){
+		@Options = GUI_GetElementOptions();
+		@Instance.Sprite = this;
+		Draw = false;
+		
+		Width = Options.GetSurfaceWidth();
+		Height = Options.GetSurfaceHeight();
+		
+	}
+	
+	void OnDraw(){
+		
+		if(Draw)
+		  DrawSprite(Sprite.Id, 0, Options.GetPosX()+Instance.PosX+2, Options.GetPosY()+Instance.PosY+2, Width-2, Height-2, false, true, 0);
+		
+		//Message("1");
+	}
+	
+	void SetSprite(uint16 pid){
+	  //Message(""+pid);
+		ProtoItem@ proto = GetProtoItem(pid);
+		if(proto is null) return;
+		
+		uint hash = proto.PicInv;
+		Sprite.Load(hash, 0);
+		Draw = true;
+	}
+}
+
+void CountDialogInit(){
+	
+	CountDialogScreen		countScreen();
+	GUI_CreateScreen(CLIENT_SCREEN_COUNT_DIALOG,"MOVEMULT.FRM")
+		.CallbackShow(countScreen)
+		.CallbackHide(countScreen)
+		.CallbackMove(countScreen)
+		.CanMove(true)
+		//.Position(155,111)
+		.CloseOnMiss(true)
+		.Modal(false)
+		.Multiinstance(true)
+		.AutoCursor(true,CURSOR_DEFAULT);
+
+	CountDialogButton countBtnExit(countScreen, BUTTON_EXIT);
+ 	GUI_AddScreenElement(CLIENT_SCREEN_COUNT_DIALOG, "LILREDUP.FRM", 148, 128)
+			.CallbackInit(countBtnExit)
+			.CallbackMouseClick(countBtnExit)
+			.DownPic("LILREDDN.FRM");
+			
+	CountDialogButton countBtnDone(countScreen, BUTTON_DONE);
+ 	GUI_AddScreenElement(CLIENT_SCREEN_COUNT_DIALOG, "LILREDUP.FRM", 100, 128)
+			.CallbackInit(countBtnDone)
+			.CallbackMouseClick(countBtnDone)
+			.DownPic("LILREDDN.FRM");
+			
+	CountDialogButton countBtnAll(countScreen, BUTTON_ALL);
+ 	GUI_AddScreenElement(CLIENT_SCREEN_COUNT_DIALOG, "ALLBON.FRM", 122, 80)
+			.CallbackInit(countBtnAll)
+			.CallbackMouseClick(countBtnAll)
+			.DownPic("ALLBOFF.FRM")
+			.Text("ВСЕ",FONT_FALLOUT, COLOR_SAND, COLOR_SAND, FT_CENTERX | FT_CENTERY | FT_NOBREAK );
+			
+	CountDialogIncreaser countBtnInc(countScreen, true);
+ 	GUI_AddScreenElement(CLIENT_SCREEN_COUNT_DIALOG, "SPLSOFF.FRM", 200, 45)
+			.CallbackInit(countBtnInc)
+			.CallbackMouseClick(countBtnInc)
+			.DownPic("SPLSON.FRM");
+			
+	CountDialogIncreaser countBtnDec(countScreen, false);
+ 	GUI_AddScreenElement(CLIENT_SCREEN_COUNT_DIALOG, "SNEGOFF.FRM", 200, 57)
+			.CallbackInit(countBtnDec)
+			.CallbackMouseClick(countBtnDec)
+			.DownPic("SNEGON.FRM");
+	CountDialogCounter countCounter(countScreen);
+ 	GUI_AddScreenElement(CLIENT_SCREEN_COUNT_DIALOG, "countItemCounter.png", 122, 48)
+			.CallbackInit(countCounter)
+			.CallbackDraw(countCounter);	
+			
+	CountDialogSprite countSprite(countScreen);
+ 	GUI_AddScreenElement(CLIENT_SCREEN_COUNT_DIALOG, "countItemShow.png", 15, 43)
+			.CallbackInit(countSprite)
+			.CallbackDraw(countSprite);
+}
+
+ItemCl@ tempCountItem = null;
+
+void ShowCounterScreen(ItemCl& item, CritterCl& cr, int screenId, int index){
+	@tempCountItem = item;
+	
+	::ShowScreen(CLIENT_SCREEN_COUNT_DIALOG, index, screenId, 0);
+}

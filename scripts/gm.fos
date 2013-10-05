@@ -902,15 +902,15 @@ void unsafe_GM_PANNEL_SELF( Critter& player, int crId, int param1, int param2, s
 {
     if( player.GetAccess() >= ACCESS_MODER )
     {
-        player.ShowScreen( SCREEN_DIALOGBOX, 10, "answer_GM_PANNEL_SELF" );
+        player.ShowScreen( SCREEN_DIALOGBOX, 8, "answer_GM_PANNEL_SELF" );
         player.Say( SAY_DIALOGBOX_TEXT, "ГМ ПАНЕЛЬ" );
         player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "Режимы себя" );
         player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "Режимы города" );
         player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "Смотреть Логи" );
         player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "По ID" );
         player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "Склад" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "Чарлисты" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 6 ), "Телепорт" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 6 ), "" );
 		player.Say( SAY_DIALOGBOX_BUTTON( 7 ), "Спавны1" );
 		player.Say( SAY_DIALOGBOX_BUTTON( 8 ), "Спавны2" );
 		player.Say( SAY_DIALOGBOX_BUTTON( 9 ), "убр.лишних мобов" );
@@ -954,13 +954,13 @@ void answer_GM_PANNEL_SELF( Critter& player, uint answerI, string& answerS )
         player.ShowScreen( SCREEN_DIALOGBOX, 6, "answer_GM_PANNEL_SELF_TOWNMODES" );
         player.Say( SAY_DIALOGBOX_TEXT, "Выберите режимы" );
         player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "воен положение" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "активность гвард" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "" );
         player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "расизм" );
         player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "шлюз" );
         if( Reg.GetValue() == 0 )
-            player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "закрыть регистрацию" );
+            player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "" );
         else
-            player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "открыть регистрацию" );
+            player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "" );
         player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "назад" );
     }
     if( answerI == 2 )
@@ -983,7 +983,7 @@ void answer_GM_PANNEL_SELF( Critter& player, uint answerI, string& answerS )
         player.Say( SAY_DIALOGBOX_TEXT, "Действия по ID" );
         player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "Режимы игры" );
         player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "Фракции/пропуски" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "Смотреть анкету" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "" );
         player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "Инвентарь" );
         player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "Бан" );
         player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "Разбан" );
@@ -993,17 +993,18 @@ void answer_GM_PANNEL_SELF( Critter& player, uint answerI, string& answerS )
     {
         player.ShowScreen( SCREEN_DIALOGBOX, 10, "answer_GM_PANNEL_SELF_VAULT" );
         player.Say( SAY_DIALOGBOX_TEXT, "Склад" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "оружие" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "броня" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "патроны" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "инструменты" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "разное" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "+эквип" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 6 ), "+патроны" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 7 ), "+инструменты" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 8 ), "социальное" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "оружие крафт" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "патроны крафт" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "оружие некрафт" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "патроны некрафт" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "броня" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "ресурсы" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 6 ), "инструменты" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 7 ), "медицина и еда" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 8 ), "разное" );
         player.Say( SAY_DIALOGBOX_BUTTON( 9 ), "назад" );
     }
+	/* android
     if( answerI == 5 )
     {
         player.ShowScreen( SCREEN_DIALOGBOX, 6, "answer_GM_PANNEL_SELF_CHARLIST" );
@@ -1033,6 +1034,7 @@ void answer_GM_PANNEL_SELF( Critter& player, uint answerI, string& answerS )
         player.Say( SAY_DIALOGBOX_BUTTON( 9 ), "в координаты" );
         player.Say( SAY_DIALOGBOX_BUTTON( 10 ), "назад" );
     }
+	*/
 	    if( answerI == 7 )
     {
 		Map@ map = player.GetMap();
@@ -1173,46 +1175,52 @@ void ask_GM_PANNEL_SELF_MAPSPAWN( Critter& player, uint answerI, string& answerS
         StrToInt( answerS, number );
 
 		Map@ map = player.GetMap();
+		uint16 mapid = player.GetMapId();
         int var_type = player.ParamBase[ ST_VAR0 ];
+		
+		string logtype;
 		switch( var_type )
         {
-		case 0:	GetLocalVar( LMVAR_CRITTER_RegularRat, map.Id ).opAssign( number ); break;
-        case 1:	GetLocalVar( LMVAR_CRITTER_Mantis, map.Id ).opAssign( number ); break;
-        case 2:	GetLocalVar( LMVAR_CRITTER_Ant, map.Id ).opAssign( number ); break;
-	    case 3:	GetLocalVar( LMVAR_CRITTER_RegularPigRat, map.Id ).opAssign( number ); break;
-	    case 4:	GetLocalVar( LMVAR_CRITTER_Molerat, map.Id ).opAssign( number ); break;
-	    case 5:	GetLocalVar( LMVAR_CRITTER_MutatedMolerat, map.Id ).opAssign( number ); break;
-	    case 6:	GetLocalVar( LMVAR_CRITTER_SmallSilverGecko, map.Id ).opAssign( number ); break;
-	    case 7:	GetLocalVar( LMVAR_CRITTER_GoldenGecko, map.Id ).opAssign( number ); break;
-	    case 8:	GetLocalVar( LMVAR_CRITTER_WildDog, map.Id ).opAssign( number ); break;
-	    case 9:	GetLocalVar( LMVAR_CRITTER_SmallRadscorpion, map.Id ).opAssign( number ); break;
-	    case 10:	GetLocalVar( LMVAR_CRITTER_LargeRadscorpion, map.Id ).opAssign( number ); break;
-	    case 11:	GetLocalVar( LMVAR_CRITTER_Brahmin, map.Id ).opAssign( number ); break;
-	    case 12:	GetLocalVar( LMVAR_CRITTER_SporePlant, map.Id ).opAssign( number ); break;
-	    case 13:	GetLocalVar( LMVAR_CRITTER_Alien, map.Id ).opAssign( number ); break;
-	    case 14:	GetLocalVar( LMVAR_CRITTER_SmDeathclaw, map.Id ).opAssign( number ); break;
-	    case 15:	GetLocalVar( LMVAR_CRITTER_Deathclaw, map.Id ).opAssign( number ); break;
-	    case 16:	GetLocalVar( LMVAR_CRITTER_ToughDeathclaw, map.Id ).opAssign( number ); break;
-	    case 17:	GetLocalVar( LMVAR_CRITTER_FireGecko, map.Id ).opAssign( number ); break;
-	    case 18:	GetLocalVar( LMVAR_CRITTER_Centaur, map.Id ).opAssign( number ); break;
-	    case 19:	GetLocalVar( LMVAR_CRITTER_Floater, map.Id ).opAssign( number ); break;
-	    case 20:	GetLocalVar( LMVAR_CRITTER_MirelurkWeak, map.Id ).opAssign( number ); break;
-	    case 21:	GetLocalVar( LMVAR_CRITTER_RipperMale, map.Id ).opAssign( number ); break;
-	    case 22:	GetLocalVar( LMVAR_CRITTER_RipperFemale, map.Id ).opAssign( number ); break;
-	    case 23:	GetLocalVar( LMVAR_CRITTER_BanditMale, map.Id ).opAssign( number ); break;
-	    case 24:	GetLocalVar( LMVAR_CRITTER_BanditFemale, map.Id ).opAssign( number ); break;
-	    case 25:	GetLocalVar( LMVAR_CRITTER_MauraderMale, map.Id ).opAssign( number ); break;
-	    case 26:	GetLocalVar( LMVAR_CRITTER_RaiderMale, map.Id ).opAssign( number ); break;
-	    case 27:	GetLocalVar( LMVAR_CRITTER_RaiderFemale, map.Id ).opAssign( number ); break;
-	    case 28:	GetLocalVar( LMVAR_CRITTER_MaleSlaver, map.Id ).opAssign( number ); break;
-	    case 29:	GetLocalVar( LMVAR_CRITTER_MaleSlaver2, map.Id ).opAssign( number ); break;
-	    case 30:	GetLocalVar( LMVAR_CRITTER_ToughMaleThug, map.Id ).opAssign( number ); break;
-	    case 31:	GetLocalVar( LMVAR_CRITTER_ToughFemaleThug, map.Id ).opAssign( number ); break;
-	    case 32:	GetLocalVar( LMVAR_CRITTER_MaleTrapper, map.Id ).opAssign( number ); break;
-	    case 33:	GetLocalVar( LMVAR_CRITTER_GreenGhoul, map.Id ).opAssign( number ); break;
-	    case 34:	GetLocalVar( LMVAR_CRITTER_WhiteGhoul, map.Id ).opAssign( number ); break;
-	    case 35:	GetLocalVar( LMVAR_CRITTER_Supermutant, map.Id).opAssign( number ); break;
+		case 0:{	GetLocalVar( LMVAR_CRITTER_RegularRat, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_RegularRat"; } break;
+        case 1:{	GetLocalVar( LMVAR_CRITTER_Mantis, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_Mantis"; } break;
+        case 2:{	GetLocalVar( LMVAR_CRITTER_Ant, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_Ant"; } break;
+	    case 3:{	GetLocalVar( LMVAR_CRITTER_RegularPigRat, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_RegularPigRat"; } break;
+	    case 4:{	GetLocalVar( LMVAR_CRITTER_Molerat, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_Molerat"; } break;
+	    case 5:{	GetLocalVar( LMVAR_CRITTER_MutatedMolerat, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_MutatedMolerat"; } break;
+	    case 6:{	GetLocalVar( LMVAR_CRITTER_SmallSilverGecko, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_SmallSilverGecko"; } break;
+	    case 7:{	GetLocalVar( LMVAR_CRITTER_GoldenGecko, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_GoldenGecko"; } break;
+	    case 8:{	GetLocalVar( LMVAR_CRITTER_WildDog, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_WildDog"; } break;
+	    case 9:{	GetLocalVar( LMVAR_CRITTER_SmallRadscorpion, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_SmallRadscorpion"; } break;
+	    case 10:{	GetLocalVar( LMVAR_CRITTER_LargeRadscorpion, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_LargeRadscorpion"; } break;
+	    case 11:{	GetLocalVar( LMVAR_CRITTER_Brahmin, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_Brahmin"; } break;
+	    case 12:{	GetLocalVar( LMVAR_CRITTER_SporePlant, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_SporePlant"; } break;
+	    case 13:{	GetLocalVar( LMVAR_CRITTER_Alien, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_Alien"; } break;
+	    case 14:{	GetLocalVar( LMVAR_CRITTER_SmDeathclaw, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_SmDeathclaw"; } break;
+	    case 15:{	GetLocalVar( LMVAR_CRITTER_Deathclaw, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_Deathclaw"; } break;
+	    case 16:{	GetLocalVar( LMVAR_CRITTER_ToughDeathclaw, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_ToughDeathclaw"; } break;
+	    case 17:{	GetLocalVar( LMVAR_CRITTER_FireGecko, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_FireGecko"; } break;
+	    case 18:{	GetLocalVar( LMVAR_CRITTER_Centaur, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_Centaur"; } break;
+	    case 19:{	GetLocalVar( LMVAR_CRITTER_Floater, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_Floater"; } break;
+	    case 20:{	GetLocalVar( LMVAR_CRITTER_MirelurkWeak, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_MirelurkWeak"; } break;
+	    case 21:{	GetLocalVar( LMVAR_CRITTER_RipperMale, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_RipperMale"; } break;
+	    case 22:{	GetLocalVar( LMVAR_CRITTER_RipperFemale, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_RipperFemale"; } break;
+	    case 23:{	GetLocalVar( LMVAR_CRITTER_BanditMale, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_BanditMale"; } break;
+	    case 24:{	GetLocalVar( LMVAR_CRITTER_BanditFemale, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_BanditFemale"; } break;
+	    case 25:{	GetLocalVar( LMVAR_CRITTER_MauraderMale, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_MauraderMale"; } break;
+	    case 26:{	GetLocalVar( LMVAR_CRITTER_RaiderMale, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_RaiderMale"; } break;
+	    case 27:{	GetLocalVar( LMVAR_CRITTER_RaiderFemale, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_RaiderFemale"; } break;
+	    case 28:{	GetLocalVar( LMVAR_CRITTER_MaleSlaver, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_MaleSlaver"; } break;
+	    case 29:{	GetLocalVar( LMVAR_CRITTER_MaleSlaver2, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_MaleSlaver2"; } break;
+	    case 30:{	GetLocalVar( LMVAR_CRITTER_ToughMaleThug, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_ToughMaleThug"; } break;
+	    case 31:{	GetLocalVar( LMVAR_CRITTER_ToughFemaleThug, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_ToughFemaleThug"; } break;
+	    case 32:{	GetLocalVar( LMVAR_CRITTER_MaleTrapper, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_MaleTrapper"; } break;
+	    case 33:{	GetLocalVar( LMVAR_CRITTER_GreenGhoul, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_GreenGhoul"; } break;
+	    case 34:{	GetLocalVar( LMVAR_CRITTER_WhiteGhoul, map.Id ).opAssign( number ); logtype = "LMVAR_CRITTER_WhiteGhoul"; } break;
+	    case 35:{	GetLocalVar( LMVAR_CRITTER_Supermutant, map.Id).opAssign( number ); logtype = "LMVAR_CRITTER_Supermutant"; } break;
 		}
+		
+		string logmsg = "GM PANEL: Изменил спавн " + logtype + " на " + number + " на карте id: " + mapid;
+		LogGmStuff (player, logmsg);
 
 		if (var_type<=12)
 		{
@@ -2043,7 +2051,42 @@ void answer_GM_PANNEL_SELF_VAULT( Critter& player, uint answerI, string& answerS
         unsafe_GM_PANNEL_SELF( player, 0, 0, 0, null, null );
     }
 	else OpenCrate( player, answerI + 1 );
+	
+	string logcrate;
+	
+	switch (answerI){
+	case 0: logcrate = "оружие крафт"; break;
+	case 1: logcrate = "патроны крафт"; break;
+	case 2: logcrate = "оружие некрафт"; break;
+	case 3: logcrate = "патроны некрафт"; break;
+	case 4: logcrate = "броня"; break;
+	case 5: logcrate = "ресурсы"; break;
+	case 6: logcrate = "инструменты"; break;
+	case 7: logcrate = "медицина и еда"; break;
+	case 8: logcrate = "разное"; break;
+	}
+	
+	LogGmStuff (player, "GM PANEL: Открыл раздел '" + logcrate + "' на ГМ-складе.");
+	//check_Inventory(player);
 }
+
+/* наркомания, извиняюсь. android
+void check_Inventory (Critter& player)
+{
+	Item@[] items;
+	uint count = player.GetItems(-1, items);
+	
+	if ( !valid(items) );
+		return;
+		
+	for (uint i = 0; i < count; i++)
+	{
+		uint itemid = items[i].Id();
+		string ids = itemid + " ";
+	}
+	LogGmStuff (player, itemid);
+}
+*/
 
 void answer_GM_PANNEL_SELF_ID( Critter& player, uint answerI, string& answerS )
 {
@@ -2075,11 +2118,13 @@ void answer_GM_PANNEL_SELF_ID( Critter& player, uint answerI, string& answerS )
         player.Say( SAY_DIALOGBOX_BUTTON( 11 ), "4 - богатый гражданин" );
         player.Say( SAY_DIALOGBOX_BUTTON( 12 ), "10 - изгой" );
     }
-    if( answerI == 2 )
+    /* android
+	if( answerI == 2 )
     {
         player.ShowScreen( SCREEN_SAY, 0, "gm@ask_GM_PANNEL_SELF_ID_CHARLIST" );
         player.Say( SAY_SAY_TITLE, "Введите Ид" );
     }
+	*/
     if( answerI == 3 )
     {
         player.ShowScreen( SCREEN_SAY, 0, "gm@ask_GM_PANNEL_SELF_ID_INVENTORY" );
@@ -2137,6 +2182,7 @@ void ask_GM_PANNEL_SELF_ID_BAN_TIME( Critter& player, uint answerI, string& answ
         if( valid( GetCritter( crId ) ) )
             KickId( player, crId, 0, 0 );
         player.Say( SAY_NETMSG, "персонаж " + GetPlayerName( crId ) + "(" + crId + ")" + " заблокирован на " + number + " часов" );
+		LogGmStuff (player, "GM PANEL: Заблокировал (по ID) персонажа " + GetPlayerName( crId ) + " id: " + crId + " на " + number + " часов.");
     }
 }
 
@@ -2155,6 +2201,7 @@ void ask_GM_PANNEL_SELF_ID_UNBAN( Critter& player, uint answerI, string& answerS
             player.Say( SAY_NETMSG, "персонажа " + GetPlayerName( number ) + "  " + number + " нет онлайн " );
         UnbanId( player, number, 0, 0 );
         player.Say( SAY_NETMSG, "персонаж " + GetPlayerName( number ) + "(" + number + ")" + " разблокирован" );
+		LogGmStuff (player, "GM PANEL: Разблокировал (по ID) персонажа " + GetPlayerName( number ) + " id: " + number);
     }
 }
 
@@ -2175,6 +2222,7 @@ void ask_GM_PANNEL_SELF_ID_INVENTORY( Critter& player, uint answerI, string& ans
             return;
         }
         player.ShowContainer( ( GetCritter( number ) ), null, TRANSFER_FAR_CRIT );
+		LogGmStuff (player, "GM PANEL: Просмотрел (по ID) инвентарь персонажа " + GetPlayerName( number ) + " id: " + number);
     }
 }
 
@@ -2267,9 +2315,11 @@ void ask_GM_PANNEL_SELF_ID_MODES( Critter& player, uint answerI, string& answerS
             return;
         }
         target.ParamBase[ QST_GAMEMODE ] = mode;
-        player.Say( SAY_NETMSG, "вы изменили игровой режим игрока " + GetPlayerName( player.Id ) + " с номером " + number + " на " + mode );
+        player.Say( SAY_NETMSG, "вы изменили игровой режим игрока " + GetPlayerName( player.Id ) + " с id " + number + " на " + mode );
         Log_factions( player, number, 0, mode, null, null );
-
+		
+		LogGmStuff (player, "GM PANEL: Изменил режим игры персонажа (по ID) " + GetPlayerName( number ) + " с id " + number + " на " + mode );
+		
         player.ShowScreen( SCREEN_DIALOGBOX, 5, "answer_GM_PANNEL_SELF_ID_MODES" );
         player.Say( SAY_DIALOGBOX_TEXT, "Выберете назначаемый режим" );
         player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "0 старт" );
@@ -2346,7 +2396,7 @@ void answer_GM_PANNEL_SELF_ID_FACTIONS( Critter& player, uint answerI, string& a
     }
     if( answerI == 12 )
     {
-        player.ParamBase[ ST_VAR1 ] = 21;
+        player.ParamBase[ ST_VAR1 ] = 20;
         player.Say( SAY_SAY_TITLE, "Ид - изгой" );
     }
 }
@@ -2367,12 +2417,14 @@ void ask_GM_PANNEL_SELF_ID_FACTIONS( Critter& player, uint answerI, string& answ
             faction.opAssign( mode );
             player.Say( SAY_NETMSG, "вы изменили фракцию игрока " + name + " с номером " + number + " на " + mode );
             Log_factions( player, number, 2, mode, null, null );
+			LogGmStuff (player, "GM PANEL: Изменил фракцию персонажа (по ID) " + name + " с id " + number + " на " + mode );
         }
         else
         {
             citizenship.opAssign( mode - 10 );
             player.Say( SAY_NETMSG, "вы изменили пропуск игрока " + name + " с номером " + number + " на " + mode );
             Log_factions( player, number, 1, mode, null, null );
+			LogGmStuff (player, "GM PANEL: Изменил пропуск персонажа (по ID) " + name + " с id " + number + " на " + mode );
         }
 
         player.ShowScreen( SCREEN_DIALOGBOX, 13, "answer_GM_PANNEL_SELF_ID_FACTIONS" );
@@ -2420,7 +2472,8 @@ void answer_GM_PANNEL_SELF_LOG( Critter& cr, uint answerI, string& answerS )
                 }
             }
             f.close();
-        }
+        LogGmStuff (cr, "GM PANEL: Загрузил HELP логи.");
+		}
         else
             Log( "can't open!" );
     }
@@ -2447,7 +2500,8 @@ void answer_GM_PANNEL_SELF_LOG( Critter& cr, uint answerI, string& answerS )
                 }
             }
             f.close();
-        }
+        LogGmStuff (cr, "GM PANEL: Загрузил WARNINGS логи.");
+		}		
         else
             Log( "can't open!" );
     }
@@ -2474,7 +2528,8 @@ void answer_GM_PANNEL_SELF_LOG( Critter& cr, uint answerI, string& answerS )
                 }
             }
             f.close();
-        }
+        LogGmStuff (cr, "GM PANEL: Загрузил KILL логи.");
+		}
         else
             Log( "can't open!" );
     }
@@ -2501,7 +2556,8 @@ void answer_GM_PANNEL_SELF_LOG( Critter& cr, uint answerI, string& answerS )
                 }
             }
             f.close();
-        }
+        LogGmStuff (cr, "GM PANEL: Загрузил FACTIONS логи.");
+		}
         else
             Log( "can't open!" );
     }
@@ -2528,7 +2584,8 @@ void answer_GM_PANNEL_SELF_LOG( Critter& cr, uint answerI, string& answerS )
                 }
             }
             f.close();
-        }
+        LogGmStuff (cr, "GM PANEL: Загрузил BANS логи.");
+		}
         else
             Log( "can't open!" );
     }
@@ -2555,6 +2612,7 @@ void answer_GM_PANNEL_SELF_LOG( Critter& cr, uint answerI, string& answerS )
                 }
             }
             f.close();
+		LogGmStuff (cr, "GM PANEL: Загрузил CRIMS логи.");
         }
         else
             Log( "can't open!" );
@@ -2631,27 +2689,46 @@ void answer_GM_PANNEL_SELF_MYMODES( Critter& player, uint answerI, string& answe
     if( answerI == 1 )
     {
         if( player.ModeBase[ MODE_INVULNERABLE ] == 0 )
+		{
             player.ModeBase[ MODE_INVULNERABLE ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил себе неуязвимость.");
+		}
         else
+		{
             player.ModeBase[ MODE_INVULNERABLE ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил себе неуязвимость.");
+		}
     }
     if( answerI == 2 )
     {
         if( player.ParamBase[ QST_VISION ] == 0 )
+		{
             player.ParamBase[ QST_VISION ] = 200;
+			LogGmStuff (player, "GM PANEL: Включил себе всевидение.");
+		}
         else
+		{
             player.ParamBase[ QST_VISION ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил себе всевидение.");
+		}
     }
     if( answerI == 3 )
     {
         if( player.ModeBase[ MODE_NO_PVP ] == 0 )
+		{
             player.ModeBase[ MODE_NO_PVP ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил себе NO PVP.");
+		}
         else
+		{
             player.ModeBase[ MODE_NO_PVP ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил себе NO PVP.");
+		}
     }
     if( answerI == 4 )
     {
         sinf( player, 0, 119, 0 );
+		LogGmStuff (player, "GM PANEL: Выключил себе обзор ID (sinf 119).");
     }
     if( answerI == 5 )
     {
@@ -2664,27 +2741,29 @@ void answer_GM_PANNEL_SELF_TOWNMODES( Critter& player, uint answerI, string& ans
     if( answerI == 0 )
     {
         GameVar@ war_mode = GetGlobalVar( GVAR_inf_modoc_war_mode );
-        player.ShowScreen( SCREEN_DIALOGBOX, 5, "answer_GM_PANNEL_SELF_TOWNMODES_WAR" );
+        player.ShowScreen( SCREEN_DIALOGBOX, 2, "answer_GM_PANNEL_SELF_TOWNMODES_WAR" );
         player.Say( SAY_DIALOGBOX_TEXT, "воен положение, текущее - " + war_mode.GetValue() );
         player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "0 мир" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "1 -чужаки" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "2 #чужаки" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "3 defcon 4" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "4 defcon 5" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "1 воен полож" );
     }
+	/* android
     if( answerI == 1 )
     {
         GameVar@ guards_mode = GetGlobalVar( GVAR_inf_modoc_guards_mode );
         player.ShowScreen( SCREEN_DIALOGBOX, 2, "answer_GM_PANNEL_SELF_TOWNMODES_GUARD" );
-        player.Say( SAY_DIALOGBOX_TEXT, "активность гвардии, текущий - " + guards_mode.GetValue() );
-        player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "0 мир" );
+        player.Say( SAY_DIALOGBOX_TEXT, "Отключено" );
     }
+	*/ 
     if( answerI == 2 )
     {
         GameVar@ races_mode = GetGlobalVar( GVAR_inf_modoc_races_mode );
-        player.ShowScreen( SCREEN_DIALOGBOX, 2, "answer_GM_PANNEL_SELF_TOWNMODES_RACES" );
+        player.ShowScreen( SCREEN_DIALOGBOX, 5, "answer_GM_PANNEL_SELF_TOWNMODES_RACES" );
         player.Say( SAY_DIALOGBOX_TEXT, "расизм, текущий - " + races_mode.GetValue() );
         player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "0 мир" );
+		player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "1 расизм" );
+		player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "2 ярый расизм" );
+		player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "3 отражение атаки" );
+		player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "4 смерть мутантам" );
     }
     if( answerI == 3 )
     {
@@ -2698,6 +2777,7 @@ void answer_GM_PANNEL_SELF_TOWNMODES( Critter& player, uint answerI, string& ans
         player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "4 карантин2" );
         player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "5 открыть город" );
     }
+	/* android
     if( answerI == 4 )
     {
         GameVar@ Reg = GetGlobalVar( GVAR_inf_modoc_reg );       // регистрация
@@ -2706,6 +2786,7 @@ void answer_GM_PANNEL_SELF_TOWNMODES( Critter& player, uint answerI, string& ans
         else
             Reg.opAssign( 0 );
     }
+	*/
     if( answerI == 5 )
     {
         unsafe_GM_PANNEL_SELF( player, 0, 0, 0, null, null );
@@ -2716,15 +2797,14 @@ void answer_GM_PANNEL_SELF_TOWNMODES_WAR( Critter& player, uint answerI, string&
 {
     GameVar@ war_mode = GetGlobalVar( GVAR_inf_modoc_war_mode );
     war_mode.opAssign( answerI );
+	
+	LogGmStuff (player, "GM PANEL: Сменил военное положение в Модоке на " + answerI);
 
-    player.ShowScreen( SCREEN_DIALOGBOX, 5, "answer_GM_PANNEL_SELF_TOWNMODES_WAR" );
+    player.ShowScreen( SCREEN_DIALOGBOX, 2, "answer_GM_PANNEL_SELF_TOWNMODES_WAR" );
     player.Say( SAY_DIALOGBOX_TEXT, "воен положение, текущее - " + war_mode.GetValue() );
     player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "0 мир" );
-    player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "1 -чужаки" );
-    player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "2 #чужаки" );
-    player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "3 defcon 4" );
-    player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "4 defcon 5" );
-}
+    player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "1 воен полож" );
+	}
 
 void answer_GM_PANNEL_SELF_TOWNMODES_GUARD( Critter& player, uint answerI, string& answerS )
 {
@@ -2736,12 +2816,25 @@ void answer_GM_PANNEL_SELF_TOWNMODES_RACES( Critter& player, uint answerI, strin
 {
     GameVar@ races_mode = GetGlobalVar( GVAR_inf_modoc_races_mode );
     races_mode.opAssign( answerI );
+	
+	LogGmStuff (player, "GM PANEL: Сменил режим расизма в Модоке на " + answerI);
+	
+	player.ShowScreen( SCREEN_DIALOGBOX, 2, "answer_GM_PANNEL_SELF_TOWNMODES_RACES" );
+	player.Say( SAY_DIALOGBOX_TEXT, "расизм, текущий - " + races_mode.GetValue() );
+    player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "0 мир" );
+	player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "1 расизм" );
+	player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "2 ярый расизм" );
+	player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "3 отражение атаки" );
+	player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "4 смерть мутантам" );
+	
 }
 
 void answer_GM_PANNEL_SELF_TOWNMODES_GATES( Critter& player, uint answerI, string& answerS )
 {
     GameVar@ border_mode = GetGlobalVar( GVAR_inf_modoc_border_mode );
     border_mode.opAssign( answerI );
+	
+	LogGmStuff (player, "GM PANEL: Сменил режим шлюза в Модоке на " + answerI);
 
     player.ShowScreen( SCREEN_DIALOGBOX, 6, "answer_GM_PANNEL_SELF_TOWNMODES_GATES" );
     player.Say( SAY_DIALOGBOX_TEXT, "шлюз, текущий - " + border_mode.GetValue() );
@@ -2842,8 +2935,8 @@ void answer_GM_PANNEL_CRITTER_PLAYER( Critter& player, uint answerI, string& ans
         player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "-Карма" );
         player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "+Хп" );
 		player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "-Хп" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "+перк" );
-        player.Say( SAY_DIALOGBOX_BUTTON( 6 ), "-перк" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "" );
+        player.Say( SAY_DIALOGBOX_BUTTON( 6 ), "" );
         player.Say( SAY_DIALOGBOX_BUTTON( 7 ), "назад" );
     }
 }
@@ -2889,6 +2982,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_GIFT( Critter& player, uint answerI, string
 		player.ShowScreen( SCREEN_SAY, 0, "gm@ask_GM_PANNEL_CRITTER_PLAYER_GIFT_ADD" );
         player.Say( SAY_SAY_TITLE, "Хп" );
     }
+	/* android
     if( answerI == 5 )
     {
 		player.ParamBase[ ST_VAR1 ] = PERK_BEGIN;
@@ -2915,6 +3009,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_GIFT( Critter& player, uint answerI, string
         }
         player.Say( SAY_DIALOGBOX_BUTTON( 11 ), "далее" );
     }
+	*/
     if( answerI == 7 )
     {
         GM_PANNEL_CRITTER_PLAYER( player, cr.Id, 0, 0, null, null );
@@ -2981,11 +3076,13 @@ void ask_GM_PANNEL_CRITTER_PLAYER_GIFT_ADD( Critter& player, uint answerI, strin
 			{
 			target.ParamBase[ parameter ] += number;
 			player.Say( SAY_NETMSG, "вы увеличили параметр " + parameter + " на " + number + " у игрока " + target.Id );
+			LogGmStuff (player, "GM PANEL: Увеличил параметр " + parameter + " на " + number + " у персонажа " + GetPlayerName (target.Id) + " id: " + target.Id );
 			}
         else
 			{
 			target.ParamBase[ parameter ] -= number;
 			player.Say( SAY_NETMSG, "вы уменьшили параметр " + parameter + " на " + number + " у игрока " + target.Id );
+			LogGmStuff (player, "GM PANEL: Уменьшил параметр " + parameter + " на " + number + " у персонажа " + GetPlayerName (target.Id) + " id: " + target.Id );
 			}
 		ChangeCritterSpeed(target);
 	}
@@ -3000,6 +3097,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_GAMEMODES( Critter& player, uint answerI, s
         return;
     cr.ParamBase[ QST_GAMEMODE ] = answerI;
     Log_factions( player, cr.Id, 0, answerI, null, null );
+	LogGmStuff (player, "GM PANEL: Сменил режим игры на " + answerI + " у персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id );
 }
 
 void answer_GM_PANNEL_CRITTER_PLAYER_BANS( Critter& player, uint answerI, string& answerS )
@@ -3010,10 +3108,12 @@ void answer_GM_PANNEL_CRITTER_PLAYER_BANS( Critter& player, uint answerI, string
     if( answerI == 0 )
     {
         Warn( player, cr.Id, 0, 0 );
+		LogGmStuff (player, "GM PANEL: Выдал предупреждение для персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id);
     }
     if( answerI == 1 )
     {
         KickId( player, cr.Id, 0, 0 );
+		LogGmStuff (player, "GM PANEL: Кикнул персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id);
     }
     if( answerI == 2 )
     {
@@ -3040,15 +3140,19 @@ void answer_GM_PANNEL_CRITTER_PLAYER_BANS( Critter& player, uint answerI, string
         player.ShowScreen( SCREEN_SAY, 0, "gm@ask_GM_PANNEL_CRITTER_PLAYER_BANS_KICKBAN" );
         player.Say( SAY_SAY_TITLE, "Бан " + GetPlayerName( cr.Id ) + " на часов:" );
     }
+	/* android
     if( answerI == 5 )
     {
         player.ShowScreen( SCREEN_SAY, 0, "gm@ask_GM_PANNEL_CRITTER_PLAYER_BANS_KICKBANIP" );
         player.Say( SAY_SAY_TITLE, "Бан по IP" + GetPlayerName( cr.Id ) + " на часов:" );
     }
+	*/
     if( answerI == 6 )
     {
         UnbanId( player, cr.Id, 0, 0 );
         player.Say( SAY_NETMSG, "персонаж " + GetPlayerName( cr.Id ) + "(" + cr.Id + ")" + " разблокирован" );
+		
+		LogGmStuff (player, "GM PANEL: Разбанил персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id);
 
         player.ShowScreen( SCREEN_DIALOGBOX, 8, "answer_GM_PANNEL_CRITTER_PLAYER_BANS" );
         player.Say( SAY_DIALOGBOX_TEXT, "Модерация" );
@@ -3064,6 +3168,9 @@ void answer_GM_PANNEL_CRITTER_PLAYER_BANS( Critter& player, uint answerI, string
     if( answerI == 7 )
     {
         GM_HardBanId( player, cr.Id );
+		
+		LogGmStuff (player, "GM PANEL: Забанил персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " по системе");
+		
         player.Say( SAY_NETMSG, "персонаж " + GetPlayerName( cr.Id ) + "(" + cr.Id + ")" + " заблокирован по системе" );
         player.ShowScreen( SCREEN_SAY, 0, "gm@ask_GM_PANNEL_CRITTER_PLAYER_BANS_BAN" );
         player.Say( SAY_SAY_TITLE, "Бан " + GetPlayerName( cr.Id ) + " на часов:" );
@@ -3086,6 +3193,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_BANS_KILL( Critter& player, uint answerI, s
     }
 
 	killbytype( player, answerI, 0, 0, null, null );
+	LogGmStuff (player, "GM PANEL: Убил персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id);
 }
 
 void ask_GM_PANNEL_CRITTER_PLAYER_BANS_UNBAN( Critter& player, uint answerI, string& answerS )
@@ -3163,6 +3271,9 @@ void ask_GM_PANNEL_CRITTER_PLAYER_BANS_KICKBAN( Critter& player, uint answerI, s
             return;
         }
         BanId( player, cr.Id, number, 1 );
+		
+		LogGmStuff (player, "GM PANEL: Забанил и кикнул персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + number + " часов.");
+		
         player.Say( SAY_NETMSG, "персонаж " + GetPlayerName( cr.Id ) + "(" + cr.Id + ")" + " заблокирован на " + number + " часов" );
 
         player.ShowScreen( SCREEN_DIALOGBOX, 8, "answer_GM_PANNEL_CRITTER_PLAYER_BANS" );
@@ -3193,6 +3304,9 @@ void ask_GM_PANNEL_CRITTER_PLAYER_BANS_BAN( Critter& player, uint answerI, strin
             return;
         }
         BanId( player, cr.Id, number, 0 );
+		
+		LogGmStuff (player, "GM PANEL: Забанил персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + number + " часов.");
+		
         player.Say( SAY_NETMSG, "персонаж " + GetPlayerName( cr.Id ) + "(" + cr.Id + ")" + "заблокирован на " + number + " часов" );
 
         player.ShowScreen( SCREEN_DIALOGBOX, 8, "answer_GM_PANNEL_CRITTER_PLAYER_BANS" );
@@ -3296,7 +3410,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS( Critter& player, uint answerI, strin
     {
         GameVar@ citizenship = GetLocalVar( LVAR_modoc_citizenship, cr.Id );
         GameVar@ faction = GetLocalVar( LVAR_faction, cr.Id );
-        player.ShowScreen( SCREEN_DIALOGBOX, 12, "answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS" );
+        player.ShowScreen( SCREEN_DIALOGBOX, 13, "answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS" );
         player.Say( SAY_DIALOGBOX_TEXT, "Текущая фракция - " + faction.GetValue() + ". Текущий пропуск - " + citizenship.GetValue() );
         player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "0 - без фракции" );
         player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "1 - администрация" );
@@ -3310,6 +3424,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS( Critter& player, uint answerI, strin
         player.Say( SAY_DIALOGBOX_BUTTON( 9 ), "2 - гость" );
         player.Say( SAY_DIALOGBOX_BUTTON( 10 ), "3 - гражданин" );
         player.Say( SAY_DIALOGBOX_BUTTON( 11 ), "4 - богатый гражданин" );
+		player.Say( SAY_DIALOGBOX_BUTTON( 12 ), "10 - изгой" );
     }
     if( answerI == 7 )
     {
@@ -3369,6 +3484,7 @@ void unsafe_Description( Critter& player, int skill, int p1, int p2, string@ mes
         if( cr is null )
             return;
         cr.SetLexems( message );
+		LogGmStuff (player, "GM PANEL: Сменил описание персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + message);
     }
 }
 
@@ -3380,37 +3496,99 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_DAMAGES( Critter& player, uint answer
     if( answerI == 0 )
     {
         if( cr.ParamBase[ DAMAGE_EYE ] == 0 )
+		{
             cr.ParamBase[ DAMAGE_EYE ] = 1;
+			
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_EYE для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_EYE персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);	
+			
+		}
         else
+		{
             cr.ParamBase[ DAMAGE_EYE ] = 0;
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_EYE для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_EYE персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     else if( answerI == 1 )
     {
         if( cr.ParamBase[ DAMAGE_RIGHT_ARM ] == 0 )
+		{
             cr.ParamBase[ DAMAGE_RIGHT_ARM ] = 1;
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_RIGHT_ARM для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_RIGHT_ARM персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);		
+		}
         else
+		{
             cr.ParamBase[ DAMAGE_RIGHT_ARM ] = 0;
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_RIGHT_ARM для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_RIGHT_ARM персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}			
     }
     else if( answerI == 2 )
     {
         if( cr.ParamBase[ DAMAGE_LEFT_ARM ] == 0 )
+		{
             cr.ParamBase[ DAMAGE_LEFT_ARM ] = 1;
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_LEFT_ARM для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_LEFT_ARM персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}			
         else
+		{
             cr.ParamBase[ DAMAGE_LEFT_ARM ] = 0;
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_LEFT_ARM для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_LEFT_ARM персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}			
     }
     else if( answerI == 3 )
     {
         if( cr.ParamBase[ DAMAGE_RIGHT_LEG ] == 0 )
+		{
             cr.ParamBase[ DAMAGE_RIGHT_LEG ] = 1;
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_RIGHT_LEG для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_RIGHT_LEG персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}			
         else
+		{
             cr.ParamBase[ DAMAGE_RIGHT_LEG ] = 0;
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_RIGHT_LEG для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_RIGHT_LEG персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}			
     }
     else if( answerI == 4 )
     {
         if( cr.ParamBase[ DAMAGE_LEFT_LEG ] == 0 )
+		{
             cr.ParamBase[ DAMAGE_LEFT_LEG ] = 1;
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_LEFT_LEG для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_LEFT_LEG персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}			
         else
+		{
             cr.ParamBase[ DAMAGE_LEFT_LEG ] = 0;
+			if (cr.IsNpc())
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_LEFT_LEG для NPC id: " + cr.Id);	
+			else
+				LogGmStuff (player, "GM PANEL: Сломал DAMAGE_LEFT_LEG персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}			
     }
 }
 
@@ -3448,6 +3626,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS( Critter& player, uint answerI,
     {
         cr.ChangeCrType( cr.Stat[ ST_GENDER ] == GENDER_MALE ? CRTYPE_DEFAULT_M : CRTYPE_DEFAULT_F );
         cr.StatBase[ ST_BASE_CRTYPE ] = cr.Stat[ ST_GENDER ] == GENDER_MALE ? CRTYPE_DEFAULT_M : CRTYPE_DEFAULT_F;
+		LogGmStuff (player, "GM PANEL: Сменил скин персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на cтандартный.");
     }
     if( answerI == 3 )
     {
@@ -3509,6 +3688,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS_CIVIL( Critter& player, uint an
     Critter@ cr = GetCritter( player.ParamBase[ ST_VAR0 ] );
     if( cr is null )
         return;
+		
     if( answerI == 0 )
     {
         cr.ChangeCrType( 33 );
@@ -3584,6 +3764,8 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS_CIVIL( Critter& player, uint an
         cr.ChangeCrType( 91 );
         cr.StatBase[ ST_BASE_CRTYPE ] = 91;
     }
+	
+	LogGmStuff (player, "GM PANEL: Сменил скин персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI + " в разделе ГРАЖДАНСКИЕ.");
 }
 
 void answer_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS_BATTLE( Critter& player, uint answerI, string& answerS )
@@ -3636,6 +3818,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS_BATTLE( Critter& player, uint a
         cr.ChangeCrType( 87 );
         cr.StatBase[ ST_BASE_CRTYPE ] = 87;
     }
+	LogGmStuff (player, "GM PANEL: Сменил скин персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI + " в разделе БАНДИТСКИЕ.");
 }
 
 void answer_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS_MISC( Critter& player, uint answerI, string& answerS )
@@ -3658,6 +3841,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS_MISC( Critter& player, uint ans
         cr.ChangeCrType( 66 );
         cr.StatBase[ ST_BASE_CRTYPE ] = 66;
     }
+	LogGmStuff (player, "GM PANEL: Сменил скин персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI + " в разделе РАЗНОЕ.");
 }
 
 void ask_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS( Critter& player, uint answerI, string& answerS )
@@ -3675,6 +3859,7 @@ void ask_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS( Critter& player, uint answerI, st
         cr.ChangeCrType( number );
         cr.StatBase[ ST_BASE_CRTYPE ] = number;
         player.Say( SAY_NETMSG, "Скин персонажа " + GetPlayerName( player.ParamBase[ ST_VAR0 ] ) + "  " + player.ParamBase[ ST_VAR0 ] + " был изменен на " + number );
+		LogGmStuff (player, "GM PANEL: Сменил скин персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + number);
     }
 }
 
@@ -3684,7 +3869,39 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_SKINS_BODY( Critter& player, uint ans
     if( cr is null )
         return;
     cr.ParamBase[ ST_BODY_TYPE ] = answerI;
-}
+	
+	if( answerI == 0 )
+    {
+        cr.ChangeCrType( 62 );
+        cr.StatBase[ ST_BASE_CRTYPE ] = 62;
+    }
+    if( answerI == 1 )
+    {
+        cr.ChangeCrType( 64 );
+        cr.StatBase[ ST_BASE_CRTYPE ] = 64;
+    }
+    if( answerI == 2 )
+    {
+        cr.ChangeCrType( 110 );
+        cr.StatBase[ ST_BASE_CRTYPE ] = 110;
+    }
+	if( answerI == 3 )
+    {
+        cr.ChangeCrType( 120 );
+        cr.StatBase[ ST_BASE_CRTYPE ] = 120;
+    }
+    if( answerI == 4 )
+    {
+        cr.ChangeCrType( 61 );
+        cr.StatBase[ ST_BASE_CRTYPE ] = 61;
+    }
+    if( answerI == 5 )
+    {
+        cr.ChangeCrType( 63 );
+        cr.StatBase[ ST_BASE_CRTYPE ] = 63;
+    }
+	LogGmStuff (player, "GM PANEL: Сменил скин персонажа " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI + " в разделе ДИКАРИ.");
+	}
 
 void answer_GM_PANNEL_CRITTER_PLAYER_STATS_MODES( Critter& player, uint answerI, string& answerS )
 {
@@ -3694,65 +3911,119 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_MODES( Critter& player, uint answerI,
     if( answerI == 0 )
     {
         if( cr.ModeBase[ MODE_NO_PVP ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_PVP ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_PVP персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_PVP ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_PVP персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     if( answerI == 1 )
     {
         if( cr.ModeBase[ MODE_INVULNERABLE ] == 0 )
+		{
             cr.ModeBase[ MODE_INVULNERABLE ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_INVULNERABLE персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_INVULNERABLE ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_INVULNERABLE персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     if( answerI == 2 )
     {
         if( cr.ModeBase[ MODE_NO_LOOT ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_LOOT ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_LOOT персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_LOOT ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_LOOT персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     if( answerI == 3 )
     {
         if( cr.ModeBase[ MODE_NO_STEAL ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_STEAL ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_STEAL персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_STEAL ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_STEAL персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     if( answerI == 4 )
     {
         if( cr.ModeBase[ MODE_NO_PUSH ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_PUSH ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_PUSH персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_PUSH ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_PUSH персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     if( answerI == 5 )
     {
         if( cr.ModeBase[ MODE_NO_WALK ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_WALK ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_WALK персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_WALK ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_WALK персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     if( answerI == 6 )
     {
         if( cr.ModeBase[ MODE_NO_RUN ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_RUN ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_RUN персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_RUN ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_RUN персонажу " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     if( answerI == 7 )
     {
         if( cr.ModeBase[ MODE_NO_LOOSE_LIMBS ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_LOOSE_LIMBS ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_LOOSE_LIMBS для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_LOOSE_LIMBS ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_LOOSE_LIMBS для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     if( answerI == 8 )
     {
         if( cr.ModeBase[ MODE_NO_KNOCK ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_KNOCK ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_KNOCK для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_KNOCK ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_KNOCK для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id);
+		}
     }
     if( answerI == 9 )
     {
@@ -3778,6 +4049,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_MODES_MEDIUM( Critter& player, uint a
         player.Say( SAY_SAY_TITLE, "Ид" );
     }
 	else cr.ParamBase[ QST_MEDIUM ] = answerI;
+	LogGmStuff (player, "GM PANEL: Сменил QST_MEDIUM для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI);
 }
 
 void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answerI, string& answerS )
@@ -3793,6 +4065,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         RestartFactions( cr, 0, 0, 0 );
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
         Log_factions( player, cr.Id, 2, 0, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил фракцию для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI);
     }
     if( answerI == 1 )
     {
@@ -3800,6 +4073,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         RestartFactions( cr, 0, 0, 0 );
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
         Log_factions( player, cr.Id, 2, 1, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил фракцию для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI);
     }
     if( answerI == 2 )
     {
@@ -3807,6 +4081,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         RestartFactions( cr, 0, 0, 0 );
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
         Log_factions( player, cr.Id, 2, 2, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил фракцию для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI);
     }
     if( answerI == 3 )
     {
@@ -3814,6 +4089,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         RestartFactions( cr, 0, 0, 0 );
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
         Log_factions( player, cr.Id, 2, 3, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил фракцию для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI);
     }
     if( answerI == 4 )
     {
@@ -3821,6 +4097,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         RestartFactions( cr, 0, 0, 0 );
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
         Log_factions( player, cr.Id, 2, 4, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил фракцию для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI);
     }
     if( answerI == 5 )
     {
@@ -3828,6 +4105,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         RestartFactions( cr, 0, 0, 0 );
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
         Log_factions( player, cr.Id, 2, 5, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил фракцию для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI);
     }
     if( answerI == 6 )
     {
@@ -3835,6 +4113,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         RestartFactions( cr, 0, 0, 0 );
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
         Log_factions( player, cr.Id, 2, 6, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил фракцию для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на " + answerI);
     }
     if( answerI == 7 )
     {
@@ -3842,20 +4121,34 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         RestartFactions( cr, 0, 0, 0 );
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
         Log_factions( player, cr.Id, 1, 0, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил гражданство для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на 0");
     }
     if( answerI == 8 )
     {
         citizenship.opAssign( 1 );
+		Item@ pass = cr.AddItem( PID_MODOC_DAY_PASS, 1 );
+        pass.Val1 = cr.Id;
+        cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
+        player.ShowScreen( SCREEN_SAY, 0, "handcuffs@PassportLex" );
+        player.Say( SAY_SAY_TITLE, "Имя в документы" );
+        player.StatBase[ ST_VAR3 ] = pass.Id;
         RestartFactions( cr, 0, 0, 0 );
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
         Log_factions( player, cr.Id, 1, 1, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил гражданство для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на временного гостя.");
     }
     if( answerI == 9 )
     {
         citizenship.opAssign( 2 );
-        RestartFactions( cr, 0, 0, 0 );
+		Item@ pass = cr.AddItem( PID_MODOC_PASS, 1 );
+        pass.Val1 = cr.Id;
         cr.ParamBase[ MERC_MASTER_ID ] = player.Id;
+        player.ShowScreen( SCREEN_SAY, 0, "handcuffs@PassportLex" );
+        player.Say( SAY_SAY_TITLE, "Имя в документы" );
+        player.StatBase[ ST_VAR3 ] = pass.Id;
+        RestartFactions( cr, 0, 0, 0 );
         Log_factions( player, cr.Id, 1, 2, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил гражданство для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на постоянного гостя.");
     }
     if( answerI == 10 )
     {
@@ -3868,6 +4161,7 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         player.StatBase[ ST_VAR3 ] = pass.Id;
         RestartFactions( cr, 0, 0, 0 );
         Log_factions( player, cr.Id, 1, 3, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил гражданство для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на гражданина.");
     }
     if( answerI == 11 )
     {
@@ -3880,7 +4174,15 @@ void answer_GM_PANNEL_CRITTER_PLAYER_STATS_FACTIONS( Critter& player, uint answe
         player.StatBase[ ST_VAR3 ] = pass.Id;
         RestartFactions( cr, 0, 0, 0 );
         Log_factions( player, cr.Id, 1, 4, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил гражданство для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на богатого гражданина.");
     }
+	if( answerI == 12 )
+	{
+		citizenship.opAssign( 10 );
+        RestartFactions( cr, 0, 0, 0 );
+        Log_factions( player, cr.Id, 1, 4, null, null );
+		LogGmStuff (player, "GM PANEL: Сменил гражданство для NPC " + GetPlayerName (cr.Id) + " id: " + cr.Id + " на изгоя.");
+	}
 }
 
 void answer_GM_PANNEL_CRITTER_PLAYER_STATS_SKILL2( Critter& player, uint answerI, string& answerS )
@@ -4054,6 +4356,11 @@ void ask_GM_PANNEL_CRITTER_PLAYER_STATS_SPECIAL( Critter& player, uint answerI, 
         StrToInt( answerS, number );
         target.ParamBase[ parameter ] = number;
         player.Say( SAY_NETMSG, "вы изменили параметр " + parameter + " на " + number + " у игрока " + target.Id );
+		
+		if (target.IsNpc())
+			LogGmStuff (player, "GM PANEL: Изменил параметр " + parameter + " для npc id: " + target.Id + " на " + number);
+		else
+			LogGmStuff (player, "GM PANEL: Изменил параметр " + parameter + " для персонажа " + GetPlayerName (target.Id) + " id: " + target.Id + " на " + number);
 		ChangeCritterSpeed(target);
         if( parameter >= 0 && parameter <= 6 )
         {
@@ -4160,7 +4467,7 @@ void answer_GM_PANNEL_CRITTER_NPC( Critter& player, uint answerI, string& answer
         player.Say( SAY_DIALOGBOX_BUTTON( 7 ), "Доп парам" );
         player.Say( SAY_DIALOGBOX_BUTTON( 8 ), "Лексема" );
     }
-    if( answerI == 1 )
+    if( answerI == 2 )
     {
         player.ShowScreen( SCREEN_DIALOGBOX, 9, "answer_GM_PANNEL_CRITTER_NPC_STATS" );
         player.Say( SAY_DIALOGBOX_TEXT, "НПЦ параметры, protoId - " + cr.GetProtoId() + ", диалог - " + cr.ParamBase[ ST_DIALOG_ID ] );
@@ -4223,100 +4530,184 @@ void answer_GM_PANNEL_CRITTER_NPC_MODES( Critter& player, uint answerI, string& 
     if( answerI == 0 )
     {
         if( cr.ModeBase[ MODE_NO_HOME ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_HOME ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_HOME для NPC id: " + cr.Id);
+		}	
         else
+		{
             cr.ModeBase[ MODE_NO_HOME ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_HOME для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 1 )
     {
         if( cr.ModeBase[ MODE_NO_ENEMY_STACK ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_ENEMY_STACK ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_ENEMY_STACK для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_ENEMY_STACK ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_ENEMY_STACK для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 2 )
     {
         if( cr.ModeBase[ MODE_NO_LOOT ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_LOOT ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_LOOT для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_LOOT ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_LOOT для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 3 )
     {
         if( cr.ModeBase[ MODE_NO_STEAL ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_STEAL ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_STEAL для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_STEAL ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_STEAL для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 4 )
     {
         if( cr.ModeBase[ MODE_NO_PUSH ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_PUSH ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_PUSH для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_PUSH ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_PUSH для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 5 )
     {
         if( cr.ModeBase[ MODE_NO_WALK ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_WALK ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_WALK для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_WALK ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_WALK для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 6 )
     {
         if( cr.ModeBase[ MODE_NO_RUN ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_RUN ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_RUN для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_RUN ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_RUN для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 7 )
     {
         if( cr.ModeBase[ MODE_NO_LOOSE_LIMBS ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_LOOSE_LIMBS ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_LOOSE_LIMBS для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_LOOSE_LIMBS ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_LOOSE_LIMBS для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 8 )
     {
         if( cr.ModeBase[ MODE_NO_KNOCK ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_KNOCK ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_KNOCK для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_KNOCK ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_KNOCK для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 9 )
     {
         if( cr.ModeBase[ MODE_NO_BARTER ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_BARTER ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_BARTER для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_BARTER ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_BARTER для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 10 )
     {
         if( cr.ModeBase[ MODE_BARTER_ONLY_CASH ] == 0 )
+		{
             cr.ModeBase[ MODE_BARTER_ONLY_CASH ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_BARTER_ONLY_CASH для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_BARTER_ONLY_CASH ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_BARTER_ONLY_CASH для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 11 )
     {
         if( cr.ModeBase[ MODE_NO_TALK ] == 0 )
+		{
             cr.ModeBase[ MODE_NO_TALK ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_NO_TALK для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_NO_TALK ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_NO_TALK для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 12 )
     {
         if( cr.ModeBase[ MODE_UNLIMITED_AMMO ] == 0 )
+		{
             cr.ModeBase[ MODE_UNLIMITED_AMMO ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_UNLIMITED_AMMO для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_UNLIMITED_AMMO ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_UNLIMITED_AMMO для NPC id: " + cr.Id);
+		}
     }
     if( answerI == 13 )
     {
         if( cr.ModeBase[ MODE_INVULNERABLE ] == 0 )
+		{
             cr.ModeBase[ MODE_INVULNERABLE ] = 1;
+			LogGmStuff (player, "GM PANEL: Включил MODE_INVULNERABLE для NPC id: " + cr.Id);
+		}
         else
+		{
             cr.ModeBase[ MODE_INVULNERABLE ] = 0;
+			LogGmStuff (player, "GM PANEL: Выключил MODE_INVULNERABLE для NPC id: " + cr.Id);
+		}
     }
 }
 
@@ -4329,10 +4720,11 @@ void GM_PANNEL_ITEM( Critter& player, int itemId, int param1, int param2, string
         if( item is null )
             return;
         player.StatBase[ ST_VAR0 ] = itemId;
-        player.ShowScreen( SCREEN_DIALOGBOX, 2, "answer_GM_PANNEL_ITEM" );
+        player.ShowScreen( SCREEN_DIALOGBOX, 3, "answer_GM_PANNEL_ITEM" );
         player.Say( SAY_DIALOGBOX_TEXT, "Предмет, protoID =" + item.GetProtoId() + ", ид =" + itemId );
         player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "переменные" );
 		player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "назначить скрипт" );
+		player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "флаги" );
     }
 }
 
@@ -4360,6 +4752,20 @@ void answer_GM_PANNEL_ITEM( Critter& player, uint answerI, string& answerS )
         player.Say( SAY_DIALOGBOX_TEXT, "Предмет, protoID =" + item.GetProtoId() + ", ид =" + item.Id );
         player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "верстак");
     }
+	if( answerI == 2 )
+	{
+		player.ShowScreen( SCREEN_DIALOGBOX, 9, "answer_GM_PANNEL_ITEM_FLAG" );
+        player.Say( SAY_DIALOGBOX_TEXT, "Предмет, protoID =" + item.GetProtoId() + ", ид =" + item.Id );
+		player.Say( SAY_DIALOGBOX_BUTTON( 0 ), "плоский " + FLAG( item.Flags, ITEM_FLAT ) );
+		player.Say( SAY_DIALOGBOX_BUTTON( 1 ), "проходимый " + FLAG( item.Flags, ITEM_NO_BLOCK ) );
+		player.Say( SAY_DIALOGBOX_BUTTON( 2 ), "прострел " + FLAG( item.Flags, ITEM_SHOOT_THRU ) );
+		player.Say( SAY_DIALOGBOX_BUTTON( 3 ), "не блок свет " + FLAG( item.Flags, ITEM_LIGHT_THRU ) );
+		player.Say( SAY_DIALOGBOX_BUTTON( 4 ), "нет обводки " + FLAG( item.Flags, ITEM_NO_HIGHLIGHT ) );
+		player.Say( SAY_DIALOGBOX_BUTTON( 5 ), "используемый " + FLAG( item.Flags, ITEM_CAN_USE ) );
+		player.Say( SAY_DIALOGBOX_BUTTON( 6 ), "источник света " + FLAG( item.Flags, ITEM_LIGHT ) );
+		player.Say( SAY_DIALOGBOX_BUTTON( 7 ), "игнор света " + FLAG( item.Flags, ITEM_NO_LIGHT_INFLUENCE ) );
+		player.Say( SAY_DIALOGBOX_BUTTON( 8 ), "подбираемый " + FLAG( item.Flags, ITEM_CAN_PICKUP ) );
+	}
 }
 
 void answer_GM_PANNEL_ITEM_SCRIPT( Critter& player, uint answerI, string& answerS )
@@ -4369,9 +4775,13 @@ void answer_GM_PANNEL_ITEM_SCRIPT( Critter& player, uint answerI, string& answer
             return;
     if( answerI == 0 )
     {
-	if( item.GetProtoId() != 157 ) { player.Say( SAY_NETMSG, "Не тот прототип." ); return; }
-	else SetWorkbench( player, item.Id, 0, 0 );
-    }
+	if( (item.GetProtoId() != 157) && (player.GetAccess() <= ACCESS_MODER) ) { player.Say( SAY_NETMSG, "Не тот прототип." ); return; } 
+	else
+	{
+	SetWorkbench( player, item.Id, 0, 0 );
+	LogGmStuff (player, "GM PANEL: Выставил предмету " + item.Id + " скрипт верстака.");
+	}
+	}
 }
 
 void answer_GM_PANNEL_ITEM_VALS( Critter& player, uint answerI, string& answerS )
@@ -4382,6 +4792,103 @@ void answer_GM_PANNEL_ITEM_VALS( Critter& player, uint answerI, string& answerS 
         player.ParamBase[ ST_VAR1 ] = answerI;
         player.ShowScreen( SCREEN_SAY, 0, "gm@ask_GM_PANNEL_ITEM" );
         player.Say( SAY_SAY_TITLE, "Val"+answerI);
+}
+
+void answer_GM_PANNEL_ITEM_FLAG( Critter& player, uint answerI, string& answerS )
+{
+	Item@ item = GetItem( player.StatBase[ ST_VAR0 ] );
+	if( item is null )
+        return;
+	
+	string logflag;
+
+	switch( answerI )
+	{
+	case 0:
+	{
+		if FLAG( item.Flags, ITEM_FLAT ) 
+			UNSETFLAG( item.Flags, ITEM_FLAT );
+		else
+			SETFLAG( item.Flags, ITEM_FLAT );
+		logflag = "ITEM_FLAT";
+	}
+	break;
+	case 1:
+	{
+		if FLAG( item.Flags, ITEM_NO_BLOCK ) 
+			UNSETFLAG( item.Flags, ITEM_NO_BLOCK );
+		else
+			SETFLAG( item.Flags, ITEM_NO_BLOCK );
+		logflag = "ITEM_NO_BLOCK";
+	}
+	break;
+	case 2:
+	{
+		if FLAG( item.Flags, ITEM_SHOOT_THRU ) 
+			UNSETFLAG( item.Flags, ITEM_SHOOT_THRU );
+		else
+			SETFLAG( item.Flags, ITEM_SHOOT_THRU );
+		logflag = "ITEM_SHOOT_THRU";
+	}
+	break;
+	case 3:
+	{
+		if FLAG( item.Flags, ITEM_LIGHT_THRU ) 
+			UNSETFLAG( item.Flags, ITEM_LIGHT_THRU );
+		else
+			SETFLAG( item.Flags, ITEM_LIGHT_THRU );
+		logflag = "ITEM_LIGHT_THRU";
+	}
+	break;
+	case 4:
+	{
+		if FLAG( item.Flags, ITEM_NO_HIGHLIGHT ) 
+			UNSETFLAG( item.Flags, ITEM_NO_HIGHLIGHT );
+		else
+			SETFLAG( item.Flags, ITEM_NO_HIGHLIGHT );
+		logflag = "ITEM_NO_HIGHLIGHT";
+	}
+	break;
+	case 5:
+	{
+		if FLAG( item.Flags, ITEM_CAN_USE ) 
+			UNSETFLAG( item.Flags, ITEM_CAN_USE );
+		else
+			SETFLAG( item.Flags, ITEM_CAN_USE );
+		logflag = "ITEM_CAN_USE";
+	}
+	break;
+	case 6:
+	{
+		if FLAG( item.Flags, ITEM_LIGHT ) 
+			UNSETFLAG( item.Flags, ITEM_LIGHT );
+		else
+			SETFLAG( item.Flags, ITEM_LIGHT );
+		logflag = "ITEM_LIGHT";
+	}
+	break;
+	case 7:
+	{
+		if FLAG( item.Flags, ITEM_NO_LIGHT_INFLUENCE ) 
+			UNSETFLAG( item.Flags, ITEM_NO_LIGHT_INFLUENCE );
+		else
+			SETFLAG( item.Flags, ITEM_NO_LIGHT_INFLUENCE );
+		logflag = "ITEM_NO_LIGHT_INFLUENCE";
+	}
+	break;
+	case 8:
+	{
+		if FLAG( item.Flags, ITEM_CAN_PICKUP ) 
+			UNSETFLAG( item.Flags, ITEM_CAN_PICKUP );
+		else
+			SETFLAG( item.Flags, ITEM_CAN_PICKUP );
+		logflag = "ITEM_CAN_PICKUP";
+	}
+	break;
+	}
+	item.Update();
+	string logmsg = "GM PANEL: Изменил флаг " + logflag + " для предмета " + item.Id; 
+	LogGmStuff (player, logmsg);
 }
 
 void ask_GM_PANNEL_ITEM( Critter& player, uint answerI, string& answerS )
@@ -4406,6 +4913,7 @@ void ask_GM_PANNEL_ITEM( Critter& player, uint answerI, string& answerS )
       case  8: item.Val8=number;  break;
       }
         player.Say( SAY_NETMSG, "вы изменили val" + val_number + " на " + number + " у предмета " + item.Id );
+		LogGmStuff (player, "GM PANEL: Изменил предмету " + item.Id + " переменную Val" + val_number + " на " + number);
 
         player.ShowScreen( SCREEN_DIALOGBOX, 9, "answer_GM_PANNEL_ITEM_VALS" );
         player.Say( SAY_DIALOGBOX_TEXT, "Предмет, protoID =" + item.GetProtoId() + ", ид =" + item.Id );
@@ -4452,6 +4960,7 @@ void answer_GM_PANNEL_HEX( Critter& player, uint answerI, string& answerS )
         Map@ map = player.GetMap();
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
+		LogGmStuff (player, "GM PANEL: Повторил спавн нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
     }
     if( answerI == 1 )
     {
@@ -4634,6 +5143,7 @@ void answer_GM_PANNEL_HEX_SPAWN_ANIMAL( Critter& player, uint answerI, string& a
             bonus_skill = player.ParamBase[ MERC_WAIT_FOR_MASTER ];
 
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     else if( answerI == 13 )
@@ -4658,6 +5168,7 @@ void answer_GM_PANNEL_HEX_SPAWN_MONSTER( Critter& player, uint answerI, string& 
             bonus_skill = player.ParamBase[ MERC_WAIT_FOR_MASTER ];
 
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     else if( answerI == 8 )
@@ -4686,6 +5197,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_REVKNIFE2;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 1 )
@@ -4699,6 +5211,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_SPEAK_P;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 2 )
@@ -4712,6 +5225,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_REVKNIFE2;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 3 )
@@ -4725,6 +5239,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_REV_BALL2;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 4 )
@@ -4738,6 +5253,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_CHAIN;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 5 )
@@ -4753,6 +5269,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_SHIV;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 6 )
@@ -4768,6 +5285,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_ZIP_GUN;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 7 )
@@ -4783,6 +5301,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_GECKO_LOW;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 8 )
@@ -4798,6 +5317,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_ZIP_GUN;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 9 )
@@ -4811,6 +5331,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
                 weapon = PID_SPEAK_P;
         }
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+		LogGmStuff (player, "GM PANEL: Заспавнил нпц " + type + " на карте " + player.GetMapId() + " , гексы: " + hexX + " " + hexY);
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
     if( answerI == 10 )
@@ -4820,6 +5341,7 @@ void answer_GM_PANNEL_HEX_SPAWN_RAIDER( Critter& player, uint answerI, string& a
         if( weapon == 0 )
             weapon = PID_DRUM_GUN_LOW;
         GM_SPAWN( player, map, type, weapon, AI_type, hexX, hexY, bonus_hp, bonus_dmg, bonus_skill );
+
         GM_PANNEL_HEX( player, hexX + Random( -1, 1 ), hexY + Random( -1, 1 ), 0, null, null );
     }
 }
@@ -5156,7 +5678,7 @@ import void BanId( Critter& player, int id, int hours, int kick ) from "banhamme
 import void KickId( Critter& player, int id, int, int ) from "banhammer";
 import void KickBanIdIp( Critter& player, int id, int hours, int mask_level ) from "banhammer";
 import void UnbanId( Critter& player, int id, int, int ) from "banhammer";
-import void GetIps( Critter& player, int id, int, int ) from "banhammer";
+import void GetIps( Critter& player, int id, int len, int ) from "banhammer";
 import void GM_HardBanId( Critter& player, int id ) from "banhammer";
 
 void banid( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
@@ -5181,7 +5703,7 @@ void unbanid( Critter& player, int param0, int param1, int param2, string@ param
 
 void getips( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
 {
-    GetIps( player, param0, 0, 0 );
+    GetIps( player, param0, param1, 0 );
 }
 
 void statcompareradius( Critter& player, int param0, int param1, int param2, string@ param3, int[] @ param4 )
@@ -5663,6 +6185,7 @@ void unsafe_Stick(Critter& cr, int, int, int, string@, int[]@){
 }
 
 import string testdbgetaccname(int index) from "accessdb";
+import string GetLastIp(int id) from "banhammer";
 
 void unsafe_Logging(Critter& cr, int, int, int, string@ msg, int[]@){
         /*MysqlInit();
@@ -5684,15 +6207,21 @@ void unsafe_Logging(Critter& cr, int, int, int, string@ msg, int[]@){
         }else{
             Message("sql connect error");
         }*/
+	
+	LogGmStuff(cr, msg);
 
-        string gmaccount = testdbgetaccname(cr.StatBase[ ST_ACCESS_LEVEL ]);
+        
+}
+
+void LogGmStuff(Critter& cr, string msg){
+	string gmaccount = testdbgetaccname(cr.StatBase[ ST_ACCESS_LEVEL ]);
         string date = TimeToString( cr );
 
         file f;
 
         if( f.open( "gmlogs\\" +  gmaccount + ".txt", "a" ) >= 0 )
         {
-                f.writeString(""+ date + " account : " + gmaccount + " charname : " + GetPlayerName( cr.Id ) + " action : " + msg + "\n" );
+                f.writeString(""+ date + " account : " + gmaccount + " charname : " + GetPlayerName( cr.Id ) + " ID " + cr.Id + " ip " + GetLastIp(cr.Id) + "\naction : " + msg + "\n" );
                 f.close();
         }
 }
@@ -5701,7 +6230,8 @@ void unsafe_Logging(Critter& cr, int, int, int, string@ msg, int[]@){
 void unsafe_ChangePic(Critter& cr, int id, int hash, int, string@, int[]@){
         Item @ item = GetItem(id);
         if(item is null) {cr.Say(SAY_NETMSG, "wrong item id"); return;}
-
+		
+		SETFLAG(item.Flags, ITEM_SHOW_ANIM); //android added
         item.SetMapPic(uint(hash));
         item.SetInvPic(uint(hash));
         item.Update();
@@ -5719,4 +6249,122 @@ void unsafe_getid( Critter& player, int param0, int param1, int param2, string@ 
 	}
 
     player.Say( SAY_NETMSG, param3 + " has id " + id);
+}
+
+void GetDyspnea(Critter& cr, uint mapId){
+	string sout = "неверный id карты";
+  
+	Map @ map = GetMap(mapId);
+	
+	if(map !is null){
+		GameVar @ dyspnea = GetLocalVar( LMVAR_Dyspnea, map.Id );
+		sout = "Уровень удушья на карте "+dyspnea.GetValue()+"\nВоздух "+(map.GetData(25) > 0 ? "не " : "") + "очищается";
+	}
+  
+	cr.Say(SAY_NETMSG, sout);
+}
+
+void SetDyspnea(Critter& cr, uint mapId, uint8 val){
+	string sout = "неверный id карты";
+  
+	Map @ map = GetMap(mapId);
+	
+	if(map !is null){
+		GameVar @ dyspnea = GetLocalVar( LMVAR_Dyspnea, map.Id );
+		dyspnea.opAssign(val);
+		map.SetData(25, CLAMP(val, 0, 1));
+		sout = "Установил уровень удушья на карте "+dyspnea.GetValue()+"\nВоздух "+(map.GetData(25) > 0 ? "не " : "") + "очищается";;
+	}
+  
+	cr.Say(SAY_NETMSG, sout);
+}
+
+void getdyspnea(Critter& cr, int id, int, int, string@, int[]@){
+	GetDyspnea(cr, (id > 0 ? id : cr.GetMap().Id));
+}
+
+void setdyspnea(Critter& cr, int id, int val, int, string@, int[]@){
+	SetDyspnea(cr, (id > 0 ? id : cr.GetMap().Id), val);
+}
+
+void teleportitem(Critter& cr, int, int, int, string@, int[]@ arr){  
+	Item @ item = GetItem(arr[0]);
+	if(item is null){
+		cr.Say(SAY_NETMSG, "null item. wrong id.");
+		return;
+	}
+	
+	Map @ map = (arr[3] > 0 ? GetMap(arr[1]) : cr.GetMap());
+	if(map is null){
+		cr.Say(SAY_NETMSG, "null map.");
+		return;
+	}
+	
+	if(arr[1] < 0 || arr[2] < 0 || arr[1] > map.GetHeight() ||arr[2] > map.GetWidth()){
+		cr.Say(SAY_NETMSG, "wrong hex.");
+		return;
+	}
+	
+	MoveItem(item, item.GetCount(), map, arr[1], arr[2]);
+	item.Update();
+	
+	cr.Say(SAY_NETMSG, "item "+arr[0]+" teleported "+(arr[3] > 0 ? "map "+arr[3] : "")+" x:y "+arr[1]+":"+arr[2]);
+}
+
+void deleteMapItemPid(Critter& cr, int pid, int mapId, int, string@, int[]@){
+	if(mapId == 0){
+		mapId = cr.GetMap().Id;
+	}
+
+	Map @ map = GetMap(mapId);
+	
+	if(map is null){
+		return;
+	}
+	
+	Item@[] items;
+	
+	map.GetItems(pid, items);
+	
+	uint size = items.length();
+	
+	DeleteItems(items);
+	
+	cr.Say(SAY_NETMSG, "delete items all:del\n"+size+":"+items.length());
+	
+	
+}
+
+///////////////////////////////
+///interactive objects tools///
+///////////////////////////////
+
+import void intsetval(Critter& cr, int id, int val, int value) from "interactive_obj";
+import void intgetval(Critter& cr, int id, int, int) from "interactive_obj";
+import void intturnonobjs(Critter& cr, int generatorValue, int objType, int onoff) from "interactive_obj";
+import void interasedouble(Critter& cr, int, int, int) from "interactive_obj";
+import bool cumo_add(int itemId, int script) from "interactive_obj";
+
+void iobjsetval(Critter& cr, int id, int val, int value, string@, int[]@){
+	intsetval(cr, id, val, value);
+}
+
+void iobjgetval(Critter& cr, int id, int, int, string@, int[]@){
+	intgetval(cr,id, 0, 0);
+}
+
+void iobjshutdown(Critter& cr, int genVal, int oType, int on, string@, int[]@){
+	intturnonobjs(cr, genVal, oType, on);
+}
+
+void iobjerasedbl(Critter& cr, int, int, int, string@, int[]@){
+	interasedouble(cr, 0, 0, 0);
+}
+
+void iobjadd(Critter& cr, int id, int script, int, string@, int[]@){
+	if(!cumo_add(id, script)){
+		cr.Say(SAY_NETMSG, "wrong id");
+	}else{
+		cr.Say(SAY_NETMSG, "object add");
+	}
 }

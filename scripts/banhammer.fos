@@ -485,7 +485,19 @@ void UnbanId( Critter& player, int id, int, int )
     player.Say( SAY_NETMSG, "Бан снят." );
 }
 
-void GetIps( Critter& player, int id, int, int )
+string GetLastIp(int id)
+{
+    Critter@ cr = GetCritter( id );
+    if( cr is null )
+        return "null cr";
+
+    uint[] ips;
+    cr.GetIp( ips );
+    
+    return GetIpFromUint(ips[0]);
+}
+
+void GetIps( Critter& player, int id, int len, int )
 {
     Critter@ cr = GetCritter( id );
     if( cr is null )
@@ -493,7 +505,10 @@ void GetIps( Critter& player, int id, int, int )
 
     uint[] ips;
     cr.GetIp( ips );
-    for( uint i = 0; i < ips.length(); i++ )
+    
+    len = (len > 0 ? len : ips.length());
+    
+    for( uint i = 0; i < len; i++ )
     {
         player.Say( SAY_NETMSG, "ip#" + i + ": " + GetIpFromUint( ips[ i ] ) );
     }

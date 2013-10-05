@@ -265,11 +265,11 @@ class Gameplay : iManagerModule, iManager_loop,
 
         if( GM == GAME_ARCADE )
         {
-            Location@ loc = GetLocationByPid( 94, 0 );
+            Location@ loc = GetLocationByPid( LOCATION_Arcade, 0 );
 
             if( loc is null )
             {
-                uint locid = CreateLocation( 94, 525, 75, null );
+                uint locid = CreateLocation( LOCATION_Arcade, 525, 75, null );
                 @loc = GetLocation( locid );
 
                 if( not valid( loc ) )
@@ -546,7 +546,7 @@ class Gameplay : iManagerModule, iManager_loop,
 
         if( type == TIME_NEW_HOUR )
         {
-            ObjectTimeLoop();             // sutter objects
+            //ObjectTimeLoop();             // sutter objects
 /*
             Critter@[] crs;
             GetAllPlayers( crs );

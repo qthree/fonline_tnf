@@ -6,6 +6,7 @@ import void QuakeScreen( Map& map ) from "effects";
 
 #define TRAPS_HIDE                      # (traps)              ( ( traps ) / 5 + 5 )
 #define EXPLODE_CLEARANCE_EXPERIENCE    ( 50 )
+#define TIME_MULTIPLIER 				( 4 ) 
 
 #define _ExplodeSetNumEvent             # ( explode, eventNum )explode.Val1 = int(eventNum)
 #define _ExplodeGetNumEvent             # (explode) uint( explode.Val1 )
@@ -39,7 +40,7 @@ bool OnUseExplode( Critter& cr, Item& explode, Critter@ targetCr, Item@ targetIt
         timer = TIMER_MIN_VALUE;
     if( timer > TIMER_MAX_VALUE )
         timer = TIMER_MAX_VALUE;
-    timer *= 60;   // Convert to game seconds
+    timer = timer * TIME_MULTIPLIER;   // Convert to game seconds
 
     // Activate dynamite explosion
     if( pid == PID_DYNAMITE )

@@ -22,6 +22,7 @@ import void FastPanelKeyPress(uint8 key) from "client_screen_fastpanel";
 import void InputBoxKeyPressed( uint8 key, uint8 kbData ) from "client_screen_inputbox";
 import void InputBoxClipboardInsert()  from "client_screen_inputbox";
 import void InventoryKeyboardControl(uint8 key) from "client_screen_inventory";
+import void InventoryMouseWheelControl(int click) from "client_screen_inventory";
 import void GetClientDrawItemData(uint[]& clientDrawItemData) from "client_main";
 import void ClearClientDrawItemData() from "client_main";
 /*import void LoginSetText(uint8 key, uint8 letter) from "client_screen_login";
@@ -547,7 +548,7 @@ class GUIScreen : IGUIScreenOpt
 			  DrawText( /*item.PicMap+*/" Item id :" + item.Id, itemX - 20/* - itemSprite.Width - (itemSprite.Width / 2)*/, itemY - 50/* - itemSprite.Height * 1.5 - 10*/, 100, 10, COLOR_WHITE, FONT_FALLOUT, FT_CENTERX );
 		  }
 	    }
-
+/*
         CritterCl@ choo = GetChosen();
         if(!(choo is null)){
             uint8 hungerProc = choo.StatBase[ST_HUNGER] * 0.1,
@@ -569,7 +570,7 @@ class GUIScreen : IGUIScreenOpt
 					DrawBar(20, 220, 90, gasMaskProc, COLOR_DBLUE, COLOR_GRAY, false, false, "Воздух");
 				  }
                 }
-            }
+            }*/
         }
     }
 
@@ -886,6 +887,11 @@ class GUIScreen : IGUIScreenOpt
         // end
 // #pm menu
 
+	if(Index == CLIENT_SCREEN_INVENTORY_TNF && (click == MOUSE_CLICK_WHEEL_DOWN || click == MOUSE_CLICK_WHEEL_UP)){
+		InventoryMouseWheelControl(click);
+		return true;
+	}
+
         for( uint i = 0, j = Elements.length(); i < j; i++ )
             Elements[ i ].IsFocused = false;
         for( uint i = Elements.length(); i > 0;)
@@ -1003,6 +1009,7 @@ class GUIScreen : IGUIScreenOpt
         }
     }
 
+    //1093
     bool KeyPress( uint8 key )
     {
 
@@ -1079,7 +1086,7 @@ class GUIScreen : IGUIScreenOpt
                {
                    ChangeLayer(key-2);
                }*/
-               if(key==DIK_I/* && KeyPressed[ DIK_LCONTROL ] */&& !__ConsoleActive)
+               if(key==DIK_I && KeyPressed[ DIK_LCONTROL ] && !__ConsoleActive)
                {
                     ::ShowScreen(CLIENT_SCREEN_INVENTORY_TNF, 0, 0, 0);
                     return true;
@@ -1092,7 +1099,7 @@ class GUIScreen : IGUIScreenOpt
 
         }
         else if(Index == CLIENT_MAIN_SCREEN_LOGIN){
-                if(!(KeyPressed[DIK_LMENU] || key == DIK_ESCAPE || key == DIK_LCONTROL)){ //(KeyPressed[DIK_LSHIFT] || KeyPressed[DIK_RSHIFT] ||
+                if(!(KeyPressed[DIK_LCONTROL] || KeyPressed[DIK_LMENU] || key == DIK_ESCAPE || key == DIK_LCONTROL)){ //(KeyPressed[DIK_LSHIFT] || KeyPressed[DIK_RSHIFT] ||
                         if(key == DIK_TAB){
                                 LoginTabPress();
                         }else if(key == DIK_RETURN || key == DIK_NUMPADENTER){
@@ -1110,6 +1117,13 @@ class GUIScreen : IGUIScreenOpt
                     return true;
                 }
         }*/
+        else if( Index == CLIENT_MAIN_SCREEN_GLOBAL_MAP ){
+		if(key == DIK_I && KeyPressed[ DIK_LCONTROL ] && !__ConsoleActive)
+		{
+                    ::ShowScreen(CLIENT_SCREEN_INVENTORY_TNF, 0, 0, 0);
+                    return true;
+		}
+	}
         else if( Index == CLIENT_SCREEN_CLOCK )
         {
             if( key == DIK_P && !__ConsoleActive )
@@ -1153,7 +1167,7 @@ class GUIScreen : IGUIScreenOpt
                 // };
             }
         }else
-	if(Index == CLIENT_SCREEN_INVENTORY_TNF && ( key != DIK_ESCAPE || key == DIK_RETURN ) )
+	if(Index == CLIENT_SCREEN_INVENTORY_TNF && !__ConsoleActive && ( key == DIK_ESCAPE || (key != DIK_RETURN && key != DIK_NUMPADENTER )) )
 	{
 		  //Message(""+key);
 		  InventoryKeyboardControl(key);
@@ -1436,7 +1450,7 @@ class GUIScreen : IGUIScreenOpt
         }
         return false;
     }
-
+//1489
     void InputLost()
     {
         IsLMouseDown = false;

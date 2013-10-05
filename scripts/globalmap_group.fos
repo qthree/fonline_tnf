@@ -34,8 +34,8 @@ import void AddCritter( Map& map ) from "local_population";
 import bool IsTileAvalible( uint hash, uint8 group ) from "cimp";
 import bool IsTileGround( uint hash ) from "cimp";
 
-//import void CheckEncounter(uint8 biomType, Critter& player) from "encounters";
-import void GetEncounter(Critter& cr, uint biomType) from "encounters";
+import bool CheckEncounter(Critter& player, uint8 biomType) from "encounters";
+import void GetEncounter(Critter& cr, uint8 biomType) from "encounters";
 
 #define ENTIRE_NUM            ( 255 )
 #define MAP_SIZE              ( 150 )
@@ -820,7 +820,13 @@ class CellWorld : iManagerModule, iManager_map_critter_in, iManager_map_critter_
             return null;
 
         int tt = ( ( int(cell.X) & 0xFFFF ) | ( int(cell.Y) << 16 ) );
-        if( cr.Param[ ST_VAR6 ] != tt )
+        //pm added
+	if( (cell.Content != null && cell.Content.Type == CELLMAP_TYPE_STATIC) ||
+	    cell.BiomType == BIOM_TYPE_MOUNTAIN ||
+	    cell.BiomType == BIOM_TYPE_LAKE ||
+	    cell.BiomType == BIOM_TYPE_RIVER) return cell;// ||
+	    //cell.BiomType == BIOM_TYPE
+	if( cr.Param[ ST_VAR6 ] != tt )
         {
             cr.ParamBase[ ST_VAR6 ] = tt;
 
@@ -1554,6 +1560,14 @@ void global_process( int processType, Critter& cr, Item@ car,
 
         if( cell !is null )
         {
+	  
+	    //no globalmap pass bioms
+	    if(cell.BiomType == BIOM_TYPE_RIVER ||
+	      cell.BiomType == BIOM_TYPE_MOUNTAIN ||
+	      cell.BiomType == BIOM_TYPE_LAKE){
+			encounterDescriptor = uint(-1);
+	      }
+	  
             Critter@[] @ group = cr.GetGlobalGroup();
 
             // Validate charisma
@@ -1570,7 +1584,8 @@ void global_process( int processType, Critter& cr, Item@ car,
             world.ShowCells( cr, cell );
 
             CellContent@ cont = cell.Content;
-            if(( cont is null or ( cont.Type & 0x1F ) == CELLMAP_TYPE_ENCOUTER) and cell.BiomType == BIOM_TYPE_WASTELAND)
+            if(cont is null or ( cont.Type & 0x1F ) == CELLMAP_TYPE_ENCOUTER)//cell.BiomType != BIOM_TYPE_WASTELAND)
+
             {
                 if( cont !is null and cont.MapId[ CELL_LEVEL_DEFAULT ] != 0 && GetMap( cont.MapId[ CELL_LEVEL_DEFAULT ] ) !is null )
                 {
@@ -1597,11 +1612,11 @@ void global_process( int processType, Critter& cr, Item@ car,
 
                     if( chance < 0 )
                     {}
-                    else if( Random( 0, 100 ) > chance )
+                    else if( Random( 0, 100 ) > chance && CheckEncounter(cr, cell.BiomType))
                     {
-                        encounterDescriptor = uint( -1 );
-                        //CheckEncounter(cell.BiomType, cr);
-                        GetEncounter(cr, cell.BiomType);
+                         encounterDescriptor = uint( -1 );
+			 
+			  //GetEncounter(cr, cell.BiomType);
                     }
                     else
                     {
@@ -1614,7 +1629,12 @@ void global_process( int processType, Critter& cr, Item@ car,
                 else
                 {
                     @cell.Content = null;
-
+		     //if(CheckEncounter(cr, cell.BiomType)){
+			//    world.CreateCell(cell.X, cell.Y, 0, CELLMAP_TYPE_ENCOUTER, 100);
+			 //   encounterDescriptor = uint(-1);
+			    
+			    //GetEncounter(cr, cell.BiomType);
+		     //}
                     //FindEncounter( cr.GetGlobalGroup(), car, curXi, curYi, encounterDescriptor, waitForAnswer, false, wild );
                 }
             }
@@ -1670,7 +1690,7 @@ void global_process( int processType, Critter& cr, Item@ car,
 		    //pm added
                     world.CreateCell(cell.X, cell.Y, 0, CELLMAP_TYPE_ENCOUTER, 100);
                     encounterDescriptor = uint( -1 );
-		    GetEncounter(cr, cell.BiomType);
+		    //GetEncounter(cr, cell.BiomType);
 
 		    //mapId = cell.Content.MapId[ CELL_LEVEL_DEFAULT ];
 
@@ -2022,6 +2042,9 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
         cr.Say( SAY_NETMSG, "no ent" );
         return;
     }
+    
+    bool isLost = false;
+    
     uint8 tempDir = direction;
         if(cr.Skill[SK_OUTDOORSMAN] < Random(0, 99) && cell.BiomType <= BIOM_TYPE_FOREST){	//desert
 	if(!ChechNearCellStatic(cell.X, cell.Y)){
@@ -2029,9 +2052,11 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
 		if(tempDir < 0) tempDir = 7;
 		if(tempDir > 7) tempDir = 0;
 
-		cr.Say(SAY_NETMSG, "Кажется вы блуждаете.");
+		isLost = true;
 	}
     }
+    
+    //cr.Say(SAY_NETMSG, "debug 0");
 
     offsetCellX = ( ( cr.HexX - oldHexX ) / MAP_SIZE );
     offsetCellY = ( ( cr.HexY - oldHexY ) / MAP_SIZE );
@@ -2076,6 +2101,7 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
     bool isCellNull = (/*transitCell is null && */transitCell.Content is null);
     uint16 mapId = 0;
     
+    //cr.Say(SAY_NETMSG, "debug 1");
     //if(!isCellNull && transitCell.Content.Visibility <= 5){}
 
 
@@ -2090,50 +2116,74 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
 
 		//cr.Say( SAY_NETMSG, "Только Саттер." );
 		// void CreateCell( uint16 x, uint16 y, uint mapId, uint8 type, int8 visibility )
-		if(ChechNearCellForPlayer(destCellX, destCellY) || transitCell.BiomType > BIOM_TYPE_FOREST) //FLAG(transitCell.BiomFlags, BIOM_TYPE_ROAD))
-		{
+		/*if(ChechNearCellForPlayer(destCellX, destCellY) || transitCell.BiomType > BIOM_TYPE_FOREST) //FLAG(transitCell.BiomFlags, BIOM_TYPE_ROAD))
+		{*/
 			//if(cr.GetAccess() > ACCESS_CLIENT){
 				mapId = world.CreateCell(destCellX, destCellY, 0, CELLMAP_TYPE_ENCOUTER, 100);
 			//}else{
 			//	cr.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, MSG_ONLY_SUTTER);
 			//	return;
 			//}
-		}/*else{
+		/*}else{
 			cr.TransitToGlobal(true);
 			return;
 		}*/
 
 			/*cr.SayMsg(SAY_NETMSG, TEXTMSG_TEXT, MSG_ONLY_SUTTER);
 			return;*/
+	}else{
+			int level = GetMapLevelByPid( map.GetProtoId() );
+			mapId = transitCell.Content.MapId[ CELL_LEVEL_DEFAULT + level ];
 	}
 
+	//cr.Say(SAY_NETMSG, "debug 2");
 
-    if(mapId == 0){
-        int level = GetMapLevelByPid( map.GetProtoId() );
-        mapId = transitCell.Content.MapId[ CELL_LEVEL_DEFAULT + level ];
-    }
+      if(mapId == 0){
+		cr.Say(SAY_NETMSG, "null mapId.");
+		return;
+      }
+    
+    cr.Say(SAY_NETMSG, "debug 2 sub 0");
 
     @map = GetMap( mapId );
     if( mapId == 0 || map is null )
     {
         cr.Say( SAY_NETMSG, "mapId !valid" ); return;
     }
+    
+    //cr.Say(SAY_NETMSG, "debug 2 sub 1");
+    
     uint16 destHexX = 0, destHexY = 0;
     if( !map.GetEntireCoords( ENTIRE_NUM, 0, destHexX, destHexY ) )
     {
         cr.Say( SAY_NETMSG, "no dest ent" );
         return;
     }
+    
+    //cr.Say(SAY_NETMSG, "debug 3");
 
     SetHexDirection( cell, transitCell, direction, oldHexX, oldHexY );
+    
+    if(CheckMonsterTransitePlace(cr,map, destHexX + oldHexX, destHexY + oldHexY)){
+		ShowAnswerScreenMob(cr);
+		return;
+    }
 
     //CheckHexTrace(map, destHexX + oldHexX, destHexY + oldHexY, destHexX, destHexY);
     if( map.IsHexPassed( destHexX + oldHexX, destHexY + oldHexY ) )
     {
       
-	if(!isCellNull && transitCell.Content.Type == CELLMAP_TYPE_STATIC){
+	if((!isCellNull && transitCell.Content.Type == CELLMAP_TYPE_STATIC) || 
+	(cell.Content !is null && cell.Content.Type == CELLMAP_TYPE_STATIC) ||
+	cell.BiomType == BIOM_TYPE_LAKE || cell.BiomType == BIOM_TYPE_RIVER ||
+	cell.BiomType == BIOM_TYPE_MOUNTAIN ||
+	ChechNearCellForPlayer(destCellX, destCellY)){
 	  	cr.SetWorldPos( destCellX * 10, destCellY * 10 );
 		cr.TransitToMap( mapId, destHexX + oldHexX, destHexY + oldHexY, direction );
+		
+		if(isLost){
+			cr.Say(SAY_NETMSG, "Кажется вы блуждаете.");
+		}
 		
 		//int tt = ( ( int(transitCell.X) & 0xFFFF ) | ( int(transitCell.Y) << 16 ) );
 		//cr.ParamBase[ ST_VAR6 ] = tt;
@@ -2143,11 +2193,13 @@ void TransitCritterToCell( Critter& cr, /*uint16 gridId*/ Scenery& grid ) // uin
 		cr.StatBase[ST_ITEM_HEXY] = destHexY + oldHexY;
 		cr.StatBase[ST_ITEM_PID] = mapId;
 		
+		//cr.Say(SAY_NETMSG, "debug sub");
+		
 		ShowAnswerScreenTransit(cr);
 	}
 		
 		//if(cr.Stat
-		
+	//cr.Say(SAY_NETMSG, "debug 4");
 		
       
 	/*if(CheckMonsterTransitePlace(cr, map, destHexX + oldHexX, destHexY + oldHexY)){
@@ -2267,7 +2319,7 @@ bool ChechNearCellForPlayer(uint16 x, uint16 y)
 				Cell @ cell = world.GetCell(x+j, y+i);
 				if(cell is null || cell.Content is null) continue;
 
-				if(cell.Content.Type == CELLMAP_TYPE_STATIC || (cell.Content.Type == CELLMAP_TYPE_ENCOUTER/* && cell.Content.GetCrittersCount(-1) > 0*/)){
+				if(cell.Content.Type == CELLMAP_TYPE_STATIC || (cell.Content.Type == CELLMAP_TYPE_ENCOUTER && cell.Content.GetCrittersCount(-1) > 0 )){
 						return true;
 				}
 			}
@@ -3347,6 +3399,17 @@ uint cte_Dyspnea( Critter& cr, int identifier, uint& rate )
     return 5 * __TimeMultiplier;
 }
 
+uint8 GetBiomType(uint x, uint y){
+	Cell@ cell = world.GetCell(x, y);
+	if(cell is null) return uint8(-1);
+	
+	return cell.BiomType;
+}
+
+uint8 GetBiomType(Critter& cr){
+	return GetBiomType(cr.WorldX*0.1, cr.WorldY*0.1);
+}
+
 void testcolor(Critter& cr, int pstatic, int, int){
 	ParseGlobalMapPic(pstatic > 0 ? true : false);
 }
@@ -3556,6 +3619,96 @@ void ParseSave(string line){
 
 #define FILE_GLOBAL_BIOM	(".\\global_parse.txt")
 #define FILE_GLOBAL_HEIGH	(".\\global_parse_heigh.txt")
+
+#define FILE_GLOBAL_BIOM_OUT	(".\\global_map_biom.txt")
+#define FILE_GLOBAL_HEIGH_OUT	(".\\global_map_heigh.txt")
+
+bool saveglobalmaptofile(){
+	string lineB = "", lineH = "";
+	for(uint i = 0; i < (world.CellsW * world.CellsH); i++){
+		lineB += world.Cells[i].BiomType+"\t";
+		lineH += world.Cells[i].DefaultLevel+"\t";
+		
+		if(i % world.CellsW == 0){
+			lineB[lineB.length()-1] = '\n';
+			lineH[lineH.length()-1] = '\n';
+		}
+	}
+	
+	file mapBiom;
+	file mapHeigh;
+	
+	if(mapBiom.open(FILE_GLOBAL_BIOM_OUT, "w") != -1){
+		mapBiom.writeString(lineB);
+	}
+	
+	if(mapHeigh.open(FILE_GLOBAL_HEIGH_OUT, "w") != -1){
+		mapHeigh.writeString(lineH);
+	}
+	
+	return true;
+}
+/*
+bool loadglobalmapfromfile(){
+  
+	string lineB = ParseLoad(FILE_GLOBAL_BIOM_OUT);
+	string lineH = ParseLoad(FILE_GLOBAL_HEIGH_OUT);
+	
+	//if(uint(lineB.length() * 0.5 + 1) != world.Cells.length() || uint(lineH.length() * 0.5 + 1) != world.Cells.length()) {Log("!!!GLOBAL MAP LOAD FAILD!!! WRONG LENGHT\n"+(lineB.length() * 0.5 + 1) +":"+world.Cells.length());}
+	
+	int iTemp = 0;
+	string sTemp = "";
+  
+	for(uint i = 0; i < (world.CellsW * world.CellsH); i++){
+		if(lineB[i] == '\n' || lineB[i] == '\t'){
+		}else{
+			sTemp = lineB[i];
+			StrToInt(sTemp, iTemp);
+	  
+			world.Cells[i].BiomType = uint(iTemp);
+		}
+		
+		if(lineH[i] == '\n' || lineH[i] == '\t'){
+		}else{		
+			sTemp = lineH[i];
+			StrToInt(sTemp, iTemp);
+	  
+			world.Cells[i].DefaultLevel = uint(iTemp);
+		}
+	}
+	
+	return true;
+  
+}
+void loadglobalfromfile(Critter& cr, int, int, int){
+	loadglobalmapfromfile();
+}
+*/
+
+void saveglobaltofile(Critter& cr, int, int, int){
+	saveglobalmaptofile();
+}
+
+void setbiommap(Critter& cr, int x, int y, int biomMap){
+  
+	//if(biomType > BIOM_TYPE_MOUNTAIN) return;
+  
+	world.Cells[x*y].BiomMapPid = biomMap;
+}
+
+
+void setbiomtype(Critter& cr, int x, int y, int biomType){
+  
+	if(biomType > BIOM_TYPE_MOUNTAIN) return;
+  
+	world.Cells[x*y].BiomType = biomType;
+}
+
+void setheighlvl(Critter& cr, int x, int y, int heighlvl){
+  
+	world.Cells[x*y].DefaultLevel = heighlvl;
+}
+
 
 string ParseLoad(string file){
 
@@ -3795,7 +3948,7 @@ uint ParseCellSet(){
 				
 				//}
 
-				if((iA[x] == BIOM_TYPE_RIVER || iA[x] == BIOM_TYPE_LAKE)  && ((iAp !is null && iAp[x] == BIOM_TYPE_ROAD && iAn !is null && iAn[x] == BIOM_TYPE_ROAD)) || 
+				if((iA[x] == BIOM_TYPE_RIVER/* || iA[x] == BIOM_TYPE_LAKE*/)  && ((iAp !is null && iAp[x] == BIOM_TYPE_ROAD && iAn !is null && iAn[x] == BIOM_TYPE_ROAD)) || 
 				  (xx > x+1 && iA[x+1] == BIOM_TYPE_ROAD && x > 0 && iA[x-1] == BIOM_TYPE_ROAD)){
 				    SETFLAG(biomFlag, BIOM_HAS_BRIDGE);
 				    Log("BRIDGE");

@@ -3,6 +3,8 @@
 #include "_macros.fos"
 #include "_msgstr.fos"
 
+#include "_global_events.fos"
+
 import void AffectRadiation( Critter& cr, int value ) from "radiation";
 import void AffectPoison( Critter& cr, int value ) from "poison";
 import bool ItemStimpackUse( Critter& cr, Item& item ) from "heal"; // pm add
@@ -21,6 +23,936 @@ import bool ItemStimpackUse( Critter& cr, Item& item ) from "heal"; // pm add
 #define RATE_TO_FLAGS                  # (rate)          ( ( rate ) >> 24 )
 #define FORM_RATE                      # ( stage, flags )( ( ( ( flags ) & 0xFF ) << 24 ) | ( ( stage ) & 0xFFFFFF ) )
 
+#define STAGE_INSTANT_EFFECT		(0)
+#define STAGE_WITHDRAWAL		(1)
+#define STAGE_NORMALIZE		(2)
+#define STAGE_ADDICTION_BEGIN		(3)
+#define STAGE_ADDICTION_END		(4)
+#define STAGE_CUSTOM			(5)
+
+#define EFFECT_STIMPACK		(0)
+#define EFFECT_RADAWAY			(1)
+#define EFFECT_ANDTIDOTE		(2)
+#define EFFECT_MENTANTS		(3)
+#define EFFECT_FRUID			(4)
+#define EFFECT_IGUANA			(5)
+#define EFFECT_BUFFOUT			(6)
+#define EFFECT_MEAT			(7)
+#define EFFECT_NUKACOLA		(9)
+#define EFFECT_RADX			(10)
+#define EFFECT_PSYCHO			(11)
+#define EFFECT_BEER			(12)
+#define EFFECT_BOOZE			(13)
+#define EFFECT_STIMPACK_SUPER		(14)
+#define EFFECT_JET			(15)
+#define EFFECT_JET_ANDTIDOTE		(16)
+#define EFFECT_HEALING_POWDER		(17)
+#define EFFECT_GAMMA_BEER		(18)
+#define EFFECT_ROENTGEN_RUM		(19)
+#define EFFECT_HYPO_POISON		(20)
+#define EFFECT_COOKIE			(21)
+#define EFFECT_MONUMENT_CHUNCK		(22)
+#define EFFECT_ROT_GUT			(23)
+#define EFFECT_MUTATED_TOE		(24)
+#define EFFECT_KITTY_AGILITY		(25)
+#define EFFECT_KITTY_INTELLIGENCE	(26)
+#define EFFECT_KITTY_STRENGH		(27)
+#define EFFECT_HYPO			(29)
+
+#define EFFECT_MAX			(30)
+
+EffectManager effectManager;
+
+class EffectManager : iManagerModule, iManager_loop
+{
+    EffectManager()
+    {
+
+        AddStartCallback( "drugs", "start" );
+    }
+
+    bool manager_init()
+    {
+		InitEffects();
+		Log( "Effects load, "+effects.length() );
+		return true;
+    }
+    
+    uint global_loop(){
+		return uint( -1 );
+	 }
+
+}
+
+
+
+void start()
+{
+    iManagerModule@  module = effectManager;
+    iManagerElement@ manager = manager_add_module( module, "Effect", 120 );
+    if( manager is null )
+        return;
+
+}
+
+Effect[]	effects;
+//29
+void InitEffects(){
+  
+	EffectStage[] tempStage;
+	
+	tempStage.resize(0);
+  
+	effects.resize(EFFECT_MAX);
+	
+	//stimpack
+			    //duration 		type
+	tempStage.insertLast(EffectStage(0, STAGE_INSTANT_EFFECT));
+				      //stat		amount
+	tempStage.last().InsertStat(ST_CURRENT_HP, 0);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(0, 0);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(0, 0);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.last().InsertStat(0, 0);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	tempStage.last().InsertStat(0, 0);
+				//addict id	percent		stages
+	effects[EFFECT_STIMPACK] = Effect(0, 0, tempStage);
+	
+	//radway
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(120, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, -25);
+	tempStage.last().InsertStat(ST_RADIATION_RESISTANCE, 0);
+	
+	tempStage.insertLast(EffectStage(120, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, -50);
+	tempStage.last().InsertStat(ST_RADIATION_RESISTANCE, 0);
+	
+	tempStage.insertLast(EffectStage(14160, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, -75);
+	tempStage.last().InsertStat(ST_RADIATION_RESISTANCE, 0);
+	
+	tempStage.insertLast(EffectStage(10080, STAGE_ADDICTION_BEGIN));
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, 0);
+	tempStage.last().InsertStat(ST_RADIATION_RESISTANCE, -20);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, 0);
+	tempStage.last().InsertStat(ST_RADIATION_RESISTANCE, 20);
+	
+	effects[EFFECT_RADAWAY] = Effect(ADDICTION_RADAWAY, 10, tempStage);
+	
+	//antidote
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(10, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_POISONING_LEVEL, -25);
+	
+	tempStage.insertLast(EffectStage(10, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_POISONING_LEVEL, -25);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_POISONING_LEVEL, -25);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_ANDTIDOTE] = Effect(-1, 0, tempStage);
+	
+	//mentants
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(1440, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_INTELLECT, 2);
+	tempStage.last().InsertStat(ST_PERCEPTION, 2);
+	tempStage.last().InsertStat(ST_CHARISMA, 1);
+	
+	tempStage.insertLast(EffectStage(4320, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_INTELLECT, -4);
+	tempStage.last().InsertStat(ST_PERCEPTION, -4);
+	tempStage.last().InsertStat(ST_CHARISMA, -3);
+	
+	tempStage.insertLast(EffectStage(4320, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_INTELLECT, 2);
+	tempStage.last().InsertStat(ST_PERCEPTION, 2);
+	tempStage.last().InsertStat(ST_CHARISMA, 2);
+	
+	tempStage.insertLast(EffectStage(10080, STAGE_ADDICTION_BEGIN));
+	tempStage.last().InsertStat(ST_INTELLECT, -3);
+	tempStage.last().InsertStat(ST_AGILITY, -2);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	tempStage.last().InsertStat(ST_INTELLECT, 3);
+	tempStage.last().InsertStat(ST_AGILITY, 2);
+	
+	effects[EFFECT_MENTANTS] = Effect(ADDICTION_MENTATS, 15, tempStage);
+	
+	//mutate_fruid
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(120, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(-2, 1);
+	tempStage.last().InsertStat(ST_CURRENT_HP, 4);
+	
+	tempStage.insertLast(EffectStage(360, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, 1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, 1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_FRUID] = Effect(-1, 0, tempStage);
+	
+	//iguana
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_INSTANT_EFFECT));
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_IGUANA] = Effect(-1, 0, tempStage);
+	
+	//buffout
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(360, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_STRENGTH, 2);
+	tempStage.last().InsertStat(ST_AGILITY, 2);
+	tempStage.last().InsertStat(ST_ENDURANCE, 3);
+	
+	tempStage.insertLast(EffectStage(720, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_STRENGTH, -4);
+	tempStage.last().InsertStat(ST_AGILITY, -4);
+	tempStage.last().InsertStat(ST_ENDURANCE, -4);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_STRENGTH, 2);
+	tempStage.last().InsertStat(ST_AGILITY, 2);
+	tempStage.last().InsertStat(ST_ENDURANCE, 1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.last().InsertStat(ST_STRENGTH, 2);
+	tempStage.last().InsertStat(ST_AGILITY, 2);
+	tempStage.last().InsertStat(ST_ENDURANCE, 3);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_BUFFOUT] = Effect(ADDICTION_BUFFOUT, 25, tempStage);
+	
+	//meat on stick
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_INSTANT_EFFECT));
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_MEAT] = Effect(-1, 0, tempStage);
+	
+	//nuka cola
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_INSTANT_EFFECT));
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(30, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_NUKACOLA] = Effect(ADDICTION_NUKA_COLA, 10, tempStage);
+	
+	//rad x
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(1440, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_RADIATION_RESISTANCE, 20);
+	
+	tempStage.insertLast(EffectStage(1440, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_RADIATION_RESISTANCE, -10);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_RADIATION_RESISTANCE, -10);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_RADX] = Effect(-1, 0, tempStage);
+	
+	//psycho
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(240, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_AGILITY, 3);
+	tempStage.last().InsertStat(ST_INTELLECT, -3);
+	tempStage.last().InsertStat(ST_NORMAL_RESIST, 50);
+	
+	tempStage.insertLast(EffectStage(240, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_AGILITY, -3);
+	tempStage.last().InsertStat(ST_INTELLECT, 1);
+	tempStage.last().InsertStat(ST_NORMAL_RESIST, -25);
+	
+	tempStage.insertLast(EffectStage(720, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_INTELLECT, 2);
+	tempStage.last().InsertStat(ST_NORMAL_RESIST, -25);
+	
+	tempStage.insertLast(EffectStage(9600, STAGE_ADDICTION_BEGIN));
+	tempStage.last().InsertStat(ST_INTELLECT, -2);
+	
+	tempStage.insertLast(EffectStage(10080, STAGE_ADDICTION_END));
+	tempStage.last().InsertStat(ST_INTELLECT, 2);
+	
+	effects[EFFECT_PSYCHO] = Effect(ADDICTION_PSYCHO, 20, tempStage);
+	
+	//beer
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(80, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_PERCEPTION, -1);
+	
+	tempStage.insertLast(EffectStage(160, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_PERCEPTION, 1);
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, -5);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, -5);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_BEER] = Effect(-1, 0, tempStage);
+	
+	//booze
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(100, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_PERCEPTION, -2);
+	
+	tempStage.insertLast(EffectStage(150, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_PERCEPTION, 1);
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, -5);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_PERCEPTION, 1);
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, -10);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_BEER] = Effect(-1, 0, tempStage);
+	
+	//super stimpack
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(10, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_CURRENT_HP, 75);
+	
+	tempStage.insertLast(EffectStage(10, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_CURRENT_HP, -3);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_CURRENT_HP, -6);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_STIMPACK_SUPER] = Effect(-1, 0, tempStage);
+	
+	//jet
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(240, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_ACTION_POINTS, 2);
+	tempStage.last().InsertStat(ST_STRENGTH, 1);
+	tempStage.last().InsertStat(ST_PERCEPTION, 1);
+	
+	tempStage.insertLast(EffectStage(1430, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_ACTION_POINTS, -3);
+	tempStage.last().InsertStat(ST_STRENGTH, -2);
+	tempStage.last().InsertStat(ST_PERCEPTION, -2);
+	
+	tempStage.insertLast(EffectStage(1450, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_ACTION_POINTS, 1);
+	tempStage.last().InsertStat(ST_STRENGTH, 1);
+	tempStage.last().InsertStat(ST_PERCEPTION, 1);
+	
+	tempStage.insertLast(EffectStage(2, STAGE_ADDICTION_BEGIN));
+	tempStage.last().InsertStat(ST_ACTION_POINTS, -1);
+	tempStage.last().InsertStat(ST_STRENGTH, -1);
+	tempStage.last().InsertStat(ST_PERCEPTION, -1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	tempStage.last().InsertStat(ST_ACTION_POINTS, 1);
+	tempStage.last().InsertStat(ST_STRENGTH, 1);
+	tempStage.last().InsertStat(ST_PERCEPTION, 1);
+	
+	effects[EFFECT_JET] = Effect(ADDICTION_JET, 50, tempStage);
+	
+	//jet antidote
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStageJetAntidote(0, STAGE_INSTANT_EFFECT));
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_JET_ANDTIDOTE] = Effect(-1, 0, tempStage);
+	
+	//healing powder
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(360, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(-2, 8);
+	tempStage.last().InsertStat(ST_CURRENT_HP, 0);
+	tempStage.last().InsertStat(ST_PERCEPTION, -1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_PERCEPTION, 1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_HEALING_POWDER] = Effect(-1, 0, tempStage);
+	
+	//gamma beer
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(60, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_PERCEPTION, -1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_PERCEPTION, 1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_GAMMA_BEER] = Effect(-1, 0, tempStage);
+	
+	//roentgen rum
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(60, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_PERCEPTION, -2);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_PERCEPTION, 2);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_ROENTGEN_RUM] = Effect(-1, 0, tempStage);
+	
+	//hypo poison
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_INSTANT_EFFECT));
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_HYPO_POISON] = Effect(-1, 0, tempStage);
+	
+	//cookie
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(15, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_ACTION_POINTS, 1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_ACTION_POINTS, -1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_COOKIE] = Effect(-1, 0, tempStage);
+	
+	//monument chunck
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(60, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_STRENGTH, 3);
+	tempStage.last().InsertStat(ST_AGILITY, 3);
+	tempStage.last().InsertStat(ST_NORMAL_RESIST, 50);
+	
+	tempStage.insertLast(EffectStage(60, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_STRENGTH, -6);
+	tempStage.last().InsertStat(ST_AGILITY, -6);
+	tempStage.last().InsertStat(ST_NORMAL_RESIST, -50);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_STRENGTH, 3);
+	tempStage.last().InsertStat(ST_AGILITY, 3);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_MONUMENT_CHUNCK] = Effect(-1, 0, tempStage);
+	
+	//rot gut
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(90, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_PERCEPTION, -3);
+
+	tempStage.insertLast(EffectStage(200, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_PERCEPTION, 2);
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, -5);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_PERCEPTION, 1);
+	tempStage.last().InsertStat(ST_RADIATION_LEVEL, -25);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_ROT_GUT] = Effect(-1, 0, tempStage);
+	
+	//mutated toe
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(1440, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_MAX_LIFE, -3);
+	tempStage.last().InsertStat(ST_POISONING_LEVEL, 2);
+	
+	tempStage.insertLast(EffectStage(8640, STAGE_WITHDRAWAL));
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.last().InsertStat(ST_MAX_LIFE, 3);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_MUTATED_TOE] = Effect(-1, 0, tempStage);
+	
+	//kitty agulity
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(60, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_AGILITY, 1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_AGILITY, -1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_KITTY_AGILITY] = Effect(-1, 0, tempStage);
+	
+	//kitty intelligence
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(60, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_INTELLECT, 1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_INTELLECT, -1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_KITTY_INTELLIGENCE] = Effect(-1, 0, tempStage);
+	
+	//kitty strength
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(60, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(ST_STRENGTH, 1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.last().InsertStat(ST_STRENGTH, -1);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_KITTY_STRENGH] = Effect(-1, 0, tempStage);
+	
+	//hypo
+	
+	tempStage.resize(0);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_INSTANT_EFFECT));
+	tempStage.last().InsertStat(-2, 75);
+	tempStage.last().InsertStat(ST_CURRENT_HP, 100);
+	
+	tempStage.insertLast(EffectStage(0, STAGE_WITHDRAWAL));
+	tempStage.insertLast(EffectStage(0, STAGE_NORMALIZE));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_BEGIN));
+	tempStage.insertLast(EffectStage(0, STAGE_ADDICTION_END));
+	
+	effects[EFFECT_HYPO] = Effect(-1, 0, tempStage);
+}
+
+class EffectStat
+{
+	int Stat;
+	int Amount;
+	
+	EffectStat(int stat, int amount){
+		Stat = stat;
+		Amount = amount;
+	}
+	
+	int GetStat(){return Stat;}
+	int GetAmount(){return Amount;}
+}
+
+class EffectStage
+{
+	EffectStat[]		EfStats;
+	
+	uint8			StageType;
+	
+	uint			Duration;
+	
+	EffectStage(uint dur, uint8 type){
+		Duration = dur;
+		
+		StageType = type;
+		
+		EfStats.resize(0);
+	}
+	
+  
+	EffectStage(EffectStat[] efStats, uint dur, uint8 type){
+		Duration = dur;
+		StageType = type;
+		EfStats = efStats;
+	}
+	
+	uint GetDuration(){return Duration;}
+	
+	uint GetStageType(){return StageType;}
+	
+	EffectStat@ GetEffectStat(uint8 index){
+		if(index < EfStats.length()){
+			return EfStats[index];
+		}
+		
+		return null;
+	}
+	
+	uint8	GetEffectStatLen(){
+		return EfStats.length();
+	}
+	
+	void InsertStat(EffectStat efStat){
+		EfStats.insertLast(efStat);
+	}
+	
+	void InsertStat(uint stat, uint amount){
+		EfStats.insertLast(EffectStat(stat, amount));
+	}
+	
+	void StageRelease(Critter& cr){
+	  
+		if(StageReleaseExt(cr)) return;
+	  
+		//fonline sdk code implemented for class
+		for(uint8 i = 0, j = EfStats.length(); i < j; i++){
+			
+			int stat = EfStats[i].GetStat();
+			int amount = EfStats[i].GetAmount();
+		
+			if( i == 1 && EfStats[0].GetStat() == -2 )
+				amount = Random( EfStats[0].GetAmount(), amount );                                              // Take first
+			if( stat < 0 )
+				continue;
+
+			int statVal = cr.Stat[ stat ];
+		
+			if( stat < STAT_EXT_BEGIN )
+				cr.StatBase[ STAT_EXT_BEGIN + stat ] += amount;
+			else if( stat == ST_CURRENT_HP ){
+				cr.StatBase[ ST_CURRENT_HP ] = CLAMP( statVal + amount, -9999, cr.Stat[ ST_MAX_LIFE ] );
+			
+				if( amount < 0 && cr.Stat[ ST_CURRENT_HP ] < 0 ){
+					cr.ToDead( Random( 0, 1 ) == 0 ? ANIM2_DEAD_FRONT : ANIM2_DEAD_BACK, null );
+				}else if( stat == ST_POISONING_LEVEL ){
+					AffectPoison( cr, amount );                                        // cr.SetStat(ST_POISONING_LEVEL,CLAMP(statVal+amount,0,2000));
+				}else if( stat == ST_RADIATION_LEVEL ){
+					AffectRadiation( cr, amount );                                     // cr.SetStat(ST_RADIATION_LEVEL,CLAMP(statVal+amount,0,2000));
+				}
+			}else
+				continue;
+
+			statVal = cr.Stat[ stat ] - statVal;
+            
+			if( statVal > 0 )
+				cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DRUG_STAT_GAIN, "$name @msg game " + STR_PARAM_NAME( stat ) + "@$value" + statVal );
+			else if( statVal < 0 )
+				cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DRUG_STAT_LOSE, "$name @msg game " + STR_PARAM_NAME( stat ) + "@$value" + ( -statVal ) );
+		}
+	}
+	
+	//false to continue StageRelease() true to break
+	bool StageReleaseExt(Critter& cr){
+		return false;
+	}
+}
+
+class EffectStageJetAntidote : EffectStage
+{
+	EffectStageJetAntidote(uint dur, uint type){
+		Duration = dur;
+		StageType = type;
+	}
+	
+	bool StageReleaseExt(Critter& cr){
+	
+		uint[] rates;
+		uint count = cr.GetTimeEvents( PID_JET, null, null, rates );
+		for( uint i = 0; i < count; i++ )
+			//FU!!!
+			effects[EFFECT_JET_ANDTIDOTE].DropDrug( cr, PID_JET, this );
+			cr.EraseTimeEvents( PID_JET );
+			if( count > 0 && cr.Addiction[ ADDICTION_JET ] != 0 ){
+				cr.AddictionBase[ ADDICTION_JET ] = 0;
+				cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DRUG_ADDICTION_END );
+			}else
+				cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DRUG_NOTHING_HAPPENS );
+		return true;
+	}
+}
+
+class Effect
+{
+	EffectStage[]		Stages;
+  
+	int			AddictionID;
+	int			AddictionPerc;
+	
+	Effect(int addiction, int addictionPerc){
+		AddictionID = addiction;
+		AddictionPerc = addictionPerc;
+		
+		Stages.resize(0);
+	}
+    
+	Effect(int addiction, int addictionPerc, EffectStage[] stages){
+		AddictionID = addiction;
+		AddictionPerc = addictionPerc;
+		
+		Stages = stages;
+	}
+	
+	void InsertStage(EffectStage stage){
+		Stages.insertLast(stage);
+	}
+	
+	bool Addiction(Critter& cr, uint16 drugPid){
+		//original sdk code implemented for class
+		
+		uint flags = 0;
+		
+		if( cr.Trait[ TRAIT_CHEM_RELIANT ] != 0 )
+			flags |= DRUG_EFFECT_DIV2_WITHDRAWAL | DRUG_EFFECT_MUL2_ADDICTION;
+		
+		if( cr.Trait[ TRAIT_CHEM_RESISTANT ] != 0 )
+			flags |= DRUG_EFFECT_DIV2_ADDICTION | DRUG_EFFECT_DIV2_DURATION;
+		
+		// Other drugs
+		uint[] indexes;
+		uint[] rates;
+		uint count = cr.GetTimeEvents( drugPid, indexes, null, rates );
+		
+		uint stageslen = Stages.length();
+		
+		uint stage = 0;
+		
+		// Check
+		if( AddictionID >= 0 ){ // Addiction perk aviability
+		
+			uint positive = 0;
+			uint negative = 0;
+
+		
+			for( uint i = 0; i < count; i++ ){
+				 stage = RATE_TO_STAGE( rates[ i ] );
+				 
+				if(stage < stageslen){
+			
+					if( Stages[stage].GetStageType() <= STAGE_WITHDRAWAL )
+						positive++;
+					else if( Stages[stage].GetStageType() == STAGE_NORMALIZE )
+						negative++;
+				}
+			}
+
+			if( positive >= 2 - negative / 2 ){
+			
+				int addictProc = AddictionPerc;
+		      
+				if( FLAG( flags, DRUG_EFFECT_MUL2_ADDICTION ) )
+					addictProc *= 2;
+			
+				if( FLAG( flags, DRUG_EFFECT_DIV2_ADDICTION ) )
+					addictProc /= 2;
+	      
+				if( cr.Addiction[ AddictionID ] == 0 && Random( 1, 100 ) <= addictProc )
+					cr.AddictionBase[ AddictionID ] = 1;
+				else
+					cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DRUG_NOTHING_HAPPENS );
+				
+				return true;
+			}
+		}
+		
+		// Clear active addictions
+		uint deleted = 0;   // After erase indexes decrement on one position
+		for( uint i = 0; i < count; i++ ){
+			stage = RATE_TO_STAGE( rates[ i ] );
+			
+			if(stage < stageslen){
+		      
+				if( Stages[stage].GetStageType() >= STAGE_ADDICTION_BEGIN ){
+					DropDrug( cr, drugPid, Stages[i] );
+					cr.EraseTimeEvent( indexes[ i ] - deleted );
+					deleted++;
+				}
+			}
+		}
+		
+		//Log("run time!");
+		// Set critter time event
+		cr.AddTimeEvent( "cte_Drug", 0, drugPid, FORM_RATE( 0, flags ) );
+		    
+		return false;
+	}
+	
+	void DropDrug(Critter& cr, uint16 drugPid, EffectStage stage){
+	  
+		
+		//original sdk code implemented for class
+		if( stage.GetStageType() == STAGE_INSTANT_EFFECT || stage.GetStageType() == STAGE_ADDICTION_BEGIN )
+			return;                           // Instant effect not happens or already normalize or wait Addidional effect
+
+		if( stage.GetStageType() == STAGE_WITHDRAWAL || // Instant effect already
+		stage.GetStageType() == STAGE_NORMALIZE || // Withdrawal already
+		stage.GetStageType() == STAGE_ADDICTION_END ){  // Addiction already
+		
+			for( uint i = 0, j = stage.GetEffectStatLen(); i < j; i++ ){
+				int stat = stage.EfStats[i].GetStat();
+				//wtf?!
+				int amount = stage.EfStats[i].GetAmount() + ( stage.GetStageType() == 1 ? -1 : 0 ); // Turn
+            
+				if( stage.GetStageType() == STAGE_WITHDRAWAL )
+					amount = -amount;
+				if( stat < STAT_EXT_BEGIN )
+					cr.StatBase[ STAT_EXT_BEGIN + stat ] += amount;
+			}
+		}
+	}
+	
+	uint Stage(Critter& cr, uint8 stage, uint16 drugPid, uint flags){
+		//int addict = DrugEffects[ index + TABLE_DRUG_ADDICT ];
+		
+		if(stage >= Stages.length()){cr.Say(SAY_NETMSG, "oops! wrong stage");Log("wrong stage id "+cr.Id); return 0;}
+		
+		//original sdk code implemented for class
+		uint duration = 0;
+		
+		if( Stages[stage].GetStageType() == STAGE_INSTANT_EFFECT ){     // To withdrawal
+			duration = Stages[stage].GetDuration();
+			
+			if( FLAG( flags, DRUG_EFFECT_DIV2_DURATION ) )
+				duration /= 2;
+	      
+			// Try set addiction perk
+			int addictProc = AddictionPerc;
+			if( FLAG( flags, DRUG_EFFECT_MUL2_ADDICTION ) )
+				addictProc *= 2;
+            
+			if( FLAG( flags, DRUG_EFFECT_DIV2_ADDICTION ) )
+				addictProc /= 2;
+	      
+			if(AddictionID >= 0 && Random( 1, 100 ) <= addictProc )
+				cr.AddictionBase[ AddictionID ] = 1;
+			
+		}else if( Stages[stage].GetStageType() == STAGE_WITHDRAWAL ){     // To normalize
+			duration = Stages[stage].GetDuration();
+	      
+			if( FLAG( flags, DRUG_EFFECT_DIV2_DURATION ) )
+				duration /= 2;
+			
+		}else if( Stages[stage].GetStageType() == STAGE_NORMALIZE && AddictionID >= 0 && cr.Addiction[ AddictionID ] != 0 ){ // To addiction
+			// Find already processed addiction
+			uint[] rates;
+			uint count = cr.GetTimeEvents( drugPid, null, null, rates );
+			bool isPresent = false;
+			
+			for( uint i = 0; i < count; i++ ){
+				if( RATE_TO_STAGE( rates[ i ] ) >= 3 ){
+					isPresent = true;
+					break;
+				}
+			}
+            
+			if( not isPresent )
+				duration = Stages[stage].GetDuration();
+			
+		}else if( Stages[stage].GetStageType() == STAGE_ADDICTION_BEGIN ){     // To end of addiction
+			duration = Stages[stage].GetDuration();
+            
+			if( FLAG( flags, DRUG_EFFECT_DIV2_WITHDRAWAL ) )
+				duration /= 2;
+			
+		}else if( Stages[stage].GetStageType() == STAGE_ADDICTION_END ){    // End of addiction
+			cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DRUG_ADDICTION_END );
+	      
+			if( AddictionID >= 0 && cr.Addiction[ AddictionID ] != 0 )
+				cr.AddictionBase[ AddictionID ] = 0;
+		}
+		
+		return duration;
+	}
+}
+
 const int[] DrugsIdentifiers =
 {
     PID_STIMPAK, PID_RADAWAY, PID_ANTIDOTE, PID_RAD_X, PID_SUPER_STIMPAK, PID_JET_ANTIDOTE, PID_HEALING_POWDER, PID_HYPO,
@@ -28,7 +960,7 @@ const int[] DrugsIdentifiers =
     PID_MUTATED_FRUIT, PID_IGUANA_ON_A_STICK, PID_MEAT_ON_A_STICK, PID_COOKIE, PID_HYPO_POISON, PID_MUTATED_TOE, PID_KITTY_SEX_DRUG_AGILITY,
     PID_KITTY_SEX_DRUG_INTELLIGENCE, PID_KITTY_SEX_DRUG_STRENGTH, PID_MONUMENT_CHUNCK
 };
-
+/*
 const int[] DrugEffects =
 {
 // PID_STIMPAK
@@ -97,7 +1029,7 @@ const int[] DrugEffects =
     -1,         0,      0,      0,          0,     0,
     -1,         0,      0,      0,          0,     0,
 // PID_PSYCHO
-    ADDICTION_PSYCHO,        20,    240,    240,       9600, 10080,
+    ADDICTION_PSYCHO,        20,    240,    240,   9600, 10080,
     ST_AGILITY,         3,     -3,      0,          0,     0,
     ST_INTELLECT,        -3,      1,      2,         -2,     2,
     ST_NORMAL_RESIST,        50,    -25,    -25,          0,     0,
@@ -121,10 +1053,10 @@ const int[] DrugEffects =
     -1,         0,      0,      0,          0,     0,
     -1,         0,      0,      0,          0,     0,
 // PID_JET
-    ADDICTION_JET,        50,    /*10*/ 240,   1430,       1450,     2,           // Only after Jet Antidote was used
-    ST_ACTION_POINTS,         2,     -4,      2,         -1,     1,
-    ST_STRENGTH,         1,     -4,      3,         -2,     2,
-    ST_PERCEPTION,         1,     -4,      3,         -2,     2,
+    ADDICTION_JET,        50,    /*10* 240,   1430,       1450,     2,           // Only after Jet Antidote was used
+    ST_ACTION_POINTS,         2,     -3,      1,         -1,     1,
+    ST_STRENGTH,         1,     -2,      1,         -1,     1,
+    ST_PERCEPTION,         1,     -2,      1,         -1,     1,
     -1,         0,      0,      0,          0,     0,
 // PID_JET_ANTIDOTE
     -1,      0,             0,      0,          0,     0,
@@ -205,7 +1137,7 @@ const int[] DrugEffects =
     -1,         0,      0,      0,          0,     0,
     -1,         0,      0,      0,          0,     0,
 };
-
+*/
 // Table offsets
 #define TABLE_DRUG_ADDICT    ( 0 )
 #define TABLE_DRUG_PROC      ( 1 )
@@ -246,6 +1178,56 @@ void UseDrugOn( Critter& cr, Critter& onCr, Item& drug ) // Export
         cr.TimeoutBase[ TO_SK_FIRST_AID ] = FIRST_AID_TIMEOUT( cr );
 }
 
+uint cte_Drug( Critter& cr, int identifier, uint& rate )
+{
+    return ProcessDrug( cr, identifier, rate );
+}
+
+void SetDrug( Critter& cr, uint16 drugPid )
+{
+	ProtoItem @ proto = GetProtoItem(drugPid);
+	if(proto is null) return;
+	
+	uint effId = proto.EffectId;
+	if(effId < effects.length()){
+		effects[effId].Addiction(cr, drugPid);
+	}
+
+}
+
+uint ProcessDrug( Critter& cr, uint16 drugPid, uint& rate )
+{
+  
+	ProtoItem @ proto = GetProtoItem(drugPid);
+	if(proto is null) return 0;
+	
+	uint duration = 0;
+	uint effId = proto.EffectId;
+	
+	if(effId < effects.length()){
+  
+		uint stage = RATE_TO_STAGE( rate );
+		uint flags = RATE_TO_FLAGS( rate );
+
+		if( cr.IsDead() )
+			return REAL_MINUTE( 5 );               // Stop drug processing
+		if( drugPid == PID_JET && effects[effId].Stages[stage].GetStageType() >= STAGE_ADDICTION_END )
+			return REAL_HOUR( 5 );                 // Only after Jet Antidote was used
+
+		if(stage < effects[effId].Stages.length()){
+			effects[effId].Stages[stage].StageRelease(cr);
+			duration = effects[effId].Stage(cr, stage, drugPid, flags);
+
+		stage++;
+		rate = FORM_RATE( stage, flags );
+		}
+	}
+	
+	return duration * 60;
+}
+
+
+//!!!never use it on TNF!!!
 void DropDrugEffects( Critter& cr ) // Export
 {
     // Clear effects of all active drugs
@@ -280,7 +1262,7 @@ void DropDrugEffects( Critter& cr ) // Export
         }
     }
 }
-
+/*
 void SetDrug( Critter& cr, uint16 drugPid )
 {
     // Special drugs
@@ -300,7 +1282,7 @@ void SetDrug( Critter& cr, uint16 drugPid )
                         }
                 }
         }
- */
+ *
     if( drugPid == PID_JET_ANTIDOTE )
     {
         uint[] rates;
@@ -317,7 +1299,8 @@ void SetDrug( Critter& cr, uint16 drugPid )
             cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DRUG_NOTHING_HAPPENS );
         return;
     }
-
+    
+/*  moved to Effect::Addiction
     // Chem flags
     uint flags = 0;
     if( cr.Trait[ TRAIT_CHEM_RELIANT ] != 0 )
@@ -325,12 +1308,14 @@ void SetDrug( Critter& cr, uint16 drugPid )
     if( cr.Trait[ TRAIT_CHEM_RESISTANT ] != 0 )
         flags |= DRUG_EFFECT_DIV2_ADDICTION | DRUG_EFFECT_DIV2_DURATION;
 
+    
     // Other drugs
     uint[] indexes;
     uint[] rates;
     uint count = cr.GetTimeEvents( drugPid, indexes, null, rates );
     int  index = GetDrugTableIndex( drugPid );
 
+    
     // Check
     if( DrugEffects[ index + TABLE_DRUG_ADDICT ] >= 0 ) // Addiction perk aviability
     {
@@ -376,6 +1361,7 @@ void SetDrug( Critter& cr, uint16 drugPid )
 
     // Set critter time event
     cr.AddTimeEvent( "cte_Drug", 0, drugPid, FORM_RATE( 0, flags ) );
+*
 }
 
 int GetDrugTableIndex( uint16 drugPid )
@@ -486,14 +1472,16 @@ uint ProcessDrug( Critter& cr, uint16 drugPid, uint& rate )
 
     int  index = GetDrugTableIndex( drugPid );
     uint duration = 0;
-
+/* deprecated
     if( stage == 0 || // Instant effect
         stage == 1 || // Withdrawal
         stage == 2 || // Normalize
         stage == 3 || // Addiction begin
         stage == 4 )  // Addiction end
-    {
-        for( uint i = 0; i < 4; i++ )
+    {*/
+
+      /* moved to class EffectStage::StageRelease()
+      for( uint i = 0; i < 4; i++ )
         {
             int stat = DrugEffects[ index + TABLE_STAT( i ) ];
             int amount = DrugEffects[ index + TABLE_AMOUNT( i, stage ) ];
@@ -523,8 +1511,9 @@ uint ProcessDrug( Critter& cr, uint16 drugPid, uint& rate )
                 cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DRUG_STAT_GAIN, "$name @msg game " + STR_PARAM_NAME( stat ) + "@$value" + statVal );
             else if( statVal < 0 )
                 cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DRUG_STAT_LOSE, "$name @msg game " + STR_PARAM_NAME( stat ) + "@$value" + ( -statVal ) );
-        }
-
+        }*/
+//moved to Effect::Stage
+/*
         int addict = DrugEffects[ index + TABLE_DRUG_ADDICT ];
         if( stage == 0 )     // To withdrawal
         {
@@ -575,7 +1564,8 @@ uint ProcessDrug( Critter& cr, uint16 drugPid, uint& rate )
             if( addict >= 0 && cr.Addiction[ addict ] != 0 )
                 cr.AddictionBase[ addict ] = 0;
         }
-    }
+        *
+    //}
 
     stage++;
     rate = FORM_RATE( stage, flags );
@@ -584,6 +1574,8 @@ uint ProcessDrug( Critter& cr, uint16 drugPid, uint& rate )
 
 void DropDrug( Critter& cr, uint16 drugPid, uint stage )
 {
+    //moved to Effect::DropDrug
+    /*
     if( stage == 0 || stage == 3 )
         return;                           // Instant effect not happens or already normalize or wait Addidional effect
 
@@ -602,10 +1594,6 @@ void DropDrug( Critter& cr, uint16 drugPid, uint stage )
             if( stat < STAT_EXT_BEGIN )
                 cr.StatBase[ STAT_EXT_BEGIN + stat ] += amount;
         }
-    }
+    }*
 }
-
-uint cte_Drug( Critter& cr, int identifier, uint& rate )
-{
-    return ProcessDrug( cr, identifier, rate );
-}
+*/

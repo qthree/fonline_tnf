@@ -1,8 +1,11 @@
 #include "_macros.fos"
 #include "_global_events.fos"
 
+#include "scenery_tree.fos"
+
 import bool CheckGard( Map& map, uint16 hexX, uint16 hexY ) from "farm";
 import void ExplodeEx( Map& map, uint16 hexX, uint16 hexY, uint16 effectPid, uint effectRadius, uint damage, uint damageType, uint damageRadius, uint ownerId ) from "explode";
+//import bool UseAxeOnTree(Critter@ cr, Item@ tree, uint16 pid) from "scenery_tree";
 
 #define PLANT_RADCVET     ( 0 )
 #define PLANT_CABBAGE     ( 1 )
@@ -17,6 +20,8 @@ import void ExplodeEx( Map& map, uint16 hexX, uint16 hexY, uint16 effectPid, uin
 #define PID_CABBAGE       ( 1610 )
 #define PID_CORN          ( 1620 )
 #define PID_MARIJUANA     ( 1630 )
+
+#define GARDEN_DATA		("garden")
 
 /*
         Val0 - time event
@@ -90,12 +95,14 @@ class CPlantCycle
 
     bool CheckWater(Item& item)
     {
+	//Log("water : "+item.Id+" "+item.Val4+":"+Water);
+      
         int8 div = (Water - item.Val4);
 
 	if(div < 1) return true;
 
         div = CLAMP( div, 1, 10 );
-        if( item.Val1 >= 0 )
+        if( item.Val1 > 0 )
         {
             if( Random( 1, 95 ) / ( div ) < 30 )
             {
@@ -128,6 +135,29 @@ class CPlantCycleExplode : CPlantCycle
         return true;
     }
 }
+/*
+class CPlantCycleCollectWithPlant : CPlantCycle
+{
+
+    CPlantCycleCollectWithPlant(uint time, uint8 water, uint8 shit, uint8 collectCount, uint16 collectPid, bool collectable, uint16 proto){//string pic){
+        Time = __FullSecond + time;
+        Water = water;
+        Shit = shit;
+
+        IsCollectable = collectable;
+        CollectCount = collectCount;
+        CollectPid = collectPid;
+        Proto = proto;
+        //Pic = pic;
+
+        //Log("ADD CYCLE EXPLODE "+Proto+" time " + Time + " water "+Water);
+    }
+
+    bool Release(Item& item){
+        ExplodeEx(GetMap(item.MapId), item.HexX, item.HexY, PID_EXPLODE_ROCKET, 1, 10, DAMAGE_EXPLODE, 1, 0);
+        return true;
+    }
+}*/
 
 class CPlantCycleDropSeeds : CPlantCycle
 {
@@ -180,11 +210,12 @@ class CPlantCycleDropSeeds : CPlantCycle
 
 class CPlant
 {
-    uint8 PlantType;
-    uint8 SeedCycle;
-    uint16 BasePid;
-    uint   ItemId;
-    uint    Time;
+    uint8	PlantType;
+    uint8	SeedCycle;
+    uint8	Fruits;
+    uint16	BasePid;
+    uint	ItemId;
+    uint	Time;
 
     CPlantCycle@[] Cycles;
 
@@ -193,6 +224,7 @@ class CPlant
         PlantType = 0;
         BasePid = 0;
         SeedCycle = 0;
+	//Fruits = 0;
     }
 
     /*CPlant( uint8 maxCycle )
@@ -203,6 +235,8 @@ class CPlant
     CPlant(uint itemId, uint time){
         ItemId = itemId;
         Time = time;
+        
+        //Fruits = 0;
 
         SeedCycle = GetItem(ItemId).Val1;
         InitCycles();
@@ -217,7 +251,9 @@ class CPlant
     }
 
     bool CycleCollectable(){
-        return (SeedCycle < Cycles.length() ? Cycles[SeedCycle].IsCollectable : false);
+	//Log("seed "+SeedCycle+" "+Cycles.length()+" "+(SeedCycle < Cycles.length())+" "+(SeedCycle < Cycles.length() ? Cycles[SeedCycle].IsCollectable : false));
+	///temporary -1 bcs, dnt want fix it normaly
+        return (SeedCycle-1 < Cycles.length() ? Cycles[SeedCycle-1].IsCollectable : false);
     }
 
     int Release()
@@ -226,39 +262,47 @@ class CPlant
         if(item is null){/*Log("PLANT BROKEN ITEM ID "+ItemId)*/;return -1;}
 
         uint8 lenCyc = Cycles.length();
+	
+	//Log(" "+ItemId+" cyc "+lenCyc+"\\"+SeedCycle);
 
         if(/*lenCyc != 0 && */SeedCycle < lenCyc){
 
-            if(Cycles[SeedCycle].Time >= __FullSecond) {/*Log("not yet "+Cycles[SeedCycle].Time+" full s "+__FullSecond)*/;return 0;}
+		if(Cycles[SeedCycle].Time > __FullSecond) {
+			/*Log("not yet "+Cycles[SeedCycle].Time+" full s "+__FullSecond)*/;
+			return 0;
+		}
 
-            if(Cycles[SeedCycle].CheckWater(item)){
+		if(Cycles[SeedCycle].CheckWater(item)){
 
-                if(Cycles[SeedCycle].GetShit() - item.Val5 <= 0 ){//CheckShit(item)){
-                    item.Val2 += Random(0,1);
-                }
+			if(Cycles[SeedCycle].GetShit() - item.Val5 <= 0 ){//CheckShit(item)){
+				item.Val2 += Random(0,1);
+			}
 
-                Cycles[SeedCycle].Release(item);
+			Cycles[SeedCycle].Release(item);
 
-                //item.SetMapPic(GetStrHash(PT_ART_SCENERY+Cycles[SeedCycle].Pic));
-                if(SeedCycle != 0)
-                    if(Cycles[SeedCycle].Proto != Cycles[SeedCycle-1].Proto){
-                        item.ChangeProto(Cycles[SeedCycle].Proto);
-                    }
+			//item.SetMapPic(GetStrHash(PT_ART_SCENERY+Cycles[SeedCycle].Pic));
+			if(SeedCycle != 0){
+				if(Cycles[SeedCycle].Proto != Cycles[SeedCycle-1].Proto){
+					item.ChangeProto(Cycles[SeedCycle].Proto);
+				}
+			}
+			
+			//Fruits += Cycles[SeedCycle]
+			
+			SeedCycle++;
 
-                SeedCycle++;
+			item.Val1 = SeedCycle;
+		}else{
+			SeedCycle = lenCyc -1;
+			item.ChangeProto(BasePid+9);
+		}
 
-                item.Val1 = SeedCycle;
-            }else{
-                SeedCycle = lenCyc -1;
-                item.ChangeProto(BasePid+9);
-            }
+	}else{
+		//Kill(item);
+		DeleteItem(item);
+	}
 
-        }else{
-            //Kill(item);
-            DeleteItem(item);
-        }
-
-        return 1;
+	return 1;
     }
 
 
@@ -338,7 +382,7 @@ void start()
 }
 
 
-class ObjectsManager : iManagerModule, iManager_loop, iManager_time//, iManager_world_save//, iManager_critter_init
+class ObjectsManager : iManagerModule, iManager_loop, iManager_time, iManager_world_save//, iManager_critter_init
 {
 	ObjectsManager(){
 		AddStartCallback( "plant", "start" );
@@ -346,13 +390,15 @@ class ObjectsManager : iManagerModule, iManager_loop, iManager_time//, iManager_
 
 	bool manager_init(){
 		// вызывается в порядке приоритетов
+		GardenInit();
 		return true;
 	}
-/*
+
 	bool global_world_save(){
-		used_map_obj.Save();
+	
+		GardenSave();
 		return true;
-	}*/
+	}
 
 	uint global_loop(){
 
@@ -362,10 +408,12 @@ class ObjectsManager : iManagerModule, iManager_loop, iManager_time//, iManager_
         return uint(-1);
 	 }
 
-    bool global_time(int8 type){
+	bool global_time(int8 type){
         if(type == TIME_NEW_HOUR){
+	  //if(type == TIME_NEW_MINUTE){
             //Log("new hour");
-            GardenHour();
+	      GardenHour();
+	      
         }
         return true;
     }
@@ -374,7 +422,7 @@ class ObjectsManager : iManagerModule, iManager_loop, iManager_time//, iManager_
 
 void _InitPlant( Item& item, bool firstTime )
 {
-    // Log("type "+item.Val3);
+     //Log("type "+item.Val3);
 
 
     if( firstTime )
@@ -512,7 +560,7 @@ void _DropPlant( Item& item, Critter& cr )
     uint time = 0;
     if( CheckGard( map, cr.HexX, cr.HexY ))
     {
-        time = GAME_MINUTE( 4 );
+        time = GAME_MINUTE( 20 ) / (cr.Skill[SK_FARMING] > 0 ? cr.Skill[SK_FARMING] : 1);
         if( cr.IsLife() )
             cr.Say( SAY_NETMSG, "Плод посажен." );
     }
@@ -536,17 +584,37 @@ bool _SkillPlant( Item& item, Critter& cr, int skill )
 	CPlant @ plant = GetCPlant( item.Id );
 	if( plant is null ) return false;
 
-    if( skill == -1 ){
+    if( skill == SKILL_PICK_ON_GROUND ){
 
 	//if (item.Val1 == plant.SeedCycle){SeedCycle(item, cr); cr.Say( SAY_NETMSG, "Вы собрали семена." ); return true;}
-        if (plant.CycleCollectable()){
+        if(plant.CycleCollectable()){
+	  
+	    if(item.Val6 <= 0) {cr.Say(SAY_NETMSG, "Нечего собирать"); return true;}
 
-            cr.StatBase[ST_LAST_CONT_ID] = item.Id;
+            //cr.StatBase[ST_LAST_CONT_ID] = item.Id;
 
-            ProtoItem @ proto = GetProtoItem(plant.Cycles[plant.SeedCycle].CollectPid);
-            uint picInv = (proto is null ? 0 : proto.PicInv);
+            //ProtoItem @ proto = GetProtoItem(plant.Cycles[plant.SeedCycle].CollectPid);
+            //uint picInv = (proto is null ? 0 : proto.PicInv);
 
-            cr.ShowScreen (SCREEN_TIMER, picInv, "plant@answer_ShowCounter"); return true;
+            //cr.ShowScreen (SCREEN_TIMER, picInv, "plant@answer_ShowCounter"); return true;
+	    
+	    //uint8 exp = ;
+    
+	    uint8 harvestCount = CLAMP((item.Val6 * (cr.Skill[SK_FARMING] * 0.0075)), 1, item.Val6);
+	    
+	    //item.Val6 -= harvestCount;
+	    item.Val6 = 0;
+
+	    Item@ harvest = cr.AddItem( plant.Cycles[plant.SeedCycle].CollectPid, harvestCount);
+	    if(harvest is null) return true;
+	    
+	    cr.Say(SAY_NETMSG, "Вы собрали урожай : "+harvestCount);
+
+	    harvest.Val2 = item.Val2 + (Random(1,100) > 95 ? 1 : 0);
+	    harvest.SetScript("plant@_InitFruit");
+	    cr.StatBase[ST_EXPERIENCE] += harvestCount*5;
+	    
+	    return true;
 
         }
         //{SeedCycle(item, cr); cr.Say( SAY_NETMSG, "Вы собрали семена." ); return true;}
@@ -586,19 +654,20 @@ bool _SkillPlant( Item& item, Critter& cr, int skill )
 	cr.Say( SAY_NETMSG, "Не время собирать урожай." );
 
     }else if(skill == SK_SCIENCE){
-		if(cr.Skill[SK_OUTDOORSMAN] > 100 || cr.Skill[SK_SCIENCE] > 100 ){
+		//if(cr.Skill[SK_OUTDOORSMAN] > 100 || cr.Skill[SK_SCIENCE] > 100 ){
+		  if(cr.Skill[SK_FARMING] > 100){
 
 		    CPlantCycle@ currentCycle = plant.Cycles[plant.SeedCycle];
 
 			string msg = ("Информация о растении :\nСтадия роста : "+item.Val1+"\\"+(plant.Cycles.length()-1)+"\nПолив : "+currentCycle.Water+"\\"+item.Val4+"\nУдобрения : "+currentCycle.Shit+"\\"+item.Val5+"\nПлодов : "+item.Val6+"\nСелекция : "+item.Val2+"\nСбор : "+(currentCycle.IsCollectable ? "да" : "нет"));
 			cr.Say(SAY_NETMSG, msg);
 		}else{
-			cr.Say(SAY_NETMSG, "Недостаточный навык науки или скитальца.");
+			cr.Say(SAY_NETMSG, "Недостаточный навык фермерства.");
 		}
     }
     return true;
 }
-
+/*
 void answer_ShowCounter(Critter& cr, uint answerI, string& answerS ){
 
     Item @ item = GetItem(cr.StatBase[ST_LAST_CONT_ID]);
@@ -614,7 +683,7 @@ void answer_ShowCounter(Critter& cr, uint answerI, string& answerS ){
 
     harvest.Val2 = item.Val2 + Random(0,1);
 }
-
+*/
 void _WalkPlant( Item& item, Critter& cr, bool entered, uint8 dir )
 {
     if( entered && item.Val1 > 1 )
@@ -634,6 +703,8 @@ bool _OnMePlant( Item& item, Critter& cr, Item@ usedItem )
         return true;
     if( item.Val1 == 0 )
         return true;
+    
+    bool erase = false;
 
     uint16 pid = usedItem.GetProtoId();
 
@@ -646,14 +717,53 @@ bool _OnMePlant( Item& item, Critter& cr, Item@ usedItem )
         item.Val4 += 1 * (pid == PID_BOTTLE_FULL ? 3 : 1);
 
 	cr.Say( SAY_NETMSG, "Вы полили растение.");
+	erase = true;
     }
     else if( pid == PID_SHIT_SMALL )
     {
         item.Val5 += 1;
 	cr.Say( SAY_NETMSG, "Вы удобрили растение.");
+	
+	erase = true;
+    }
+    else if( pid == PID_AXE && item.GetProtoId() >= PID_MARIJUANA+3 && item.GetProtoId() <= PID_MARIJUANA+9){
+		//CPlant @ plant = GetCPlant(item.Id);    
+		//if(plant !is null && plant.SeedCycle == plant.Cycles.length()-2){
+			UseAxeOnTree(cr, item, PID_MUTARIJUANA, true);
+		//}
+		
+    }
+    
+    if(erase){
+		  _SubItem(usedItem, 1);
     }
 
     return true;
+}
+
+void _InitFruit(Item& item, bool firstTime){
+	item.SetEvent(ITEM_EVENT_SKILL, "e_FruitSkill");
+}
+
+bool e_FruitSkill( Item& item, Critter& cr, int skill ){
+	if(skill == SK_FARMING){
+		//cut decimal
+		uint16 basePid = ((item.GetProtoId() / 10) * 10);
+		Item @ fruit = cr.AddItem(basePid, item.Val2);
+		
+		if(fruit is null) return true;
+		
+		fruit.Val1 = 0;
+		fruit.Val2 = item.Val2;
+		
+		_SubItem(item, 1);
+		
+		cr.Say(SAY_NETMSG, "Вы извлекли семена : "+item.Val2);
+		
+		return true;
+	}
+	
+	return false;
 }
 
 CPlant@ GetCPlant(uint id)
@@ -707,12 +817,14 @@ class CCabbage  : CPlant
         InitCycles();
     }
 
+    //4+6+6+8+12+12
     void InitCycles(){
-        Cycles.insertLast(CPlantCycle(Time, 0, 0, 0, 0, false,  PID_CABBAGE));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(2), 0, 0, 0, 0, false,  PID_CABBAGE+1));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(4), 1, 1, 0, 0, false,  PID_CABBAGE+2));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(3), 1, 1, 2, PID_CABBAGE, true,  PID_CABBAGE+3));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(8), 0, 0, 1, PID_CABBAGE, false,  PID_CABBAGE+9));
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(4), 0, 0, 0, 0, false,  PID_CABBAGE));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 0, 0, 0, false,  PID_CABBAGE+1));
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 0, 0, 0, false,  PID_CABBAGE+1));
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(8), 0, 0, 0, 0, false,  PID_CABBAGE+2));
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(12), 0, 0, 1, PID_CABBAGE+5, true,  PID_CABBAGE+3));
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(12), 0, 0, 1, PID_CABBAGE, false,  PID_CABBAGE+9));
     }
 }
 
@@ -731,13 +843,18 @@ class CCorn     : CPlant
         InitCycles();
     }
 
+    //6+6+6+6+8+8+8+12+12
     void InitCycles(){
-        Cycles.insertLast(CPlantCycle(Time, 0, 0, 0, 0, false,  PID_CORN));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(4), 0, 0, 0, 0, false,  PID_CORN+1));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(3), 2, 1, 0, 0, false,  PID_CORN+2));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(4), 2, 1, 1, 0, false,  PID_CORN+3));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(2), 2, 1, 2, PID_CORN, true,  PID_CORN+4));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(12), 0, 1, 0, 0, false,  PID_CORN+9));
+	//Cycles.insertLast(CPlantCycle(Time, 0, 0, 0, 0, false,  PID_CORN));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 0, 0, 0, false,  PID_CORN));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 0, 0, 0, false,  PID_CORN+1));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 0, 0, 0, false,  PID_CORN+2));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 1, 1, 0, 0, false,  PID_CORN+2));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(8), 1, 1, 0, 0, false,  PID_CORN+3));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(8), 1, 1, 2, PID_CORN+6, true,  PID_CORN+4));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(8), 2, 1, 4, PID_CORN+6, true,  PID_CORN+4));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(12), 2, 1, 6, PID_CORN+6, true,  PID_CORN+4));
+	Cycles.insertLast(CPlantCycle(REAL_HOUR(12), 0, 1, 0, 0, false,  PID_CORN+9));
     }
 }
 
@@ -763,15 +880,15 @@ class CMarijuana     : CPlant
         //CycleInsert(CPlantCycle(GAME_HOUR(1), 0, 1, 5, 0, false,  PID_MARIJUANA+2));
 
         Cycles.insertLast(CPlantCycle(Time, 0, 1, 0, 0, false,  PID_MARIJUANA));//"marijuana_low.fofrm"));//
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(1), 0, 1, 0, 0, false,  PID_MARIJUANA+1));//"marijuana_low.fofrm"));//
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(1), 0, 1, 0, 0, false,  PID_MARIJUANA+1));//"marijuana_low.fofrm"));
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(1), 0, 1, 5, 0, false,  PID_MARIJUANA+2));//"marijuana_med.fofrm"));//
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(1), 0, 1, 5, PID_MARIJUANA, true,   PID_MARIJUANA+2));//"marijuana_med.fofrm"));//
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(1), 0, 1, 10, PID_MARIJUANA, true,  PID_MARIJUANA+3));//"marijuana_high.fofrm"));//
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(1), 1, 1, 10, PID_MARIJUANA, true,  PID_MARIJUANA+3));//"marijuana_high.fofrm"));//
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(1), 1, 1, 10, PID_MARIJUANA, true,  PID_MARIJUANA+3));//"marijuana_high.fofrm"));//
-        Cycles.insertLast(CPlantCycleDropSeeds(GAME_HOUR(1), 0, 1, 10, PID_MARIJUANA, true,  PID_MARIJUANA+3));//"marijuana_high.fofrm"));//
-        Cycles.insertLast(CPlantCycle(GAME_HOUR(1), 0, 1, 0, 0, false,  PID_MARIJUANA+9));
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 1, 0, 0, false,  PID_MARIJUANA+1));//"marijuana_low.fofrm"));//
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 1, 0, 0, false,  PID_MARIJUANA+1));//"marijuana_low.fofrm"));
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 1, 5, 0, false,  PID_MARIJUANA+2));//"marijuana_med.fofrm"));//
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 1, 5, PID_MARIJUANA, true,   PID_MARIJUANA+2));//"marijuana_med.fofrm"));//
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 1, 10, PID_MARIJUANA, true,  PID_MARIJUANA+3));//"marijuana_high.fofrm"));//
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 1, 1, 10, PID_MARIJUANA, true,  PID_MARIJUANA+3));//"marijuana_high.fofrm"));//
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 1, 1, 10, PID_MARIJUANA, true,  PID_MARIJUANA+3));//"marijuana_high.fofrm"));//
+        Cycles.insertLast(CPlantCycleDropSeeds(REAL_HOUR(1), 0, 1, 10, PID_MARIJUANA, true,  PID_MARIJUANA+3));//"marijuana_high.fofrm"));//
+        Cycles.insertLast(CPlantCycle(REAL_HOUR(6), 0, 1, 0, 0, false,  PID_MARIJUANA+9));
     }
 }
 
@@ -782,6 +899,31 @@ void PlantRemoveId(uint id){
         garden.removeAt(i);
 
     }
+}
+
+void GardenInit(){
+	if(IsAnyData(GARDEN_DATA)){
+		uint[] data;
+		GetAnyData(GARDEN_DATA, data);
+		
+		Item@ temp;
+		
+		for(uint i = 0, j = data.length(); i < j; i++){
+			@temp = GetItem(data[i]);
+			if(temp is null) continue;
+			
+			_InitPlant(temp, false);
+		}
+	}
+}
+
+void GardenSave(){
+	uint[] id;
+	for(uint i = 0, j = garden.length(); i < j; i++){
+		id.insertLast(garden[i].ItemId);
+	}
+	
+	SetAnyData(GARDEN_DATA, id);
 }
 /*
 class CGarden

@@ -32,6 +32,7 @@
 #include "_bags.fos"
 
 #define GuardPID    ( 128 )
+#define MODOC_BORDER_Y_HEX ( 427 )
 
 import bool AddWalkPlane( Critter& npc, uint priority, uint16 hexX, uint16 hexY, uint8 dir, bool run, uint cut ) from "npc_planes";
 import bool AddAttackPlane( Critter& npc, uint priority, Critter& target ) from "npc_planes";
@@ -164,10 +165,13 @@ void _InitGuard( Critter& cr, bool firstTime )
     cr.ModeBase[ MODE_NO_BARTER ] = 1;
     cr.ModeBase[ MODE_NO_DROP ] = 1;
     cr.ModeBase[ MODE_NO_LOOSE_LIMBS ] = 1;
+	cr.ModeBase[ MODE_NO_LOOT ] = 1;
+	cr.ModeBase[ MODE_NO_HOME ] = 0;
     cr.StatBase[ ST_BAG_ID ] = BAG_Empty;
     if( cr.StatBase[ ST_DIALOG_ID ] != 330 )
         cr.StatBase[ ST_DIALOG_ID ] = 352;                                  // охранник Модока
     cr.PerkBase[ PE_SNIPER ] = 1;
+	cr.SkillBase[ SK_SMALL_GUNS ] = 200;
     cr.StatBase[ ST_CRITICAL_CHANCE ] = 100;
     cr.StatBase[ ST_MAX_CRITICAL ] = 100;
     cr.StatBase[ ST_NORMAL_ABSORB ] = 10;
@@ -179,9 +183,12 @@ void _InitGuard( Critter& cr, bool firstTime )
         gun.SetEvent( ITEM_EVENT_SKILL, "e_RiflePickup" );
     // cr.PerkBase[PE_BETTER_CRITICALS]+=1;
     cr.StatBase[ ST_LUCK ] += 5;
-    cr.ShowCritterDist1 = 15;
+    cr.ShowCritterDist1 = 10;
+	cr.ShowCritterDist2 = 15;
     // cr.SetEvent(CRITTER_EVENT_SMTH_STEALING, "_thief");
-    /*if(cr.StatBase[ST_DIALOG_ID]!=330)*/ cr.SetEvent( CRITTER_EVENT_SHOW_CRITTER_1, "_checkEnemy" );   // закомментил условие чтобы пропускающий таки бил аркад //изменил show на show 1 с дистанцией 15
+    /*if(cr.StatBase[ST_DIALOG_ID]!=330)*/ cr.SetEvent( CRITTER_EVENT_SHOW_CRITTER_1, "_checkEnemy" );
+	if( cr.StatBase[ ST_DIALOG_ID ] == 330 )
+		cr.SetEvent( CRITTER_EVENT_SHOW_CRITTER_2, "_stopEnemy" );	// предупреждение нарушителей охранником шлюза
     // cr.SetEvent(CRITTER_EVENT_SMTH_ATTACKED, "_agression");
     // cr.SetEvent(CRITTER_EVENT_SMTH_DEAD , "_alarm");
     // cr.SetEvent(CRITTER_EVENT_SHOW_CRITTER_1,"_armedAndDangerous");
@@ -448,50 +455,118 @@ void _checkEnemy( Critter& cr, Critter& showCr )
             cr.AddEnemyInStack( showCr.Id );
             AddAttackPlane( cr, AI_PLANE_ATTACK_PRIORITY + 1, showCr );
         }
-        if( cr.StatBase[ ST_DIALOG_ID ] == 330 )
-            AttackAndCatch( showCr );
+     //   if( cr.StatBase[ ST_DIALOG_ID ] == 330 )
+     //       AttackAndCatch( showCr );
     }
     GameVar@ citizen = GetLocalVar( LVAR_modoc_citizenship, showCr.Id );
     GameVar@ war_mode = GetGlobalVar( GVAR_inf_modoc_war_mode );
+	GameVar@ races_mode = GetGlobalVar( GVAR_inf_modoc_races_mode );
+	GameVar@ faction = GetLocalVar( LVAR_faction, showCr.Id );
+	GameVar@ border_mode = GetGlobalVar ( GVAR_inf_modoc_border_mode );
     Item@    item = showCr.GetItem( 0, SLOT_HAND1 );
     bool     isMale = ( showCr.Stat[ ST_GENDER ] == GENDER_MALE );
     uint8    dir = GetDirection( cr.HexX, cr.HexY, showCr.HexX, showCr.HexY );
     Map @ map = cr.GetMap();
-    if( war_mode >= 1 && ( citizen.GetValue() == 0 || citizen.GetValue() == 10 || citizen.GetValue() != 4 && map.GetProtoId() == 1 ) )
+	
+	bool 	wearingRobe = false;
+	uint8  mode = 0;
+	uint 	armorPid = showCr.GetSlotProto( SLOT_ARMOR, mode ).ProtoId;
+	if ( armorPid == PID_PURPLE_ROBE || armorPid == PID_KEEPBRIGE_ROBE || armorPid == PID_BLACK_ROBE ||  armorPid == PID_SANDROBE) //проверка на надетую робу
+		wearingRobe = true;
+		
+	//ловим и выбрасываем из города нарушителей, в зависимости от военного положения или степени расизма в городе. Работает только в черте города, за воротами. 
+	//Android
+    if( ( ( border_mode != 5 && citizen.GetValue() == 0 ) ||
+		( border_mode == 2 && citizen.GetValue() <= 2  ) ||
+		( races_mode == 1 && ( showCr.StatBase[ ST_BODY_TYPE ] == BT_SUPER_MUTANT || showCr.StatBase[ ST_BODY_TYPE ] == BT_GHOUL ) && citizen.GetValue() <=2 ) ||
+		( races_mode == 2 && ( showCr.StatBase[ ST_BODY_TYPE ] == BT_SUPER_MUTANT || showCr.StatBase[ ST_BODY_TYPE ] == BT_GHOUL ) ) ||
+		( races_mode == 3 && ( showCr.StatBase[ ST_BODY_TYPE ] == BT_GHOUL ) ) ) && map.GetProtoId() == 1 && showCr.HexY <= MODOC_BORDER_Y_HEX )
     {
-        if( map.GetProtoId() == 1 || map.GetProtoId() == 4 || map.GetProtoId() == 6 || map.GetProtoId() == 9 || map.GetProtoId() == 13 || ( map.GetProtoId() == 10 && showCr.HexY <= 217 ) )
-        {
-            ( AttackAndCatch( showCr ) );
-            return;
-        }
+		AttackAndCatch( showCr );
+        return;
     }
-    if( valid( item ) && item.GetType() == ITEM_TYPE_WEAPON && Random( 0, 1 ) == 1 && citizen.GetValue() <= 2 && !cr.CheckEnemyInStack( showCr.Id ) && showCr.IsPlayer() && showCr.Timeout[ TO_BATTLE ] == 0 )
+	
+	//внутри города: сообщаем гостям, что размахивать оружием плохо. 
+	//Android
+    if( valid( item ) && item.GetType() == ITEM_TYPE_WEAPON && Random( 0, 1 ) == 1 && citizen.GetValue() <= 2 && !cr.CheckEnemyInStack( showCr.Id ) && showCr.IsPlayer() && showCr.Timeout[ TO_BATTLE ] == 0 && map.GetProtoId() == 1 && showCr.HexY <= MODOC_BORDER_Y_HEX )
     {
-        if( map.GetProtoId() == 1 || map.GetProtoId() == 4 || map.GetProtoId() == 6 || map.GetProtoId() == 9 || map.GetProtoId() == 13 || ( map.GetProtoId() == 10 && showCr.HexY <= 217 ) )
+		if( war_mode >= 1 && citizen.GetValue() <= 2 )
         {
-            if( war_mode >= 3 && citizen.GetValue() <= 2 )
-            {
-                ( AttackAndCatch( showCr ) );
+                AttackAndCatch( showCr ) ;
                 return;
-            }
-            cr.SetDir( dir );
-            cr.SayMsg( SAY_NORM_ON_HEAD, TEXTMSG_TEXT, isMale ? Random( 6100, 6110 ) : Random( 6111, 6116 ) );
         }
+        cr.SetDir( dir );
+        cr.SayMsg( SAY_NORM_ON_HEAD, TEXTMSG_TEXT, isMale ? Random( 6100, 6110 ) : Random( 6111, 6116 ) );
     }
+	
+	//атака на поражение в зависимости от военного положения или степени расизма в городе.
+	//Android
+	if( ( showCr.Param[ QST_INVIS ] == 0 && ( war_mode >= 1 && wearingRobe == false && ( citizen.GetValue() == 10 ) ) ||
+		( races_mode == 3 && showCr.StatBase[ ST_BODY_TYPE ] == BT_SUPER_MUTANT ) || ( races_mode == 4 && ( showCr.StatBase[ ST_BODY_TYPE ] == BT_SUPER_MUTANT || showCr.StatBase[ ST_BODY_TYPE ] == BT_GHOUL ) ) ) )
+	{
+		//cr.Say( SAY_NORM_ON_HEAD, "Изгоям здесь не место!" );
+		//AddAttackPlane( cr, AI_PLANE_ATTACK_PRIORITY + 1, showCr );
+		AttackAndCatch( showCr ) ;
+		return;
+	} 
 }
 
-void _armedAndDangerous( Critter& cr, Critter& showCr )
+void _stopEnemy( Critter& cr, Critter& showCr )
+{
+    if( cr.IsDead() || !( showCr.IsPlayer() ) )
+        return;
+
+    int body = showCr.Stat[ ST_BODY_TYPE ];
+    if( showCr.IsPlayer() && showCr.Param[ QST_GAMEMODE ] == GAME_ARCADE || ( ( body > 5 && body < 10 ) || body > 11 ) )
+    {
+        if( !cr.CheckEnemyInStack( showCr.Id ) )
+        {
+            cr.AddEnemyInStack( showCr.Id );
+            AddAttackPlane( cr, AI_PLANE_ATTACK_PRIORITY + 1, showCr );
+        }
+    }
+    GameVar@ citizen = GetLocalVar( LVAR_modoc_citizenship, showCr.Id );
+    GameVar@ war_mode = GetGlobalVar( GVAR_inf_modoc_war_mode );
+	GameVar@ races_mode = GetGlobalVar( GVAR_inf_modoc_races_mode );
+	GameVar@ faction = GetLocalVar( LVAR_faction, showCr.Id );
+	GameVar@ border_mode = GetGlobalVar ( GVAR_inf_modoc_border_mode );
+    Item@    item = showCr.GetItem( 0, SLOT_HAND1 );
+    bool     isMale = ( showCr.Stat[ ST_GENDER ] == GENDER_MALE );
+    uint8    dir = GetDirection( cr.HexX, cr.HexY, showCr.HexX, showCr.HexY );
+    Map @ map = cr.GetMap();
+	
+	bool 	wearingRobe = false;
+	uint8  mode = 0;
+	uint 	armorPid = showCr.GetSlotProto( SLOT_ARMOR, mode ).ProtoId;
+	if ( armorPid == PID_PURPLE_ROBE || armorPid == PID_KEEPBRIGE_ROBE || armorPid == PID_BLACK_ROBE ||  armorPid == PID_SANDROBE) //проверка на надетую робу
+		wearingRobe = true;
+		
+	//предупреждение в зависимости от военного положения или степени расизма в городе.
+	//Android
+	if( ( showCr.Param[ QST_INVIS ] == 0 && ( war_mode >= 1 && wearingRobe == false && ( citizen.GetValue() == 10 ) ) ||
+		( races_mode == 3 && showCr.StatBase[ ST_BODY_TYPE ] == BT_SUPER_MUTANT ) || ( races_mode == 4 && ( showCr.StatBase[ ST_BODY_TYPE ] == BT_SUPER_MUTANT || showCr.StatBase[ ST_BODY_TYPE ] == BT_GHOUL )  ) ) )
+	{
+		cr.SetDir( dir );
+		cr.Say( SAY_SHOUT_ON_HEAD, "Стой, или я буду стрелять!" );
+		showCr.Wait(1000);
+		return;
+	} 
+}
+
+
+/*
+  void _armedAndDangerous( Critter& cr, Critter& showCr )
 {
     GameVar@ citizen = GetLocalVar( LVAR_modoc_citizenship, showCr.Id );
     GameVar@ war_mode = GetGlobalVar( GVAR_inf_modoc_war_mode );
     Item@    item = showCr.GetItem( 0, SLOT_HAND1 );
-    bool     isMale = ( showCr.Stat[ ST_GENDER ] == GENDER_MALE );
+    bool     isMale = ( show[ ST_GENDER ] == GENDER_MALE );
     uint8    dir = GetDirection( cr.HexX, cr.HexY, showCr.HexX, showCr.HexY );
 
     if( war_mode >= 1 && ( citizen.GetValue() == 0 || citizen.GetValue() == 10 ) && !cr.CheckEnemyInStack( showCr.Id ) )
     {
         Map @ map = cr.GetMap();
-        if( map.GetProtoId() == 1 || map.GetProtoId() == 4 || map.GetProtoId() == 6 || map.GetProtoId() == 9 || map.GetProtoId() == 13 || ( map.GetProtoId() == 10 && showCr.HexY <= 217 ) )
+        if( map.GetProtoId() == 1 || map.GetProtoId() == 4 || map.GetProtoId() == 6 || map.GetProtoId() == 9 || map.GetProtoId() == 13 || ( map.GetProtoId() == 10 && showCr.HexY <= MODOC_BORDER_Y_HEX ) )
         {
             ( AttackAndCatch( showCr ) );
             return;
@@ -500,7 +575,7 @@ void _armedAndDangerous( Critter& cr, Critter& showCr )
     if( valid( item ) && item.GetType() == ITEM_TYPE_WEAPON && Random( 0, 1 ) == 1 && citizen.GetValue() <= 2 && !cr.CheckEnemyInStack( showCr.Id ) && showCr.IsPlayer() && showCr.Timeout[ TO_BATTLE ] == 0 )
     {
         Map @ map = cr.GetMap();
-        if( map.GetProtoId() == 1 || map.GetProtoId() == 4 || map.GetProtoId() == 6 || map.GetProtoId() == 9 || map.GetProtoId() == 13 || ( map.GetProtoId() == 10 && showCr.HexY <= 217 ) )
+        if( map.GetProtoId() == 1 || map.GetProtoId() == 4 || map.GetProtoId() == 6 || map.GetProtoId() == 9 || map.GetProtoId() == 13 || ( map.GetProtoId() == 10 && showCr.HexY <= MODOC_BORDER_Y_HEX ) )
         {
             if( war_mode >= 3 && citizen.GetValue() <= 2 )
             {
@@ -513,7 +588,7 @@ void _armedAndDangerous( Critter& cr, Critter& showCr )
     }
 }
 
-/*
+
    void _thief(Critter& cr, Critter& fromCr, Critter& thief, bool success, Item& item, uint count)
    {
         GameVar@ thiefRep=GetLocalVar(LVAR_modoc_guard_thief, thief.Id);

@@ -26,66 +26,91 @@
 {25}{}{18modoc}
 {26}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
 {28}{}{Модок : город}
-# Area 2, Map 4
-{50}{}{Modoc administrative}
-{55}{}{18modoc}
-{56}{}{gntlwin1:25, gntlwind:25, animal1:20, laughter:15, animal:20, winddoor:20, gustwin1:5, gustwin1:5}
-{58}{}{Модок : река}
-# Area 3, Map 6
-{70}{}{Modoc work}
+# Area 1, Map 1
+{60}{}{Modoc}
+{65}{}{18modoc}
+{66}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{68}{}{Модок : водопад}
+#
+{70}{}{Modoc}
 {75}{}{18modoc}
 {76}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
 {78}{}{Модок : горы}
+# Area 2, Map 4
+{80}{}{Modoc administrative}
+{85}{}{18modoc}
+{86}{}{gntlwin1:25, gntlwind:25, animal1:20, laughter:15, animal:20, winddoor:20, gustwin1:5, gustwin1:5}
+{88}{}{Модок : горы}
+# Area 2, Map 4
+{90}{}{Modoc administrative}
+{95}{}{18modoc}
+{96}{}{gntlwin1:25, gntlwind:25, animal1:20, laughter:15, animal:20, winddoor:20, gustwin1:5, gustwin1:5}
+{98}{}{Модок : горы}
 # Area 4, Map 9
 {100}{}{Modoc bum}
 {105}{}{18modoc}
 {106}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
-{108}{}{Трущебы}
+{108}{}{Модок : река}
 # Area 5, Map 10
 {110}{}{Modoc entrance}
 {115}{}{18modoc}
 {116}{}{electri1:15, electric:15, gntlwin1:20, gntlwind:20}
 {118}{}{Модок : горы}
+# Area 4, Map 9
+{120}{}{Modoc bum}
+{125}{}{18modoc}
+{126}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{128}{}{Модок : река}
+# Area 4, Map 9
+{130}{}{Modoc bum}
+{135}{}{18modoc}
+{136}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{138}{}{Модок : кладбище}
 # Area 6, Map 13
 {140}{}{Modoc work1}
 {145}{}{18modoc}
 {146}{}{dogbark:10, dogbark1:10, gntlwind:20, gntlwin1:20, blank:40}
-{148}{}{Модок : река}
+{148}{}{Модок : мост}
+# Area 4, Map 9
+{150}{}{Modoc bum}
+{155}{}{18modoc}
+{156}{}{gntlwin1:25, gntlwind:25, animal1:20, animal:20, gustwind:5, gustwin1:5}
+{158}{}{Модок : стоянка каравана}
 # Area 7, Map 15
 {160}{}{Modoc cemetery}
 {165}{}{14necro}
 {166}{}{dogbark:10, dogbark1:10, gntlwind:20, gntlwin1:20, blank:40}
-{168}{}{Модок : горы}
+{168}{}{Модок : заправка}
 # Area 8, Map 16
 {170}{}{Modoc app1}
 {175}{}{03wrldmp}
 {176}{}{gntlwin1:30, gntlwind:30, gustwin1:10, gustwind:10, vulture:10, vulture1:10}
-{178}{}{Модок : река}
-# Area 9, Map 17
-{180}{}{Modoc toxic}
-{185}{}{03wrldmp}
-{186}{}{laughter:10, laughte1:10, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
-{188}{}{Модок : кладбище}
+{178}{}{Модок : оазис}
+## Area 9, Map 17
+#{180}{}{Modoc toxic}
+#{185}{}{03wrldmp}
+#{186}{}{laughter:10, laughte1:10, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
+#{188}{}{Модок : кладбище}
 # Area 10, Map 18
-{190}{}{Modoc app3}
-{195}{}{03wrldmp}
-{196}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
-{198}{}{Модок : мост}
+#{190}{}{Modoc app3}
+#{195}{}{03wrldmp}
+#{196}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
+#{198}{}{Модок : мост}
 # Area 11, Map 18
-{200}{}{Modoc app3}
-{205}{}{03wrldmp}
-{206}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
-{208}{}{Модок : стоянка каравана}
+#{200}{}{Modoc app3}
+#{205}{}{03wrldmp}
+#{206}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
+#{208}{}{Модок : стоянка каравана}
 # Area 12, Map 18
-{210}{}{Modoc app3}
-{215}{}{03wrldmp}
-{216}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
-{218}{}{Модок : заправка}
+#{210}{}{Modoc app3}
+#{215}{}{03wrldmp}
+#{216}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
+#{218}{}{Модок : заправка}
 # Area 13, Map 18
-{220}{}{Modoc app3}
-{225}{}{03wrldmp}
-{226}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
-{228}{}{Модок : оазис}
+#{220}{}{Modoc app3}
+#{225}{}{03wrldmp}
+#{226}{}{animal:20, gntlwind:30, gntlwin1:20, brdchir1:10, brdchirp:20}
+#{228}{}{Модок : оазис}
 
 #####SATTER####
 

@@ -73,6 +73,8 @@ $	356 mod_comm_caravanneer
 $	357	mod_comm_whore
 $	358	mod_comm_trapper
 
+$	360	stranger
+
 $	369	mod_trader_maintenance
 $	370	mod_trader_guns
 $	371	mod_trader_general
@@ -96,8 +98,11 @@ $	386	sat_narcodiller
 $	387	sat_Reactorguy
 $	388	sat_weaponguy
 
-$   400   mod_gov_treasurer
-$	401	  black_junk
+$   400 mod_gov_treasurer
+$	401	black_junk
+$	402	generic_mutant
+$	403	generic_ghoul
+$	404 mod_gov_treasurer_dictator
 
 $	4700	start_caravan
 $	4701	start_drover

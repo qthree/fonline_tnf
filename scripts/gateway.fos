@@ -2,10 +2,16 @@
 
 uint[] guards;
 
+#define MODOC_BORDER_Y_HEX ( 427 )
+#define MODOC_DROP_H_HEX ( 410 )
+#define MODOC_DROP_Y_HEX ( 450 )
+
 import bool AddAttackPlane( Critter& npc, uint priority, Critter& target, int minHp ) from "npc_planes";
 import uint EraseAttackPlane( Critter& npc, Critter& target ) from "npc_planes";
 
-void t_EnterHex( Critter& cr, Scenery& trigger, bool entered, uint8 dir, int val )
+
+
+void t_EnterHex( Critter& cr, Scenery& trigger, bool entered, uint8 dir, int val )	
 {
     if( cr.IsNpc() )
         return;
@@ -15,13 +21,17 @@ void t_EnterHex( Critter& cr, Scenery& trigger, bool entered, uint8 dir, int val
     GameVar@ citizenship = GetLocalVar( LVAR_modoc_citizenship, cr.Id );
     GameVar@ border_mode = GetGlobalVar( GVAR_inf_modoc_border_mode );
     GameVar@ faction = GetLocalVar( LVAR_faction, cr.Id );
+	GameVar@ races_mode = GetGlobalVar( GVAR_inf_modoc_races_mode ); 
+	GameVar@ war_mode = GetGlobalVar( GVAR_inf_modoc_war_mode );
 
-    if( entered && border_mode.GetValue() != 5 && ( citizenship.GetValue() <= 1 && cr.Param[ QST_INVIS ] == 0 ||
-                                                    citizenship.GetValue() == 10 ||
-                                                    ( border_mode.GetValue() == 1 && citizenship.GetValue() <= 2 ) ||
-                                                    ( border_mode.GetValue() == 2 && citizenship.GetValue() <= 3 ) ||
-                                                    ( border_mode.GetValue() == 3 && citizenship.GetValue() <= 3 ) ||
-                                                    ( border_mode.GetValue() == 4 && ( faction.GetValue() == 0 || faction.GetValue() >= 3 ) ) ) )
+    if( entered && ( ( 
+						( citizenship.GetValue() <= 1 && cr.Param[ QST_INVIS ] == 0 ) ||
+                        ( citizenship.GetValue() == 10 ) ||
+                        ( ( border_mode.GetValue() <= 3 && border_mode.GetValue() > 0)  && citizenship.GetValue() <= 2 ) ||
+                        ( border_mode.GetValue() == 4 && ( faction.GetValue() == 0 || faction.GetValue() >= 3 ) ) && border_mode.GetValue() != 5 ) || (
+						( races_mode.GetValue() == 1 && ( cr.Stat[ ST_BODY_TYPE ] == BT_SUPER_MUTANT || cr.Stat[ ST_BODY_TYPE ] == BT_GHOUL ) && citizenship.GetValue() <=2 ) ||
+						( races_mode.GetValue() >= 2  && ( cr.Stat[ ST_BODY_TYPE ] == BT_SUPER_MUTANT || cr.Stat[ ST_BODY_TYPE ] == BT_GHOUL ) ||
+						( ( war_mode.GetValue() == 1 || war_mode.GetValue() == 2 ) && citizenship.GetValue() <= 2 )	) ) ) )										
     {
         // Log("нелегал");
         if( val == 5 )
@@ -36,16 +46,21 @@ void t_EnterHex( Critter& cr, Scenery& trigger, bool entered, uint8 dir, int val
                 else if( cr.Dir == 1 || cr.Dir == 2 || cr.Dir == 3 )
                 {
                     citizenship.opAssign( 0 );
-                    cr.Say( SAY_EMOTE_ON_HEAD, "сдает пропуск охране" );
+					Item@ daypass = cr.GetItemById( cr.Param[ ST_VAR3 ] );
+					if( !valid( daypass ) )
+						return;
+					else
+						DeleteItem( daypass );
+					cr.Say( SAY_EMOTE_ON_HEAD, "сдает пропуск охране" );
                     return;
                 }
                 else
-                    AttackAndCatch( cr );
+                    ( AttackAndCatch( cr ) );
             }
             else if( border_mode.GetValue() <= 2 && citizenship.GetValue() == 2 && ( cr.Dir == 1 || cr.Dir == 2 || cr.Dir == 3 ) )
                 return;
             else
-                AttackAndCatch( cr );
+                ( AttackAndCatch( cr ) );
         }
         else if( val == 4 )
         {
@@ -106,10 +121,9 @@ void AttackAndCatch( Critter& cr )
         uint len = GetDistantion( cr.HexX, cr.HexY, guard.HexX, guard.HexY );
         if( len > 25 || !guard.IsSee( cr ) || ( cr.GetMap().Id != guard.GetMap().Id ) )
             continue;
-
+			
         AddAttackPlane( guard, 0, cr, -10 );
-    }
-
+	}
     if( cr.Param[ QST_GAMEMODE ] != GAME_ARCADE && cr.Stat[ ST_BODY_TYPE ] != BT_ZOMBIE )
         cr.SetEvent( CRITTER_EVENT_KNOCKOUT, "_KoAndCatch" );
 
@@ -154,7 +168,7 @@ bool catch( Critter& cr )
     if( map is null )
         return false;
     Location @ loc = map.GetLocation();
-    if( ( loc.GetProtoId() >= 1 && loc.GetProtoId() <= 4 ) || loc.GetProtoId() == 6 )
+/*  if( ( loc.GetProtoId() >= 1 && loc.GetProtoId() <= 4 ) || loc.GetProtoId() == 6 )
     {
         Map @ map2 = GetLocationByPid( 5, 0 ).GetMapByIndex( 0 );
         if( map2 is null )
@@ -166,10 +180,14 @@ bool catch( Critter& cr )
         ch = cr.TransitToMap( map2.Id, 0 );
         return ch;
     }
-
+*/
     bool ch = false;
-    ch = cr.TransitToHex( 120 + Random( -5, 5 ), 240 + Random( -5, 5 ), 2 );
-    cr.Say( SAY_NETMSG, "вас выкинули из города" );
+	
+	if ( cr.HexY <= MODOC_BORDER_Y_HEX )
+		cr.Say( SAY_NETMSG, "|0x00FF0000 Вас выкинули из города." );
+	if ( cr.HexY <= MODOC_DROP_Y_HEX )
+	    ch = cr.TransitToHex( MODOC_DROP_H_HEX + Random( -5, 5 ), MODOC_DROP_Y_HEX + Random( -5, 5 ), 2 );
+	//cr.Say( SAY_NETMSG, "После этой выходки, вас точно не пустят." );
     return ch;
 
 /*	uint16 hexX=0, hexY=0;

@@ -63,6 +63,8 @@ import void Prolonged_heal ( Critter& targetCr, uint16 sk ) from "heal";
 #define CUMO_CHARGE_POWER	(10)
 #define CUMO_CHARGE_DOC		(100)
 
+string[] valDesc = {"Генератор", "Энергия", "Включено", "Заряды", "Заряды.Макс", "PID инструм.", "ремонт%", "наука%", "авт.дверь", "слж.поломки"};
+
 ObjectsManager objectMng;
 
 void start()
@@ -78,7 +80,7 @@ void start()
 }
 
 
-class ObjectsManager : iManagerModule, iManager_loop, iManager_world_save//, iManager_critter_init
+class ObjectsManager : iManagerModule, iManager_loop, iManager_world_save, iManager_time//, iManager_critter_init
 {
 	ObjectsManager(){
 		AddStartCallback( "interactive_obj", "start" );
@@ -91,12 +93,21 @@ class ObjectsManager : iManagerModule, iManager_loop, iManager_world_save//, iMa
 	}
 
 	bool global_world_save(){
-		used_map_obj.Save();
+		
 		return true;
 	}
 
 	 uint global_loop(){
 		return uint( -1 );
+	 }
+	 
+	 bool global_time( int8 type ){
+		if( type == TIME_NEW_HOUR ){
+			used_map_obj.ObjectTimeLoop();
+			used_map_obj.Save();
+		}
+		
+		return true;
 	 }
 }
 
@@ -373,9 +384,13 @@ class CUMOA
 
 	int SetValue(uint index, uint8 val, int rV){
 		if(index < cumos.length()){
-			cumos[index].Val[val] = CLAMP(rV, 0, CUMO_VAL_CHARGE_MAX);
+		  
+			if(val == CUMO_VAL_CHARGE)
+				rV = CLAMP(rV, 0, CUMO_VAL_CHARGE_MAX);
+		  
+			cumos[index].Val[val] = rV;
 
-			if(val == CUMO_VAL_CHARGE && cumos[index].Val[CUMO_VAL_CHARGE] == 0){
+			if(val == CUMO_VAL_CHARGE && cumos[index].Val[CUMO_VAL_CHARGE] <= 0){
 				if(cumos[index].PID == PID_OBJECT_WATTS){
 					ShutDown(index, 0);
 				}/*else{
@@ -531,7 +546,13 @@ class CUMOA
 			if(cumo.PID == PID_OBJECT_AIRLOCK){
 				AirLock airLock(GetItem(cumo.ItemId).MapId, (cumo.Val[CUMO_VAL_SWITCHER] > 0 ? true : false));
 				airLocks.insertLast(airLock);
-			}else if(cumo.Val[CUMO_VAL_SWITCHER] > 0){
+			}
+			
+			if(cumo.PID == PID_OBJECT_WELL){
+					cumo.Val[CUMO_VAL_CHARGE]++;
+			}
+			
+			if(cumo.Val[CUMO_VAL_SWITCHER] > 0){
 
 				if(cumo.PID == PID_OBJECT_WATERPUMP){
 
@@ -542,13 +563,20 @@ class CUMOA
 					GameVar @ timeLoop = GetLocalVar(LIVAR_Object_WattsTimeLoop, cumo.ItemId);
 
 					if(timeLoop is null) continue;
+					
+					int multiplier = (cumo.Val[CUMO_VAL_CHARGE_MAX] > 0 ? cumo.Val[CUMO_VAL_CHARGE_MAX] : 1);
 
-					if(timeLoop.GetValue() >= 24){
+					if(timeLoop.GetValue() >= 24*multiplier){
 						timeLoop.opAssign(0);
 						cumo.Val[CUMO_VAL_CHARGE]--;
 					}
 
 					timeLoop.opAddAssign(1);
+					
+					if(cumo.Val[CUMO_VAL_CHARGE] <= 0){
+						used_map_obj.ShutDown(cumo.Id, 0);
+						cumo.Val[CUMO_VAL_SWITCHER] = 0;
+					}
 
 				}
 			}
@@ -559,6 +587,8 @@ class CUMOA
 		uint[] airAct;
 
 		for(uint i = 0, j = airLocks.length(); i < j; ++i){
+		  
+			//Log("i "+i+" act "+(airLocks[i].IsActive? "yes" : "no"));
 
 			int index = mapId.find(airLocks[i].MapId);
 
@@ -593,6 +623,8 @@ class CUMOA
 				dyspnea.opSub( 20 );
 				map.SetData( DATA_DYSPNEA, 0 );
 			}
+			
+			//Log("i "+airPer+" dsp "+dyspnea.GetValue()+" mp "+map.GetData(DATA_DYSPNEA));
 
 
 		}
@@ -674,22 +706,10 @@ void cumoa_parse(Critter& cr, int scriptSet, int, int){
         for(uint i = 0, j = items.length(); i < j; ++i){
             Item @ temp = GetItem(iA[i]);
             if(temp is null) continue;
+	    
+	    string sScript = GetScriptName(temp.GetProtoId());
 
-            string sScript = "interactive_obj@";
-
-            switch(temp.GetProtoId()){
-                case PID_OBJECT_AIRLOCK     : sScript+="AirLockInit"; break;
-                case PID_OBJECT_WATTS       : sScript+="WattsInit"; break;
-                case PID_OBJECT_WATERPUMP   : sScript+="WaterPumpInit"; break;
-                case PID_OBJECT_DOC         : sScript+="DocInit"; break;
-                case PID_OBJECT_LIGHT       : sScript+="LightInit"; break;
-		case PID_OBJECT_SWITCHER    : sScript+="SwitcherInit"; break;
-		case PID_OBJECT_WELL        : sScript+="WellInit"; break;
-		case PID_OBJECT_SAWMILL     : sScript+="SawmillInit"; break;
-		case PID_OBJECT_FOUNDRY     : sScript+="FoundaryInit"; break;
-		case PID_OBJECT_WINDMILL    : sScript+="WindmillInit"; break;
-                default                     : break;
-            }
+            
             if(temp.GetType() != ITEM_TYPE_DOOR)
                 temp.SetScript(sScript);
         }
@@ -732,6 +752,55 @@ void cumoa_parse(Critter& cr, int scriptSet, int, int){
 
 	cr.Say(SAY_NETMSG, msg);//+iC+" из них :\nген: "+count[0]+"\nвод: "+count[1]+"\nвоз: "+count[2]+"\nмед: "+count[3]+"\nсвт: "+count[4]+"\nдвр: "+count[5]);
 
+}
+
+string GetScriptName(uint16 pid){
+  string sScript = "interactive_obj@";
+
+            switch(pid){
+                case PID_OBJECT_AIRLOCK     : sScript+="AirLockInit"; break;
+                case PID_OBJECT_WATTS       : sScript+="WattsInit"; break;
+                case PID_OBJECT_WATERPUMP   : sScript+="WaterPumpInit"; break;
+                case PID_OBJECT_DOC         : sScript+="DocInit"; break;
+                case PID_OBJECT_LIGHT       : sScript+="LightInit"; break;
+		case PID_OBJECT_SWITCHER    : sScript+="SwitcherInit"; break;
+		case PID_OBJECT_WELL        : sScript+="WellInit"; break;
+		case PID_OBJECT_SAWMILL     : sScript+="SawmillInit"; break;
+		case PID_OBJECT_FOUNDRY     : sScript+="FoundaryInit"; break;
+		case PID_OBJECT_WINDMILL    : sScript+="WindmillInit"; break;
+                default                     : break;
+            }
+            
+            return sScript;
+}
+
+bool cumo_add(int itemId, int setScript){
+  
+	Item @ item = GetItem(uint(itemId));
+  
+	if(item is null){
+		Log("Wrong item id.");
+		return false;
+	}else{
+		if(setScript > 0){
+			item.SetScript(GetScriptName(item.GetProtoId()));
+		}
+	}
+	
+	int[] iA;
+	Item@[]	itms = {item};
+	
+	GetAnyData(CUMO_DATA_NAME, iA);
+	
+	cumoa_add(iA, itms);
+	
+	SetAnyData(CUMO_DATA_NAME, iA);
+	
+	used_map_obj.Load();
+	
+	Log("object add");
+	
+	return true;
 }
 
 void cumoa_add(int[]& iA, Item@[] items){
@@ -2272,3 +2341,91 @@ bool check_science( Item& item, Critter& cr)
 	}
     return true;
 }*/
+
+void intsetval(Critter& cr, int id, int val, int value){
+  
+	if(val < CUMO_VAL_GENERATOR || val > CUMO_VAL_BREAK_COMP) {cr.Say(SAY_NETMSG, "wrong VAL num"); return;}
+  
+	uint index = used_map_obj.GetIndexByItemId(id);
+	if(index == uint(-1)) {cr.Say(SAY_NETMSG, "wrong item id"); return;}
+	
+	used_map_obj.SetValue(index, val, value);
+	
+	cr.Say(SAY_NETMSG, "Уставновил\n"+valDesc[val]+" для "+id+" в "+value);
+}
+
+void intgetval(Critter& cr, int id, int, int){
+	uint index = used_map_obj.GetIndexByItemId(id);
+	if(index == uint(-1)) {cr.Say(SAY_NETMSG, "wrong item id"); return;}
+	
+	int val = 0;
+	
+	for(uint8 i = 0; i < 10; i++){
+		used_map_obj.GetValue(index, i, val);
+		cr.Say(SAY_NETMSG, valDesc[i]+" : "+val);
+	}
+}
+
+void intturnonobjs(Critter& cr, int generatorValue, int objType, int onoff){
+	//uint index = used_map_obj.GetIndexByItemId(id);
+	//if(index == uint(-1)) {cr.Say(SAY_NETMSG, "wrong item id"); return;}
+	
+	uint16[] objTypePids = {PID_OBJECT_WATERPUMP, PID_OBJECT_WATTS, PID_OBJECT_AIRLOCK, PID_OBJECT_DOC, PID_OBJECT_LIGHT,
+			    PID_OBJECT_WINDMILL, PID_OBJECT_SWITCHER, PID_OBJECT_SAWMILL, PID_OBJECT_FOUNDRY, PID_OBJECT_WELL};
+			    
+	uint objCount = 0;
+	
+	for(uint i = 0, j = used_map_obj.cumos.length; i < j; i++){
+		if(used_map_obj.cumos[i].Val[CUMO_VAL_GENERATOR] == generatorValue && used_map_obj.cumos[i].PID == objTypePids[objType]){
+			used_map_obj.ShutDown(i, CLAMP(onoff, 0, 1));
+			if(onoff > 0){
+				used_map_obj.cumos[i].Val[CUMO_VAL_SWITCHER] = 1;
+			}
+			objCount++;
+		}
+	}
+	
+	cr.Say(SAY_NETMSG, ""+(onoff > 0 ? "Включил " : "Выключил ")+objCount+" обьектов");
+}
+
+void interasedouble(Critter& cr, int, int, int){
+	
+
+	uint cumLen = used_map_obj.cumos.length();
+	
+	CUMO[] tempCUMos = used_map_obj.cumos;
+	
+	uint[] delIndex;
+	
+	uint counter = 0;
+	uint delObj = 0;
+	
+	while(counter < tempCUMos.length()){
+		delIndex.resize(0);
+	  
+		for(uint i = 0, j = tempCUMos.length(); i < j; i++){
+			if(tempCUMos[counter].ItemId == tempCUMos[i].ItemId){
+				delIndex.insertLast(i);
+			}
+		
+		}
+		
+		delIndex.removeLast();		
+		delIndex.reverse();
+	
+		delObj += delIndex.length();
+	
+		for(uint i = 0; i < delIndex.length(); i++){
+			tempCUMos.removeAt(delIndex[i]);
+		}
+		
+		counter++;
+	};
+	
+	
+	
+	used_map_obj.cumos = tempCUMos;
+	
+	cr.Say(SAY_NETMSG, "обьектов удаленно : "+delObj+"\nосталось : "+tempCUMos.length()+"\nциклов : "+counter);
+	
+}

@@ -2,8 +2,8 @@
 Version              4
 MaxHexX              400
 MaxHexY              400
-WorkHexX             185
-WorkHexY             195
+WorkHexX             147
+WorkHexY             128
 ScriptModule         -
 ScriptFunc           -
 NoLogOut             0
@@ -16292,11 +16292,6 @@ MapY                 220
 
 MapObjType           2
 ProtoId              2105
-MapX                 159
-MapY                 138
-
-MapObjType           2
-ProtoId              2105
 MapX                 139
 MapY                 131
 
@@ -16319,11 +16314,6 @@ MapObjType           2
 ProtoId              2103
 MapX                 135
 MapY                 157
-
-MapObjType           2
-ProtoId              2103
-MapX                 135
-MapY                 158
 
 MapObjType           2
 ProtoId              2103
@@ -17451,44 +17441,9 @@ MapX                 140
 MapY                 233
 
 MapObjType           2
-ProtoId              2103
-MapX                 163
-MapY                 224
-
-MapObjType           2
-ProtoId              2105
-MapX                 164
-MapY                 224
-
-MapObjType           2
-ProtoId              2103
-MapX                 128
-MapY                 162
-
-MapObjType           2
-ProtoId              2104
-MapX                 128
-MapY                 163
-
-MapObjType           2
 ProtoId              2104
 MapX                 129
 MapY                 161
-
-MapObjType           2
-ProtoId              2103
-MapX                 129
-MapY                 163
-
-MapObjType           2
-ProtoId              2105
-MapX                 130
-MapY                 162
-
-MapObjType           2
-ProtoId              2103
-MapX                 131
-MapY                 162
 
 MapObjType           2
 ProtoId              2125
@@ -17509,11 +17464,6 @@ MapObjType           2
 ProtoId              2105
 MapX                 153
 MapY                 245
-
-MapObjType           2
-ProtoId              2103
-MapX                 157
-MapY                 236
 
 MapObjType           2
 ProtoId              2105
@@ -17689,16 +17639,6 @@ MapObjType           2
 ProtoId              2103
 MapX                 234
 MapY                 197
-
-MapObjType           2
-ProtoId              2105
-MapX                 157
-MapY                 240
-
-MapObjType           2
-ProtoId              2103
-MapX                 158
-MapY                 240
 
 MapObjType           2
 ProtoId              2103
@@ -18980,8 +18920,8 @@ MapY                 223
 
 MapObjType           2
 ProtoId              2064
-MapX                 161
-MapY                 240
+MapX                 155
+MapY                 230
 
 MapObjType           2
 ProtoId              2064
@@ -21327,54 +21267,9 @@ MapX                 138
 MapY                 132
 
 MapObjType           2
-ProtoId              2103
-MapX                 144
-MapY                 132
-
-MapObjType           2
-ProtoId              2103
-MapX                 145
-MapY                 132
-
-MapObjType           2
-ProtoId              2103
-MapX                 157
-MapY                 134
-
-MapObjType           2
-ProtoId              2104
-MapX                 157
-MapY                 135
-
-MapObjType           2
 ProtoId              2104
 MapX                 157
 MapY                 102
-
-MapObjType           2
-ProtoId              2104
-MapX                 158
-MapY                 133
-
-MapObjType           2
-ProtoId              2103
-MapX                 158
-MapY                 135
-
-MapObjType           2
-ProtoId              2105
-MapX                 159
-MapY                 134
-
-MapObjType           2
-ProtoId              2103
-MapX                 160
-MapY                 134
-
-MapObjType           2
-ProtoId              2104
-MapX                 162
-MapY                 135
 
 MapObjType           2
 ProtoId              2105
@@ -21427,54 +21322,9 @@ MapX                 137
 MapY                 131
 
 MapObjType           2
-ProtoId              2103
-MapX                 143
-MapY                 131
-
-MapObjType           2
-ProtoId              2103
-MapX                 144
-MapY                 131
-
-MapObjType           2
-ProtoId              2103
-MapX                 156
-MapY                 133
-
-MapObjType           2
-ProtoId              2104
-MapX                 156
-MapY                 134
-
-MapObjType           2
-ProtoId              2104
-MapX                 156
-MapY                 136
-
-MapObjType           2
 ProtoId              2104
 MapX                 157
 MapY                 132
-
-MapObjType           2
-ProtoId              2103
-MapX                 157
-MapY                 134
-
-MapObjType           2
-ProtoId              2105
-MapX                 158
-MapY                 133
-
-MapObjType           2
-ProtoId              2103
-MapX                 159
-MapY                 133
-
-MapObjType           2
-ProtoId              2104
-MapX                 161
-MapY                 134
 
 MapObjType           2
 ProtoId              2104
@@ -21505,56 +21355,6 @@ MapObjType           2
 ProtoId              2103
 MapX                 199
 MapY                 188
-
-MapObjType           2
-ProtoId              2105
-MapX                 164
-MapY                 215
-
-MapObjType           2
-ProtoId              2104
-MapX                 164
-MapY                 215
-
-MapObjType           2
-ProtoId              2103
-MapX                 165
-MapY                 215
-
-MapObjType           2
-ProtoId              2103
-MapX                 166
-MapY                 211
-
-MapObjType           2
-ProtoId              2104
-MapX                 166
-MapY                 212
-
-MapObjType           2
-ProtoId              2104
-MapX                 166
-MapY                 214
-
-MapObjType           2
-ProtoId              2105
-MapX                 168
-MapY                 211
-
-MapObjType           2
-ProtoId              2103
-MapX                 169
-MapY                 211
-
-MapObjType           2
-ProtoId              2104
-MapX                 170
-MapY                 213
-
-MapObjType           2
-ProtoId              2102
-MapX                 170
-MapY                 216
 
 MapObjType           2
 ProtoId              2103

@@ -18,11 +18,47 @@ bool IsTree( Scenery@ scen )
     ;
 }
 
+//powermagic 2013/09/17
+//split function to use with items. now set hX && hY as argument
+
 // Обрабатывает использование топора на дереве.
 bool UseAxeOnTree( Critter@ cr, Scenery@ tree ) // Если обрабатывать по умолчанию, возвращает FALSE.
 // Функция не проверяет, был ли использован именно топор. Это нужно делать до вызова функции.
 // Возвращает false, в случае, когда нужно обработать ситуацию стандартно. Т.е., по сути, false - это отказ функции от обработки ситуации.
 {
+	if( not valid( tree ) ){
+		Log( "Scenery (tree) is not valid." );
+		return false;
+	}
+  
+	return UseAxeOnTree(cr, tree.HexX, tree.HexY, PID_FIREWOOD);
+}
+//pm added
+bool UseAxeOnTree( Critter@ cr, Scenery@ tree, uint16 pid ){
+	if( not valid( tree ) ){
+		Log( "Scenery (tree) is not valid." );
+		return false;
+	}
+  
+	return UseAxeOnTree(cr, tree.HexX, tree.HexY, pid);
+}
+
+bool UseAxeOnTree(Critter@ cr, Item@ tree, uint16 pid, bool removeTree){
+	if( not valid( tree ) ){
+		Log( "Item (tree) is not valid." );
+		return false;
+	}
+	
+	bool r = UseAxeOnTree(cr, tree.HexX,  tree.HexY, pid);
+	
+	if(r && removeTree){
+		DeleteItem(tree);
+	}
+	
+	return r;
+}
+
+bool UseAxeOnTree(Critter@ cr, uint16 hX, uint16 hY, uint16 pid){
 // ////////////////////////////////////////////////////
 // if ((20+crLuck*2-penalty) < randNum){cr.SetPerk(PE_DAMAGE_RIGHT_ARM, 1); cr.SetPerk(PE_DAMAGE_LEFT_ARM, 1); }
 // cr.SetTimeout(TO_SK_DOCTOR,1);
@@ -32,17 +68,17 @@ bool UseAxeOnTree( Critter@ cr, Scenery@ tree ) // Если обрабатывать по умолчани
         Log( "Critter is not valid."       );
         return false;
     }
-    if( not valid( tree ) )
+    /*if( not valid( tree ) )
     {
         Log( "Scenery (tree) is not valid." );
         return false;
-    }
+    }*/
     bool  damArmL = cr.Damage[ DAMAGE_LEFT_ARM ] != 0;
     bool  damArmR = cr.Damage[ DAMAGE_RIGHT_ARM ] != 0;
     bool  damLegL = cr.Damage[ DAMAGE_LEFT_LEG ] != 0;
     bool  damLegR = cr.Damage[ DAMAGE_RIGHT_LEG ] != 0;
 // Получение всех чисел для расчета.
-    uint8 randNum_tree = ( tree.HexX * tree.HexY ) % 100 + 1;
+    uint8 randNum_tree = ( hX * hY ) % 100 + 1;
     uint8 randNum_crit = cr.Id                      % 100 + 1;
     uint8 randNum_time = ( __FullSecond / 10 )  % 100 + 1;
     uint8 randNum      = ( randNum_tree * randNum_crit * randNum_time ) % 100;
@@ -86,7 +122,7 @@ bool UseAxeOnTree( Critter@ cr, Scenery@ tree ) // Если обрабатывать по умолчани
             else
                 cr.DamageBase[ DAMAGE_LEFT_ARM ] = 1;
             cr.SayMsg( SAY_NETMSG, TEXTMSG_TEXT, 2202 );
-            uint8 dir = GetDirection( tree.HexX, tree.HexY, cr.HexX, cr.HexY );
+            uint8 dir = GetDirection( hX, hY, cr.HexX, cr.HexY );
             InjureCritter( cr, Random( 10, 10 + cr.Stat[ ST_STRENGTH ] * 2 ), DAMAGE_NORMAL, dir, 0 );
 // ____________________________
             return true;
@@ -117,14 +153,14 @@ bool UseAxeOnTree( Critter@ cr, Scenery@ tree ) // Если обрабатывать по умолчани
                 count -= 2;
             count += CLAMP( countEnc, 0, 6 );
         }
-        ProtoItem@ proto = GetProtoItem( PID_FIREWOOD );
+        ProtoItem@ proto = GetProtoItem( pid );
         uint32     itemsWeight = cr.ItemsWeight();
         uint32     carryWeight = cr.Stat[ ST_CARRY_WEIGHT ];
         count = Random( 1, count );
         // Криттер может утащить все дрова.
         if( cr.ItemsWeight() + proto.Weight * count <= carryWeight )
         {
-            if( not valid( cr.AddItem( PID_FIREWOOD, count ) ) )
+            if( not valid( cr.AddItem( pid, count ) ) )
             {
                 Log( "AddItem fail." );
                 return false;
@@ -137,12 +173,12 @@ bool UseAxeOnTree( Critter@ cr, Scenery@ tree ) // Если обрабатывать по умолчани
             uint8 countDrop = count;
             count = ( carryWeight - itemsWeight ) / proto.Weight;
             countDrop -= count;
-            if( not valid( cr.AddItem( PID_FIREWOOD, count ) ) )
+            if( not valid( cr.AddItem( pid, count ) ) )
             {
                 Log( "cr.AddItem fail." );
                 return false;
             }
-            if( not valid( map.AddItem( cr.HexX, cr.HexY, PID_FIREWOOD, countDrop ) ) )
+            if( not valid( map.AddItem( cr.HexX, cr.HexY, pid, countDrop ) ) )
             {
                 Log( "map.AddItem fail." );
                 return false;
@@ -152,7 +188,7 @@ bool UseAxeOnTree( Critter@ cr, Scenery@ tree ) // Если обрабатывать по умолчани
         // Криттер не сможет вообще унести хоть одну единицу дров без перегруза.
         else
         {
-            if( not valid( map.AddItem( cr.HexX, cr.HexY, PID_FIREWOOD, count ) ) )
+            if( not valid( map.AddItem( cr.HexX, cr.HexY, pid, count ) ) )
             {
                 Log( "map.AddItem fail." );
                 return false;

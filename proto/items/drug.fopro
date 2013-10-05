@@ -1,7 +1,7 @@
 # 3.0.8 changelog - added various /items .frms, proto by Android, graphic by VVish
 # 3.0.9 changelog - fixed weight and cost of different stuff, by VVish
 # 3.1.0 changelog - added various /items & /inven .pngs, proto & graphics by VVish
-#
+# 4.0 changelog - added EffectId field
 
 [Proto]
 Pid=40
@@ -14,6 +14,7 @@ Weight=150
 SoundId=48
 Cost=175
 Material=1
+EffectId=0
 
 [Proto]
 Pid=48
@@ -26,6 +27,7 @@ Weight=450
 SoundId=48
 Cost=500
 Material=2
+EffectId=1
 
 [Proto] # Противоядие
 Pid=49
@@ -38,6 +40,7 @@ Weight=453
 SoundId=48
 Cost=100
 Material=1
+EffectId=2
 
 [Proto] # Ментат
 Pid=53
@@ -50,6 +53,7 @@ Weight=150
 SoundId=48
 Cost=280
 Material=1
+EffectId=3
 
 [Proto] # Баффаут
 Pid=87
@@ -62,6 +66,7 @@ Weight=100
 SoundId=48
 Cost=600
 Material=1
+EffectId=6
 
 [Proto] # Рад-Х
 Pid=109
@@ -74,6 +79,7 @@ Weight=10
 SoundId=48
 Cost=440
 Material=1
+EffectId=10
 
 [Proto] # Психо
 Pid=110
@@ -86,6 +92,7 @@ Weight=387
 SoundId=48
 Cost=1500
 Material=1
+EffectId=11
 
 [Proto] # Суперстимпак
 Pid=144
@@ -99,6 +106,7 @@ Volume=1
 SoundId=48
 Cost=350
 Material=1
+EffectId=14
 
 [Proto] # Джет
 Pid=259
@@ -112,6 +120,7 @@ Volume=1
 SoundId=48
 Cost=25
 Material=1
+EffectId=15
 
 [Proto] # Антиджет
 Pid=260
@@ -125,6 +134,7 @@ Volume=1
 SoundId=48
 Cost=750
 Material=1
+EffectId=16
 
 [Proto]
 Pid=273
@@ -137,6 +147,7 @@ Weight=370
 SoundId=48
 Cost=35
 Material=7
+EffectId=17
 
 [Proto]
 Pid=334
@@ -150,6 +161,7 @@ Volume=1
 SoundId=48
 Cost=200
 Material=2
+EffectId=20
 
 [Proto]
 Pid=424
@@ -162,6 +174,7 @@ Weight=2267
 Volume=1
 SoundId=48
 Material=1
+EffectId=22
 
 [Proto]
 Pid=469
@@ -177,6 +190,7 @@ Cost=5
 Material=1
 Food_Thrist=20
 Food_Restore=3
+EffectId=23
 
 [Proto]
 Pid=473
@@ -189,6 +203,7 @@ Weight=453
 Volume=1
 SoundId=48
 Material=1
+EffectId=24
 
 [Proto]
 Pid=480
@@ -200,6 +215,7 @@ DisableEgg=1
 Volume=1
 SoundId=48
 Material=1
+EffectId=25
 
 [Proto]
 Pid=481
@@ -211,6 +227,7 @@ DisableEgg=1
 Volume=1
 SoundId=48
 Material=1
+EffectId=26
 
 [Proto]
 Pid=482
@@ -222,6 +239,7 @@ DisableEgg=1
 Volume=1
 SoundId=48
 Material=1
+EffectId=27
 
 [Proto]
 Pid=525
@@ -234,4 +252,4 @@ Volume=1
 SoundId=48
 Cost=500
 Material=1
-
+EffectId=29

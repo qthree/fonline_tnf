@@ -174,17 +174,26 @@ void changedParam_CritterStatus( CritterCl& cr, uint, int oldValue ) // pm added
 import void InjureCritter( Critter& cr, uint dmg, uint dmgType, uint8 dir, uint attackerId ) from "combat";
 
 
-const int8[] hunger_array = {-5,	-4,	-4,	-3,	-2,	-1,	-1,	-1,	0,	0};
-const int8[] thrist_array = {-4,	-3,	-3,	-2,	-1,	-1,	-1,	0,	0,	0};
+const int8[] hunger_array = {-3,	-2,	-2,	-2,	-2,	-1,	-1,	-1,	0,	0};
+const int8[] thrist_array = {-3,	-2,	-2,	-1,	-1,	-1,	 0,	 0,	0,	0};
 
 void changedParam_Hunger( Critter& cr, uint, int oldValue )
 {
 	cr.StatBase[ ST_HUNGER ] = CLAMP( cr.StatBase[ ST_HUNGER ], 0, 999 );
+	
+	int mod = 0;
 
         for(uint8 i = ST_STRENGTH; i <= ST_LUCK; ++i){
 
-		if(i == ST_CHARISMA || i == ST_LUCK) continue;
-		cr.StatBase[STAT_EXT_BEGIN+i] += hunger_array[cr.StatBase[ST_HUNGER] * 0.01] - hunger_array[oldValue * 0.01];
+		if(i == ST_CHARISMA || i == ST_LUCK || i == ST_INTELLECT) continue;
+		
+		mod = hunger_array[cr.StatBase[ST_HUNGER] * 0.01] - hunger_array[oldValue * 0.01];
+		/*
+		if(i == ST_INTELLECT || i == ST_PERCEPTION){
+			mod *= 0.2;
+		}*/
+		
+		cr.StatBase[STAT_EXT_BEGIN+i] += mod;
 	}
 }
 
@@ -205,10 +214,10 @@ void changedParam_Dyspnea( Critter& cr, uint, int oldValue )
 
     cr.StatBase[ ST_DYSPNEA ] = CLAMP( cr.StatBase[ ST_DYSPNEA ], 0, 100 );
 
-    int16 armorPid = (valid(_CritGetItemArmor(cr)) ? -1 : _CritGetItemArmor(cr).GetProtoId());
-    bool isPowerArmor = ( armorPid == PID_POWERED_ARMOR  || armorPid == PID_HARDENED_POWER_ARMOR || armorPid == PID_ADVANCED_POWER_ARMOR || armorPid == PID_ADVANCED_POWER_ARMOR_MK2); //for apa and pa
+    //int16 armorPid = (valid(_CritGetItemArmor(cr)) ? -1 : _CritGetItemArmor(cr).GetProtoId());
+    //bool isPowerArmor = ( armorPid == PID_POWERED_ARMOR  || armorPid == PID_HARDENED_POWER_ARMOR || armorPid == PID_ADVANCED_POWER_ARMOR || armorPid == PID_ADVANCED_POWER_ARMOR_MK2); //for apa and pa
 
-    if( cr.StatBase[ ST_DYSPNEA ] <= 50 && !cr.IsDead() && cr.Param[ QST_GAMEMODE ] != GAME_START && !isPowerArmor)
+    if( cr.StatBase[ ST_DYSPNEA ] <= 50 && !cr.IsDead() && cr.Param[ QST_GAMEMODE ] != GAME_START)// && !isPowerArmor)
       // && !(/* cr.GetAccess() < ACCESS_MODER || */cr.Param[ QST_GAMEMODE ] == GAME_TEST ) )
     {
 
@@ -294,6 +303,8 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
         _param_[ SK_DOCTOR ] += 15;
         _param_[ SK_SPEECH ] += 15;
         _param_[ SK_BARTER ] += 15;
+        _param_[ SK_FARMING ] += 15; //pm added
+        _param_[ SK_COOKING ] += 15; //pm added
         _param_[ SK_SMALL_GUNS ] -= 10;
         _param_[ SK_BIG_GUNS ] -= 10;
         _param_[ SK_ENERGY_WEAPONS ] -= 10;
@@ -308,6 +319,8 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
     // }
 
     //tnf edit for reg screen
+    
+//#ifdef __CLIENT
     int     st_str = (_param_[ST_STRENGTH]+_param_[ST_STRENGTH_EXT]),
             st_per = (_param_[ST_PERCEPTION]+_param_[ST_PERCEPTION_EXT]),
             st_edu = (_param_[ST_ENDURANCE]+_param_[ST_ENDURANCE_EXT]),
@@ -315,6 +328,17 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
             st_int = (_param_[ST_INTELLECT]+_param_[ST_INTELLECT_EXT]),
             st_agl = (_param_[ST_AGILITY]+_param_[ST_AGILITY_EXT]),
             st_lck = (_param_[ST_LUCK]+_param_[ST_LUCK_EXT]);
+/*#endif //__CLIENT
+	    
+#ifdef __SERVER
+    int     st_str = (_param_[ST_STRENGTH]),
+            st_per = (_param_[ST_PERCEPTION]),
+            st_edu = (_param_[ST_ENDURANCE]),
+            st_cha = (_param_[ST_CHARISMA]),
+            st_int = (_param_[ST_INTELLECT]),
+            st_agl = (_param_[ST_AGILITY]),
+            st_lck = (_param_[ST_LUCK]);
+//#endif //__SERVER*/
 
     _param_[ SK_SMALL_GUNS ] += 5 + 4 * st_agl;                                         //_param_[ ST_AGILITY ];
     _param_[ SK_BIG_GUNS ] += 0 + 2 * st_agl;                                           //_param_[ ST_AGILITY ];
@@ -335,7 +359,7 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
     _param_[ SK_GAMBLING ] += 0 + 5 * st_lck;                                           //_param_[ ST_LUCK ];
     _param_[ SK_OUTDOORSMAN ] += 0 + 2 * st_edu + st_int;                               //( _param_[ ST_ENDURANCE ] + _param_[ ST_INTELLECT ] );
     _param_[ SK_FARMING] += 0 + 2 * st_int;                                             //(_param_[ST_INTELLECT]);
-    _param_[ SK_COOKING] += 0 + 2 * st_agl;                                             //(_param_[ST_AGILITY]);
+    _param_[ SK_COOKING] += 0 + 2 * st_agl + 2 * st_int;                                //(_param_[ST_AGILITY]);
 
     if( _param_[ TAG_SKILL1 ] != 0 )
         _param_[ _param_[ TAG_SKILL1 ] ] += 30;                      // Roleplay
@@ -363,10 +387,81 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
         _param_[ ST_CRITICAL_CHANCE ] += 10;
     if( _param_[ TRAIT_HEAVY_HANDED ] != 0 )
         _param_[ ST_MAX_CRITICAL ] -= 30;
+    
+    if(_param_[TRAIT_STEEL_LOGIC] != 0){
+	_param_[SK_SMALL_GUNS] += 20;
+	_param_[SK_BIG_GUNS] += 20;
+	_param_[SK_ENERGY_WEAPONS] += 20;
+	_param_[SK_SCIENCE] += 20;
+	_param_[SK_TRAPS] += 20;
+	_param_[SK_THROWING] += 20;
+	
+	_param_[SK_SPEECH] -= 20;
+	_param_[SK_BARTER] -= 20;
+	_param_[SK_REPAIR] -= 20;
+	_param_[SK_FIRST_AID] -= 20;
+	_param_[SK_DOCTOR] -= 20;
+	_param_[SK_COOKING] -= 20;
+    }
+    
+    if(_param_[TRAIT_CREATIVE_DUDE] != 0){
+	_param_[SK_SPEECH] += 20;
+	_param_[SK_BARTER] += 20;
+	_param_[SK_REPAIR] += 20;
+	_param_[SK_FIRST_AID] += 20;
+	_param_[SK_DOCTOR] += 20;
+	_param_[SK_COOKING] += 20;
+	
+	_param_[SK_SMALL_GUNS] -= 20;
+	_param_[SK_BIG_GUNS] -= 20;
+	_param_[SK_ENERGY_WEAPONS] -= 20;
+	_param_[SK_SCIENCE] -= 20;
+	_param_[SK_TRAPS] -= 20;
+	_param_[SK_THROWING] -= 20;
+    }
+    
+    if(_param_[TRAIT_SHAMAN] != 0){
+	_param_[SK_FIRST_AID] += 15;
+	_param_[SK_DOCTOR] -= 15;
+    }
+    
+    if(_param_[TRAIT_TRUSTED] != 0){
+	_param_[ST_CHARISMA_EXT] +1;
+	_param_[ST_INTELLECT_EXT] +1;
+	
+	_param_[SK_STEAL] -= 20;
+	_param_[SK_LOCKPICK] -= 20;
+	_param_[SK_SMALL_GUNS] -= 20;
+	_param_[SK_MELEE_WEAPONS] -= 20;
+	_param_[SK_UNARMED] -= 20;
+	
+    }
+    
+    if(_param_[TRAIT_NATURAL_BORN_LEADER] != 0){
+	_param_[ST_CHARISMA_EXT] += 3;
+	
+	for(uint i = SKILL_BEGIN; i <= SKILL_END; ++i){
+	       _param_[i] += (i == SK_SPEECH ? 20 : -20);
+	}
+    }
+    
+    if(_param_[TRAIT_BLUES_MAN] != 0){
+	_param_[ST_LUCK_EXT] -= 1;
+	
+	_param_[SK_OUTDOORSMAN] += 15;
+	_param_[SK_GAMBLING] += 15;
+    }
+    
+    if(_param_[TRAIT_VAULT_CLEANITY] != 0){
+	_param_[ST_POISON_RESISTANCE] -= 10;
+	_param_[ST_RADIATION_RESISTANCE] -= 2;
+	
+	_param_[ST_ARMOR_CLASS] += 10;
+    }
     //if( _param_[ TRAIT_FAST_SHOT ] != 0 )
     //    _param_[ MODE_NO_AIM ] = 1;
 
-    #ifdef __CLIENT
+   #ifdef __CLIENT
     // Runtime calculations, only for client registration
     _param_[ ST_ARMOR_CLASS ] += _param_[ ST_AGILITY ] * 5;
 //	_param_[ST_MAX_LIFE]+=_param_[ST_STRENGTH]+_param_[ST_ENDURANCE]*2; //Roleplay
@@ -393,6 +488,11 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
     _param_[ ST_THRIST ] = 999;
     _param_[ ST_DYSPNEA ] = 100;
     _param_[ ST_SPEED_MOD ] = 100;
+    
+    if(_param_[QST_GAMEMODE] == GAME_ADVENTURE){
+	  _param_[ST_STUDY_EXP_MAX] = 3000;
+	  _param_[ST_STUDY_EXP] = _param_[ST_STUDY_EXP_MAX];
+    }
 
     //races bonuses
     if(_param_[ST_GENDER] == GENDER_SUPERMUTANT){
@@ -417,11 +517,19 @@ void CritterGenerate( int[]& data ) // Export to client_main@player_data_generat
         _param_[ST_CARRY_WEIGHT] += LBS_TO_GRAMM(275);
         _param_[ ST_ACTION_POINTS ] += 3;
     }
-
+/*
      for(uint8 i = ST_STRENGTH; i <= ST_LUCK; ++i){ //wtf?!
 
 		if(i == ST_CHARISMA || i == ST_LUCK) continue;
 		//_param_[STAT_EXT_BEGIN+i] = -9;       //tnf
+     }*/
+     
+     for(uint i = 0; i < 30; ++i){
+		//if(i >= 100) break;
+#ifdef __CLIENT
+		//Message("param i "+i+" " + _param_[i]);
+#endif //__CLIENT
+		//Log("param i "+i+" " + _param_[i]);
      }
 }
 

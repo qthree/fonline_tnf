@@ -2,8 +2,8 @@
 Version              4
 MaxHexX              400
 MaxHexY              400
-WorkHexX             192
-WorkHexY             191
+WorkHexX             195
+WorkHexY             151
 ScriptModule         -
 ScriptFunc           -
 NoLogOut             0
@@ -8703,9 +8703,9 @@ tile       160  214            art\tiles\edg5000.frm
 tile       162  214            art\tiles\edg5003.frm
 tile       164  214            art\tiles\edg5000.frm
 tile       166  214            art\tiles\edg6006.frm
-tile       168  214            art\tiles\SLIME03a.png
-tile       170  214            art\tiles\SLIME26.png
-tile       172  214            art\tiles\SLIME00.png
+tile       168  214            art\tiles\slime03a.png
+tile       170  214            art\tiles\slime26.png
+tile       172  214            art\tiles\slime00.png
 tile       174  214            art\tiles\edg6010.frm
 tile       176  214            art\tiles\edg4008.frm
 tile       178  214            art\tiles\edg4007.frm
@@ -8840,9 +8840,9 @@ tile       160  216            art\tiles\edg5005.frm
 tile       162  216            art\tiles\edg5002.frm
 tile       164  216            art\tiles\edg5001.frm
 tile       166  216            art\tiles\edg7001.frm
-tile       168  216            art\tiles\SLIME20.png
-tile       170  216            art\tiles\SLIME05.png
-tile       172  216            art\tiles\SLIME08.png
+tile       168  216            art\tiles\slime20.png
+tile       170  216            art\tiles\slime05.png
+tile       172  216            art\tiles\slime08.png
 tile       174  216            art\tiles\edg4002.frm
 tile       176  216            art\tiles\edg4001.frm
 tile       178  216            art\tiles\edg4005.frm
@@ -8984,9 +8984,9 @@ tile       160  218            art\tiles\edg3000.frm
 tile       162  218            art\tiles\edg5000.frm
 tile       164  218            art\tiles\edg5003.frm
 tile       166  218            art\tiles\edg6011.frm
-tile       168  218            art\tiles\SLIME15a.png
-tile       170  218            art\tiles\SLIME14b.png
-tile       172  218            art\tiles\SLIME12a.png
+tile       168  218            art\tiles\slime15a.png
+tile       170  218            art\tiles\slime14b.png
+tile       172  218            art\tiles\slime12a.png
 tile       174  218            art\tiles\edg4008.frm
 tile       176  218            art\tiles\edg4000.frm
 tile       178  218            art\tiles\edg4006.frm
@@ -18641,7 +18641,7 @@ MapObjType           2
 ProtoId              2977
 MapX                 146
 MapY                 192
-Scenery_ToMapPid     36
+Scenery_ToMapPid     136
 Scenery_ToEntire     40
 
 MapObjType           2
@@ -26332,15 +26332,10 @@ MapX                 215
 MapY                 228
 
 MapObjType           2
-ProtoId              2904
-MapX                 187
-MapY                 139
-
-MapObjType           2
 ProtoId              2977
 MapX                 193
 MapY                 153
-Scenery_ToMapPid     36
+Scenery_ToMapPid     136
 Scenery_ToEntire     30
 
 MapObjType           2
@@ -29120,11 +29115,6 @@ MapObjType           2
 ProtoId              2893
 MapX                 209
 MapY                 148
-
-MapObjType           2
-ProtoId              3000
-MapX                 209
-MapY                 137
 
 MapObjType           1
 ProtoId              61
@@ -82261,5 +82251,59 @@ MapObjType           2
 ProtoId              2209
 MapX                 190
 MapY                 242
+
+MapObjType           1
+ProtoId              1305
+MapX                 229
+MapY                 139
+Item_Val0            5
+Item_Val3            9999666
+
+MapObjType           1
+ProtoId              1305
+MapX                 232
+MapY                 147
+Item_Val0            5
+Item_Val3            9999666
+
+MapObjType           1
+ProtoId              1305
+MapX                 193
+MapY                 163
+Item_Val0            5
+Item_Val3            9999666
+
+MapObjType           1
+ProtoId              1305
+MapX                 203
+MapY                 165
+Item_Val0            5
+Item_Val3            9999666
+
+MapObjType           1
+ProtoId              1305
+MapX                 157
+MapY                 156
+Item_Val0            5
+Item_Val3            9999666
+
+MapObjType           1
+ProtoId              1300
+MapX                 186
+MapY                 138
+ScriptName           interactive_obj
+FuncName             WaterPumpInit
+Item_Val0            5
+Item_Val4            100
+
+MapObjType           1
+ProtoId              812
+MapX                 209
+MapY                 137
+
+MapObjType           1
+ProtoId              814
+MapX                 218
+MapY                 136
 
 

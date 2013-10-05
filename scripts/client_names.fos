@@ -534,7 +534,7 @@ bool updateNick( CritterCl& cr )
     {
         if( cr.IsPlayer() && cr.Param[ QST_MEDIUM ] == 2 )
         {
-            cr.Name = "";
+            cr.Name = "???";
             cr.NameOnHead = "";
         }
         if( cr.IsPlayer() && cr.Param[ QST_MEDIUM ] == 3 )

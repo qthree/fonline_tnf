@@ -365,6 +365,23 @@ Material=1
 #Start_Value_3=2
 
 [Proto]
+ProtoId=1634
+Type=6
+ScriptModule=
+ScriptFunc=
+PicMap=art\items\box2.frm
+PicInv=art\inven\mutarijuana.png
+Flags=134217758
+DisableEgg=1
+Stackable=1
+Weight=5
+SoundId=48
+Cost=1
+Material=1
+#Start_Value_1=3
+#Start_Value_3=2
+
+[Proto]
 ProtoId=1639
 Type=15
 ScriptModule=plant

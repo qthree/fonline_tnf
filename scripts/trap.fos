@@ -485,7 +485,7 @@ bool UseSkillOnTrappedItem( Item& trappedItem, Critter& cr, int skill ) // Expor
         return true;
     }
 
-    if( skill == SK_LOCKPICK )
+    if(skill == SK_LOCKPICK || skill == SKILL_PICK_ON_GROUND)
     {
         if( TrapDoorAction( cr, trappedItem ) )
         {
@@ -496,7 +496,7 @@ bool UseSkillOnTrappedItem( Item& trappedItem, Critter& cr, int skill ) // Expor
             return false;
         }
     }
-
+/*
     if( skill == SKILL_PICK_ON_GROUND )
     {
         DL( "try get trap" );
@@ -508,7 +508,7 @@ bool UseSkillOnTrappedItem( Item& trappedItem, Critter& cr, int skill ) // Expor
         else
         {
             return false;
-        }
+        }*/
         /*
            GameVar @ identy = GetLocalVar(LIVAR_item_trap, trappedItem.Id);
            GameVar @ complexity = GetLocalVar(LIVAR_item_trap_comp, trappedItem.Id);
@@ -527,9 +527,9 @@ bool UseSkillOnTrappedItem( Item& trappedItem, Critter& cr, int skill ) // Expor
            if(cr.Stat[ST_PERCEPTION] + cr.Skill[SK_TRAPS] / 50 > complexity.GetValue() / 20) {cr.Say(SAY_NETMSG, "Вы чтото заподозрили"); return true;}
 
            TrapDamagePlayer(trap, cr, trappedItem);
-         */
+         /
 
-    }
+    }*/
     return false;
 }
 
@@ -544,9 +544,9 @@ bool TrapDoorAction( Critter& cr, Item& trappedItem )
 
     if( IsKeyAviable( cr, trappedItem.LockerId ) )
     {
-        SwitchState( trappedItem );
+        //SwitchState( trappedItem );
         // trappedItem.LockerOpen();
-        return true;
+        return false;
     }
 
     // cr.Say(SAY_NORM, ""+complexity.GetValue());

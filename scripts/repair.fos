@@ -23,6 +23,11 @@ bool TryRepairItem( Critter& cr, Item& item ) // Export
         cr.SayMsg( SAY_NETMSG, TEXTMSG_GAME, STR_DETERIORATION_NO_RESC );
         return true;
     }
+    
+    if ( GetDeteriorationProcent(item) <= 10){
+	cr.Say(SAY_NETMSG, "Эту вещь еще рано чинить.");
+	return true;
+    }
 
     // Repair
     int    repair = cr.Skill[ SK_REPAIR ];
